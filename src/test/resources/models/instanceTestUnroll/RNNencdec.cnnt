@@ -1,5 +1,5 @@
 configuration RNNencdec{
-     num_epoch:100
+     num_epoch:10
      batch_size:4
      context:cpu
      optimizer:adam{

@@ -23,11 +23,10 @@ component RNNencdec{
     encoder.state -> Split(n=2) -> Get(index=1) -> decoder.state;
 
     timed<t> GreedySearch(max_length=91) {
-
+        (
             (
                 (
-                    target[t-1] ->
-                    Embedding(output_dim=10) ->
+                    decoder.state ->
                     Repeat(n=91, axis=1)
                 |
                     fc.output
@@ -35,14 +34,17 @@ component RNNencdec{
                 Concatenate(dim=2) ->
                 FullyConnected(units=10, flatten=false) ->
                 Tanh() ->
-                FullyConnected(units=91, flatten=false) ->
-                FullyConnected(units=1, flatten=false)
+                FullyConnected(units=91) ->
+                Softmax()
             |
-                fc.output ->
-                FullyConnected(units=1, flatten=false) ->
-                SwapAxes(axes=(1,2))
+                fc.output
             ) ->
-            Dot()->
+            Dot()
+        |
+            target[t-1] ->
+            Embedding(output_dim=10)
+        ) ->
+        Concatenate() ->
         decoder ->
         FullyConnected(units=30000) ->
         Softmax() ->

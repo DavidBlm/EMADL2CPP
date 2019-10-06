@@ -6,7 +6,7 @@ component RNNtest{
 
         source -> Softmax() -> target[0];
 
-        timed <t> BeamSearch(max_length=5, depth=2, width=2){
+        timed <t> BeamSearch(max_length=5, width=2){
            (target[0] | target[t-1]) ->
            Concatenate() ->
            FullyConnected(units=30000) ->
