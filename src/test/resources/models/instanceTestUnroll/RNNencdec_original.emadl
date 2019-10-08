@@ -1,8 +1,8 @@
 package instanceTestUnroll;
 
 component RNNencdec{
-   ports in Z(0:29999)^{91} source,
-        out Z(0:29999)^{1} target[91];
+   ports in Z(0:8931)^{91} source,
+        out Z(0:8931)^{1} target[91];
 
    implementation CNN{
 
@@ -46,7 +46,7 @@ component RNNencdec{
         ) ->
         Concatenate() ->
         decoder ->
-        FullyConnected(units=30000) ->
+        FullyConnected(units=8932) ->
         Softmax() ->
         ArgMax() ->
         target[t]
