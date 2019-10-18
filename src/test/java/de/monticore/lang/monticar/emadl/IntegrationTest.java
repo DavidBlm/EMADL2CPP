@@ -135,6 +135,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         deleteInstanceTestCifarHashFile();
     }
 
+    @Ignore
     @Test
     public void testUnroll() {
         if(this.backend.equals("GLUON")) {

@@ -8,3 +8,4 @@ nppBackup
 .vscode
 *.iml
 train.log
+model
