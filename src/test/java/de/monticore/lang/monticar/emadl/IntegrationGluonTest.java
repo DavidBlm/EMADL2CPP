@@ -64,6 +64,19 @@ public class IntegrationGluonTest extends IntegrationTest {
         assertTrue(Log.getFindings().isEmpty());
     }
 
+    @Ignore
+    @Test
+    public void testRNNsearch() {
+        Log.getFindings().clear();
+
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnsearch/Network.training_hash"));
+
+        String[] args = {"-m", "src/test/resources/models", "-r", "rnnsearch.Network", "-b", "GLUON"};
+        EMADLGeneratorCli.main(args);
+
+        assertTrue(Log.getFindings().isEmpty());
+    }
+
     private void deleteHashFile(Path hashFile) {
         try {
             Files.delete(hashFile);

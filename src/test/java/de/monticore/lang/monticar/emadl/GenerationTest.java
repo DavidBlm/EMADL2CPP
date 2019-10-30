@@ -159,6 +159,7 @@ public class GenerationTest extends AbstractSymtabTest {
                         "CNNTrainer_mnist_mnistClassifier_net.py"));
     }
 
+    @Ignore
     @Test
     public void testMnistClassifierForGluon() throws IOException, TemplateException {
         Log.getFindings().clear();

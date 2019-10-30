@@ -40,6 +40,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
     def train(self, batch_size=64,
               num_epoch=10,
               eval_metric='acc',
+              eval_metric_params={},
               loss ='softmax_cross_entropy',
               loss_params={},
               optimizer='adam',
