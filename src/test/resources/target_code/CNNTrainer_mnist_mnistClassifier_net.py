@@ -17,7 +17,7 @@ if __name__ == "__main__":
         num_epoch=11,
         batch_size=64,
         context='gpu',
-        eval_metric='accuracy',
+        eval_metric='accuracy{{}}',
         opt_type='adam',
         epsilon=1.0E-8,
         weight_decay=0.001,

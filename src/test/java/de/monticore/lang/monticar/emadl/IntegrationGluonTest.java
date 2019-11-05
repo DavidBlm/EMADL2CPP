@@ -77,6 +77,18 @@ public class IntegrationGluonTest extends IntegrationTest {
         assertTrue(Log.getFindings().isEmpty());
     }
 
+    @Test
+    public void testShowAttendTell() {
+        Log.getFindings().clear();
+
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/showAttendTell/Show_attend_tell.training_hash"));
+
+        String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
+        EMADLGeneratorCli.main(args);
+
+        assertTrue(Log.getFindings().isEmpty());
+    }
+
     private void deleteHashFile(Path hashFile) {
         try {
             Files.delete(hashFile);

@@ -135,22 +135,6 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         deleteInstanceTestCifarHashFile();
     }
 
-    @Ignore
-    @Test
-    public void testUnroll() {
-        if(this.backend.equals("GLUON")) {
-            Log.getFindings().clear();
-            String[] args = {"-m", "src/test/resources/models", "-r", "instanceTestUnroll.MainRNN", "-b", this.backend};
-            EMADLGeneratorCli.main(args);
-            final Path instanceTestCifarHasFile
-                    = Paths.get("./target/generated-sources-emadl/instanceTestUnroll/RNNencdec.training_hash");
-            try {
-                Files.delete(instanceTestCifarHasFile);
-            } catch (Exception e) {
-                assertFalse("Could not delete hash file", true);
-            }
-        }
-    }
 
     private void deleteInstanceTestCifarHashFile() {
         final Path instanceTestCifarHasFile

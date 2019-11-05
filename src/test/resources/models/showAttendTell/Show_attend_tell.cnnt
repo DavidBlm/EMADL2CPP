@@ -1,0 +1,14 @@
+configuration Show_attend_tell{
+     num_epoch:2
+     batch_size:2
+     context:cpu
+     eval_metric:accuracy
+     loss:softmax_cross_entropy
+     save_attention_image:true
+     optimizer:adam{
+         learning_rate:0.1
+         learning_rate_decay:0.8
+         step_size:1000
+         weight_decay:0.0001
+     }
+}
