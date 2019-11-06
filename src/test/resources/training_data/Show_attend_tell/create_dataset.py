@@ -17,7 +17,7 @@ number_of_images = 1000
 # max length of sentences
 max_length=25
 
-datasets_to_create = ["train.h5", "test.h5"]
+datasets_to_create = ["train_2.h5", "test_2.h5"]
 
 
 # Download COCO dataset
@@ -118,7 +118,7 @@ for i in range(len(img_name_vector)):
 
 # Save dict
 VocabularyInverse = dict((v,k) for k,v in vocabulary.items())
-with open("dict.pkl", "wb") as f:
+with open("dict_2.pkl", "wb") as f:
 	pickle.dump(VocabularyInverse, f, 2)
 
 
