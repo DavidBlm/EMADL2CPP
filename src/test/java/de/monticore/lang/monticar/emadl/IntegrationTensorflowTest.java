@@ -33,6 +33,7 @@ import java.nio.file.Paths;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+@Ignore
 public class IntegrationTensorflowTest extends IntegrationTest {
 
     private Path multipleStreamsHashFile = Paths.get("./target/generated-sources-emadl/MultipleStreams.training_hash");

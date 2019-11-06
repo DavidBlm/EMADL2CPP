@@ -40,6 +40,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
     def train(self, batch_size=64,
               num_epoch=10,
               eval_metric='acc',
+              eval_metric_params={},
               loss ='softmax_cross_entropy',
               loss_params={},
               optimizer='adam',
@@ -64,9 +65,9 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                 min_learning_rate = optimizer_params['learning_rate_minimum']
                 del optimizer_params['learning_rate_minimum']
             optimizer_params['lr_scheduler'] = mx.lr_scheduler.FactorScheduler(
-                                                   optimizer_params['step_size'],
-                                                   factor=optimizer_params['learning_rate_decay'],
-                                                   stop_factor_lr=min_learning_rate)
+                optimizer_params['step_size'],
+                factor=optimizer_params['learning_rate_decay'],
+                stop_factor_lr=min_learning_rate)
             del optimizer_params['step_size']
             del optimizer_params['learning_rate_decay']
 
@@ -136,9 +137,10 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                 predictions_label = batch.label[0].as_in_context(mx_context)
 
                 with autograd.record():
-                    predictions_ = mx.nd.zeros((10,), ctx=mx_context)
+                    predictions_ = mx.nd.zeros((batch_size, 10,), ctx=mx_context)
 
                     predictions_ = self._networks[0](image_)
+
 
                     loss = \
                         loss_function(predictions_, predictions_label)
@@ -172,14 +174,22 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                     batch.label[0].as_in_context(mx_context)
                 ]
 
+<<<<<<< HEAD
                 if True: 
                     predictions_ = mx.nd.zeros((10,), ctx=mx_context)
+=======
+                if True:
+                    predictions_ = mx.nd.zeros((batch_size, 10,), ctx=mx_context)
+>>>>>>> rnn
 
                     predictions_ = self._networks[0](image_)
 
+
                 predictions = [
-                    mx.nd.argmax(predictions_, axis=1)
-                ]
+                    mx.nd.argmax(predictions_, axis=1)]
+
+                BeamSearchPredictions = [mx.nd.topk(predictions_, axis=1, k=4)]
+
 
                 metric.update(preds=predictions, labels=labels)
             train_metric_score = metric.get()[1]
@@ -193,10 +203,16 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                     batch.label[0].as_in_context(mx_context)
                 ]
 
+<<<<<<< HEAD
                 if True: 
                     predictions_ = mx.nd.zeros((10,), ctx=mx_context)
+=======
+                if True:
+                    predictions_ = mx.nd.zeros((batch_size, 10,), ctx=mx_context)
+>>>>>>> rnn
 
                     predictions_ = self._networks[0](image_)
+
 
                 predictions = [
                     mx.nd.argmax(predictions_, axis=1)

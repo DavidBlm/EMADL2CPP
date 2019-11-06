@@ -108,6 +108,46 @@ public:
         return cubeMatrix;
     }
 
+    static ivec translateToIntCol(const vector<float> &source, const vector<size_t> &shape){
+        assert(shape.size() == 1);
+        ivec column(shape[0]);
+        for(size_t i = 0; i < source.size(); i++){
+            column(i) = (size_t) source[i];
+        }
+        return column;
+    }
+
+    static imat translateToIntMat(const vector<float> &source, const vector<size_t> &shape){
+        assert(shape.size() == 2);
+        imat matrix(shape[1], shape[0]); //create transposed version of the matrix
+        int startPos = 0;
+        int endPos = matrix.n_rows;
+        const vector<size_t> columnShape = {matrix.n_rows};
+        for(size_t i = 0; i < matrix.n_cols; i++){
+            vector<float> colSource(&source[startPos], &source[endPos]);
+            matrix.col(i) = translateToIntCol(colSource, columnShape);
+            startPos = endPos;
+            endPos += matrix.n_rows;
+        }
+        return matrix.t();
+    }
+
+    static icube translateToIntCube(const vector<float> &source, const vector<size_t> &shape){
+        assert(shape.size() == 3);
+        icube cubeMatrix(shape[1], shape[2], shape[0]);
+        const int matrixSize = shape[1] * shape[2];
+        const vector<size_t> matrixShape = {shape[1], shape[2]};
+        int startPos = 0;
+        int endPos = matrixSize;
+        for(size_t i = 0; i < cubeMatrix.n_slices; i++){
+            vector<float> matrixSource(&source[startPos], &source[endPos]);
+            cubeMatrix.slice(i) = translateToIntMat(matrixSource, matrixShape);
+            startPos = endPos;
+            endPos += matrixSize;
+        }
+        return cubeMatrix;
+    }
+
     template<typename T> static vector<size_t> getShape(const Col<T> &source){
         return {source.n_elem};
     }

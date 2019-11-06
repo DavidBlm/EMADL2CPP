@@ -1,0 +1,10 @@
+package showAttendTell;
+
+component Main{
+    ports in Z(0:255)^{3, 224, 224} image,
+         out Z(0:25316)^{1} softmax[19];
+
+    instance Show_attend_tell net1;
+
+
+}

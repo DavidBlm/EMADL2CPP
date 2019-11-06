@@ -16,8 +16,6 @@ import static org.junit.Assert.assertFalse;
 
 public class IntegrationGluonTest extends IntegrationTest {
 
-    private Path multipleStreamsHashFile = Paths.get("./target/generated-sources-emadl/MultipleStreams.training_hash");
-
     public IntegrationGluonTest() {
         super("GLUON", "39253EC049D4A4E5FA0536AD34874B9D#1DBAEE1B1BD83FB7CB5F70AE91B29638#C4C23549E737A759721D6694C75D9771#5AF0CE68E408E8C1F000E49D72AC214A");
     }
@@ -26,9 +24,47 @@ public class IntegrationGluonTest extends IntegrationTest {
     public void testMultipleStreams() {
         Log.getFindings().clear();
 
-        deleteHashFile(multipleStreamsHashFile);
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/MultipleStreams.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "GLUON"};
+        EMADLGeneratorCli.main(args);
+
+        assertTrue(Log.getFindings().isEmpty());
+    }
+
+    @Ignore
+    @Test
+    public void testRNNencdec() {
+        Log.getFindings().clear();
+
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnencdec/Network.training_hash"));
+
+        String[] args = {"-m", "src/test/resources/models", "-r", "rnnencdec.Network", "-b", "GLUON"};
+        EMADLGeneratorCli.main(args);
+
+        assertTrue(Log.getFindings().isEmpty());
+    }
+
+    @Ignore
+    @Test
+    public void testRNNsearch() {
+        Log.getFindings().clear();
+
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnsearch/Network.training_hash"));
+
+        String[] args = {"-m", "src/test/resources/models", "-r", "rnnsearch.Network", "-b", "GLUON"};
+        EMADLGeneratorCli.main(args);
+
+        assertTrue(Log.getFindings().isEmpty());
+    }
+
+    @Test
+    public void testShowAttendTell() {
+        Log.getFindings().clear();
+
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/showAttendTell/Show_attend_tell.training_hash"));
+
+        String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
         assertTrue(Log.getFindings().isEmpty());
