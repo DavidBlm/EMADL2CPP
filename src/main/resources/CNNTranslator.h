@@ -4,7 +4,7 @@
 #include <armadillo>
 #include <cassert>
 #include <vector>
-#include <pair>
+#include <utility>
 #include <algorithm>
 
 using namespace std;

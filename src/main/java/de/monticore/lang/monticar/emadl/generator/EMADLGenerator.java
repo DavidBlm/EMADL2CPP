@@ -477,9 +477,7 @@ public class EMADLGenerator {
 
         int i = 0;
         for (NetworkInstructionSymbol networkInstruction : architecture.getNetworkInstructions()) {
-            if (networkInstruction.getBody().isTrainable()) {
-                networkAttributes += "\n" + predictorClassName + "_" + i + " _predictor_" + i + "_;";
-            }
+            networkAttributes += "\n" + predictorClassName + "_" + i + " _predictor_" + i + "_;";
 
             ++i;
         }
