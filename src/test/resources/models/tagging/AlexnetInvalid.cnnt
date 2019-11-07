@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 configuration AlexnetInvalid{
      num_epoch : 100
      batch_size : 500

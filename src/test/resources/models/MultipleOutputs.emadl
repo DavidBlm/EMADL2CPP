@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 component MultipleOutputs{
     ports in Z(0:255)^{3, 32, 32} data,
          out Q(0:1)^{10} pred[2];

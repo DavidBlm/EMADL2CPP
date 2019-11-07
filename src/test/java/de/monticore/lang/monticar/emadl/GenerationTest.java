@@ -1,23 +1,4 @@
-/**
- *
- *  ******************************************************************************
- *  MontiCAR Modeling Family, www.se-rwth.de
- *  Copyright (c) 2017, Software Engineering Group at RWTH Aachen,
- *  All rights reserved.
- *
- *  This project is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 3.0 of the License, or (at your option) any later version.
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- *  Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * *******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl;
 
 import de.monticore.lang.monticar.emadl.generator.Backend;
@@ -161,6 +142,29 @@ public class GenerationTest extends AbstractSymtabTest {
 
     @Ignore
     @Test
+    public void testMnistClassifierForTensorflow() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "TENSORFLOW", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().isEmpty());
+
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/tensorflow"),
+                Arrays.asList(
+                        "mnist_mnistClassifier.cpp",
+                        "mnist_mnistClassifier.h",
+                        "CNNCreator_mnist_mnistClassifier_net.py",
+                        "CNNPredictor_mnist_mnistClassifier_net.h",
+                        "CNNDataLoader_mnist_mnistClassifier_net.py",
+                        "mnist_mnistClassifier_net.h",
+                        "HelperA.h",
+                        "CNNTranslator.h",
+                        "mnist_mnistClassifier_calculateClass.h",
+                        "CNNTrainer_mnist_mnistClassifier_net.py"));
+    }
+ 
+    @Test
     public void testMnistClassifierForGluon() throws IOException, TemplateException {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "GLUON", "-f", "n", "-c", "n"};
@@ -197,15 +201,6 @@ public class GenerationTest extends AbstractSymtabTest {
 
 
     @Test
-    public void testRNNtestForGluon() throws IOException, TemplateException {
-        Log.getFindings().clear();
-        String[] args = {"-m", "src/test/resources/models/", "-r", "RNNtest", "-b", "GLUON", "-f", "n", "-c", "n"};
-        EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 0);
-    }
-
-
-    /*@Test
     public void testGluonReinforcementModelGymEnvironment() {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/reinforcementModel", "-r", "cartpole.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
@@ -237,7 +232,7 @@ public class GenerationTest extends AbstractSymtabTest {
                         "reinforcement_learning/cnnarch_logger.py"
                 )
         );
-    }*/
+    }
 
     @Test
     public void testHashFunction() {
@@ -250,7 +245,7 @@ public class GenerationTest extends AbstractSymtabTest {
         }
     }
 
-    /*@Test
+    @Test
     public void gluonDdpgTest() {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/reinforcementModel", "-r", "mountaincar.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
@@ -284,7 +279,7 @@ public class GenerationTest extends AbstractSymtabTest {
                         "reinforcement_learning/cnnarch_logger.py"
                 )
         );
-    }*/
+    }
 
     @Test
     public void testAlexNetTagging() {

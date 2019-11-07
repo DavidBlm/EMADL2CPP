@@ -1,15 +1,17 @@
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl.generator;
-
 
 import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.CNNTrainGenerator;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNArch2Gluon;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.cnnarch.mxnetgenerator.CNNArch2MxNet;
-import de.monticore.lang.monticar.cnnarch.caffe2generator.CNNArch2Caffe2;
 import de.monticore.lang.monticar.cnnarch.mxnetgenerator.CNNTrain2MxNet;
+import de.monticore.lang.monticar.cnnarch.caffe2generator.CNNArch2Caffe2;
 import de.monticore.lang.monticar.cnnarch.caffe2generator.CNNTrain2Caffe2;
 import de.monticore.lang.monticar.emadl.generator.reinforcementlearning.RewardFunctionCppGenerator;
+import de.monticore.lang.monticar.cnnarch.tensorflowgenerator.CNNArch2Tensorflow;
+import de.monticore.lang.monticar.cnnarch.tensorflowgenerator.CNNTrain2Tensorflow;
 
 import java.util.Optional;
 
@@ -42,9 +44,18 @@ public enum Backend {
         @Override
         public CNNTrainGenerator getCNNTrainGenerator() {
             return new CNNTrain2Gluon(new RewardFunctionCppGenerator());
+		}
+	},
+    TENSORFLOW{
+        @Override
+        public CNNArchGenerator getCNNArchGenerator() {
+            return new CNNArch2Tensorflow();
+        }
+        @Override
+        public CNNTrainGenerator getCNNTrainGenerator() {
+            return new CNNTrain2Tensorflow();
         }
     };
-
     public abstract CNNArchGenerator getCNNArchGenerator();
     public abstract CNNTrainGenerator getCNNTrainGenerator();
 
@@ -55,9 +66,12 @@ public enum Backend {
 
             case "CAFFE2":
                 return Optional.of(CAFFE2);
-
+                
             case "GLUON":
                 return Optional.of(GLUON);
+                
+            case "TENSORFLOW":
+                return Optional.of(TENSORFLOW);
 
             default:
                 return Optional.empty();
@@ -68,8 +82,13 @@ public enum Backend {
         switch (backend){
             case CAFFE2:
                 return "CAFFE2";
+                
             case GLUON:
                 return "GLUON";
+                
+            case TENSORFLOW:
+                return "TENSORFLOW";
+                
             default:
                 return "MXNET";
         }

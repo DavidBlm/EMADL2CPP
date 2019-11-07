@@ -90,27 +90,43 @@ class Net_0(gluon.HybridBlock):
             else:
                 self.input_normalization_image_ = NoNormalization()
 
+            self.conv1_padding = Padding(padding=(0,0,0,0,2,2,2,2))
             self.conv1_ = gluon.nn.Conv2D(channels=20,
+<<<<<<< HEAD
+                kernel_size=(5,5),
+                strides=(1,1),
+                use_bias=True)
+            # conv1_, output shape: {[20,28,28]}
+=======
                                           kernel_size=(5,5),
                                           strides=(1,1),
                                           use_bias=True)
             # conv1_, output shape: {[20,24,24]}
+>>>>>>> rnn
 
             self.pool1_ = gluon.nn.MaxPool2D(
                 pool_size=(2,2),
                 strides=(2,2))
-            # pool1_, output shape: {[20,12,12]}
+            # pool1_, output shape: {[20,14,14]}
 
+            self.conv2_padding = Padding(padding=(0,0,0,0,2,2,2,2))
             self.conv2_ = gluon.nn.Conv2D(channels=50,
+<<<<<<< HEAD
+                kernel_size=(5,5),
+                strides=(1,1),
+                use_bias=True)
+            # conv2_, output shape: {[50,14,14]}
+=======
                                           kernel_size=(5,5),
                                           strides=(1,1),
                                           use_bias=True)
             # conv2_, output shape: {[50,8,8]}
+>>>>>>> rnn
 
             self.pool2_ = gluon.nn.MaxPool2D(
                 pool_size=(2,2),
                 strides=(2,2))
-            # pool2_, output shape: {[50,4,4]}
+            # pool2_, output shape: {[50,7,7]}
 
             self.fc2_ = gluon.nn.Dense(units=500, use_bias=True, flatten=True)
             # fc2_, output shape: {[500,1,1]}
@@ -124,9 +140,11 @@ class Net_0(gluon.HybridBlock):
 
     def hybrid_forward(self, F, image_):
         image_ = self.input_normalization_image_(image_)
-        conv1_ = self.conv1_(image_)
+        conv1_padding = self.conv1_padding(image_)
+        conv1_ = self.conv1_(conv1_padding)
         pool1_ = self.pool1_(conv1_)
-        conv2_ = self.conv2_(pool1_)
+        conv2_padding = self.conv2_padding(pool1_)
+        conv2_ = self.conv2_(conv2_padding)
         pool2_ = self.pool2_(conv2_)
         fc2_ = self.fc2_(pool2_)
         relu2_ = self.relu2_(fc2_)

@@ -1,23 +1,4 @@
-/**
- *
- *  ******************************************************************************
- *  MontiCAR Modeling Family, www.se-rwth.de
- *  Copyright (c) 2017, Software Engineering Group at RWTH Aachen,
- *  All rights reserved.
- *
- *  This project is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 3.0 of the License, or (at your option) any later version.
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- *  Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * *******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl.generator;
 
 import com.google.common.base.Charsets;
@@ -62,6 +43,8 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+
+import java.io.File;
 
 public class EMADLGenerator {
 
@@ -200,6 +183,15 @@ public class EMADLGenerator {
         }
     }
 
+    public String getChecksumForLargerFile(String filePath) throws IOException {
+        try {
+            return (new File(filePath)).lastModified() + "";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Exception_calculating_hash_large_file";
+        }
+    }
+
     public void generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, Scope symtab, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
         List<FileContent> fileContents = generateStrings(taggingResolver, EMAComponentSymbol, symtab, allInstances, forced);
@@ -239,15 +231,16 @@ public class EMADLGenerator {
             String b = backend.getBackendString(backend);
             String trainingDataHash = "";
             String testDataHash = "";
+			
             if (architecture.get().getDataPath() != null) {
                 if (b.equals("CAFFE2")) {
-                    trainingDataHash = getChecksumForFile(architecture.get().getDataPath() + "/train_lmdb/data.mdb");
-                    testDataHash = getChecksumForFile(architecture.get().getDataPath() + "/test_lmdb/data.mdb");
-                } else {
-                    trainingDataHash = getChecksumForFile(architecture.get().getDataPath() + "/train.h5");
-                    testDataHash = getChecksumForFile(architecture.get().getDataPath() + "/test.h5");
-                }
-            }
+                    trainingDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/train_lmdb/data.mdb");
+                    testDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/test_lmdb/data.mdb");
+            	}else{
+                    trainingDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/train.h5");
+                    testDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/test.h5");
+            	}
+			}
             String trainingHash = emadlHash + "#" + cnntHash + "#" + trainingDataHash + "#" + testDataHash;
 
             boolean alreadyTrained = newHashes.contains(trainingHash) || isAlreadyTrained(trainingHash, componentInstance);

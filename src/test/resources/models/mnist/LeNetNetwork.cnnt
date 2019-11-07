@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 configuration LeNetNetwork{
      num_epoch:11
      batch_size:64

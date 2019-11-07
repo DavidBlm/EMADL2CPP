@@ -1,3 +1,4 @@
+# (c) https://github.com/MontiCore/monticore  
 # Automatically generated file
 #
 # - Try to find Armadillo

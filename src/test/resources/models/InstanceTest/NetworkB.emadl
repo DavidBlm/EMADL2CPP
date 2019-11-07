@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package InstanceTest;
 
 component NetworkB<Z classes = 10> (Z convChannels){

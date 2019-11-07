@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 component InvalidLayerInput{
     ports in Z(0:255)^{3, 224, 224} image[2],
          out Q(0:1)^{10} predictions;

@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package mnist;
 
 component LeNetNetwork<Z(2:oo) classes = 10>{
@@ -6,10 +7,10 @@ component LeNetNetwork<Z(2:oo) classes = 10>{
 
     implementation CNN {
         image ->
-        Convolution(kernel=(5,5), channels=20, padding="valid") ->
-        Pooling(pool_type="max", kernel=(2,2), stride=(2,2), padding="valid") ->
-        Convolution(kernel=(5,5), channels=50, padding="valid") ->
-        Pooling(pool_type="max", kernel=(2,2), stride=(2,2), padding="valid") ->
+        Convolution(kernel=(5,5), channels=20) ->
+        Pooling(pool_type="max", kernel=(2,2), stride=(2,2)) ->
+        Convolution(kernel=(5,5), channels=50) ->
+        Pooling(pool_type="max", kernel=(2,2), stride=(2,2)) ->
         FullyConnected(units=500) ->
         Relu() ->
         FullyConnected(units=classes) ->

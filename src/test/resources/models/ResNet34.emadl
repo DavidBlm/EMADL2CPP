@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 component ResNet34{
     ports in Z(0:255)^{3, 224, 224} image,
          out Q(0:1)^{1000} predictions;

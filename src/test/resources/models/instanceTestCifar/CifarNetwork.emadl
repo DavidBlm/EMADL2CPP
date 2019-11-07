@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package instanceTestCifar;
 
 component CifarNetwork<Z(2:oo) classes = 10>{
@@ -6,8 +7,8 @@ component CifarNetwork<Z(2:oo) classes = 10>{
 
     implementation CNN {
         data ->
-        Convolution(kernel=(5,5), channels=8, padding="valid") ->
-        Convolution(kernel=(5,5), channels=8, padding="valid") ->
+        Convolution(kernel=(5,5), channels=8) ->
+        Convolution(kernel=(5,5), channels=8) ->
         FullyConnected(units=128) ->
         Dropout()->
         FullyConnected(units=classes) ->

@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package torcs.agent;
 conforms to de.monticore.lang.monticar.generator.roscpp.RosToEmamTagSchema;
 

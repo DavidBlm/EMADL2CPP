@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package simpleCifar10;
 import Network;
 import CalculateClass;

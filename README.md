@@ -1,5 +1,7 @@
+<!-- (c) https://github.com/MontiCore/monticore -->
 ![pipeline](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/badges/master/build.svg)
 ![coverage](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/badges/master/coverage.svg)
+
 # EMADL2CPP
 Generates CPP/Python code for EmbeddedMontiArcDL.
 See example project [EMADL-Demo](https://git.rwth-aachen.de/thomas.timmermanns/EMADL-Demo) for more information on how the generated code can be used.
@@ -19,7 +21,25 @@ See example project [EMADL-Demo](https://git.rwth-aachen.de/thomas.timmermanns/E
      
      * Caffe2
         * training - generated is Python code. Follow [ official instructions on Caffe2 site ](https://caffe2.ai/docs/getting-started.html?platform=ubuntu&configuration=prebuilt)
-     * Gluon
+        * See the scripts under Installation for better instructions, as an old caffe vversion is used that needs special considerations.
+        
+	 * Gluon
+	 
+	 * Tensorflow
+	 	* training - generated is Python code.
+		* prediction - generated code is C++.
+
+## Installation
+The two bash scripts found under [installation scripts](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/tree/tensorflow_group/src/main/resources/installation_scripts)
+should build and install all prerequisits for all backends as of 26.09.2019.
+Note that the installation may take some time (hours) and you will need some disk space (> 60GB) for all backends. Also enough RAM or a big
+enough swapspace is advisable (>10GB) for the installation of the cpp part of tensorflow. This scripts were tested with a completly clean Ubuntu 16.04,
+without system updates installed. Using another Ubuntu version or installing other stuff, system updates included might/ have caused problems.
+If you want to install the backends with CUDA GPU support(only MXNet/Gluon and Tensorflow, the used caffe2 version does not work with GPU support anymore), 
+you have to install CUDA 10.0(!!), CUDNN and NCCL (Obtainable from the nvidai webpage. You can follow their instructions.) inbetween the two scripts. 
+Furthermore you will have to change the pip commands for mxnet and tensorflow to the respective commented out parts. 
+Also docker images for the cpu version of each backend are provided at [Docker images](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/tree/tensorflow_group/src/test/resources/docker), 
+though some of these might be outdated.
 
 ### HowTo
 1. Define a EMADL component containing architecture of a neural network and save it in a `.emadl` file. For more information on architecture language please refer to [CNNArchLang project](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/languages/CNNArchLang). An example of NN architecture:

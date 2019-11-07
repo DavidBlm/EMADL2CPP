@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package torcs.agent.dqn;
 
 component TorcsDQN<Z(1:oo) discrete_actions = 2> {

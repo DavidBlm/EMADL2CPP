@@ -12,7 +12,6 @@ MultipleInputs src/test/resources/training_data/MultipleInputs
 MultipleOutputs src/test/resources/training_data/MultipleOutputs
 MultipleStreams src/test/resources/training_data/MultipleStreams
 Invariant src/test/resources/training_data/Invariant
-RNNtest src/test/resources/training_data/RNNtest
-instanceTestUnroll.RNNencdec src/test/resources/training_data/newstest
 rnnencdec.Network src/test/resources/training_data/newstest
 rnnsearch.Network src/test/resources/training_data/newstest
+showAttendTell.Show_attend_tell src/test/resources/training_data/Show_attend_tell

@@ -74,15 +74,15 @@ class CNNCreator_mnist_mnistClassifier_net:
 
     		image_ = data
     		# image_, output shape: {[1,28,28]}
-    		conv1_ = brew.conv(model, image_, 'conv1_', dim_in=1, dim_out=20, kernel=5, stride=1)
-    		# conv1_, output shape: {[20,24,24]}
-    		pool1_ = brew.max_pool(model, conv1_, 'pool1_', kernel=2, stride=2)
-    		# pool1_, output shape: {[20,12,12]}
-    		conv2_ = brew.conv(model, pool1_, 'conv2_', dim_in=20, dim_out=50, kernel=5, stride=1)
-    		# conv2_, output shape: {[50,8,8]}
-    		pool2_ = brew.max_pool(model, conv2_, 'pool2_', kernel=2, stride=2)
-    		# pool2_, output shape: {[50,4,4]}
-    		fc2_ = brew.fc(model, pool2_, 'fc2_', dim_in=50 * 4 * 4, dim_out=500)
+    		conv1_ = brew.conv(model, image_, 'conv1_', dim_in=1, dim_out=20, kernel=5, stride=1, pad=1)
+    		# conv1_, output shape: {[20,28,28]}
+    		pool1_ = brew.max_pool(model, conv1_, 'pool1_', kernel=2, stride=2, pad=1)
+    		# pool1_, output shape: {[20,14,14]}
+    		conv2_ = brew.conv(model, pool1_, 'conv2_', dim_in=20, dim_out=50, kernel=5, stride=1, pad=1)
+    		# conv2_, output shape: {[50,14,14]}
+    		pool2_ = brew.max_pool(model, conv2_, 'pool2_', kernel=2, stride=2, pad=1)
+    		# pool2_, output shape: {[50,7,7]}
+    		fc2_ = brew.fc(model, pool2_, 'fc2_', dim_in=50 * 7 * 7, dim_out=500)
     		# fc2_, output shape: {[500,1,1]}
     		relu2_ = brew.relu(model, fc2_, fc2_)
     		fc3_ = brew.fc(model, relu2_, 'fc3_', dim_in=500, dim_out=10)

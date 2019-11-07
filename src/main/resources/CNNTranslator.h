@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef CNNTRANSLATOR_H
 #define CNNTRANSLATOR_H
 #include <armadillo>

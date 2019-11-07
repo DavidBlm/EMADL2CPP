@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 component Invariant{
     ports in Z(0:3)^{1} data[2],
          out Q(0:1)^{4} pred[3];

@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package cNNCalculator;
 
 component Network{
@@ -6,10 +7,10 @@ component Network{
 
     implementation CNN {
         image ->
-        Convolution(kernel=(5,5), channels=20, padding="valid") ->
-        Pooling(pool_type="max", kernel=(2,2), stride=(2,2), padding="valid") ->
-        Convolution(kernel=(5,5), channels=50, padding="valid") ->
-        Pooling(pool_type="max", kernel=(2,2), stride=(2,2), padding="valid") ->
+        Convolution(kernel=(5,5), channels=20) ->
+        Pooling(pool_type="max", kernel=(2,2), stride=(2,2)) ->
+        Convolution(kernel=(5,5), channels=50) ->
+        Pooling(pool_type="max", kernel=(2,2), stride=(2,2)) ->
         FullyConnected(units=500) ->
         Relu() ->
         FullyConnected(units=10) ->

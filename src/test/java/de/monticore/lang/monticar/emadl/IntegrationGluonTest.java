@@ -1,23 +1,4 @@
-/**
- *
- *  ******************************************************************************
- *  MontiCAR Modeling Family, www.se-rwth.de
- *  Copyright (c) 2017, Software Engineering Group at RWTH Aachen,
- *  All rights reserved.
- *
- *  This project is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 3.0 of the License, or (at your option) any later version.
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- *  Lesser General Public License for more details.
- *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this project. If not, see <http://www.gnu.org/licenses/>.
- * *******************************************************************************
- */
+/* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl;
 
 import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
@@ -72,6 +53,18 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnsearch/Network.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnsearch.Network", "-b", "GLUON"};
+        EMADLGeneratorCli.main(args);
+
+        assertTrue(Log.getFindings().isEmpty());
+    }
+
+    @Test
+    public void testShowAttendTell() {
+        Log.getFindings().clear();
+
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/showAttendTell/Show_attend_tell.training_hash"));
+
+        String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
         assertTrue(Log.getFindings().isEmpty());

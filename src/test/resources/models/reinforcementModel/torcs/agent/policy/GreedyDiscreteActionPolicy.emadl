@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package torcs.agent.policy;
 
 component GreedyDiscreteActionPolicy<Z(1:oo) n = 2> {

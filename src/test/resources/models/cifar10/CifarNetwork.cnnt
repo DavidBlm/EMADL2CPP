@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 configuration CifarNetwork{
      num_epoch:10
      batch_size:5

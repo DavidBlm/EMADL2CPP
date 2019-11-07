@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package torcs.agent.dqn;
 
 component Reward {

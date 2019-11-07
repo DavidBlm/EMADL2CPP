@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package instanceTestCifar;
 import NetworkB;
 import CalculateClassB;

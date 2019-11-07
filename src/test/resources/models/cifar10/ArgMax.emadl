@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 package cifar10;
 
 component ArgMax<Z(1:oo) n = 2>{

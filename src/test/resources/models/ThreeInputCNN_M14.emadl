@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 component ThreeInputCNN_M14{
     ports in Z(0:255)^{3, 224, 224} image[3],
          out Q(0:1)^{10} predictions;

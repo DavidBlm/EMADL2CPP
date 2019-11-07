@@ -174,8 +174,13 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                     batch.label[0].as_in_context(mx_context)
                 ]
 
+<<<<<<< HEAD
+                if True: 
+                    predictions_ = mx.nd.zeros((10,), ctx=mx_context)
+=======
                 if True:
                     predictions_ = mx.nd.zeros((batch_size, 10,), ctx=mx_context)
+>>>>>>> rnn
 
                     predictions_ = self._networks[0](image_)
 
@@ -198,8 +203,13 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                     batch.label[0].as_in_context(mx_context)
                 ]
 
+<<<<<<< HEAD
+                if True: 
+                    predictions_ = mx.nd.zeros((10,), ctx=mx_context)
+=======
                 if True:
                     predictions_ = mx.nd.zeros((batch_size, 10,), ctx=mx_context)
+>>>>>>> rnn
 
                     predictions_ = self._networks[0](image_)
 
