@@ -17,7 +17,7 @@ component Network{
 
         encoder.state -> decoder.state;
 
-        timed<t> GreedySearch(max_length=30) {
+        timed<t> BeamSearch(max_length=30, width=3) {
             target[t-1] ->
             Embedding(output_dim=620) ->
             decoder ->

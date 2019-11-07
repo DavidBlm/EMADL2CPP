@@ -2,6 +2,9 @@
 #define CNNTRANSLATOR_H
 #include <armadillo>
 #include <cassert>
+#include <vector>
+#include <pair>
+#include <algorithm>
 
 using namespace std;
 using namespace arma;

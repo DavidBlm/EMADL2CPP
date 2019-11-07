@@ -15,7 +15,7 @@ component Network{
         layer GRU(units=1000) decoder;
         encoder.state -> Split(n=2) -> [1] -> decoder.state;
 
-        timed<t> GreedySearch(max_length=30) {
+        timed<t> BeamSearch(max_length=30, width=3) {
             (
                 (
                     (
