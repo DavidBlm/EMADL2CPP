@@ -89,7 +89,6 @@ class CustomGRU(gluon.HybridBlock):
 class Net_0(gluon.HybridBlock):
     def __init__(self, data_mean=None, data_std=None, **kwargs):
         super(Net_0, self).__init__(**kwargs)
-        self.last_layers = {}
         with self.name_scope():
             if data_mean:
                 assert(data_std)
