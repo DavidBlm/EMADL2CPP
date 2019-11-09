@@ -7,5 +7,5 @@ component Main{
     instance Network net;
 
     connect source -> net.source;
-    connect net.target -> target;
+    connect net.target[:] -> target[:];
 }
