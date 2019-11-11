@@ -1,11 +1,13 @@
 package showAttendTell;
 
-component Show_attend_tell{
+component Show_attend_tell_images_as_input{
     ports in Z(-oo:oo)^{64,2048} data,
          in Z(0:255)^{3,224,224} images,
          out Z(0:37758)^{1} target[25];
 
    implementation CNN{
+
+
 
       layer LSTM(units=512) decoder;
 
@@ -14,7 +16,11 @@ component Show_attend_tell{
 
       1 -> target[0];
 
-      data -> features;
+      images ->
+      Convolution(kernel=(7,7), channels=64, stride=(7,7), padding="valid") ->
+      Convolution(kernel=(4,4), channels=64, stride=(4,4), padding="valid") ->
+      GlobalPooling(pool_type="max") ->
+      features;
 
        timed <t> GreedySearch(max_length=25){
         (

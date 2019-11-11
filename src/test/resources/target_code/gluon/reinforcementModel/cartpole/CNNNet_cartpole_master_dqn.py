@@ -8,9 +8,9 @@ class ZScoreNormalization(gluon.HybridBlock):
         super(ZScoreNormalization, self).__init__(**kwargs)
         with self.name_scope():
             self.data_mean = self.params.get('data_mean', shape=data_mean.shape,
-                                             init=mx.init.Constant(data_mean.asnumpy().tolist()), differentiable=False)
+                init=mx.init.Constant(data_mean.asnumpy().tolist()), differentiable=False)
             self.data_std = self.params.get('data_std', shape=data_mean.shape,
-                                            init=mx.init.Constant(data_std.asnumpy().tolist()), differentiable=False)
+                init=mx.init.Constant(data_std.asnumpy().tolist()), differentiable=False)
 
     def hybrid_forward(self, F, x, data_mean, data_std):
         x = F.broadcast_sub(x, data_mean)
@@ -26,9 +26,9 @@ class Padding(gluon.HybridBlock):
 
     def hybrid_forward(self, F, x):
         x = F.pad(data=x,
-                  mode='constant',
-                  pad_width=self.pad_width,
-                  constant_value=0)
+            mode='constant',
+            pad_width=self.pad_width,
+            constant_value=0)
         return x
 
 
@@ -93,7 +93,7 @@ class Net_0(gluon.HybridBlock):
             if data_mean:
                 assert(data_std)
                 self.input_normalization_state_ = ZScoreNormalization(data_mean=data_mean['state_'],
-                                                                      data_std=data_std['state_'])
+                                                                               data_std=data_std['state_'])
             else:
                 self.input_normalization_state_ = NoNormalization()
 
@@ -118,7 +118,7 @@ class Net_0(gluon.HybridBlock):
         fc2_ = self.fc2_(tanh1_)
         tanh2_ = self.tanh2_(fc2_)
         fc3_ = self.fc3_(tanh2_)
-        qvalues_ = F.identity(fc3_)
+        qvalues_ = fc3_
 
         return qvalues_
 

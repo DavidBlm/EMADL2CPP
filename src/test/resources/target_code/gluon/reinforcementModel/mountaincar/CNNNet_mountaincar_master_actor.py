@@ -120,7 +120,7 @@ class Net_0(gluon.HybridBlock):
         relu2_ = self.relu2_(fc2_)
         fc3_ = self.fc3_(relu2_)
         tanh3_ = self.tanh3_(fc3_)
-        action_ = F.identity(tanh3_)
+        action_ = tanh3_
 
         return action_
 
