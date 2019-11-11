@@ -13,9 +13,6 @@ import java.util.stream.Collectors;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
-/**
- *
- */
 public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
     @Test
     public void testGluonReinforcementModelRosEnvironment() {

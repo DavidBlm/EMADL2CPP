@@ -12,42 +12,58 @@ class CNNDataLoader_mnist_mnistClassifier_net:
     def __init__(self):
         self._data_dir = "data/mnist.LeNetNetwork/"
 
-    def load_data(self, batch_size):
+    def load_data(self, train_batch_size, test_batch_size):
         train_h5, test_h5 = self.load_h5_files()
 
         train_data = {}
         data_mean = {}
         data_std = {}
+        train_images = {}
 
         for input_name in self._input_names_:
             train_data[input_name] = train_h5[input_name]
             data_mean[input_name + '_'] = nd.array(train_h5[input_name][:].mean(axis=0))
             data_std[input_name + '_'] = nd.array(train_h5[input_name][:].std(axis=0) + 1e-5)
 
+            if 'images' in train_h5:
+                train_images = train_h5['images']
+
         train_label = {}
+        index = 0
         for output_name in self._output_names_:
-            train_label[output_name] = train_h5[output_name]
+            train_label[index] = train_h5[output_name]
+            index += 1
 
         train_iter = mx.io.NDArrayIter(data=train_data,
                                        label=train_label,
-                                       batch_size=batch_size)
+                                       batch_size=train_batch_size)
+
+        train_test_iter = mx.io.NDArrayIter(data=train_data,
+                                            label=train_label,
+                                            batch_size=test_batch_size)
 
         test_iter = None
 
         if test_h5 != None:
             test_data = {}
+            test_images = {}
             for input_name in self._input_names_:
                 test_data[input_name] = test_h5[input_name]
 
+                if 'images' in test_h5:
+                    test_images = test_h5['images']
+
             test_label = {}
+            index = 0
             for output_name in self._output_names_:
-                test_label[output_name] = test_h5[output_name]
+                test_label[index] = test_h5[output_name]
+                index += 1
 
             test_iter = mx.io.NDArrayIter(data=test_data,
                                           label=test_label,
-                                          batch_size=batch_size)
+                                          batch_size=test_batch_size)
 
-        return train_iter, test_iter, data_mean, data_std
+        return train_iter, train_test_iter, test_iter, data_mean, data_std, train_images, test_images
 
     def load_h5_files(self):
         train_h5 = None

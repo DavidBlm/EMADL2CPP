@@ -22,6 +22,8 @@ if __name__ == "__main__":
         num_epoch=11,
         context='gpu',
         eval_metric='accuracy',
+        eval_metric_params={
+        },
         optimizer='adam',
         optimizer_params={
             'epsilon': 1.0E-8,
