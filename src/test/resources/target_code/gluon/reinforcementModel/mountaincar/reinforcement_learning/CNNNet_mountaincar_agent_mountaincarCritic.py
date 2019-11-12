@@ -131,7 +131,7 @@ class Net_0(gluon.HybridBlock):
         add4_ = fc3_1_ + fc2_2_
         relu4_ = self.relu4_(add4_)
         fc4_ = self.fc4_(relu4_)
-        qvalues_ = fc4_
+        qvalues_ = F.identity(fc4_)
 
         return qvalues_
 
