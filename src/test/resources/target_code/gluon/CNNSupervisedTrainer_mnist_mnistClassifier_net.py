@@ -115,8 +115,12 @@ class BLEU(mx.metric.EvalMetric):
                     i *= 2
                     match_counts = 1 / i
 
-                precisions[n] = match_counts / counts
+                if (match_counts / counts) > 0:
+                    precisions[n] = match_counts / counts
 
+        print(precisions)
+        print(sum(map(math.log, precisions)))
+        print(math.exp(sum(map(math.log, precisions)) / self.N))
         bleu = self._get_brevity_penalty() * math.exp(sum(map(math.log, precisions)) / self.N)
 
         return (self.name, bleu)

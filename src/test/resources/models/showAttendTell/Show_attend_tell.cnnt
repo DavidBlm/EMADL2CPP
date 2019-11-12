@@ -2,7 +2,7 @@ configuration Show_attend_tell{
      num_epoch:2
      batch_size:2
      context:cpu
-     eval_metric:accuracy
+     eval_metric:bleu
      loss:softmax_cross_entropy
      save_attention_image:true
      optimizer:adam{
