@@ -44,9 +44,8 @@ component Show_attend_tell{
        ) ->
        Concatenate(axis=1) ->
        decoder ->
-       Relu() ->
        FullyConnected(units=37758) ->
-       Relu() ->
+       Tanh() ->
        Dropout(p=0.25) ->
        Softmax() ->
        ArgMax() ->

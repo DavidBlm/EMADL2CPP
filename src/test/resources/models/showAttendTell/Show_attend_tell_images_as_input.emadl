@@ -50,9 +50,8 @@ component Show_attend_tell_images_as_input{
        ) ->
        Concatenate(axis=1) ->
        decoder ->
-       Relu() ->
        FullyConnected(units=37758) ->
-       Relu() ->
+       Tanh() ->
        Dropout(p=0.25) ->
        Softmax() ->
        ArgMax() ->
