@@ -143,7 +143,7 @@ class Net_0(gluon.HybridBlock):
         relu2_ = self.relu2_(fc2_)
         fc3_ = self.fc3_(relu2_)
         softmax3_ = F.softmax(fc3_, axis=-1)
-        predictions_ = softmax3_
+        predictions_ = F.identity(softmax3_)
 
         return predictions_
 

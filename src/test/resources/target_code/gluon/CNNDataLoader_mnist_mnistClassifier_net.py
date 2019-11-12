@@ -3,6 +3,8 @@ import h5py
 import mxnet as mx
 import logging
 import sys
+import numpy as np
+import cv2
 from mxnet import nd
 
 class CNNDataLoader_mnist_mnistClassifier_net:
@@ -64,6 +66,48 @@ class CNNDataLoader_mnist_mnistClassifier_net:
                                           batch_size=test_batch_size)
 
         return train_iter, train_test_iter, test_iter, data_mean, data_std, train_images, test_images
+
+    def load_data_img(self, batch_size, img_size):
+        train_h5, test_h5 = self.load_h5_files()
+        width = img_size[0]
+        height = img_size[1]
+
+        comb_data = {}
+        data_mean = {}
+        data_std = {}
+
+        for input_name in self._input_names_:
+            train_data = train_h5[input_name][:]
+            test_data = test_h5[input_name][:]
+
+            train_shape = train_data.shape
+            test_shape = test_data.shape
+
+            comb_data[input_name] = mx.nd.zeros((train_shape[0]+test_shape[0], train_shape[1], width, height))
+            for i, img in enumerate(train_data):
+                img = img.transpose(1,2,0)
+                comb_data[input_name][i] = cv2.resize(img, (width, height)).reshape((train_shape[1],width,height))
+            for i, img in enumerate(test_data):
+                img = img.transpose(1, 2, 0)
+                comb_data[input_name][i+train_shape[0]] = cv2.resize(img, (width, height)).reshape((train_shape[1], width, height))
+
+            data_mean[input_name + '_'] = nd.array(comb_data[input_name][:].mean(axis=0))
+            data_std[input_name + '_'] = nd.array(comb_data[input_name][:].asnumpy().std(axis=0) + 1e-5)
+
+        comb_label = {}
+        for output_name in self._output_names_:
+            train_labels = train_h5[output_name][:]
+            test_labels = test_h5[output_name][:]
+            comb_label[output_name] = np.append(train_labels, test_labels, axis=0)
+
+
+        train_iter = mx.io.NDArrayIter(data=comb_data,
+                                       label=comb_label,
+                                       batch_size=batch_size)
+
+        test_iter = None
+
+        return train_iter, test_iter, data_mean, data_std
 
     def load_h5_files(self):
         train_h5 = None
