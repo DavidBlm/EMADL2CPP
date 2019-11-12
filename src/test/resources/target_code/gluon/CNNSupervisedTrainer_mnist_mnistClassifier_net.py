@@ -118,9 +118,6 @@ class BLEU(mx.metric.EvalMetric):
                 if (match_counts / counts) > 0:
                     precisions[n] = match_counts / counts
 
-        print(precisions)
-        print(sum(map(math.log, precisions)))
-        print(math.exp(sum(map(math.log, precisions)) / self.N))
         bleu = self._get_brevity_penalty() * math.exp(sum(map(math.log, precisions)) / self.N)
 
         return (self.name, bleu)
@@ -358,7 +355,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                             attention_resized = np.resize(attention.asnumpy(), (8, 8))
                             ax = fig.add_subplot(max_length//3, max_length//4, l+1)
                             ax.set_title(dict[int(labels[l+1][0].asscalar())])
-                            img = ax.imshow(train_images[0+test_batch_size*(batch_i)])
+                            img = ax.imshow(train_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
                             ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
 
 
@@ -382,7 +379,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             test_iter.reset()
             metric = mx.metric.create(eval_metric, **eval_metric_params)
             for batch_i, batch in enumerate(test_iter):
-                if True:
+                if True: 
                     labels = [batch.label[i].as_in_context(mx_context) for i in range(1)]
 
                     image_ = batch.data[0].as_in_context(mx_context)
@@ -410,7 +407,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                             attention_resized = np.resize(attention.asnumpy(), (8, 8))
                             ax = fig.add_subplot(max_length//3, max_length//4, l+1)
                             ax.set_title(dict[int(mx.nd.slice_axis(mx.nd.argmax(outputs[l+1], axis=1), axis=0, begin=0, end=1).asscalar())])
-                            img = ax.imshow(test_images[0+test_batch_size*(batch_i)])
+                            img = ax.imshow(test_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
                             ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
 
 
