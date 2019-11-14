@@ -14,7 +14,7 @@ component Show_attend_tell_images_as_input{
       layer FullyConnected(units = 256) features;
       layer FullyConnected(units = 1, flatten=false) attention;
 
-      1 -> target[0];
+      0 -> target[0];
 
       images ->
       Convolution(kernel=(7,7), channels=64, stride=(7,7), padding="valid") ->
