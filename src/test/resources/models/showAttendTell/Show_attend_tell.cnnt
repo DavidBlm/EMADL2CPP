@@ -4,7 +4,6 @@ configuration Show_attend_tell{
      context:cpu
      eval_metric:bleu
      loss:softmax_cross_entropy_ignore_indices{
-        sparse_label:true
         ignore_indices:2
      }
      use_teacher_forcing:true
