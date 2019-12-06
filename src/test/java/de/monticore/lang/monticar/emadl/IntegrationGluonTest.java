@@ -57,8 +57,7 @@ public class IntegrationGluonTest extends IntegrationTest {
 
         assertTrue(Log.getFindings().isEmpty());
     }
-
-    @Ignore
+    
     @Test
     public void testShowAttendTell() {
         Log.getFindings().clear();
