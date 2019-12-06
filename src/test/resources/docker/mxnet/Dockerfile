@@ -13,4 +13,4 @@ RUN git clone https://github.com/apache/incubator-mxnet.git mxnet-source && \
     rm -r mxnet-source
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
-RUN pip install mxnet h5py
+RUN pip install mxnet h5py opencv-python
