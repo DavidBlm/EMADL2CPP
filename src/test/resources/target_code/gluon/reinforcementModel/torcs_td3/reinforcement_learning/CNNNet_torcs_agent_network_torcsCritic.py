@@ -2,44 +2,6 @@ import mxnet as mx
 import numpy as np
 from mxnet import gluon
 
-class OneHot(gluon.HybridBlock):
-    def __init__(self, size, **kwargs):
-        super(OneHot, self).__init__(**kwargs)
-        with self.name_scope():
-            self.size = size
-
-    def hybrid_forward(self, F, x):
-        return F.one_hot(indices=F.argmax(data=x, axis=1), depth=self.size)
-
-
-class Softmax(gluon.HybridBlock):
-    def __init__(self, **kwargs):
-        super(Softmax, self).__init__(**kwargs)
-
-    def hybrid_forward(self, F, x):
-        return F.softmax(x)
-
-
-class Split(gluon.HybridBlock):
-    def __init__(self, num_outputs, axis=1, **kwargs):
-        super(Split, self).__init__(**kwargs)
-        with self.name_scope():
-            self.axis = axis
-            self.num_outputs = num_outputs
-
-    def hybrid_forward(self, F, x):
-        return F.split(data=x, axis=self.axis, num_outputs=self.num_outputs)
-
-
-class Concatenate(gluon.HybridBlock):
-    def __init__(self, dim=1, **kwargs):
-        super(Concatenate, self).__init__(**kwargs)
-        with self.name_scope():
-            self.dim = dim
-
-    def hybrid_forward(self, F, *x):
-        return F.concat(*x, dim=self.dim)
-
 
 class ZScoreNormalization(gluon.HybridBlock):
     def __init__(self, data_mean, data_std, **kwargs):
@@ -78,10 +40,55 @@ class NoNormalization(gluon.HybridBlock):
         return x
 
 
+class Reshape(gluon.HybridBlock):
+    def __init__(self, shape, **kwargs):
+        super(Reshape, self).__init__(**kwargs)
+        with self.name_scope():
+            self.shape = shape
+
+    def hybrid_forward(self, F, x):
+        return F.reshape(data=x, shape=self.shape)
+
+
+class CustomRNN(gluon.HybridBlock):
+    def __init__(self, hidden_size, num_layers, bidirectional, **kwargs):
+        super(CustomRNN, self).__init__(**kwargs)
+        with self.name_scope():
+            self.rnn = gluon.rnn.RNN(hidden_size=hidden_size, num_layers=num_layers,
+                                     bidirectional=bidirectional, activation='tanh', layout='NTC')
+
+    def hybrid_forward(self, F, data, state0):
+        output, [state0] = self.rnn(data, [F.swapaxes(state0, 0, 1)])
+        return output, F.swapaxes(state0, 0, 1)
+
+
+class CustomLSTM(gluon.HybridBlock):
+    def __init__(self, hidden_size, num_layers, bidirectional, **kwargs):
+        super(CustomLSTM, self).__init__(**kwargs)
+        with self.name_scope():
+            self.lstm = gluon.rnn.LSTM(hidden_size=hidden_size, num_layers=num_layers,
+                                       bidirectional=bidirectional, layout='NTC')
+
+    def hybrid_forward(self, F, data, state0, state1):
+        output, [state0, state1] = self.lstm(data, [F.swapaxes(state0, 0, 1), F.swapaxes(state1, 0, 1)])
+        return output, F.swapaxes(state0, 0, 1), F.swapaxes(state1, 0, 1)
+
+
+class CustomGRU(gluon.HybridBlock):
+    def __init__(self, hidden_size, num_layers, bidirectional, **kwargs):
+        super(CustomGRU, self).__init__(**kwargs)
+        with self.name_scope():
+            self.gru = gluon.rnn.GRU(hidden_size=hidden_size, num_layers=num_layers,
+                                     bidirectional=bidirectional, layout='NTC')
+
+    def hybrid_forward(self, F, data, state0):
+        output, [state0] = self.gru(data, [F.swapaxes(state0, 0, 1)])
+        return output, F.swapaxes(state0, 0, 1)
+
+
 class Net_0(gluon.HybridBlock):
     def __init__(self, data_mean=None, data_std=None, **kwargs):
         super(Net_0, self).__init__(**kwargs)
-        self.last_layers = {}
         with self.name_scope():
             if data_mean:
                 assert(data_std)
@@ -97,9 +104,6 @@ class Net_0(gluon.HybridBlock):
             else:
                 self.input_normalization_action_ = NoNormalization()
 
-            self.concatenate3_ = Concatenate(dim=1)
-            # concatenate3_, output shape: {[32,1,1]}
-
             self.fc3_ = gluon.nn.Dense(units=300, use_bias=True, flatten=True)
             # fc3_, output shape: {[300,1,1]}
 
@@ -112,17 +116,18 @@ class Net_0(gluon.HybridBlock):
             # fc5_, output shape: {[1,1,1]}
 
 
+            pass
 
     def hybrid_forward(self, F, state_, action_):
         state_ = self.input_normalization_state_(state_)
         action_ = self.input_normalization_action_(action_)
-        concatenate3_ = self.concatenate3_(state_, action_)
+        concatenate3_ = F.concat(state_, action_, dim=1)
         fc3_ = self.fc3_(concatenate3_)
         relu3_ = self.relu3_(fc3_)
         fc4_ = self.fc4_(relu3_)
         relu4_ = self.relu4_(fc4_)
         fc5_ = self.fc5_(relu4_)
-        qvalues_ = fc5_
+        qvalues_ = F.identity(fc5_)
 
         return qvalues_
 

@@ -45,7 +45,7 @@ public:
         size = 1;
         for (mx_uint i = 0; i < shape_len; ++i) size *= shape[i];
         assert(size == out_qvalues_.size());
-        MXPredGetOutput(handle, 0, &(out_qvalues_[0]), out_qvalues_.size());
+        MXPredGetOutput(handle, output_index, &(out_qvalues_[0]), out_qvalues_.size());
 
     }
 

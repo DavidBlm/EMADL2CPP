@@ -10,7 +10,7 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instance
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstantiationSymbol;
 import de.monticore.lang.math._symboltable.MathStatementsSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.CNNTrainGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.DataPathConfigParser;
@@ -451,9 +451,11 @@ public class EMADLGenerator {
         }
         contentMap.remove(executeKey);
 
+        String applyBeamSearchMethod = contentMap.get("BeamSearch_" + fullName);
+
         String component = emamGen.generateString(taggingResolver, instance, (MathStatementsSymbol) null);
         FileContent componentFileContent = new FileContent(
-                transformComponent(component, "CNNPredictor_" + fullName, executeMethod, architecture),
+                transformComponent(component, "CNNPredictor_" + fullName, applyBeamSearchMethod, executeMethod, architecture),
                 instance);
 
         for (String fileName : contentMap.keySet()){
@@ -463,7 +465,7 @@ public class EMADLGenerator {
         fileContents.add(new FileContent(readResource("CNNTranslator.h", Charsets.UTF_8), "CNNTranslator.h"));
     }
 
-    protected String transformComponent(String component, String predictorClassName, String executeMethod, ArchitectureSymbol architecture){
+    protected String transformComponent(String component, String predictorClassName, String applyBeamSearchMethod, String executeMethod, ArchitectureSymbol architecture){
         //insert includes
         component = component.replaceFirst("using namespace",
                 "#include \"" + predictorClassName + ".h" + "\"\n" +
@@ -474,15 +476,16 @@ public class EMADLGenerator {
         String networkAttributes = "public:";
 
         int i = 0;
-        for (SerialCompositeElementSymbol stream : architecture.getStreams()) {
-            if (stream.isTrainable()) {
-                networkAttributes += "\n" + predictorClassName + "_" + i + " _predictor_" + i + "_;";
-            }
+        for (NetworkInstructionSymbol networkInstruction : architecture.getNetworkInstructions()) {
+            networkAttributes += "\n" + predictorClassName + "_" + i + " _predictor_" + i + "_;";
 
             ++i;
         }
 
         component = component.replaceFirst("public:", networkAttributes);
+
+        //insert BeamSearch method
+        //component = component.replaceFirst("void init\\(\\)", applyBeamSearchMethod + "\nvoid init()");
 
         //insert execute method
         component = component.replaceFirst("void execute\\(\\)\\s\\{\\s\\}",

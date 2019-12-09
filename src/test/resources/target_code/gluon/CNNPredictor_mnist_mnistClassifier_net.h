@@ -45,7 +45,7 @@ public:
         size = 1;
         for (mx_uint i = 0; i < shape_len; ++i) size *= shape[i];
         assert(size == out_predictions_.size());
-        MXPredGetOutput(handle, 0, &(out_predictions_[0]), out_predictions_.size());
+        MXPredGetOutput(handle, output_index, &(out_predictions_[0]), out_predictions_.size());
 
     }
 
