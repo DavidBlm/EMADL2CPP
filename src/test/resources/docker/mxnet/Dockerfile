@@ -4,6 +4,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         git \
         libgtk2.0-dev \
+        python-subprocess32 \
+        python-tk \
         wget python gcc \
         build-essential cmake \
         liblapack-dev libblas-dev libboost-dev libarmadillo-dev && \
@@ -14,4 +16,4 @@ RUN git clone https://github.com/apache/incubator-mxnet.git mxnet-source && \
     rm -r mxnet-source
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
-RUN pip install mxnet h5py opencv-python
+RUN pip install mxnet h5py opencv-python matplotlib
