@@ -17,8 +17,8 @@ component Show_attend_tell_images_as_input{
       0 -> target[0];
 
       images ->
-      Convolution(kernel=(7,7), channels=128, stride=(7,7), padding="valid") ->
-      Convolution(kernel=(4,4), channels=128, stride=(4,4), padding="valid") ->
+      Convolution(kernel=(7,7), channels=128, stride=(7,7), padding="same") ->
+      Convolution(kernel=(4,4), channels=128, stride=(4,4), padding="same") ->
       Reshape(shape=(64, 128)) ->
       features;
 
@@ -52,7 +52,6 @@ component Show_attend_tell_images_as_input{
        FullyConnected(units=37758) ->
        Tanh() ->
        Dropout(p=0.25) ->
-       Softmax() ->
        ArgMax() ->
        target[t]
        };
