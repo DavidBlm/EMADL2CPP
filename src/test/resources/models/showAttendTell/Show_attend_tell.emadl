@@ -46,7 +46,6 @@ component Show_attend_tell{
        FullyConnected(units=37758) ->
        Tanh() ->
        Dropout(p=0.25) ->
-       Softmax() ->
        ArgMax() ->
        target[t]
        };
