@@ -3,7 +3,7 @@ package showAttendTell;
 component Main{
     ports in Z(0:255)^{3, 224, 224} images,
           in Z(-oo:oo)^{64,2048} data,
-          out Z(0:25316)^{1} target[25];
+          out Z(0:37758)^{1} target[25];
 
     instance Show_attend_tell net;
 
