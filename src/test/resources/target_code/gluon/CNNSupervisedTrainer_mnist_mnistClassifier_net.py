@@ -52,16 +52,9 @@ class SoftmaxCrossEntropyLossIgnoreIndices(gluon.loss.Loss):
         else:
             label = _reshape_like(F, label, pred)
             loss = -(pred * label).sum(axis=self._axis, keepdims=True)
-<<<<<<< HEAD
-        #loss = _apply_weighting(F, loss, self._weight, sample_weight)
-        # ignore some indices for loss, e.g. <pad> tokens in NLP applications
-        for i in self._ignore_indices:
-            loss = loss * mx.nd.logical_not(mx.nd.equal(mx.nd.argmax(pred, axis=1), mx.nd.ones_like(mx.nd.argmax(pred, axis=1))*i))
-=======
         # ignore some indices for loss, e.g. <pad> tokens in NLP applications
         for i in self._ignore_indices:
             loss = loss * mx.nd.logical_not(mx.nd.equal(mx.nd.argmax(pred, axis=1), mx.nd.ones_like(mx.nd.argmax(pred, axis=1))*i) * mx.nd.equal(mx.nd.argmax(pred, axis=1), label))
->>>>>>> fb5b86ba21503181b2b66fe2a294768cb30ed793
         return loss.mean(axis=self._batch_axis, exclude=True)
 
 @mx.metric.register
@@ -187,13 +180,15 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
               num_epoch=10,
               eval_metric='acc',
               eval_metric_params={},
+              eval_train=False,
               loss ='softmax_cross_entropy',
               loss_params={},
               optimizer='adam',
               optimizer_params=(('learning_rate', 0.001),),
               load_checkpoint=True,
-              context='gpu',
               checkpoint_period=5,
+              log_period=50,
+              context='gpu',
               save_attention_image=False,
               use_teacher_forcing=False,
               normalize=True):
@@ -219,10 +214,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             del optimizer_params['step_size']
             del optimizer_params['learning_rate_decay']
 
-        train_batch_size = batch_size
-        test_batch_size = batch_size
-
-        train_iter, train_test_iter, test_iter, data_mean, data_std, train_images, test_images = self._data_loader.load_data(train_batch_size, test_batch_size)
+        train_iter, test_iter, data_mean, data_std, train_images, test_images = self._data_loader.load_data(batch_size)
 
         if normalize:
             self._net_creator.construct(context=mx_context, data_mean=data_mean, data_std=data_std)
@@ -252,11 +244,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
         if loss == 'softmax_cross_entropy':
             fromLogits = loss_params['from_logits'] if 'from_logits' in loss_params else False
             loss_function = mx.gluon.loss.SoftmaxCrossEntropyLoss(from_logits=fromLogits, sparse_label=sparseLabel)
-<<<<<<< HEAD
-        if loss == 'softmax_cross_entropy_ignore_indices':
-=======
         elif loss == 'softmax_cross_entropy_ignore_indices':
->>>>>>> fb5b86ba21503181b2b66fe2a294768cb30ed793
             fromLogits = loss_params['from_logits'] if 'from_logits' in loss_params else False
             loss_function = SoftmaxCrossEntropyLossIgnoreIndices(ignore_indices=ignore_indices, from_logits=fromLogits, sparse_label=sparseLabel)
         elif loss == 'sigmoid_binary_cross_entropy':
@@ -285,11 +273,11 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
         else:
             logging.error("Invalid loss parameter.")
 
-        speed_period = 50
         tic = None
 
         for epoch in range(begin_epoch, begin_epoch + num_epoch):
 
+            loss_total = 0
             train_iter.reset()
             for batch_i, batch in enumerate(train_iter):
                 with autograd.record():
@@ -297,7 +285,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
                     image_ = batch.data[0].as_in_context(mx_context)
 
-                    predictions_ = mx.nd.zeros((train_batch_size, 10,), ctx=mx_context)
+                    predictions_ = mx.nd.zeros((batch_size, 10,), ctx=mx_context)
 
 
                     nd.waitall()
@@ -314,60 +302,39 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
                 loss.backward()
 
+                loss_total += loss.sum().asscalar()
+
                 for trainer in trainers:
                     trainer.step(batch_size)
 
                 if tic is None:
                     tic = time.time()
                 else:
-                    if batch_i % speed_period == 0:
+                    if batch_i % log_period == 0:
                         try:
-                            speed = speed_period * batch_size / (time.time() - tic)
+                            speed = log_period * batch_size / (time.time() - tic)
                         except ZeroDivisionError:
                             speed = float("inf")
 
-                        logging.info("Epoch[%d] Batch[%d] Speed: %.2f samples/sec" % (epoch, batch_i, speed))
+                        loss_avg = loss_total / (batch_size * log_period)
+                        loss_total = 0
+
+                        logging.info("Epoch[%d] Batch[%d] Speed: %.2f samples/sec Loss: %.5f" % (epoch, batch_i, speed, loss_avg))
 
                         tic = time.time()
 
             tic = None
 
-<<<<<<< HEAD
-            train_test_iter.reset()
-            metric = mx.metric.create(eval_metric, **eval_metric_params)
-            for batch_i, batch in enumerate(train_test_iter):
-                if True:
+
+            if eval_train:
+                train_iter.reset()
+                metric = mx.metric.create(eval_metric, **eval_metric_params)
+                for batch_i, batch in enumerate(train_iter):
                     labels = [batch.label[i].as_in_context(mx_context) for i in range(1)]
 
                     image_ = batch.data[0].as_in_context(mx_context)
 
-                    predictions_ = mx.nd.zeros((test_batch_size, 10,), ctx=mx_context)
-
-
-                    nd.waitall()
-
-                    outputs = []
-                    attentionList=[]
-                    predictions_ = self._networks[0](image_)
-
-                    outputs.append(predictions_)
-
-
-                    if save_attention_image == "True":
-                        import matplotlib.pyplot as plt
-                        logging.getLogger('matplotlib').setLevel(logging.ERROR)
-
-=======
-
-            train_test_iter.reset()
-            metric = mx.metric.create(eval_metric, **eval_metric_params)
-            for batch_i, batch in enumerate(train_test_iter):
-                if True: 
-                    labels = [batch.label[i].as_in_context(mx_context) for i in range(1)]
-
-                    image_ = batch.data[0].as_in_context(mx_context)
-
-                    predictions_ = mx.nd.zeros((test_batch_size, 10,), ctx=mx_context)
+                    predictions_ = mx.nd.zeros((batch_size, 10,), ctx=mx_context)
 
 
                     nd.waitall()
@@ -385,84 +352,62 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                         import matplotlib.pyplot as plt
                         logging.getLogger('matplotlib').setLevel(logging.ERROR)
 
->>>>>>> fb5b86ba21503181b2b66fe2a294768cb30ed793
-                        plt.clf()
-                        fig = plt.figure(figsize=(15,15))
-                        max_length = len(labels)-1
-
                         if(os.path.isfile('src/test/resources/training_data/Show_attend_tell/dict.pkl')):
                             with open('src/test/resources/training_data/Show_attend_tell/dict.pkl', 'rb') as f:
                                 dict = pickle.load(f)
 
-<<<<<<< HEAD
+                        plt.clf()
+                        fig = plt.figure(figsize=(15,15))
+                        max_length = len(labels)-1
 
-=======
->>>>>>> fb5b86ba21503181b2b66fe2a294768cb30ed793
                         ax = fig.add_subplot(max_length//3, max_length//4, 1)
-                        ax.imshow(train_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
+                        ax.imshow(train_images[0+batch_size*(batch_i)].transpose(1,2,0))
 
                         for l in range(max_length):
                             attention = attentionList[l]
-<<<<<<< HEAD
-                            attention = mx.nd.slice_axis(attention, axis=0, begin=0, end=1)
-                            attention = mx.nd.squeeze(attention)
-                            attention_resized = np.resize(attention.asnumpy(), (8, 8))
-                            ax = fig.add_subplot(max_length//3, max_length//4, l+2)
-                            if dict[int(labels[l+1][0].asscalar())] == "<end>":
-=======
                             attention = mx.nd.slice_axis(attention, axis=0, begin=0, end=1).squeeze()
                             attention_resized = np.resize(attention.asnumpy(), (8, 8))
                             ax = fig.add_subplot(max_length//3, max_length//4, l+2)
                             if int(labels[l+1][0].asscalar()) > len(dict):
                                 ax.set_title("<unk>")
                             elif dict[int(labels[l+1][0].asscalar())] == "<end>":
->>>>>>> fb5b86ba21503181b2b66fe2a294768cb30ed793
                                 ax.set_title(".")
-                                img = ax.imshow(train_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
+                                img = ax.imshow(train_images[0+batch_size*(batch_i)].transpose(1,2,0))
                                 ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
                                 break
                             else:
                                 ax.set_title(dict[int(labels[l+1][0].asscalar())])
-<<<<<<< HEAD
-                                img = ax.imshow(train_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
-                                ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
-
-=======
-                            img = ax.imshow(train_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
+                            img = ax.imshow(train_images[0+batch_size*(batch_i)].transpose(1,2,0))
                             ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
->>>>>>> fb5b86ba21503181b2b66fe2a294768cb30ed793
 
                         plt.tight_layout()
                         target_dir = 'target/attention_images'
                         if not os.path.exists(target_dir):
-<<<<<<< HEAD
-                                    os.makedirs(target_dir)
-=======
                             os.makedirs(target_dir)
->>>>>>> fb5b86ba21503181b2b66fe2a294768cb30ed793
                         plt.savefig(target_dir + '/attention_train.png')
                         plt.close()
 
-                predictions = []
-                for output_name in outputs:
-                    if mx.nd.shape_array(mx.nd.squeeze(output_name)).size > 1:
-                        predictions.append(mx.nd.argmax(output_name, axis=1))
-                    else:
-                        predictions.append(output_name)
+                    predictions = []
+                    for output_name in outputs:
+                        if mx.nd.shape_array(mx.nd.squeeze(output_name)).size > 1:
+                            predictions.append(mx.nd.argmax(output_name, axis=1))
+                        else:
+                            predictions.append(output_name)
 
-                metric.update(preds=predictions, labels=labels)
-            train_metric_score = metric.get()[1]
+                    metric.update(preds=predictions, labels=labels)
+                train_metric_score = metric.get()[1]
+            else:
+                train_metric_score = 0
 
             test_iter.reset()
             metric = mx.metric.create(eval_metric, **eval_metric_params)
             for batch_i, batch in enumerate(test_iter):
-<<<<<<< HEAD
                 if True:
                     labels = [batch.label[i].as_in_context(mx_context) for i in range(1)]
 
                     image_ = batch.data[0].as_in_context(mx_context)
 
-                    predictions_ = mx.nd.zeros((test_batch_size, 10,), ctx=mx_context)
+                    predictions_ = mx.nd.zeros((batch_size, 10,), ctx=mx_context)
 
 
                     nd.waitall()
@@ -475,46 +420,22 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
 
                     if save_attention_image == "True":
-                        plt.clf()
-                        fig = plt.figure(figsize=(15,15))
-                        max_length = len(labels)-1
+                        if not eval_train:
+                            import matplotlib
+                            matplotlib.use('Agg')
+                            import matplotlib.pyplot as plt
+                            logging.getLogger('matplotlib').setLevel(logging.ERROR)
 
+                            if(os.path.isfile('src/test/resources/training_data/Show_attend_tell/dict.pkl')):
+                                with open('src/test/resources/training_data/Show_attend_tell/dict.pkl', 'rb') as f:
+                                    dict = pickle.load(f)
 
-                        ax = fig.add_subplot(max_length//3, max_length//4, 1)
-                        ax.imshow(test_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
-
-                        for l in range(max_length):
-                            attention = attentionList[l]
-                            attention = mx.nd.slice_axis(attention, axis=0, begin=0, end=1)
-                            attention = mx.nd.squeeze(attention)
-                            attention_resized = np.resize(attention.asnumpy(), (8, 8))
-                            ax = fig.add_subplot(max_length//3, max_length//4, l+2)
-                            if dict[int(mx.nd.slice_axis(mx.nd.argmax(outputs[l+1], axis=1), axis=0, begin=0, end=1).asscalar())] == "<end>":
-=======
-                if True: 
-                    labels = [batch.label[i].as_in_context(mx_context) for i in range(1)]
-
-                    image_ = batch.data[0].as_in_context(mx_context)
-
-                    predictions_ = mx.nd.zeros((test_batch_size, 10,), ctx=mx_context)
-
-
-                    nd.waitall()
-
-                    outputs = []
-                    attentionList=[]
-                    predictions_ = self._networks[0](image_)
-
-                    outputs.append(predictions_)
-
-
-                    if save_attention_image == "True":
                         plt.clf()
                         fig = plt.figure(figsize=(15,15))
                         max_length = len(labels)-1
 
                         ax = fig.add_subplot(max_length//3, max_length//4, 1)
-                        ax.imshow(test_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
+                        ax.imshow(test_images[0+batch_size*(batch_i)].transpose(1,2,0))
 
                         for l in range(max_length):
                             attention = attentionList[l]
@@ -524,24 +445,19 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                             if int(mx.nd.slice_axis(outputs[l+1], axis=0, begin=0, end=1).squeeze().asscalar()) > len(dict):
                                 ax.set_title("<unk>")
                             elif dict[int(mx.nd.slice_axis(outputs[l+1], axis=0, begin=0, end=1).squeeze().asscalar())] == "<end>":
->>>>>>> fb5b86ba21503181b2b66fe2a294768cb30ed793
                                 ax.set_title(".")
-                                img = ax.imshow(test_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
+                                img = ax.imshow(test_images[0+batch_size*(batch_i)].transpose(1,2,0))
                                 ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
                                 break
                             else:
-<<<<<<< HEAD
-                                ax.set_title(dict[int(mx.nd.slice_axis(mx.nd.argmax(outputs[l+1], axis=1), axis=0, begin=0, end=1).asscalar())])
-                                img = ax.imshow(test_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
-                                ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
-
-=======
                                 ax.set_title(dict[int(mx.nd.slice_axis(outputs[l+1], axis=0, begin=0, end=1).squeeze().asscalar())])
-                            img = ax.imshow(test_images[0+test_batch_size*(batch_i)].transpose(1,2,0))
+                            img = ax.imshow(test_images[0+batch_size*(batch_i)].transpose(1,2,0))
                             ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
->>>>>>> fb5b86ba21503181b2b66fe2a294768cb30ed793
 
                         plt.tight_layout()
+                        target_dir = 'target/attention_images'
+                        if not os.path.exists(target_dir):
+                            os.makedirs(target_dir)
                         plt.savefig(target_dir + '/attention_test.png')
                         plt.close()
 
