@@ -9,10 +9,10 @@ component Show_attend_tell{
 
       layer LSTM(units=512) decoder;
 
-      layer FullyConnected(units = 256) features;
+      layer FullyConnected(units = 256, flatten=false) features;
       layer FullyConnected(units = 1, flatten=false) attention;
 
-      1 -> target[0];
+      0 -> target[0];
 
       data -> features;
 
@@ -30,7 +30,6 @@ component Show_attend_tell{
                Tanh() ->
                FullyConnected(units=1, flatten=false) ->
                Softmax(axis=0) ->
-               Dropout(p=0.25) ->
                attention
            |
                features.output
@@ -47,7 +46,6 @@ component Show_attend_tell{
        FullyConnected(units=37758) ->
        Tanh() ->
        Dropout(p=0.25) ->
-       Softmax() ->
        ArgMax() ->
        target[t]
        };

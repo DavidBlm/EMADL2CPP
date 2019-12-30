@@ -124,6 +124,10 @@ VocabularyInverse = dict((v,k) for k,v in vocabulary.items())
 with open("dict.pkl", "wb") as f:
 	pickle.dump(VocabularyInverse, f, 2)
 
+with open('dict.txt', 'w') as f:
+    for item in VocabularyInverse.values():
+        f.write("%s\n" % item)
+
 # Pad to max length
 for sentence in labels:
     sentence += [2] * (max_length - len(sentence))

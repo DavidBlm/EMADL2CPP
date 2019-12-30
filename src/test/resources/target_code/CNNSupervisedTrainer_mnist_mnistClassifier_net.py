@@ -54,7 +54,7 @@ class SoftmaxCrossEntropyLossIgnoreIndices(gluon.loss.Loss):
             loss = -(pred * label).sum(axis=self._axis, keepdims=True)
         # ignore some indices for loss, e.g. <pad> tokens in NLP applications
         for i in self._ignore_indices:
-            loss = loss * mx.nd.logical_not(mx.nd.equal(mx.nd.argmax(pred, axis=1), mx.nd.ones_like(mx.nd.argmax(pred, axis=1))*i) * mx.nd.equal(mx.nd.argmax(pred, axis=1), label))
+            loss = loss * mx.nd.logical_not(mx.nd.equal(mx.nd.argmax(pred, axis=1), mx.nd.ones_like(mx.nd.argmax(pred, axis=1))*i))
         return loss.mean(axis=self._batch_axis, exclude=True)
 
 @mx.metric.register
@@ -278,7 +278,6 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
         tic = None
 
         for epoch in range(begin_epoch, begin_epoch + num_epoch):
-
             train_iter.reset()
             for batch_i, batch in enumerate(train_iter):
                 with autograd.record():
@@ -320,7 +319,6 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                         tic = time.time()
 
             tic = None
-
 
             train_test_iter.reset()
             metric = mx.metric.create(eval_metric, **eval_metric_params)

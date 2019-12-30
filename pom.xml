@@ -9,22 +9,22 @@
 
   <groupId>de.monticore.lang.monticar</groupId>
   <artifactId>embedded-montiarc-emadl-generator</artifactId>
-  <version>0.3.7-SNAPSHOT</version>
+  <version>0.3.8-SNAPSHOT</version>
 
   <!-- == PROJECT DEPENDENCIES ============================================= -->
 
   <properties>
 
     <!-- .. SE-Libraries .................................................. -->
-    <emadl.version>0.2.10-SNAPSHOT</emadl.version>
-    <CNNTrain.version>0.3.8-SNAPSHOT</CNNTrain.version>
+    <emadl.version>0.2.11-SNAPSHOT</emadl.version>
+    <CNNTrain.version>0.3.9-SNAPSHOT</CNNTrain.version>
     <cnnarch-generator.version>0.0.5-SNAPSHOT</cnnarch-generator.version>
     <cnnarch-mxnet-generator.version>0.2.17-SNAPSHOT</cnnarch-mxnet-generator.version>
-    <cnnarch-caffe2-generator.version>0.2.13-SNAPSHOT</cnnarch-caffe2-generator.version>
-    <cnnarch-gluon-generator.version>0.2.9-SNAPSHOT</cnnarch-gluon-generator.version>
+    <cnnarch-caffe2-generator.version>0.2.14-SNAPSHOT</cnnarch-caffe2-generator.version>
+    <cnnarch-gluon-generator.version>0.2.10-SNAPSHOT</cnnarch-gluon-generator.version>
     <cnnarch-tensorflow-generator.version>0.1.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
+    <Common-MontiCar.version>0.0.14-20180704.113055-2</Common-MontiCar.version>
     <embedded-montiarc-math-opt-generator>0.1.5</embedded-montiarc-math-opt-generator>
-	<embedded-montiarc-emadl-pythonwrapper-generator>0.0.2</embedded-montiarc-emadl-pythonwrapper-generator>
 
         <!-- .. Libraries .................................................. -->
         <guava.version>18.0</guava.version>
@@ -87,6 +87,12 @@
             <groupId>de.monticore.lang.monticar</groupId>
             <artifactId>cnnarch-gluon-generator</artifactId>
             <version>${cnnarch-gluon-generator.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.monticore.lang.monticar</groupId>
+            <artifactId>common-monticar</artifactId>
+            <version>${Common-MontiCar.version}</version>
         </dependency>
 		
 		<dependency>
