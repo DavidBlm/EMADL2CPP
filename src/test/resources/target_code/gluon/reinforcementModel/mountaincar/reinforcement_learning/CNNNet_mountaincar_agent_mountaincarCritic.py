@@ -1,5 +1,6 @@
 import mxnet as mx
 import numpy as np
+import math
 from mxnet import gluon
 
 
@@ -51,10 +52,10 @@ class Reshape(gluon.HybridBlock):
 
 
 class CustomRNN(gluon.HybridBlock):
-    def __init__(self, hidden_size, num_layers, bidirectional, **kwargs):
+    def __init__(self, hidden_size, num_layers, dropout, bidirectional, **kwargs):
         super(CustomRNN, self).__init__(**kwargs)
         with self.name_scope():
-            self.rnn = gluon.rnn.RNN(hidden_size=hidden_size, num_layers=num_layers,
+            self.rnn = gluon.rnn.RNN(hidden_size=hidden_size, num_layers=num_layers, dropout=dropout,
                                      bidirectional=bidirectional, activation='tanh', layout='NTC')
 
     def hybrid_forward(self, F, data, state0):
@@ -63,10 +64,10 @@ class CustomRNN(gluon.HybridBlock):
 
 
 class CustomLSTM(gluon.HybridBlock):
-    def __init__(self, hidden_size, num_layers, bidirectional, **kwargs):
+    def __init__(self, hidden_size, num_layers, dropout, bidirectional, **kwargs):
         super(CustomLSTM, self).__init__(**kwargs)
         with self.name_scope():
-            self.lstm = gluon.rnn.LSTM(hidden_size=hidden_size, num_layers=num_layers,
+            self.lstm = gluon.rnn.LSTM(hidden_size=hidden_size, num_layers=num_layers, dropout=dropout,
                                        bidirectional=bidirectional, layout='NTC')
 
     def hybrid_forward(self, F, data, state0, state1):
@@ -75,10 +76,10 @@ class CustomLSTM(gluon.HybridBlock):
 
 
 class CustomGRU(gluon.HybridBlock):
-    def __init__(self, hidden_size, num_layers, bidirectional, **kwargs):
+    def __init__(self, hidden_size, num_layers, dropout, bidirectional, **kwargs):
         super(CustomGRU, self).__init__(**kwargs)
         with self.name_scope():
-            self.gru = gluon.rnn.GRU(hidden_size=hidden_size, num_layers=num_layers,
+            self.gru = gluon.rnn.GRU(hidden_size=hidden_size, num_layers=num_layers, dropout=dropout,
                                      bidirectional=bidirectional, layout='NTC')
 
     def hybrid_forward(self, F, data, state0):
@@ -135,3 +136,19 @@ class Net_0(gluon.HybridBlock):
 
         return qvalues_
 
+    def getInputs(self):
+        inputs = {}
+        input_dimensions = (2)
+        input_domains = (float,0,1)
+        inputs["state_"] = input_domains + (input_dimensions,)
+        input_dimensions = (1)
+        input_domains = (float,-1.0,1.0)
+        inputs["action_"] = input_domains + (input_dimensions,)
+        return inputs
+
+    def getOutputs(self):
+        outputs = {}
+        output_dimensions = (1,1,1)
+        output_domains = (float,float('-inf'),float('inf'))
+        outputs["qvalues_"] = output_domains + (output_dimensions,)
+        return outputs
