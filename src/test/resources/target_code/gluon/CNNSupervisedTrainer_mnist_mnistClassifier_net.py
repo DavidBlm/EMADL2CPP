@@ -143,7 +143,12 @@ class BLEU(mx.metric.EvalMetric):
         if self._size_hyp >= self._size_ref:
             return 1
         else:
-            return math.exp(1 - (self._size_ref / self._size_hyp))
+            if self._size_hyp > 0:
+                size_hyp = self._size_hyp
+            else:
+                size_hyp = 1
+
+            return math.exp(1 - (self._size_ref / size_hyp))
 
     @staticmethod
     def _get_ngrams(sentence, n):
