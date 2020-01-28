@@ -72,14 +72,14 @@ class CNNCreator_cifar10_cifar10Classifier_net:
                                        train_h5[self._output_data_names_[0]],
                                        batch_size=batch_size,
                                        data_name=self._input_names_[0],
-                                       label_name=self._output_names_[0])
+                                       label_name=self._output_names_[0], shuffle=True)
         test_iter = None
         if test_h5 != None:
             test_iter = mx.io.NDArrayIter(test_h5[self._input_data_names_[0]],
                                           test_h5[self._output_data_names_[0]],
                                           batch_size=batch_size,
                                           data_name=self._input_names_[0],
-                                          label_name=self._output_names_[0])
+                                          label_name=self._output_names_[0], shuffle=True)
         return train_iter, test_iter, data_mean, data_std
 
     def load_h5_files(self):
@@ -746,6 +746,7 @@ class CNNCreator_cifar10_cifar10Classifier_net:
             name="softmax32_")
         softmax_ = mx.symbol.SoftmaxOutput(data=softmax32_,
             name="softmax_")
+
 
         self.module = mx.mod.Module(symbol=mx.symbol.Group([softmax_]),
                                          data_names=self._input_names_,
