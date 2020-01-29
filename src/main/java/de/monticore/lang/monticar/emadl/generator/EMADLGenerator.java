@@ -26,13 +26,17 @@ import de.monticore.lang.monticar.generator.cpp.ArmadilloHelper;
 import de.monticore.lang.monticar.generator.cpp.GeneratorEMAMOpt2CPP;
 import de.monticore.lang.monticar.generator.cpp.SimulatorIntegrationHelper;
 import de.monticore.lang.monticar.generator.cpp.TypesGeneratorCPP;
+import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapper;
 import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
+import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperFactory;
+import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Splitters;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
+import org.antlr.v4.codegen.target.Python2Target;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
@@ -51,6 +55,7 @@ public class EMADLGenerator {
     private GeneratorEMAMOpt2CPP emamGen;
     private CNNArchGenerator cnnArchGenerator;
     private CNNTrainGenerator cnnTrainGenerator;
+    private GeneratorPythonWrapperStandaloneApi pythonWrapper;
     private Backend backend;
 
     private String modelsPath;
@@ -62,6 +67,8 @@ public class EMADLGenerator {
         emamGen = new GeneratorEMAMOpt2CPP();
         emamGen.useArmadilloBackend();
         emamGen.setGenerationTargetPath("./target/generated-sources-emadl/");
+        GeneratorPythonWrapperFactory pythonWrapperFactory = new GeneratorPythonWrapperFactory();
+        pythonWrapper = new GeneratorPythonWrapperStandaloneApi();
         cnnArchGenerator = backend.getCNNArchGenerator();
         cnnTrainGenerator = backend.getCNNTrainGenerator();
     }
@@ -123,7 +130,10 @@ public class EMADLGenerator {
             System.exit(1);
         }
 
-        return component.getEnclosingScope().<EMAComponentInstanceSymbol>resolve(instanceName, EMAComponentInstanceSymbol.KIND).get();
+        Scope c1 = component.getEnclosingScope();
+        Optional<EMAComponentInstanceSymbol> c2 = c1.<EMAComponentInstanceSymbol>resolve(instanceName, EMAComponentInstanceSymbol.KIND);
+        EMAComponentInstanceSymbol c3 = c2.get();
+        return c3;
     }
 
     public void compile() throws IOException {
@@ -592,6 +602,77 @@ public class EMADLGenerator {
                     CNNTrainCocos.checkCriticCocos(configuration);
                 }
 
+                // Resolve discriminator network if discriminator is present
+                if (configuration.getDiscriminatorName().isPresent()) {
+                    String fullDiscriminatorName = configuration.getDiscriminatorName().get();
+                    int indexOfFirstNameCharacter = fullDiscriminatorName.lastIndexOf('.') + 1;
+                    fullDiscriminatorName = fullDiscriminatorName.substring(0, indexOfFirstNameCharacter)
+                            + fullDiscriminatorName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                            + fullDiscriminatorName.substring(indexOfFirstNameCharacter + 1);
+
+                    TaggingResolver symtab = EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath());
+                    EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(fullDiscriminatorName, symtab);
+                    EMADLCocos.checkAll(instanceSymbol);
+                    Optional<ArchitectureSymbol> discriminator = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+                    if (!discriminator.isPresent()) {
+                        Log.error("During the resolving of critic component: Critic component "
+                                + fullDiscriminatorName + " does not have a CNN implementation but is required to have one");
+                        System.exit(-1);
+                    }
+                    discriminator.get().setComponentName(fullDiscriminatorName);
+                    configuration.setDiscriminatorNetwork(new ArchitectureAdapter(fullDiscriminatorName, discriminator.get()));
+                    //CNNTrainCocos.checkCriticCocos(configuration);
+                }
+
+                // Resolve QNetwork if present
+                if (configuration.getQNetworkName().isPresent()) {
+                    String fullQNetworkName = configuration.getQNetworkName().get();
+                    int indexOfFirstNameCharacter = fullQNetworkName.lastIndexOf('.') + 1;
+                    fullQNetworkName = fullQNetworkName.substring(0, indexOfFirstNameCharacter)
+                            + fullQNetworkName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                            + fullQNetworkName.substring(indexOfFirstNameCharacter + 1);
+
+                    TaggingResolver symtab = EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath());
+                    EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(fullQNetworkName, symtab);
+                    EMADLCocos.checkAll(instanceSymbol);
+                    Optional<ArchitectureSymbol> qnetwork = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+                    if (!qnetwork.isPresent()) {
+                        Log.error("During the resolving of qnetwork component: qnetwork component "
+                                + fullQNetworkName + " does not have a CNN implementation but is required to have one");
+                        System.exit(-1);
+                    }
+                    qnetwork.get().setComponentName(fullQNetworkName);
+                    configuration.setQNetwork(new ArchitectureAdapter(fullQNetworkName, qnetwork.get()));
+                    //CNNTrainCocos.checkCriticCocos(configuration);
+                }
+
+                if (configuration.hasPreprocessor()) {
+                    String fullPreprocessorName = configuration.getPreprocessingName().get();
+                    int indexOfFirstNameCharacter = fullPreprocessorName.lastIndexOf('.') + 1;
+                    fullPreprocessorName = fullPreprocessorName.substring(0, indexOfFirstNameCharacter)
+                            + fullPreprocessorName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                            + fullPreprocessorName.substring(indexOfFirstNameCharacter + 1);
+                    String instanceName = componentInstance.getFullName().replaceAll("\\.", "_");
+
+                    TaggingResolver symtab = EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath());
+                    EMAComponentInstanceSymbol processor_instance = resolveComponentInstanceSymbol(fullPreprocessorName, symtab);
+                    processor_instance.setFullName("CNNPreprocessor_" + instanceName);
+                    List<FileContent> processorContents = new ArrayList<>();
+                    generateComponent(processorContents, new HashSet<EMAComponentInstanceSymbol>(), symtab, processor_instance, symtab);
+                    fixArmadilloImports(processorContents);
+
+                    for (FileContent fileContent : processorContents) {
+                        try {
+                            emamGen.generateFile(fileContent);
+                        } catch (IOException e) {
+                            //todo: fancy error message
+                            e.printStackTrace();
+                        }
+                    }
+
+                    String targetPath = getGenerationTargetPath();
+                    pythonWrapper.generateAndTryBuilding(processor_instance, targetPath + "/pythonWrapper", targetPath);
+                }
 
                 cnnTrainGenerator.setInstanceName(componentInstance.getFullName().replaceAll("\\.", "_"));
                 Map<String, String> fileContentMap =  cnnTrainGenerator.generateStrings(configuration);
