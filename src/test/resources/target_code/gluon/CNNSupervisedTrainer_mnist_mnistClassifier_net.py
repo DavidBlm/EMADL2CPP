@@ -512,11 +512,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
                 predictions = []
                 for output_name in outputs:
-                    if mx.nd.shape_array(mx.nd.squeeze(output_name)).size > 1:
-                        predictions.append(mx.nd.argmax(output_name, axis=1))
-                    #ArgMax already applied
-                    else:
-                        predictions.append(output_name)
+                    predictions.append(output_name)
 
                 metric.update(preds=predictions, labels=labels)
             test_metric_score = metric.get()[1]
