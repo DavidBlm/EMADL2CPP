@@ -24,7 +24,7 @@
     <cnnarch-gluon-generator.version>0.2.10-SNAPSHOT</cnnarch-gluon-generator.version>
     <cnnarch-tensorflow-generator.version>0.1.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
     <Common-MontiCar.version>0.0.14-20180704.113055-2</Common-MontiCar.version>
-    <embedded-montiarc-math-opt-generator>0.1.5</embedded-montiarc-math-opt-generator>
+    <embedded-montiarc-math-opt-generator>0.1.6</embedded-montiarc-math-opt-generator>
 
         <!-- .. Libraries .................................................. -->
         <guava.version>18.0</guava.version>

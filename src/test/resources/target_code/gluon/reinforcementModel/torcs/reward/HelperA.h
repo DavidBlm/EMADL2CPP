@@ -1,7 +1,7 @@
 #ifndef HELPERA_H
 #define HELPERA_H
 #include <iostream>
-#include "armadillo.h"
+#include "armadillo"
 #include <stdarg.h>
 #include <initializer_list>
 #include <fstream>
