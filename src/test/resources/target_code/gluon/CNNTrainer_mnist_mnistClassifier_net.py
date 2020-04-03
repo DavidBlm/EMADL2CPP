@@ -21,6 +21,7 @@ if __name__ == "__main__":
         batch_size=64,
         num_epoch=11,
         context='gpu',
+        preprocessing=False,
         eval_metric='accuracy',
         eval_metric_params={
         },

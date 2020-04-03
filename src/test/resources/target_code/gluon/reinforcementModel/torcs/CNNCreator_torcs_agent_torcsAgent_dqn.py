@@ -58,3 +58,17 @@ class CNNCreator_torcs_agent_torcsAgent_dqn:
 
         for i, network in self.networks.items():
             network.export(self._model_dir_ + self._model_prefix_ + "_" + str(i), epoch=0)
+
+    def getInputs(self):
+        inputs = {}
+        input_dimensions = (5,)
+        input_domains = (float,0,1,)
+        inputs["state_"] = input_domains + (input_dimensions,)
+        return inputs
+
+    def getOutputs(self):
+        outputs = {}
+        output_dimensions = (30,1,1,)
+        output_domains = (float,float('-inf'),float('inf'),)
+        outputs["qvalues_"] = output_domains + (output_dimensions,)
+        return outputs

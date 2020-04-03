@@ -125,16 +125,3 @@ class Net_0(gluon.HybridBlock):
 
         return action_
 
-    def getInputs(self):
-        inputs = {}
-        input_dimensions = (2)
-        input_domains = (float,0,1)
-        inputs["state_"] = input_domains + (input_dimensions,)
-        return inputs
-
-    def getOutputs(self):
-        outputs = {}
-        output_dimensions = (1,1,1)
-        output_domains = (float,-1.0,1.0)
-        outputs["action_"] = output_domains + (output_dimensions,)
-        return outputs

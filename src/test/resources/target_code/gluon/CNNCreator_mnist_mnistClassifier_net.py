@@ -58,3 +58,17 @@ class CNNCreator_mnist_mnistClassifier_net:
 
         for i, network in self.networks.items():
             network.export(self._model_dir_ + self._model_prefix_ + "_" + str(i), epoch=0)
+
+    def getInputs(self):
+        inputs = {}
+        input_dimensions = (1,28,28,)
+        input_domains = (int,0.0,255.0,)
+        inputs["image_"] = input_domains + (input_dimensions,)
+        return inputs
+
+    def getOutputs(self):
+        outputs = {}
+        output_dimensions = (10,1,1,)
+        output_domains = (float,0.0,1.0,)
+        outputs["predictions_"] = output_domains + (output_dimensions,)
+        return outputs
