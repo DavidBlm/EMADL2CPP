@@ -70,6 +70,24 @@ public class IntegrationGluonTest extends IntegrationTest {
         assertTrue(Log.getFindings().isEmpty());
     }
 
+    @Test
+    public void testGluonPreprocessingWithSupervised() {
+        Log.getFindings().clear();
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/PreprocessingNetwork.training_hash"));
+        String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().size() == 0);
+    }
+
+    @Test
+    public void testGluonPreprocessingWithGAN() {
+        Log.getFindings().clear();
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/defaultGANPreprocessing/GeneratorWithPreprocessing.training_hash"));
+        String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().size() == 0);
+    }
+
     private void deleteHashFile(Path hashFile) {
         try {
             Files.delete(hashFile);

@@ -282,6 +282,76 @@ public class GenerationTest extends AbstractSymtabTest {
     }
 
     @Test
+    public void testGluonDefaultGANGeneration() {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGAN.DefaultGANConnector", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/gluon/ganModel/defaultGAN"),
+                Arrays.asList(
+                        "gan/CNNCreator_defaultGAN_defaultGANDiscriminator.py",
+                        "gan/CNNNet_defaultGAN_defaultGANDiscriminator.py",
+                        "CNNCreator_defaultGAN_defaultGANConnector_predictor.py",
+                        "CNNGanTrainer_defaultGAN_defaultGANConnector_predictor.py",
+                        "CNNNet_defaultGAN_defaultGANConnector_predictor.py",
+                        "CNNPredictor_defaultGAN_defaultGANConnector_predictor.h",
+                        "CNNTrainer_defaultGAN_defaultGANConnector_predictor.py",
+                        "defaultGAN_defaultGANConnector.cpp",
+                        "defaultGAN_defaultGANConnector.h",
+                        "defaultGAN_defaultGANConnector_predictor.h",
+                        "defaultGAN_defaultGANConnector.cpp",
+                        "defaultGAN_defaultGANConnector.h",
+                        "defaultGAN_defaultGANConnector_predictor.h"
+                )
+        );
+    }
+
+    @Test
+    public void testGluonInfoGANGeneration() {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "infoGAN.InfoGANConnector", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/gluon/ganModel/infoGAN"),
+                Arrays.asList(
+                        "gan/CNNCreator_infoGAN_infoGANDiscriminator.py",
+                        "gan/CNNNet_infoGAN_infoGANDiscriminator.py",
+                        "gan/CNNCreator_infoGAN_infoGANQNetwork.py",
+                        "gan/CNNNet_infoGAN_infoGANQNetwork.py",
+                        "CNNCreator_infoGAN_infoGANConnector_predictor.py",
+                        "CNNDataLoader_infoGAN_infoGANConnector_predictor.py",
+                        "CNNGanTrainer_infoGAN_infoGANConnector_predictor.py",
+                        "CNNNet_infoGAN_infoGANConnector_predictor.py",
+                        "CNNPredictor_infoGAN_infoGANConnector_predictor.h",
+                        "CNNTrainer_infoGAN_infoGANConnector_predictor.py",
+                        "infoGAN_infoGANConnector.cpp",
+                        "infoGAN_infoGANConnector.h",
+                        "infoGAN_infoGANConnector_predictor.h"
+                )
+        );
+    }
+
+    @Test
+    public void testGluonPreprocessingWithSupervised() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().size() == 0);
+    }
+
+    @Test
+    public void testGluonPreprocessingWithGAN() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().size() == 0);
+    }
+
+    @Test
     public void testAlexNetTagging() {
         Log.getFindings().clear();
         String[] args = { "-m", "src/test/resources/models/", "-r", "tagging.Alexnet", "-b", "MXNET", "-f", "n", "-c",

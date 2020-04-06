@@ -1,6 +1,7 @@
 cifar10.CifarNetwork src/test/resources/training_data/Cifar
 simpleCifar10.CifarNetwork src/test/resources/training_data/Cifar
 cNNCalculator.Network src/test/resources/training_data/Cifar
+PreprocessingNetwork src/test/resources/training_data/Cifar
 InstanceTest.NetworkB data/InstanceTest.NetworkB
 Alexnet data/Alexnet
 ThreeInputCNN_M14 data/ThreeInputCNN_M14
