@@ -414,13 +414,14 @@ public class EMADLGenerator {
     protected String getWeightsPath(EMAComponentSymbol component, EMAComponentInstanceSymbol instance){
         String weightsPath;
 
+        // TODO check if pretrained true, otherwise return null
         Path weightsPathDefinition = Paths.get(getModelsPath(), "weights_paths.txt");
         if (weightsPathDefinition.toFile().exists()) {
             WeightsPathConfigParser newParserConfig = new WeightsPathConfigParser(getModelsPath() + "weights_paths.txt");
             weightsPath = newParserConfig.getWeightsPath(component.getFullName());
         } else {
-            Log.warn("No weights path definition found in " + weightsPathDefinition + " found: "
-                    + "No pretrained weights will be loaded.");
+            Log.info("No weights path definition found in " + weightsPathDefinition + ": "
+                    + "No pretrained weights will be loaded.", "EMADLGenerator");
             weightsPath = null;
         }
         return weightsPath;
