@@ -674,7 +674,6 @@ public class EMADLGenerator {
                         try {
                             emamGen.generateFile(fileContent);
                         } catch (IOException e) {
-                            //todo: fancy error message
                             e.printStackTrace();
                         }
                     }
