@@ -1,6 +1,7 @@
 import mxnet as mx
 import logging
 import os
+import shutil
 
 from CNNNet_cartpole_master_dqn import Net_0
 
@@ -11,6 +12,7 @@ class CNNCreator_cartpole_master_dqn:
     def __init__(self):
         self.weight_initializer = mx.init.Normal()
         self.networks = {}
+        self._weights_dir_ = None
 
     def load(self, context):
         earliestLastEpoch = None
@@ -46,6 +48,29 @@ class CNNCreator_cartpole_master_dqn:
                     earliestLastEpoch = lastEpoch
 
         return earliestLastEpoch
+
+    def load_pretrained_weights(self, context):
+        if os.path.isdir(self._model_dir_):
+            shutil.rmtree(self._model_dir_)
+        if self._weights_dir_ is not None:
+            for i, network in self.networks.items():
+                # param_file = self._model_prefix_ + "_" + str(i) + "_newest-0000.params"
+                param_file = None
+                if os.path.isdir(self._weights_dir_):
+                    lastEpoch = 0
+
+                    for file in os.listdir(self._weights_dir_):
+
+                        if ".params" in file and self._model_prefix_ + "_" + str(i) in file:
+                            epochStr = file.replace(".params","").replace(self._model_prefix_ + "_" + str(i) + "-","")
+                            epoch = int(epochStr)
+                            if epoch > lastEpoch:
+                                lastEpoch = epoch
+                                param_file = file
+                    logging.info("Loading pretrained weights: " + self._weights_dir_ + param_file)
+                    network.load_parameters(self._weights_dir_ + param_file, allow_missing=True, ignore_extra=True)
+                else:
+                    logging.info("No pretrained weights available at: " + self._weights_dir_ + param_file)
 
     def construct(self, context, data_mean=None, data_std=None):
         self.networks[0] = Net_0(data_mean=data_mean, data_std=data_std)
