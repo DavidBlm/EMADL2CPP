@@ -2,7 +2,7 @@
 package defaultGANPreprocessing;
 
 component DiscriminatorWithPreprocessing{
-    ports in Q(-1:1)^{3, 32, 32} data,
+    ports in Q(-1:1)^{3, 64, 64} data,
          out Q(-oo:oo)^{1} dis;
 
     implementation CNN {
@@ -14,6 +14,9 @@ component DiscriminatorWithPreprocessing{
 		BatchNorm() ->
 		LeakyRelu(alpha=0.2) ->
         Convolution(kernel=(4,4),channels=256, stride=(2,2)) ->
+		BatchNorm() ->
+		LeakyRelu(alpha=0.2) ->
+        Convolution(kernel=(4,4),channels=512, stride=(2,2)) ->
 		BatchNorm() ->
 		LeakyRelu(alpha=0.2) ->
         Convolution(kernel=(4,4),channels=1, stride=(1,1)) ->
