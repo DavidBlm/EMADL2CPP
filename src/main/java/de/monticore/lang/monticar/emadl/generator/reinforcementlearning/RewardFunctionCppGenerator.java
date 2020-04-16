@@ -22,7 +22,7 @@ public class RewardFunctionCppGenerator implements RewardFunctionSourceGenerator
                 .<EMAComponentInstanceSymbol>resolve(rootModel, EMAComponentInstanceSymbol.KIND);
 
         if (!instanceSymbol.isPresent()) {
-            Log.error("Generation of component is not possible: Cannot resolve component instance "
+            Log.error("Generation of reward is not possible: Cannot resolve component instance "
                     + rootModel);
         }
 
@@ -40,7 +40,7 @@ public class RewardFunctionCppGenerator implements RewardFunctionSourceGenerator
         try {
             generator.generate(componentInstanceSymbol, taggingResolver);
         } catch (IOException e) {
-            Log.error("Generation of rd function is not possible: " + e.getMessage());
+            Log.error("Generation of reward function is not possible: " + e.getMessage());
         }
 
     }
