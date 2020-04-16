@@ -27,7 +27,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/MultipleStreams.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        //EMADLGeneratorCli.main(args);
 
         assertTrue(Log.getFindings().isEmpty());
     }
@@ -40,7 +40,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnencdec/Network.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnencdec.Main", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        //EMADLGeneratorCli.main(args);
 
         assertTrue(Log.getFindings().isEmpty());
     }
@@ -53,7 +53,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnsearch/Network.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnsearch.Main", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        //EMADLGeneratorCli.main(args);
 
         assertTrue(Log.getFindings().isEmpty());
     }
@@ -65,7 +65,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/showAttendTell/Show_attend_tell.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        //EMADLGeneratorCli.main(args);
 
         assertTrue(Log.getFindings().isEmpty());
     }
