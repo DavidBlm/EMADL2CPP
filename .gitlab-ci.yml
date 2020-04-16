@@ -1,7 +1,7 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 
 stages:
-- windows
+#- windows
 - linux
 - deploy
 
@@ -9,7 +9,7 @@ stages:
 git masterJobLinux:
   stage: deploy
   image: maven:3-jdk-8
-  script: 
+  script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean deploy --settings settings.xml -DskipTests
 #  - cat target/site/jacoco/index.html
 #  - mvn package sonar:sonar -s settings.xml
@@ -19,7 +19,7 @@ git masterJobLinux:
 
 integrationMXNetJobLinux:
   stage: linux
-  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/mxnet:v0.0.4
+  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/applications/gans/mnist-infogan/gans_mxnet:latest
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationMXNetTest
 
@@ -33,7 +33,7 @@ integrationCaffe2JobLinux:
 
 integrationGluonJobLinux:
   stage: linux
-  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/mxnet:v0.0.4
+  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/applications/gans/mnist-infogan/gans_mxnet:latest
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationGluonTest
 
@@ -51,19 +51,19 @@ integrationPythonWrapperTest:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U  clean install --settings settings.xml -Dtest=IntegrationPythonWrapperTest
 
 
-masterJobWindows:
-  stage: windows
-  script:
-  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest="GenerationTest,SymtabTest"
-  tags:
-  - Windows10
+#masterJobWindows:
+#  stage: windows
+#  script:
+#  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest="GenerationTest,SymtabTest"
+#  tags:
+#  - Windows10
 
 
 UnitTestJobLinux:
   stage: linux
+  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/applications/gans/mnist-infogan/gans_mxnet:latest
 #  image: maven:3-jdk-8
-  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/mxnet:v0.0.4
-  script: 
-  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install sonar:sonar --settings settings.xml -Dtest="GenerationTest,SymtabTest*"
+  script:
+  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install sonar:sonar --settings settings.xml -Dtest="GenerationTest,SymtabTest*"
 #  - cat target/site/jacoco/index.html
-  
+

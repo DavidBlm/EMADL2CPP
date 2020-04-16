@@ -50,12 +50,88 @@ class SoftmaxCrossEntropyLossIgnoreIndices(gluon.loss.Loss):
         if self._sparse_label:
             loss = -pick(pred, label, axis=self._axis, keepdims=True)
         else:
-            label = _reshape_like(F, label, pred)
+            label = gluon.loss._reshape_like(F, label, pred)
             loss = -(pred * label).sum(axis=self._axis, keepdims=True)
         # ignore some indices for loss, e.g. <pad> tokens in NLP applications
         for i in self._ignore_indices:
             loss = loss * mx.nd.logical_not(mx.nd.equal(mx.nd.argmax(pred, axis=1), mx.nd.ones_like(mx.nd.argmax(pred, axis=1))*i) * mx.nd.equal(mx.nd.argmax(pred, axis=1), label))
         return loss.mean(axis=self._batch_axis, exclude=True)
+
+class DiceLoss(gluon.loss.Loss):
+    def __init__(self, axis=-1, sparse_label=True, from_logits=False, weight=None,
+                 batch_axis=0, **kwargs):
+        super(DiceLoss, self).__init__(weight, batch_axis, **kwargs)
+        self._axis = axis
+        self._sparse_label = sparse_label
+        self._from_logits = from_logits
+
+    def dice_loss(self, F, pred, label):
+        smooth = 1.
+        pred_y = F.argmax(pred, axis = self._axis)
+        intersection = pred_y * label
+        score = (2 * F.mean(intersection, axis=self._batch_axis, exclude=True) + smooth) \
+            / (F.mean(label, axis=self._batch_axis, exclude=True) + F.mean(pred_y, axis=self._batch_axis, exclude=True) + smooth)
+
+        return - F.log(score)
+
+    def hybrid_forward(self, F, pred, label, sample_weight=None):
+        if not self._from_logits:
+            pred = F.log_softmax(pred, self._axis)
+        if self._sparse_label:
+            loss = -F.pick(pred, label, axis=self._axis, keepdims=True)
+        else:
+            label = gluon.loss._reshape_like(F, label, pred)
+            loss = -F.sum(pred*label, axis=self._axis, keepdims=True)
+        loss = gluon.loss._apply_weighting(F, loss, self._weight, sample_weight)
+        diceloss = self.dice_loss(F, pred, label)
+        return F.mean(loss, axis=self._batch_axis, exclude=True) + diceloss
+
+class SoftmaxCrossEntropyLossIgnoreLabel(gluon.loss.Loss):
+    def __init__(self, axis=-1, from_logits=False, weight=None,
+                 batch_axis=0, ignore_label=255, **kwargs):
+        super(SoftmaxCrossEntropyLossIgnoreLabel, self).__init__(weight, batch_axis, **kwargs)
+        self._axis = axis
+        self._from_logits = from_logits
+        self._ignore_label = ignore_label
+
+    def hybrid_forward(self, F, output, label, sample_weight=None):
+        if not self._from_logits:
+            output = F.log_softmax(output, axis=self._axis)
+
+        valid_label_map = (label != self._ignore_label)
+        loss = -(F.pick(output, label, axis=self._axis, keepdims=True) * valid_label_map )
+
+        loss = gluon.loss._apply_weighting(F, loss, self._weight, sample_weight)
+        return F.sum(loss) / F.sum(valid_label_map)
+
+@mx.metric.register
+class ACCURACY_IGNORE_LABEL(mx.metric.EvalMetric):
+    """Ignores a label when computing accuracy.
+    """
+    def __init__(self, axis=1, metric_ignore_label=255, name='accuracy',
+                 output_names=None, label_names=None):
+        super(ACCURACY_IGNORE_LABEL, self).__init__(
+            name, axis=axis,
+            output_names=output_names, label_names=label_names)
+        self.axis = axis
+        self.ignore_label = metric_ignore_label
+
+    def update(self, labels, preds):
+        mx.metric.check_label_shapes(labels, preds)
+
+        for label, pred_label in zip(labels, preds):
+            if pred_label.shape != label.shape:
+                pred_label = mx.nd.argmax(pred_label, axis=self.axis, keepdims=True)
+            label = label.astype('int32')
+            pred_label = pred_label.astype('int32').as_in_context(label.context)
+
+            mx.metric.check_label_shapes(label, pred_label)
+
+            correct = mx.nd.sum( (label == pred_label) * (label != self.ignore_label) ).asscalar()
+            total = mx.nd.sum( (label != self.ignore_label) ).asscalar()
+
+            self.sum_metric += correct
+            self.num_inst += total
 
 @mx.metric.register
 class BLEU(mx.metric.EvalMetric):
@@ -192,6 +268,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
               optimizer_params=(('learning_rate', 0.001),),
               load_checkpoint=True,
               checkpoint_period=5,
+              load_pretrained=False,
               log_period=50,
               context='gpu',
               save_attention_image=False,
@@ -236,6 +313,8 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
         begin_epoch = 0
         if load_checkpoint:
             begin_epoch = self._net_creator.load(mx_context)
+        elif load_pretrained:
+            self._net_creator.load_pretrained_weights(mx_context)
         else:
             if os.path.isdir(self._net_creator._model_dir_):
                 shutil.rmtree(self._net_creator._model_dir_)
@@ -253,16 +332,25 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
         margin = loss_params['margin'] if 'margin' in loss_params else 1.0
         sparseLabel = loss_params['sparse_label'] if 'sparse_label' in loss_params else True
         ignore_indices = [loss_params['ignore_indices']] if 'ignore_indices' in loss_params else []
+        loss_axis = loss_params['loss_axis'] if 'loss_axis' in loss_params else -1
+        batch_axis = loss_params['batch_axis'] if 'batch_axis' in loss_params else 0
         if loss == 'softmax_cross_entropy':
             fromLogits = loss_params['from_logits'] if 'from_logits' in loss_params else False
-            loss_function = mx.gluon.loss.SoftmaxCrossEntropyLoss(from_logits=fromLogits, sparse_label=sparseLabel)
+            loss_function = mx.gluon.loss.SoftmaxCrossEntropyLoss(axis=loss_axis, from_logits=fromLogits, sparse_label=sparseLabel, batch_axis=batch_axis)
         elif loss == 'softmax_cross_entropy_ignore_indices':
             fromLogits = loss_params['from_logits'] if 'from_logits' in loss_params else False
-            loss_function = SoftmaxCrossEntropyLossIgnoreIndices(ignore_indices=ignore_indices, from_logits=fromLogits, sparse_label=sparseLabel)
+            loss_function = SoftmaxCrossEntropyLossIgnoreIndices(axis=loss_axis, ignore_indices=ignore_indices, from_logits=fromLogits, sparse_label=sparseLabel, batch_axis=batch_axis)
         elif loss == 'sigmoid_binary_cross_entropy':
             loss_function = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss()
         elif loss == 'cross_entropy':
-            loss_function = CrossEntropyLoss(sparse_label=sparseLabel)
+            loss_function = CrossEntropyLoss(axis=loss_axis, sparse_label=sparseLabel, batch_axis=batch_axis)
+        elif loss == 'dice_loss':
+            loss_weight = loss_params['loss_weight'] if 'loss_weight' in loss_params else None
+            loss_function = DiceLoss(axis=loss_axis, weight=loss_weight, sparse_label=sparseLabel, batch_axis=batch_axis)
+        elif loss == 'softmax_cross_entropy_ignore_label':
+            loss_weight = loss_params['loss_weight'] if 'loss_weight' in loss_params else None
+            loss_ignore_label = loss_params['loss_ignore_label'] if 'loss_ignore_label' in loss_params else None
+            loss_function = SoftmaxCrossEntropyLossIgnoreLabel(axis=loss_axis, ignore_label=loss_ignore_label, weight=loss_weight, batch_axis=batch_axis)
         elif loss == 'l2':
             loss_function = mx.gluon.loss.L2Loss()
         elif loss == 'l1':
@@ -510,11 +598,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
                 predictions = []
                 for output_name in outputs:
-                    if mx.nd.shape_array(mx.nd.squeeze(output_name)).size > 1:
-                        predictions.append(mx.nd.argmax(output_name, axis=1))
-                    #ArgMax already applied
-                    else:
-                        predictions.append(output_name)
+                    predictions.append(output_name)
 
                 metric.update(preds=predictions, labels=labels)
             test_metric_score = metric.get()[1]

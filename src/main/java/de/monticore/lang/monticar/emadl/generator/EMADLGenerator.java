@@ -14,10 +14,15 @@ import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.CNNTrainGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.DataPathConfigParser;
+import de.monticore.lang.monticar.cnnarch.generator.WeightsPathConfigParser;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.annotations.ArchitectureAdapter;
+import de.monticore.lang.monticar.cnnarch.gluongenerator.preprocessing.PreprocessingComponentParameterAdapter;
+import de.monticore.lang.monticar.cnnarch.gluongenerator.preprocessing.PreprocessingPortChecker;
 import de.monticore.lang.monticar.cnntrain._cocos.CNNTrainCocos;
 import de.monticore.lang.monticar.cnntrain._symboltable.ConfigurationSymbol;
+import de.monticore.lang.monticar.cnntrain._symboltable.LearningMethod;
+import de.monticore.lang.monticar.cnntrain._symboltable.PreprocessingComponentSymbol;
 import de.monticore.lang.monticar.emadl._cocos.DataPathCocos;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
@@ -30,6 +35,7 @@ import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapper
 import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperFactory;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
+import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Scope;
@@ -241,7 +247,7 @@ public class EMADLGenerator {
             String b = backend.getBackendString(backend);
             String trainingDataHash = "";
             String testDataHash = "";
-			
+
             if (architecture.get().getDataPath() != null) {
                 if (b.equals("CAFFE2")) {
                     trainingDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/train_lmdb/data.mdb");
@@ -405,6 +411,21 @@ public class EMADLGenerator {
         return dataPath;
     }
 
+    protected String getWeightsPath(EMAComponentSymbol component, EMAComponentInstanceSymbol instance){
+        String weightsPath;
+
+        Path weightsPathDefinition = Paths.get(getModelsPath(), "weights_paths.txt");
+        if (weightsPathDefinition.toFile().exists()) {
+            WeightsPathConfigParser newParserConfig = new WeightsPathConfigParser(getModelsPath() + "weights_paths.txt");
+            weightsPath = newParserConfig.getWeightsPath(component.getFullName());
+        } else {
+            Log.info("No weights path definition found in " + weightsPathDefinition + ": "
+                    + "No pretrained weights will be loaded.", "EMADLGenerator");
+            weightsPath = null;
+        }
+        return weightsPath;
+    }
+
     protected void generateComponent(List<FileContent> fileContents,
                                      Set<EMAComponentInstanceSymbol> allInstances,
                                      TaggingResolver taggingResolver,
@@ -426,7 +447,9 @@ public class EMADLGenerator {
         if (architecture.isPresent()){
             cnnArchGenerator.check(architecture.get());
             String dPath = getDataPath(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
+            String wPath = getWeightsPath(EMAComponentSymbol, componentInstanceSymbol);
             architecture.get().setDataPath(dPath);
+            architecture.get().setWeightsPath(wPath);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());
             generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             if (processedArchitecture != null) {
@@ -621,7 +644,6 @@ public class EMADLGenerator {
                     }
                     discriminator.get().setComponentName(fullDiscriminatorName);
                     configuration.setDiscriminatorNetwork(new ArchitectureAdapter(fullDiscriminatorName, discriminator.get()));
-                    //CNNTrainCocos.checkCriticCocos(configuration);
                 }
 
                 // Resolve QNetwork if present
@@ -643,11 +665,16 @@ public class EMADLGenerator {
                     }
                     qnetwork.get().setComponentName(fullQNetworkName);
                     configuration.setQNetwork(new ArchitectureAdapter(fullQNetworkName, qnetwork.get()));
-                    //CNNTrainCocos.checkCriticCocos(configuration);
                 }
 
+                if (configuration.getLearningMethod() == LearningMethod.GAN)
+                    CNNTrainCocos.checkGANCocos(configuration);
+
                 if (configuration.hasPreprocessor()) {
-                    String fullPreprocessorName = configuration.getPreprocessingName().get();
+                    PreprocessingComponentSymbol preprocessingSymbol = configuration.getPreprocessingComponent().get();
+                    List<String> fullNameOfComponent = preprocessingSymbol.getPreprocessingComponentName();
+                    String fullPreprocessorName = String.join(".", fullNameOfComponent);
+
                     int indexOfFirstNameCharacter = fullPreprocessorName.lastIndexOf('.') + 1;
                     fullPreprocessorName = fullPreprocessorName.substring(0, indexOfFirstNameCharacter)
                             + fullPreprocessorName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
@@ -665,13 +692,16 @@ public class EMADLGenerator {
                         try {
                             emamGen.generateFile(fileContent);
                         } catch (IOException e) {
-                            //todo: fancy error message
                             e.printStackTrace();
                         }
                     }
 
                     String targetPath = getGenerationTargetPath();
-                    pythonWrapper.generateAndTryBuilding(processor_instance, targetPath + "/pythonWrapper", targetPath);
+                    ComponentPortInformation componentPortInformation;
+                    componentPortInformation = pythonWrapper.generateAndTryBuilding(processor_instance, targetPath + "/pythonWrapper", targetPath);
+                    PreprocessingComponentParameterAdapter componentParameter = new PreprocessingComponentParameterAdapter(componentPortInformation);
+                    PreprocessingPortChecker.check(componentParameter);
+                    preprocessingSymbol.setPreprocessingComponentParameter(componentParameter);
                 }
 
                 cnnTrainGenerator.setInstanceName(componentInstance.getFullName().replaceAll("\\.", "_"));
