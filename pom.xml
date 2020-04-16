@@ -21,7 +21,7 @@
     <cnnarch-generator.version>0.0.6-SNAPSHOT</cnnarch-generator.version>
     <cnnarch-mxnet-generator.version>0.2.17-SNAPSHOT</cnnarch-mxnet-generator.version>
     <cnnarch-caffe2-generator.version>0.2.14-SNAPSHOT</cnnarch-caffe2-generator.version>
-    <cnnarch-gluon-generator.version>0.2.10-SNAPSHOT</cnnarch-gluon-generator.version>
+    <cnnarch-gluon-generator.version>0.2.10-20200416.091906-5</cnnarch-gluon-generator.version>
     <cnnarch-tensorflow-generator.version>0.1.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
     <Common-MontiCar.version>0.0.19-SNAPSHOT</Common-MontiCar.version>
     <embedded-montiarc-math-opt-generator>0.1.6</embedded-montiarc-math-opt-generator>
