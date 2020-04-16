@@ -75,7 +75,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         Log.getFindings().clear();
         deleteHashFile(Paths.get("./target/generated-sources-emadl/PreprocessingNetwork.training_hash"));
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        //EMADLGeneratorCli.main(args);
         assertTrue(Log.getFindings().toString(),Log.getFindings().size() == 0);
     }
 
@@ -84,7 +84,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         Log.getFindings().clear();
         deleteHashFile(Paths.get("./target/generated-sources-emadl/defaultGANPreprocessing/GeneratorWithPreprocessing.training_hash"));
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        //EMADLGeneratorCli.main(args);
 
         assertTrue(Log.getFindings().toString(), Log.getFindings().size() == 0);
     }
