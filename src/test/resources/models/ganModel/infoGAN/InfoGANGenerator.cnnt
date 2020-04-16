@@ -24,8 +24,4 @@ configuration InfoGANGenerator{
 	 }
 	 log_period: 10
 	 print_images: true
-
-	 constraint_distributions: {"c1": gaussian{mean_value:0, spread_value:1},
-	                            "c2": uniform{} }
-
 }

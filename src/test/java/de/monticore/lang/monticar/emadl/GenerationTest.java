@@ -292,7 +292,7 @@ public class GenerationTest extends AbstractSymtabTest {
                 Paths.get("./src/test/resources/target_code/gluon/ganModel/defaultGAN"),
                 Arrays.asList(
                         "gan/CNNCreator_defaultGAN_defaultGANDiscriminator.py",
-                        "gan/CNNNet_defdefaultGANDiscriminator.py",
+                        "gan/CNNNet_defaultGAN_defaultGANDiscriminator.py",
                         "CNNCreator_defaultGAN_defaultGANConnector_predictor.py",
                         "CNNGanTrainer_defaultGAN_defaultGANConnector_predictor.py",
                         "CNNNet_defaultGAN_defaultGANConnector_predictor.py",
