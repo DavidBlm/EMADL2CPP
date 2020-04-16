@@ -292,7 +292,7 @@ public class GenerationTest extends AbstractSymtabTest {
                 Paths.get("./src/test/resources/target_code/gluon/ganModel/defaultGAN"),
                 Arrays.asList(
                         "gan/CNNCreator_defaultGAN_defaultGANDiscriminator.py",
-                        "gan/CNNNet_defaultGAN_defaultGANDiscriminator.py",
+                        "gan/CNNNet_defdefaultGANDiscriminator.py",
                         "CNNCreator_defaultGAN_defaultGANConnector_predictor.py",
                         "CNNGanTrainer_defaultGAN_defaultGANConnector_predictor.py",
                         "CNNNet_defaultGAN_defaultGANConnector_predictor.py",
@@ -348,7 +348,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 0);
+        assertTrue(Log.getFindings().toString(),Log.getFindings().size() == 0);
     }
 
     @Test
