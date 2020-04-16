@@ -82,7 +82,7 @@ public class GenerationTest extends AbstractSymtabTest {
         assertTrue(Log.getFindings().isEmpty());
     }
 
-    /*@Test
+    @Test
     public void testThreeInputGeneration() throws IOException, TemplateException {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "ThreeInputCNN_M14", "-b", "MXNET", "-f", "n", "-c", "n"};
@@ -96,7 +96,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleOutputs", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         assertTrue(Log.getFindings().size() == 1);
-    }*/
+    }
 
     @Test
     public void testVGGGeneration() throws IOException, TemplateException {
@@ -163,7 +163,7 @@ public class GenerationTest extends AbstractSymtabTest {
                         "mnist_mnistClassifier_calculateClass.h",
                         "CNNTrainer_mnist_mnistClassifier_net.py"));
     }
- 
+
     @Test
     public void testMnistClassifierForGluon() throws IOException, TemplateException {
         Log.getFindings().clear();
@@ -237,7 +237,7 @@ public class GenerationTest extends AbstractSymtabTest {
     @Test
     public void testHashFunction() {
         EMADLGenerator tester = new EMADLGenerator(Backend.MXNET);
-        
+
         try{
             tester.getChecksumForFile("invalid Path!");
             assertTrue("Hash method should throw IOException on invalid path", false);
@@ -340,6 +340,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
+        Log.info(Log.getFindings().toString(), "testGluonPreprocessinWithSupervised");
         assertTrue(Log.getFindings().size() == 0);
     }
 
@@ -348,7 +349,8 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().toString(),Log.getFindings().size() == 0);
+        Log.info(Log.getFindings().toString(), "testGluonPreprocessingWithGAN");
+        assertTrue(Log.getFindings().size() == 0);
     }
 
     @Test
