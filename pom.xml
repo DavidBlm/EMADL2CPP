@@ -24,7 +24,7 @@
     <cnnarch-gluon-generator.version>0.2.11-SNAPSHOT</cnnarch-gluon-generator.version>
     <cnnarch-tensorflow-generator.version>0.1.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
     <Common-MontiCar.version>0.0.19-SNAPSHOT</Common-MontiCar.version>
-    <embedded-montiarc-math-opt-generator>0.1.6</embedded-montiarc-math-opt-generator>
+    <embedded-montiarc-math-generator>0.1.16-SNAPSHOT</embedded-montiarc-math-generator>
 
         <!-- .. Libraries .................................................. -->
         <guava.version>18.0</guava.version>
@@ -53,6 +53,12 @@
     <dependencies>
 
         <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>4.7.1</version>
@@ -67,8 +73,8 @@
         <!-- MontiCore Dependencies -->
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
-            <artifactId>embedded-montiarc-math-opt-generator</artifactId>
-            <version>${embedded-montiarc-math-opt-generator}</version>
+            <artifactId>embedded-montiarc-math-generator</artifactId>
+            <version>${embedded-montiarc-math-generator}</version>
         </dependency>
 
         <dependency>
@@ -249,10 +255,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
+                <!--<version>2.19.1</version>-->
+                <version>2.22.0</version>
                 <configuration>
+                    <forkCount>3</forkCount>
+                    <reuseForks>true</reuseForks>
                     <useSystemClassLoader>false</useSystemClassLoader>
 					<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+                    <testFailureIgnore>true</testFailureIgnore>
                 </configuration>
             </plugin>
             <plugin>
