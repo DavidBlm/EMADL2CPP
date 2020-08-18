@@ -60,6 +60,13 @@ public class EMADLGeneratorCli {
             .required(false)
             .build();
 
+    public static final Option OPTION_HELP = Option.builder("h")
+            .longOpt("help")
+            .desc("Show CLI parameters")
+            .hasArg(false)
+            .required(false)
+            .build();
+
 
     private EMADLGeneratorCli() {
     }
@@ -68,6 +75,7 @@ public class EMADLGeneratorCli {
         Options options = getOptions();
         CommandLineParser parser = new DefaultParser();
         CommandLine cliArgs = parseArgs(options, parser, args);
+
         if (cliArgs != null) {
             runGenerator(cliArgs);
         }
@@ -82,15 +90,29 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_RESTRAINED_TRAINING);
         options.addOption(OPTION_TRAINING_PYTHON_PATH);
         options.addOption(OPTION_COMPILE);
+        options.addOption(OPTION_HELP);
         return options;
+    }
+
+    private static void printHelp(){
+        System.err.println("Arguments:");
+        System.err.println("\t -m <parent model path>");
+        System.err.println("\t -r <root model including full package name>");
+        System.err.println("\t [-o <output directory>]  e.g. \"./target/\"");
+        System.err.println("\t [-b <used backend>]  e.g. \"MXNET\"");
+        System.err.println("\t [-f <force/prevent training>]  e.g. \"UNSET\"");
+        System.err.println("\t [-p <training path>]");
+        System.err.println("\t [-c <compile>] e.g. \"y\"/\"n\"");
     }
 
     private static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
         CommandLine cliArgs;
         try {
             cliArgs = parser.parse(options, args);
+
         } catch (ParseException e) {
             System.err.println("argument parsing exception: " + e.getMessage());
+            printHelp();
             System.exit(1);
             return null;
         }
