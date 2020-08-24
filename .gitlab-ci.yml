@@ -21,7 +21,7 @@ githubjob:
   script: 
   - git clone git@github.com:MontiCore/EmbeddedMontiArc.git
   - cd EmbeddedMontiArc
-  - git subtree pull --prefix $PRJ_NAME https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/${PRJ_NAME}.git master
+  - git subtree pull --prefix $PRJ_NAME https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/${PRJ_NAME}.git master --squash
   - git push --force
   only:
   - master
