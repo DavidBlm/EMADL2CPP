@@ -37,6 +37,11 @@ git masterJobLinux:
 #  - mvn package sonar:sonar -s settings.xml
   only:
   - master
+  except:
+    changes:
+    - .gitlab-ci.yml
+    - README.md
+
 
 
 integrationMXNetJobLinux:
@@ -44,6 +49,10 @@ integrationMXNetJobLinux:
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/applications/gans/mnist-infogan/gans_mxnet:latest
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationMXNetTest
+  except:
+    changes:
+    - .gitlab-ci.yml
+    - README.md
 
 
 integrationCaffe2JobLinux:
@@ -51,6 +60,10 @@ integrationCaffe2JobLinux:
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/caffe2:v0.0.5
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationCaffe2Test
+  except:
+    changes:
+    - .gitlab-ci.yml
+    - README.md
 
 
 integrationGluonJobLinux:
@@ -58,12 +71,21 @@ integrationGluonJobLinux:
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/applications/gans/mnist-infogan/gans_mxnet:latest
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationGluonTest
+  except:
+    changes:
+    - .gitlab-ci.yml
+    - README.md
+
 
 integrationTensorflowJobLinux:
   stage: linux
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/tensorflow
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=IntegrationTensorflowTest
+  except:
+    changes:
+    - .gitlab-ci.yml
+    - README.md
 
 
 integrationPythonWrapperTest:
@@ -71,6 +93,10 @@ integrationPythonWrapperTest:
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2pythonwrapper/tests/mvn-swig:latest
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U  clean install --settings settings.xml -Dtest=IntegrationPythonWrapperTest
+  except:
+    changes:
+    - .gitlab-ci.yml
+    - README.md
 
 
 #masterJobWindows:
@@ -88,4 +114,9 @@ UnitTestJobLinux:
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install sonar:sonar --settings settings.xml -Dtest="GenerationTest,SymtabTest*"
 #  - cat target/site/jacoco/index.html
+  except:
+    changes:
+    - .gitlab-ci.yml
+    - README.md
+
 
