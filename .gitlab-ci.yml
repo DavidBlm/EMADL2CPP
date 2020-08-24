@@ -22,7 +22,7 @@ githubjob:
   script: 
   - git clone git@github.com:MontiCore/EmbeddedMontiArc.git
   - cd EmbeddedMontiArc
-  - git subtree pull --prefix languages/EmbeddedMontiArc https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/languages/EmbeddedMontiArc.git master
+  - git subtree pull --prefix generators/EMADL2CPP https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP.git master
   - git push --force
   only:
   - master
