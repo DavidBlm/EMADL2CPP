@@ -6,6 +6,28 @@ stages:
 - deploy
 
 
+githubjob:
+  image: maven:3-jdk-8
+  stage: deploy
+  before_script:
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo "$GITHUB_SSH_PRIV_KEY")
+  - echo "$GITHUB_SSH_PRIV_KEY" | tr -d '\r' | ssh-add -
+  - git config --global user.email "kusmenko@se-rwth.de"
+  - git config --global user.name "EMA CI Robot"
+  - mkdir -p ~/.ssh
+#  - cat gitlab-known-hosts >> ~/.ssh/known_hosts
+  - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+  script: 
+  - git clone git@github.com:MontiCore/EmbeddedMontiArc.git
+  - cd EmbeddedMontiArc
+  - git subtree pull --prefix languages/EmbeddedMontiArc https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/languages/EmbeddedMontiArc.git master
+  - git push --force
+  only:
+  - master
+
+
 git masterJobLinux:
   stage: deploy
   image: maven:3-jdk-8
