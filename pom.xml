@@ -27,7 +27,7 @@
     <embedded-montiarc-math-opt-generator>0.1.6</embedded-montiarc-math-opt-generator>
 
         <!-- .. Libraries .................................................. -->
-        <guava.version>18.0</guava.version>
+        <guava.version>25.1-jre</guava.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.1.2</logback.version>
         <jscience.version>4.3.1</jscience.version>
