@@ -65,6 +65,7 @@ if __name__ == "__main__":
             'state_dtype': 'float32',
             'action_dtype': 'uint8',
             'rewards_dtype': 'float32'
+
         },
         'strategy_params': {
             'method':'epsgreedy',

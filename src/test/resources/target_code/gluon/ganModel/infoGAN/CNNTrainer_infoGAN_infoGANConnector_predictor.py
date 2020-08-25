@@ -58,5 +58,3 @@ if __name__ == "__main__":
         log_period=10,
         print_images=True,
 )
-
-

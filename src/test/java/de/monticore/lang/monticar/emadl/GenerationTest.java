@@ -107,6 +107,13 @@ public class GenerationTest extends AbstractSymtabTest {
     }
 
     @Test
+    public void testEpisodicMemorySimpleGeneration() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+    }
+
+    @Test
     public void testMultipleInstances() throws IOException, TemplateException {
         try {
             Log.getFindings().clear();
@@ -183,7 +190,6 @@ public class GenerationTest extends AbstractSymtabTest {
                         "CNNPredictor_mnist_mnistClassifier_net.h",
                         "CNNDataLoader_mnist_mnistClassifier_net.py",
                         "CNNSupervisedTrainer_mnist_mnistClassifier_net.py",
-                        "mnist_mnistClassifier_net.h",
                         "HelperA.h",
                         "CNNTranslator.h",
                         "mnist_mnistClassifier_calculateClass.h",
@@ -300,9 +306,6 @@ public class GenerationTest extends AbstractSymtabTest {
                         "CNNTrainer_defaultGAN_defaultGANConnector_predictor.py",
                         "defaultGAN_defaultGANConnector.cpp",
                         "defaultGAN_defaultGANConnector.h",
-                        "defaultGAN_defaultGANConnector_predictor.h",
-                        "defaultGAN_defaultGANConnector.cpp",
-                        "defaultGAN_defaultGANConnector.h",
                         "defaultGAN_defaultGANConnector_predictor.h"
                 )
         );
@@ -361,7 +364,7 @@ public class GenerationTest extends AbstractSymtabTest {
         EMADLGeneratorCli.main(args);
         assertEquals(Log.getFindings().size(), 1);
         assertEquals(Log.getFindings().get(0).toString(),
-                "Tagging info for symbol was found, ignoring data_paths.txt: src/test/resources/models");
+                "Tagging info for DataPath symbol was found, ignoring data_paths.txt: src/test/resources/models");
         assertTrue(Log.getErrorCount() == 0);
     }
 

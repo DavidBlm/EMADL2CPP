@@ -68,6 +68,7 @@ if __name__ == "__main__":
             'state_dtype': 'float32',
             'action_dtype': 'float32',
             'rewards_dtype': 'float32'
+
         },
         'strategy_params': {
             'method':'ornstein_uhlenbeck',

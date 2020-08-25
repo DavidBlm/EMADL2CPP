@@ -20,7 +20,9 @@ predictions=colvec(classes);
 }
 void execute(){
     vector<float> image_ = CNNTranslator::translate(image);
+
     vector<float> predictions_(10);
+
 
     _predictor_0_.predict(image_, predictions_);
 
