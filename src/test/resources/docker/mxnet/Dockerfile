@@ -1,19 +1,22 @@
 FROM maven:3-jdk-8
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-        git \
-        libgtk2.0-dev \
-        python-subprocess32 \
-        python-tk \
-        wget python gcc \
-        build-essential cmake \
-        liblapack-dev libblas-dev libboost-dev libarmadillo-dev && \
-    rm -rf /var/lib/apt/lists/*
-RUN git clone https://github.com/apache/incubator-mxnet.git mxnet-source && \
-    cd mxnet-source && git checkout tags/1.4.0 && cd .. && \
-    cp -r mxnet-source/include/mxnet /usr/include/mxnet && \
-    rm -r mxnet-source
+RUN apt-get update
+RUN apt-get install -y build-essential git ninja-build ccache libopenblas-dev libblas-dev liblapack-dev libopencv-dev libarmadillo-dev cmake python2.7 python-dev python-numpy python3-pip python3-pip swig unzip libboost-all-dev
+
+RUN pip3 install --user --upgrade "cmake>=3.13.2"
+
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
-RUN pip install mxnet h5py opencv-python matplotlib
+RUN pip install --user h5py matplotlib numpy==1.16.5 mxnet==1.5.1
+
+RUN git clone --recursive https://github.com/apache/incubator-mxnet.git mxnet
+RUN cd mxnet && git checkout tags/1.5.0 && git submodule update --recursive --init
+RUN cd mxnet && mkdir build && cd build && cmake -DUSE_CPP_PACKAGE=1 -DUSE_CUDA=0 -GNinja .. && ninja -v
+RUN cd mxnet && cp -r include/mxnet /usr/include/mxnet && cp -r cpp-package/include/mxnet-cpp /usr/include/ && cp -r 3rdparty/tvm/nnvm/include/nnvm /usr/include/ && cp -r 3rdparty/dmlc-core/include/dmlc /usr/include/
+
+ADD armadillo-9.600.6.zip /root/armadillo.zip
+RUN unzip /root/armadillo.zip -d /root/armadillo
+RUN cd /root/armadillo/armadillo-9.600.6 && cmake . && make && make install
+
+RUN mkdir -p /root/.config/matplotlib
+RUN echo "backend : Agg" > /root/.config/matplotlib/matplotlibrc

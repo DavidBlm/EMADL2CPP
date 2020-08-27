@@ -17,11 +17,11 @@ See example project [EMADL-Demo](https://git.rwth-aachen.de/thomas.timmermanns/E
 * Deep learning backend:
     * MXNet
         * training - generated is Python code. Required is Python 2.7 or higher, Python packages `h5py`, `mxnet` (for training on CPU) or e.g. `mxnet-cu75` for CUDA 7.5 (for training on GPU with CUDA, concrete package should be selected according to CUDA version). Follow [official instructions on MXNet site](https://mxnet.incubator.apache.org/install/index.html?platform=Linux&language=Python&processor=CPU)
-        * prediction - generated code is C++. Install MXNet using [official instructions on MXNet site](https://mxnet.incubator.apache.org) for C++.
+        * prediction - generated code is C++.
      
      * Caffe2
         * training - generated is Python code. Follow [ official instructions on Caffe2 site ](https://caffe2.ai/docs/getting-started.html?platform=ubuntu&configuration=prebuilt)
-        * See the scripts under Installation for better instructions, as an old caffe vversion is used that needs special considerations.
+        * See the scripts under Installation for better instructions, as an old caffe version is used that needs special considerations.
         
 	 * Gluon
 	 
@@ -30,16 +30,14 @@ See example project [EMADL-Demo](https://git.rwth-aachen.de/thomas.timmermanns/E
 		* prediction - generated code is C++.
 
 ## Installation
-The two bash scripts found under [installation scripts](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/tree/tensorflow_group/src/main/resources/installation_scripts)
-should build and install all prerequisits for all backends as of 26.09.2019.
-Note that the installation may take some time (hours) and you will need some disk space (> 60GB) for all backends. Also enough RAM or a big
-enough swapspace is advisable (>10GB) for the installation of the cpp part of tensorflow. This scripts were tested with a completly clean Ubuntu 16.04,
+A new bash script for mxnet/gluon can be found [installation scripts](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/tree/tensorflow_group/src/main/resources/installation_scripts)
+changing the installation process for mxnet for cpp. This fill now install the full cpp api and not the reduced c api. This script will install all dependencies both for python and cpp as of 26.08.2020.
+Additionally a simmilar docker script used for the git ci pipeline can be found in the gluon subfolder at [Docker images](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/tree/tensorflow_group/src/test/resources/docker).
+The other two bash scripts found in the installation_scripts folder are outdated but may be consulted for installation guidlines for other backends. 
+Note that the installation may take some time (hours) enough RAM or a big enough swapspace is advisable (>10GB). This scripts were tested with a completly clean Ubuntu 16.04, 
 without system updates installed. Using another Ubuntu version or installing other stuff, system updates included might/ have caused problems.
 If you want to install the backends with CUDA GPU support(only MXNet/Gluon and Tensorflow, the used caffe2 version does not work with GPU support anymore), 
-you have to install CUDA 10.0(!!), CUDNN and NCCL (Obtainable from the nvidai webpage. You can follow their instructions.) inbetween the two scripts. 
-Furthermore you will have to change the pip commands for mxnet and tensorflow to the respective commented out parts. 
-Also docker images for the cpu version of each backend are provided at [Docker images](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/tree/tensorflow_group/src/test/resources/docker), 
-though some of these might be outdated.
+you have to install CUDA 10.0(mxnet/ gluon also works with newer version and maybe older), CUDNN and NCCL (Obtainable from the nvidai webpage).
 
 ### HowTo
 1. Define a EMADL component containing architecture of a neural network and save it in a `.emadl` file. For more information on architecture language please refer to [CNNArchLang project](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/languages/CNNArchLang). An example of NN architecture:
