@@ -30,9 +30,9 @@ See example project [EMADL-Demo](https://git.rwth-aachen.de/thomas.timmermanns/E
 		* prediction - generated code is C++.
 
 ## Installation
-A new bash script for mxnet/gluon can be found [installation scripts](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/tree/tensorflow_group/src/main/resources/installation_scripts)
+A new bash script for mxnet/gluon can be found [installation scripts](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/-/tree/master/src/main/resources/installation_scripts)
 changing the installation process for mxnet for cpp. This fill now install the full cpp api and not the reduced c api. This script will install all dependencies both for python and cpp as of 26.08.2020.
-Additionally a simmilar docker script used for the git ci pipeline can be found in the gluon subfolder at [Docker images](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/tree/tensorflow_group/src/test/resources/docker).
+Additionally a similar docker script used for the git ci pipeline can be found in the gluon subfolder at [Docker images](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/generators/EMADL2CPP/-/tree/master/src/test/resources/docker).
 The other two bash scripts found in the installation_scripts folder are outdated but may be consulted for installation guidlines for other backends. 
 Note that the installation may take some time (hours) enough RAM or a big enough swapspace is advisable (>10GB). This scripts were tested with a completly clean Ubuntu 16.04, 
 without system updates installed. Using another Ubuntu version or installing other stuff, system updates included might/ have caused problems.
