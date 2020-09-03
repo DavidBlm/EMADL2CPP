@@ -7,7 +7,7 @@ RUN pip3 install --user --upgrade "cmake>=3.13.2"
 
 RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
-RUN pip install --user h5py matplotlib numpy==1.16.5 mxnet==1.5.1
+RUN pip install --user h5py matplotlib numpy==1.16.5 mxnet==1.5.1.post0
 
 RUN git clone --recursive https://github.com/apache/incubator-mxnet.git mxnet
 RUN cd mxnet && git checkout tags/1.5.0 && git submodule update --recursive --init
