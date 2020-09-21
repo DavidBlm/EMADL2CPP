@@ -26,6 +26,7 @@ import de.monticore.lang.monticar.cnntrain._symboltable.PreprocessingComponentSy
 import de.monticore.lang.monticar.emadl._cocos.DataPathCocos;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
+import de.monticore.lang.monticar.emadl.tagging.dltag.LayerPathParameterSymbol;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.cpp.ArmadilloHelper;
 import de.monticore.lang.monticar.generator.cpp.GeneratorEMAMOpt2CPP;
@@ -394,7 +395,7 @@ public class EMADLGenerator {
 
             // TODO: Replace warinings with errors, until then use this method
             stopGeneratorIfWarning();
-            Log.warn("Tagging info for symbol was found, ignoring data_paths.txt: " + dataPath);
+            Log.warn("Tagging info for DataPath symbol was found, ignoring data_paths.txt: " + dataPath);
         }
         else {
             Path dataPathDefinition = Paths.get(getModelsPath(), "data_paths.txt");
@@ -426,6 +427,37 @@ public class EMADLGenerator {
         return weightsPath;
     }
 
+    protected HashMap getLayerPathParameterTags(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance){
+        List<TagSymbol> instanceTags = new LinkedList<>();
+
+        boolean isChildComponent = instance.getEnclosingComponent().isPresent();
+
+        if (isChildComponent) {
+            // get all instantiated components of parent
+            List<EMAComponentInstantiationSymbol> instantiationSymbols = (List<EMAComponentInstantiationSymbol>) instance
+                    .getEnclosingComponent().get().getComponentType().getReferencedSymbol().getSubComponents();
+
+            // filter corresponding instantiation of instance and add tags
+            instantiationSymbols.stream().filter(e -> e.getName().equals(instance.getName())).findFirst()
+                    .ifPresent(symbol -> instanceTags.addAll(taggingResolver.getTags(symbol, LayerPathParameterSymbol.KIND)));
+        }
+
+        List<TagSymbol> tags = !instanceTags.isEmpty() ? instanceTags
+                : (List<TagSymbol>) taggingResolver.getTags(component, LayerPathParameterSymbol.KIND);
+
+        HashMap layerPathParameterTags = new HashMap();
+        if (!tags.isEmpty()) {
+            for(TagSymbol tag: tags) {
+                LayerPathParameterSymbol layerPathParameterSymbol = (LayerPathParameterSymbol) tag;
+                layerPathParameterTags.put(layerPathParameterSymbol.getId(), layerPathParameterSymbol.getPath());
+            }
+            // TODO: Replace warinings with errors, until then use this method
+            stopGeneratorIfWarning();
+            Log.warn("Tagging info for LayerPathParameter symbols was found.");
+        }
+        return layerPathParameterTags;
+    }
+
     protected void generateComponent(List<FileContent> fileContents,
                                      Set<EMAComponentInstanceSymbol> allInstances,
                                      TaggingResolver taggingResolver,
@@ -448,8 +480,10 @@ public class EMADLGenerator {
             cnnArchGenerator.check(architecture.get());
             String dPath = getDataPath(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
             String wPath = getWeightsPath(EMAComponentSymbol, componentInstanceSymbol);
+            HashMap layerPathParameterTags = getLayerPathParameterTags(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
             architecture.get().setDataPath(dPath);
             architecture.get().setWeightsPath(wPath);
+            architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());
             generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             if (processedArchitecture != null) {

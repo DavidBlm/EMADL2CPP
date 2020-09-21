@@ -42,7 +42,7 @@ public class GenerationTest extends AbstractSymtabTest {
                         "cifar10_cifar10Classifier.cpp",
                         "cifar10_cifar10Classifier.h",
                         "CNNCreator_cifar10_cifar10Classifier_net.py",
-                        "CNNBufferFile.h",
+                        "CNNModelLoader.h",
                         "CNNPredictor_cifar10_cifar10Classifier_net.h",
                         "cifar10_cifar10Classifier_net.h",
                         "CNNTranslator.h",
@@ -104,6 +104,13 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "VGG16", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         assertTrue(Log.getFindings().isEmpty());
+    }
+
+    @Test
+    public void testEpisodicMemorySimpleGeneration() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
     }
 
     @Test
@@ -175,7 +182,7 @@ public class GenerationTest extends AbstractSymtabTest {
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon"),
                 Arrays.asList(
-                        "CNNBufferFile.h",
+                        "CNNModelLoader.h",
                         "CNNNet_mnist_mnistClassifier_net.py",
                         "mnist_mnistClassifier.cpp",
                         "mnist_mnistClassifier.h",
@@ -183,7 +190,6 @@ public class GenerationTest extends AbstractSymtabTest {
                         "CNNPredictor_mnist_mnistClassifier_net.h",
                         "CNNDataLoader_mnist_mnistClassifier_net.py",
                         "CNNSupervisedTrainer_mnist_mnistClassifier_net.py",
-                        "mnist_mnistClassifier_net.h",
                         "HelperA.h",
                         "CNNTranslator.h",
                         "mnist_mnistClassifier_calculateClass.h",
@@ -215,7 +221,7 @@ public class GenerationTest extends AbstractSymtabTest {
                         "cartpole_master_dqn.h",
                         "cartpole_master_policy.h",
                         "CMakeLists.txt",
-                        "CNNBufferFile.h",
+                        "CNNModelLoader.h",
                         "CNNCreator_cartpole_master_dqn.py",
                         "CNNNet_cartpole_master_dqn.py",
                         "CNNPredictor_cartpole_master_dqn.h",
@@ -260,7 +266,7 @@ public class GenerationTest extends AbstractSymtabTest {
                         "mountaincar_master.h",
                         "mountaincar_master_actor.h",
                         "CMakeLists.txt",
-                        "CNNBufferFile.h",
+                        "CNNModelLoader.h",
                         "CNNCreator_mountaincar_master_actor.py",
                         "CNNNet_mountaincar_master_actor.py",
                         "CNNPredictor_mountaincar_master_actor.h",
@@ -298,9 +304,6 @@ public class GenerationTest extends AbstractSymtabTest {
                         "CNNNet_defaultGAN_defaultGANConnector_predictor.py",
                         "CNNPredictor_defaultGAN_defaultGANConnector_predictor.h",
                         "CNNTrainer_defaultGAN_defaultGANConnector_predictor.py",
-                        "defaultGAN_defaultGANConnector.cpp",
-                        "defaultGAN_defaultGANConnector.h",
-                        "defaultGAN_defaultGANConnector_predictor.h",
                         "defaultGAN_defaultGANConnector.cpp",
                         "defaultGAN_defaultGANConnector.h",
                         "defaultGAN_defaultGANConnector_predictor.h"
@@ -361,7 +364,7 @@ public class GenerationTest extends AbstractSymtabTest {
         EMADLGeneratorCli.main(args);
         assertEquals(Log.getFindings().size(), 1);
         assertEquals(Log.getFindings().get(0).toString(),
-                "Tagging info for symbol was found, ignoring data_paths.txt: src/test/resources/models");
+                "Tagging info for DataPath symbol was found, ignoring data_paths.txt: src/test/resources/models");
         assertTrue(Log.getErrorCount() == 0);
     }
 

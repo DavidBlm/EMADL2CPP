@@ -71,6 +71,16 @@ public class IntegrationGluonTest extends IntegrationTest {
     }
 
     @Test
+    public void testEpisodicMemorySimple() {
+        Log.getFindings().clear();
+
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/episodicMemorySimple/episodicMemorySimple.training_hash"));
+
+        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON"};
+        EMADLGeneratorCli.main(args);
+    }
+
+    @Test
     public void testGluonPreprocessingWithSupervised() {
         Log.getFindings().clear();
         deleteHashFile(Paths.get("./target/generated-sources-emadl/PreprocessingNetwork.training_hash"));

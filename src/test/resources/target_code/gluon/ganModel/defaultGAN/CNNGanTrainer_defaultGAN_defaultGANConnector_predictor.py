@@ -184,16 +184,16 @@ class CNNGanTrainer_defaultGAN_defaultGANConnector_predictor:
             del discriminator_optimizer_params['learning_rate_decay']
 
         if normalize:
-            self._net_creator_dis.construct(mx_context, data_mean=data_mean, data_std=data_std)
+            self._net_creator_dis.construct([mx_context], data_mean=data_mean, data_std=data_std)
         else:
-            self._net_creator_dis.construct(mx_context)
+            self._net_creator_dis.construct([mx_context])
 
-        self._net_creator_gen.construct(mx_context)
+        self._net_creator_gen.construct([mx_context])
 
         if self.use_qnet:
-            self._net_creator_qnet.construct(mx_context)
+            self._net_creator_qnet.construct([mx_context])
             if load_checkpoint:
-                self._net_creator_qnet.load(mx_context)
+                self._net_creator_qnet.load([mx_context])
             else:
                 if os.path.isdir(self._net_creator_qnet._model_dir_):
                     shutil.rmtree(self._net_creator_qnet._model_dir_)
@@ -206,8 +206,8 @@ class CNNGanTrainer_defaultGAN_defaultGANConnector_predictor:
 
         begin_epoch = 0
         if load_checkpoint:
-            begin_epoch = self._net_creator_dis.load(mx_context)
-            self._net_creator_gen.load(mx_context)
+            begin_epoch = self._net_creator_dis.load([mx_context])
+            self._net_creator_gen.load([mx_context])
         else:
             if os.path.isdir(self._net_creator_dis._model_dir_):
                 shutil.rmtree(self._net_creator_dis._model_dir_)
@@ -351,9 +351,9 @@ class CNNGanTrainer_defaultGAN_defaultGANConnector_predictor:
                 gen_input, exp_qnet_output = create_generator_input(batch)
 
                 with autograd.record():
-                    fake_data = gen_net(*gen_input)
+                    fake_data = gen_net(*gen_input)[0][0]
                     fake_data.detach()
-                    discriminated_fake_dis = dis_net(fake_data, *dis_conditional_input)
+                    discriminated_fake_dis = dis_net(fake_data, *dis_conditional_input)[0][0]
                     if self.use_qnet:
                         discriminated_fake_dis, _ = discriminated_fake_dis
 
@@ -361,7 +361,7 @@ class CNNGanTrainer_defaultGAN_defaultGANConnector_predictor:
                     real_labels = mx.nd.ones(discriminated_fake_dis.shape, ctx=mx_context)
 
                     loss_resultF = dis_loss(discriminated_fake_dis, fake_labels)
-                    discriminated_real_dis = dis_net(real_data, *dis_conditional_input)
+                    discriminated_real_dis = dis_net(real_data, *dis_conditional_input)[0][0]
                     if self.use_qnet:
                         discriminated_real_dis, _ = discriminated_real_dis
                     loss_resultR = dis_loss(discriminated_real_dis, real_labels)
@@ -372,8 +372,8 @@ class CNNGanTrainer_defaultGAN_defaultGANConnector_predictor:
 
                 if batch_i % k_value == 0:
                     with autograd.record():
-                        fake_data = gen_net(*gen_input)
-                        discriminated_fake_gen = dis_net(fake_data, *dis_conditional_input)
+                        fake_data = gen_net(*gen_input)[0][0]
+                        discriminated_fake_gen = dis_net(fake_data, *dis_conditional_input)[0][0]
                         if self.use_qnet:
                             discriminated_fake_gen, features = discriminated_fake_gen
                         loss_resultG = dis_loss(discriminated_fake_gen, real_labels)
@@ -381,7 +381,7 @@ class CNNGanTrainer_defaultGAN_defaultGANConnector_predictor:
                             condition = batch.data[traindata_to_index[generator_target_name + "_"]]
                             loss_resultG = loss_resultG + gen_loss_weight * generator_loss_func(fake_data, condition)
                         if self.use_qnet:
-                            qnet_discriminated = [q_net(features)]
+                            qnet_discriminated = [q_net(features)[0][0]]
                             for i, qnet_out in enumerate(qnet_discriminated):
                                 loss_resultG = loss_resultG + qnet_losses[i](qnet_out, exp_qnet_output[i])
                         loss_resultG.backward()

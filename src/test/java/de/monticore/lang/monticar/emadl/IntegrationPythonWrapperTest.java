@@ -27,7 +27,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
                 Paths.get("./src/test/resources/target_code/gluon/reinforcementModel/torcs"),
                 Arrays.asList(
                         "CMakeLists.txt",
-                        "CNNBufferFile.h",
+                        "CNNModelLoader.h",
                         "torcs_agent_torcsAgent.cpp",
                         "torcs_agent_torcsAgent.h",
                         "torcs_agent_torcsAgent_dqn.h",
@@ -82,7 +82,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
                 Paths.get("./src/test/resources/target_code/gluon/reinforcementModel/torcs_td3"),
                 Arrays.asList(
                         "CMakeLists.txt",
-                        "CNNBufferFile.h",
+                        "CNNModelLoader.h",
                         "torcs_agent_torcsAgent.cpp",
                         "torcs_agent_torcsAgent.h",
                         "torcs_agent_torcsAgent_actor.h",
