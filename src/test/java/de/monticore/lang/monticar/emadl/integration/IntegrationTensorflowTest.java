@@ -18,8 +18,9 @@
  *  License along with this project. If not, see <http://www.gnu.org/licenses/>.
  * *******************************************************************************
  */
-package de.monticore.lang.monticar.emadl;
+package de.monticore.lang.monticar.emadl.integration;
 
+import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
 import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
@@ -51,7 +52,7 @@ public class IntegrationTensorflowTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "TENSORFLOW"};
         EMADLGeneratorCli.main(args);
 
-        checkFilesAreEqual(
+        AbstractSymtabTest.checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/no_backend"),
                 Arrays.asList(

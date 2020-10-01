@@ -1,6 +1,7 @@
 /* (c) https://github.com/MontiCore/monticore */
-package de.monticore.lang.monticar.emadl;
+package de.monticore.lang.monticar.emadl.integration;
 
+import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
 import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
@@ -29,7 +30,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
-        checkFilesAreEqual(
+        AbstractSymtabTest.checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/no_backend"),
                 Arrays.asList(

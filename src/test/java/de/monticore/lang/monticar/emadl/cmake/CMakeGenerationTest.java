@@ -1,41 +1,26 @@
-package de.monticore.lang.monticar.emadl;
+package de.monticore.lang.monticar.emadl.cmake;
 
+import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
 import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
 
-public class IntegrationNoBackendTest extends AbstractSymtabTest {
-    public IntegrationNoBackendTest() {
+public class CMakeGenerationTest extends AbstractSymtabTest {
+    public CMakeGenerationTest() {
 
     }
 
+    //Todo: Move this one to EMAM2CPP
     @Test
-    public void testErrorOut() {
-        Log.getFindings().clear();
-        Boolean threwException = false;
-        String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "NONE"};
-
-        try {
-            EMADLGeneratorCli.main(args);
-        }catch (Exception e){
-            // We should have an exception.
-            threwException = true;
-        }
-        assertTrue(threwException);
-    }
-
-    @Test
-    public void testModelWithoutCNN() {
+    public void testModelWithIpopt() {
         Log.getFindings().clear();
 
-
+/*
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "NONE"};
         EMADLGeneratorCli.main(args);
 
@@ -48,7 +33,7 @@ public class IntegrationNoBackendTest extends AbstractSymtabTest {
                         "CMakeLists.txt",
                         "HelperA.h"
                 )
-        );
+        );*/
         assertTrue(Log.getFindings().isEmpty());
     }
 }
