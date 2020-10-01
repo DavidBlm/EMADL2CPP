@@ -1,0 +1,7 @@
+component NoNetwork {
+    ports in Z(0:255)^{3, 32, 32} data,
+         out Q(0:1)^{10} softmax;
+
+    implementation Math {
+        softmax = [0;0;0;0;0;0;0;1;1;1];
+}

@@ -113,8 +113,7 @@ public class EMADLGeneratorCli {
         } catch (ParseException e) {
             System.err.println("argument parsing exception: " + e.getMessage());
             printHelp();
-            System.exit(1);
-            return null;
+            throw new RuntimeException("argument parsing exception: " + e.getMessage());
         }
         return cliArgs;
     }
@@ -170,12 +169,16 @@ public class EMADLGeneratorCli {
             generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"));
         }
         catch (IOException e){
-            Log.error("io error during generation", e);
-            System.exit(1);
+            String errMsg ="io error during generation"+ e.toString();
+
+            Log.error(errMsg);
+            throw new RuntimeException(errMsg);
         }
         catch (TemplateException e){
-            Log.error("template error during generation", e);
-            System.exit(1);
+            String errMsg = "template error during generation: "+ e.toString();
+
+            Log.error(errMsg);
+            throw new RuntimeException(errMsg);
         }
     }
 }

@@ -4,7 +4,7 @@ package de.monticore.lang.monticar.emadl.generator.reinforcementlearning;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.reinforcement.RewardFunctionSourceGenerator;
 import de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab;
-import de.monticore.lang.monticar.generator.cpp.GeneratorEMAMOpt2CPP;
+import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.se_rwth.commons.logging.Log;
 
@@ -32,16 +32,17 @@ public class RewardFunctionCppGenerator implements RewardFunctionSourceGenerator
     @Override
     public void generate(EMAComponentInstanceSymbol componentInstanceSymbol, TaggingResolver taggingResolver,
                          String targetPath) {
-        GeneratorEMAMOpt2CPP generator = new GeneratorEMAMOpt2CPP();
+        GeneratorCPP generator = new GeneratorCPP();
         generator.useArmadilloBackend();
 
         generator.setGenerationTargetPath(targetPath);
 
-        try {
-            generator.generate(componentInstanceSymbol, taggingResolver);
+        /*try {
+            //ToDo:
+            //generator.generate(componentInstanceSymbol, taggingResolver);
         } catch (IOException e) {
             Log.error("Generation of reward function is not possible: " + e.getMessage());
-        }
+        }*/
 
     }
 
