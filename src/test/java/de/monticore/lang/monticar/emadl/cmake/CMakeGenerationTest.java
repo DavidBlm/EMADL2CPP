@@ -15,25 +15,22 @@ public class CMakeGenerationTest extends AbstractSymtabTest {
 
     }
 
-    //Todo: Move this one to EMAM2CPP
+    //Todo: Move this one to EMAM2CPP?
     @Test
     public void testModelWithIpopt() {
         Log.getFindings().clear();
 
-/*
-        String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "NONE"};
+
+        String[] args = {"-m", "src/test/resources/models", "-r", "ipopt.QuadraticOpt", "-b", "NONE", "-c", "n"};
         EMADLGeneratorCli.main(args);
 
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
-                Paths.get("./src/test/resources/target_code/no_backend"),
+                Paths.get("./src/test/resources/target_code/ipopt"),
                 Arrays.asList(
-                        "add.cpp",
-                        "add.h",
-                        "CMakeLists.txt",
-                        "HelperA.h"
+                        "CMakeLists.txt"
                 )
-        );*/
+        );
         assertTrue(Log.getFindings().isEmpty());
     }
 }
