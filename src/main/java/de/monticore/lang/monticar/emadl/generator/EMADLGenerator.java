@@ -336,16 +336,12 @@ public class EMADLGenerator {
     public List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Scope symtab, Set<EMAComponentInstanceSymbol> allInstances, String forced){
         List<FileContent> fileContents = new ArrayList<>();
         processedArchitecture = new HashMap<>();
-
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol, symtab);
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
-        fileContents.addAll(generateCNNTrainer(allInstances, instanceName));
-
-        fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
+        fileContents.addAll(generateCNNTrainer(allInstances, instanceName));fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
-
         if (cnnArchGenerator.isCMakeRequired()) {
             cnnArchGenerator.setGenerationTargetPath(getGenerationTargetPath());
             Map<String, String> cmakeContentsMap = cnnArchGenerator.generateCMakeContent(componentInstanceSymbol.getFullName());

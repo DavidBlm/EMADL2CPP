@@ -109,7 +109,7 @@ public class GenerationTest extends AbstractSymtabTest {
     @Test
     public void testEpisodicMemorySimpleGeneration() throws IOException, TemplateException {
         Log.getFindings().clear();
-        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "n", "-c", "n"};
+        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "n", "-c", "n", "-p", "/usr/bin/python3"};
         EMADLGeneratorCli.main(args);
     }
 
@@ -177,7 +177,6 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         assertTrue(Log.getFindings().isEmpty());
-
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon"),
@@ -257,7 +256,6 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/reinforcementModel", "-r", "mountaincar.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         assertEquals(0, Log.getFindings().stream().filter(Finding::isError).count());
-
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon/reinforcementModel/mountaincar"),

@@ -110,6 +110,37 @@ class SoftmaxCrossEntropyLossIgnoreLabel(gluon.loss.Loss):
         loss = gluon.loss._apply_weighting(F, loss, self._weight, sample_weight)
         return F.sum(loss) / F.sum(valid_label_map)
 
+class LocalAdaptationLoss(gluon.loss.Loss):
+    def __init__(self, lamb, axis=-1, sparse_label=True, weight=None, batch_axis=0,  **kwargs):
+        super(LocalAdaptationLoss, self).__init__(weight, batch_axis, **kwargs)
+        self.lamb = lamb
+        self._axis = axis
+        self._sparse_label = sparse_label
+
+    def hybrid_forward(self, F, pred, label, curr_weights, base_weights, sample_weight=None):
+        pred = F.log(pred)
+        if self._sparse_label:
+            cross_entr_loss = -F.pick(pred, label, axis=self._axis, keepdims=True)
+        else:
+            label = gluon.loss._reshape_like(F, label, pred)
+            cross_entr_loss = -F.sum(pred * label, axis=self._axis, keepdims=True)
+        cross_entr_loss = F.mean(cross_entr_loss, axis=self._batch_axis, exclude=True)
+
+        weight_diff_loss = 0
+        for param_key in base_weights:
+            weight_diff_loss = F.add(weight_diff_loss, F.norm(curr_weights[param_key] - base_weights[param_key]))
+
+        #this check is neccessary, otherwise if weight_diff_loss is zero (first training iteration)
+        #the trainer would update the networks weights to nan, this must have somthing to do how
+        #mxnet internally calculates the derivatives / tracks the weights
+        if weight_diff_loss > 0:
+            loss = self.lamb * weight_diff_loss + cross_entr_loss
+            loss = gluon.loss._apply_weighting(F, loss, self._weight, sample_weight)
+        else:
+            loss = gluon.loss._apply_weighting(F, cross_entr_loss, self._weight, sample_weight)
+
+        return loss    
+
 @mx.metric.register
 class ACCURACY_IGNORE_LABEL(mx.metric.EvalMetric):
     """Ignores a label when computing accuracy.
@@ -479,13 +510,16 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             global_loss_train /= (train_batches * batch_size)
 
             tic = None
-
+    
+    
             if eval_train:
+                train_iter.batch_size = single_pu_batch_size
                 train_iter.reset()
                 metric = mx.metric.create(eval_metric, **eval_metric_params)
                 for batch_i, batch in enumerate(train_iter):
-                    labels = [gluon.utils.split_and_load(batch.label[i], ctx_list=mx_context, even_split=False)[0] for i in range(1)]
-                    image_ = gluon.utils.split_and_load(batch.data[0], ctx_list=mx_context, even_split=False)[0]
+
+                    labels = [batch.label[i].as_in_context(mx_context[0]) for i in range(1)]
+                    image_ = batch.data[0].as_in_context(mx_context[0])
 
                     predictions_ = mx.nd.zeros((single_pu_batch_size, 10,), ctx=mx_context[0])
 
@@ -500,9 +534,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                     predictions_ = net_ret[0][0]
                     outputs.append(predictions_)
                     lossList.append(loss_function(predictions_, labels[0]))
-
-
-
+    
                     if save_attention_image == "True":
                         import matplotlib
                         matplotlib.use('Agg')
@@ -518,7 +550,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                         max_length = len(labels)-1
 
                         ax = fig.add_subplot(max_length//3, max_length//4, 1)
-                        ax.imshow(train_images[0+batch_size*(batch_i)].transpose(1,2,0))
+                        ax.imshow(train_images[0+single_pu_batch_size*(batch_i)].transpose(1,2,0))
 
                         for l in range(max_length):
                             attention = attentionList[l]
@@ -529,12 +561,12 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                                 ax.set_title("<unk>")
                             elif dict[int(labels[l+1][0].asscalar())] == "<end>":
                                 ax.set_title(".")
-                                img = ax.imshow(train_images[0+batch_size*(batch_i)].transpose(1,2,0))
+                                img = ax.imshow(train_images[0+single_pu_batch_size*(batch_i)].transpose(1,2,0))
                                 ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
                                 break
                             else:
                                 ax.set_title(dict[int(labels[l+1][0].asscalar())])
-                            img = ax.imshow(train_images[0+batch_size*(batch_i)].transpose(1,2,0))
+                            img = ax.imshow(train_images[0+single_pu_batch_size*(batch_i)].transpose(1,2,0))
                             ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
 
                         plt.tight_layout()
@@ -558,13 +590,15 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
             global_loss_test = 0.0
             test_batches = 0
-
+    
+            test_iter.batch_size = single_pu_batch_size
             test_iter.reset()
             metric = mx.metric.create(eval_metric, **eval_metric_params)
             for batch_i, batch in enumerate(test_iter):
                 if True: 
-                    labels = [gluon.utils.split_and_load(batch.label[i], ctx_list=mx_context, even_split=False)[0] for i in range(1)]
-                    image_ = gluon.utils.split_and_load(batch.data[0], ctx_list=mx_context, even_split=False)[0]
+                                                   
+                    labels = [batch.label[i].as_in_context(mx_context[0]) for i in range(1)]
+                    image_ = batch.data[0].as_in_context(mx_context[0])
 
                     predictions_ = mx.nd.zeros((single_pu_batch_size, 10,), ctx=mx_context[0])
 
@@ -579,8 +613,6 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                     predictions_ = net_ret[0][0]
                     outputs.append(predictions_)
                     lossList.append(loss_function(predictions_, labels[0]))
-
-
 
                     if save_attention_image == "True":
                         if not eval_train:
@@ -598,7 +630,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                         max_length = len(labels)-1
 
                         ax = fig.add_subplot(max_length//3, max_length//4, 1)
-                        ax.imshow(test_images[0+batch_size*(batch_i)].transpose(1,2,0))
+                        ax.imshow(test_images[0+single_pu_batch_size*(batch_i)].transpose(1,2,0))
 
                         for l in range(max_length):
                             attention = attentionList[l]
@@ -609,12 +641,12 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                                 ax.set_title("<unk>")
                             elif dict[int(mx.nd.slice_axis(outputs[l+1], axis=0, begin=0, end=1).squeeze().asscalar())] == "<end>":
                                 ax.set_title(".")
-                                img = ax.imshow(test_images[0+batch_size*(batch_i)].transpose(1,2,0))
+                                img = ax.imshow(test_images[0+single_pu_batch_size*(batch_i)].transpose(1,2,0))
                                 ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
                                 break
                             else:
                                 ax.set_title(dict[int(mx.nd.slice_axis(outputs[l+1], axis=0, begin=0, end=1).squeeze().asscalar())])
-                            img = ax.imshow(test_images[0+batch_size*(batch_i)].transpose(1,2,0))
+                            img = ax.imshow(test_images[0+single_pu_batch_size*(batch_i)].transpose(1,2,0))
                             ax.imshow(attention_resized, cmap='gray', alpha=0.6, extent=img.get_extent())
 
                         plt.tight_layout()
@@ -633,13 +665,16 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
                 predictions = []
                 for output_name in outputs:
-                    predictions.append(output_name)
+                    if mx.nd.shape_array(mx.nd.squeeze(output_name)).size > 1:
+                        predictions.append(mx.nd.argmax(output_name, axis=1))
+                    else:
+                        predictions.append(output_name)
 
                 metric.update(preds=predictions, labels=[labels[j] for j in range(len(labels))])
 
-            test_metric_score = metric.get()[1]
-
             global_loss_test /= (test_batches * single_pu_batch_size)
+
+            test_metric_score = metric.get()[1]
 
             logging.info("Epoch[%d] Train metric: %f, Test metric: %f, Train loss: %f, Test loss: %f" % (epoch, train_metric_score, test_metric_score, global_loss_train, global_loss_test))
 

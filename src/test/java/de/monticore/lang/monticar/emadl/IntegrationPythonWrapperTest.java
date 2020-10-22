@@ -21,7 +21,6 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/reinforcementModel", "-r", "torcs.agent.TorcsAgent", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
-
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon/reinforcementModel/torcs"),
@@ -76,7 +75,6 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/reinforcementModel/torcs_td3", "-r", "torcs.agent.TorcsAgent", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
-
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon/reinforcementModel/torcs_td3"),
