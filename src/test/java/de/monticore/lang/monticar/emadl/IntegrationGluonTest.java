@@ -76,7 +76,7 @@ public class IntegrationGluonTest extends IntegrationTest {
 
         deleteHashFile(Paths.get("./target/generated-sources-emadl/episodicMemorySimple/episodicMemorySimple.training_hash"));
 
-        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "y", "-p", "/usr/bin/python3"};
+        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "y"};
         EMADLGeneratorCli.main(args);
     }
 

@@ -109,7 +109,7 @@ public class GenerationTest extends AbstractSymtabTest {
     @Test
     public void testEpisodicMemorySimpleGeneration() throws IOException, TemplateException {
         Log.getFindings().clear();
-        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "n", "-c", "n", "-p", "/usr/bin/python3"};
+        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
     }
 
