@@ -342,12 +342,9 @@ public class EMADLGenerator {
         fileContents.addAll(generateCNNTrainer(allInstances, instanceName));fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
-        if (cnnArchGenerator.isCMakeRequired()) {
+        if (cnnArchGenerator.isGenerateCMake()) {
             cnnArchGenerator.setGenerationTargetPath(getGenerationTargetPath());
-            Map<String, String> cmakeContentsMap = cnnArchGenerator.generateCMakeContent(componentInstanceSymbol.getFullName());
-            for (String fileName : cmakeContentsMap.keySet()){
-                fileContents.add(new FileContent(cmakeContentsMap.get(fileName), fileName));
-            }
+            fileContents.addAll(cnnArchGenerator.generateCMakeContent(componentInstanceSymbol.getFullName()));
         }
 
         if (emamGen.shouldGenerateMainClass()) {
@@ -503,28 +500,33 @@ public class EMADLGenerator {
     }
 
     public void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture){
-        Map<String,String> contentMap = cnnArchGenerator.generateStrings(architecture);
+        //Map<String,String> contentMap = cnnArchGenerator.generateStrings(taggingResolver, architecture);
+        List<FileContent> contentList = cnnArchGenerator.generateStrings(taggingResolver, architecture);
         String fullName = instance.getFullName().replaceAll("\\.", "_");
 
-        //get the components execute method
-        String executeKey = "execute_" + fullName;
-        String executeMethod = contentMap.get(executeKey);
-        if (executeMethod == null){
-            throw new IllegalStateException("execute method of " + fullName + " not found");
+        String executeMethod = null;
+        FileContent executeContent = null;
+        String applyBeamSearchMethod = null;
+        for (FileContent content : contentList){
+            if (content.getFileName().equals("execute_" + fullName)){
+                executeMethod = content.getFileContent();
+                executeContent = content;
+            }else if (content.getFileName().equals("BeamSearch_" + fullName)){
+                applyBeamSearchMethod = content.getFileContent();
+            }
         }
-        contentMap.remove(executeKey);
-
-        String applyBeamSearchMethod = contentMap.get("BeamSearch_" + fullName);
+        if (executeMethod == null) {
+            throw new IllegalStateException("execute method of " + fullName + " not found");
+        }else{
+            contentList.remove(executeContent);
+        }
 
         String component = emamGen.generateString(taggingResolver, instance, (MathStatementsSymbol) null);
         FileContent componentFileContent = new FileContent(
                 transformComponent(component, "CNNPredictor_" + fullName, applyBeamSearchMethod, executeMethod, architecture),
                 instance);
 
-        for (String fileName : contentMap.keySet()){
-            fileContents.add(new FileContent(contentMap.get(fileName), fileName));
-        }
-        fileContents.add(componentFileContent);
+        fileContents.addAll(contentList);
         fileContents.add(new FileContent(readResource("CNNTranslator.h", Charsets.UTF_8), "CNNTranslator.h"));
     }
 
@@ -735,10 +737,7 @@ public class EMADLGenerator {
                 }
 
                 cnnTrainGenerator.setInstanceName(componentInstance.getFullName().replaceAll("\\.", "_"));
-                Map<String, String> fileContentMap =  cnnTrainGenerator.generateStrings(configuration);
-                for (String fileName : fileContentMap.keySet()){
-                    fileContents.add(new FileContent(fileContentMap.get(fileName), fileName));
-                }
+                fileContents.addAll(cnnTrainGenerator.generateStrings(configuration));
             }
         }
         return fileContents;
