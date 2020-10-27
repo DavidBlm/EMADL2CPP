@@ -18,7 +18,6 @@
     <!-- .. SE-Libraries .................................................. -->
     <emadl.version>0.2.12-SNAPSHOT</emadl.version>
     <CNNTrain.version>0.4.0-SNAPSHOT</CNNTrain.version>
-<!--    <cnnarch-generator.version>0.4.0-SNAPSHOT</cnnarch-generator.version>-->
     <cnnarch-mxnet-generator.version>0.4.0-SNAPSHOT</cnnarch-mxnet-generator.version>
     <cnnarch-caffe2-generator.version>0.4.0-SNAPSHOT</cnnarch-caffe2-generator.version>
     <cnnarch-gluon-generator.version>0.4.0-SNAPSHOT</cnnarch-gluon-generator.version>
