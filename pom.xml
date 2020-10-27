@@ -18,13 +18,12 @@
     <!-- .. SE-Libraries .................................................. -->
     <emadl.version>0.2.12-SNAPSHOT</emadl.version>
     <CNNTrain.version>0.4.0-SNAPSHOT</CNNTrain.version>
-    <cnnarch-generator.version>0.4.0-SNAPSHOT</cnnarch-generator.version>
-    <cnnarch-mxnet-generator.version>0.2.17-SNAPSHOT</cnnarch-mxnet-generator.version>
-    <cnnarch-caffe2-generator.version>0.2.14-SNAPSHOT</cnnarch-caffe2-generator.version>
+<!--    <cnnarch-generator.version>0.4.0-SNAPSHOT</cnnarch-generator.version>-->
+    <cnnarch-mxnet-generator.version>0.4.0-SNAPSHOT</cnnarch-mxnet-generator.version>
+    <cnnarch-caffe2-generator.version>0.4.0-SNAPSHOT</cnnarch-caffe2-generator.version>
     <cnnarch-gluon-generator.version>0.4.0-SNAPSHOT</cnnarch-gluon-generator.version>
-    <cnnarch-tensorflow-generator.version>0.1.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
+    <cnnarch-tensorflow-generator.version>0.4.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
     <Common-MontiCar.version>0.2.12-SNAPSHOT</Common-MontiCar.version>
-    <embedded-montiarc-math-opt-generator>0.1.6</embedded-montiarc-math-opt-generator>
 
         <!-- .. Libraries .................................................. -->
         <guava.version>25.1-jre</guava.version>
@@ -65,17 +64,17 @@
         </dependency>
 
         <!-- MontiCore Dependencies -->
-        <dependency>
-            <groupId>de.monticore.lang.monticar</groupId>
-            <artifactId>embedded-montiarc-math-opt-generator</artifactId>
-            <version>${embedded-montiarc-math-opt-generator}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>de.monticore.lang.monticar</groupId>-->
+<!--            <artifactId>embedded-montiarc-math-opt-generator</artifactId>-->
+<!--            <version>${embedded-montiarc-math-opt-generator}</version>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>de.monticore.lang.monticar</groupId>
-            <artifactId>cnnarch-generator</artifactId>
-            <version>${cnnarch-generator.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>de.monticore.lang.monticar</groupId>-->
+<!--            <artifactId>cnnarch-generator</artifactId>-->
+<!--            <version>${cnnarch-generator.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
@@ -113,13 +112,13 @@
             <version>${CNNTrain.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>de.monticore.lang.monticar</groupId>
-            <artifactId>cnn-train</artifactId>
-            <version>${CNNTrain.version}</version>
-            <classifier>${grammars.classifier}</classifier>
-            <scope>provided</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>de.monticore.lang.monticar</groupId>-->
+<!--            <artifactId>cnn-train</artifactId>-->
+<!--            <version>${CNNTrain.version}</version>-->
+<!--            <classifier>${grammars.classifier}</classifier>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>

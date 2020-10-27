@@ -29,7 +29,7 @@ import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
 import de.monticore.lang.monticar.emadl.tagging.dltag.LayerPathParameterSymbol;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.cpp.ArmadilloHelper;
-import de.monticore.lang.monticar.generator.cpp.GeneratorEMAMOpt2CPP;
+import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
 import de.monticore.lang.monticar.generator.cpp.SimulatorIntegrationHelper;
 import de.monticore.lang.monticar.generator.cpp.TypesGeneratorCPP;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapper;
@@ -59,7 +59,7 @@ import java.io.File;
 
 public class EMADLGenerator {
 
-    private GeneratorEMAMOpt2CPP emamGen;
+    private GeneratorCPP emamGen;
     private CNNArchGenerator cnnArchGenerator;
     private CNNTrainGenerator cnnTrainGenerator;
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
@@ -71,7 +71,7 @@ public class EMADLGenerator {
 
     public EMADLGenerator(Backend backend) {
         this.backend = backend;
-        emamGen = new GeneratorEMAMOpt2CPP();
+        emamGen = new GeneratorCPP();
         emamGen.useArmadilloBackend();
         emamGen.setGenerationTargetPath("./target/generated-sources-emadl/");
         GeneratorPythonWrapperFactory pythonWrapperFactory = new GeneratorPythonWrapperFactory();
@@ -106,7 +106,7 @@ public class EMADLGenerator {
         return getEmamGen().getGenerationTargetPath();
     }
 
-    public GeneratorEMAMOpt2CPP getEmamGen() {
+    public GeneratorCPP getEmamGen() {
         return emamGen;
     }
 
