@@ -24,7 +24,7 @@
       <cnnarch-gluon-generator.version>0.4.0-SNAPSHOT</cnnarch-gluon-generator.version>
       <cnnarch-tensorflow-generator.version>0.4.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
       <Common-MontiCar.version>0.2.12-SNAPSHOT</Common-MontiCar.version>
-      <embedded-montiarc-math-generator.version>0.4.0</embedded-montiarc-math-generator.version>
+      <embedded-montiarc-math-generator.version>0.4.0-SNAPSHOT</embedded-montiarc-math-generator.version>
 
 
       <!-- .. Libraries .................................................. -->
@@ -66,11 +66,11 @@
         </dependency>
 
         <!-- MontiCore Dependencies -->
-<!--        <dependency>-->
-<!--            <groupId>de.monticore.lang.monticar</groupId>-->
-<!--            <artifactId>embedded-montiarc-math-generator</artifactId>-->
-<!--            <version>${embedded-montiarc-math-generator}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>de.monticore.lang.monticar</groupId>
+            <artifactId>embedded-montiarc-math-generator</artifactId>
+            <version>${embedded-montiarc-math-generator.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
