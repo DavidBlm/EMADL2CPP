@@ -16,15 +16,18 @@
   <properties>
 
     <!-- .. SE-Libraries .................................................. -->
-    <emadl.version>0.2.12-SNAPSHOT</emadl.version>
-    <CNNTrain.version>0.4.0-SNAPSHOT</CNNTrain.version>
-    <cnnarch-mxnet-generator.version>0.4.0-SNAPSHOT</cnnarch-mxnet-generator.version>
-    <cnnarch-caffe2-generator.version>0.4.0-SNAPSHOT</cnnarch-caffe2-generator.version>
-    <cnnarch-gluon-generator.version>0.4.0-SNAPSHOT</cnnarch-gluon-generator.version>
-    <cnnarch-tensorflow-generator.version>0.4.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
-    <Common-MontiCar.version>0.2.12-SNAPSHOT</Common-MontiCar.version>
 
-        <!-- .. Libraries .................................................. -->
+      <emadl.version>0.2.12-SNAPSHOT</emadl.version>
+      <CNNTrain.version>0.4.0-SNAPSHOT</CNNTrain.version>
+      <cnnarch-generator.version>0.4.0-SNAPSHOT</cnnarch-generator.version>
+      <cnnarch-mxnet-generator.version>0.4.0-SNAPSHOT</cnnarch-mxnet-generator.version>
+      <cnnarch-caffe2-generator.version>0.4.0-SNAPSHOT</cnnarch-caffe2-generator.version>
+      <cnnarch-gluon-generator.version>0.4.0-SNAPSHOT</cnnarch-gluon-generator.version>
+      <cnnarch-tensorflow-generator.version>0.4.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
+      <Common-MontiCar.version>0.2.12-SNAPSHOT</Common-MontiCar.version>
+      <embedded-montiarc-math-generator.version>0.4.0-SNAPSHOT</embedded-montiarc-math-generator.version>
+
+      <!-- .. Libraries .................................................. -->
         <guava.version>25.1-jre</guava.version>
         <junit.version>4.13.1</junit.version>
         <logback.version>1.1.2</logback.version>
@@ -63,6 +66,7 @@
         </dependency>
 
         <!-- MontiCore Dependencies -->
+<<<<<<< HEAD
 <!--        <dependency>-->
 <!--            <groupId>de.monticore.lang.monticar</groupId>-->
 <!--            <artifactId>embedded-montiarc-math-opt-generator</artifactId>-->
@@ -74,6 +78,19 @@
 <!--            <artifactId>cnnarch-generator</artifactId>-->
 <!--            <version>${cnnarch-generator.version}</version>-->
 <!--        </dependency>-->
+=======
+        <dependency>
+            <groupId>de.monticore.lang.monticar</groupId>
+            <artifactId>embedded-montiarc-math-generator</artifactId>
+            <version>${embedded-montiarc-math-generator.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.monticore.lang.monticar</groupId>
+            <artifactId>cnnarch-generator</artifactId>
+            <version>${cnnarch-generator.version}</version>
+        </dependency>
+>>>>>>> origin/develop_Malte_2
 
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
