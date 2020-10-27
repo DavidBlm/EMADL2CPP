@@ -62,11 +62,8 @@ import java.util.stream.Collectors;
 
 public class EMADLGenerator implements EMAMGenerator {
 
-<<<<<<< HEAD
-=======
     private boolean generateCMake = true;
     private CMakeConfig cMakeConfig = new CMakeConfig("");
->>>>>>> origin/develop_Malte_2
     private GeneratorCPP emamGen;
     private CNNArchGenerator cnnArchGenerator;
     private CNNTrainGenerator cnnTrainGenerator;
@@ -395,23 +392,12 @@ public class EMADLGenerator implements EMAMGenerator {
 
         List<FileContent> fileContents = new ArrayList<>();
         processedArchitecture = new HashMap<>();
-<<<<<<< HEAD
-        generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol, symtab);
-=======
-
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
->>>>>>> origin/develop_Malte_2
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
         fileContents.addAll(generateCNNTrainer(allInstances, instanceName));fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
-<<<<<<< HEAD
-        if (cnnArchGenerator.isGenerateCMake()) {
-            cnnArchGenerator.setGenerationTargetPath(getGenerationTargetPath());
-            fileContents.addAll(cnnArchGenerator.generateCMakeContent(componentInstanceSymbol.getFullName()));
-        }
-=======
 
 //        if (cnnArchGenerator.isCMakeRequired()) {
 //            cnnArchGenerator.setGenerationTargetPath(getGenerationTargetPath());
@@ -420,7 +406,6 @@ public class EMADLGenerator implements EMAMGenerator {
 //                fileContents.add(new FileContent(cmakeContentsMap.get(fileName), fileName));
 //            }
 //        }
->>>>>>> origin/develop_Malte_2
 
         if (emamGen.shouldGenerateMainClass()) {
             //fileContents.add(emamGen.getMainClassFileContent(componentInstanceSymbol, fileContents.get(0)));
@@ -574,24 +559,6 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     public void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture){
-<<<<<<< HEAD
-        //Map<String,String> contentMap = cnnArchGenerator.generateStrings(taggingResolver, architecture);
-        List<FileContent> contentList = cnnArchGenerator.generateStrings(taggingResolver, architecture);
-        String fullName = instance.getFullName().replaceAll("\\.", "_");
-
-        String executeMethod = null;
-        FileContent executeContent = null;
-        String applyBeamSearchMethod = null;
-        for (FileContent content : contentList){
-            if (content.getFileName().equals("execute_" + fullName)){
-                executeMethod = content.getFileContent();
-                executeContent = content;
-            }else if (content.getFileName().equals("BeamSearch_" + fullName)){
-                applyBeamSearchMethod = content.getFileContent();
-            }
-        }
-        if (executeMethod == null) {
-=======
         List<FileContent> contents = cnnArchGenerator.generateStrings(taggingResolver, architecture);
         String fullName = instance.getFullName().replaceAll("\\.", "_");
 
@@ -599,13 +566,8 @@ public class EMADLGenerator implements EMAMGenerator {
         String executeKey = "execute_" + fullName;
         List<String> executeMethods = getContentOf(contents, executeKey);
         if (executeMethods.size() != 1){
->>>>>>> origin/develop_Malte_2
             throw new IllegalStateException("execute method of " + fullName + " not found");
-        }else{
-            contentList.remove(executeContent);
         }
-<<<<<<< HEAD
-=======
         String executeMethod = executeMethods.get(0);
         contents.remove(executeKey);
 
@@ -614,7 +576,6 @@ public class EMADLGenerator implements EMAMGenerator {
         if (applyBeamSearchMethods.size() == 1){
             applyBeamSearchMethod = applyBeamSearchMethods.get(0);
         }
->>>>>>> origin/develop_Malte_2
 
         String component = emamGen.generateString(taggingResolver, instance, (MathStatementsSymbol) null);
         FileContent componentFileContent = new FileContent(
@@ -624,12 +585,8 @@ public class EMADLGenerator implements EMAMGenerator {
                         architecture),
                 instance);
 
-<<<<<<< HEAD
-        fileContents.addAll(contentList);
-=======
         fileContents.addAll(contents);
         fileContents.add(componentFileContent);
->>>>>>> origin/develop_Malte_2
         fileContents.add(new FileContent(readResource("CNNTranslator.h", Charsets.UTF_8), "CNNTranslator.h"));
     }
 
@@ -848,12 +805,9 @@ public class EMADLGenerator implements EMAMGenerator {
                 }
 
                 cnnTrainGenerator.setInstanceName(componentInstance.getFullName().replaceAll("\\.", "_"));
-<<<<<<< HEAD
-                fileContents.addAll(cnnTrainGenerator.generateStrings(configuration));
-=======
+
                 List<FileContent> fileContentMap =  cnnTrainGenerator.generateStrings(configuration);
                 fileContents.addAll(fileContentMap);
->>>>>>> origin/develop_Malte_2
             }
         }
         return fileContents;

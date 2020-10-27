@@ -66,19 +66,6 @@
         </dependency>
 
         <!-- MontiCore Dependencies -->
-<<<<<<< HEAD
-<!--        <dependency>-->
-<!--            <groupId>de.monticore.lang.monticar</groupId>-->
-<!--            <artifactId>embedded-montiarc-math-opt-generator</artifactId>-->
-<!--            <version>${embedded-montiarc-math-opt-generator}</version>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>de.monticore.lang.monticar</groupId>-->
-<!--            <artifactId>cnnarch-generator</artifactId>-->
-<!--            <version>${cnnarch-generator.version}</version>-->
-<!--        </dependency>-->
-=======
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
             <artifactId>embedded-montiarc-math-generator</artifactId>
@@ -90,7 +77,6 @@
             <artifactId>cnnarch-generator</artifactId>
             <version>${cnnarch-generator.version}</version>
         </dependency>
->>>>>>> origin/develop_Malte_2
 
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>

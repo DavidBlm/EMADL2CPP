@@ -255,6 +255,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/reinforcementModel", "-r", "mountaincar.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
+
         assertEquals(0, Log.getFindings().stream().filter(Finding::isError).count());
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
