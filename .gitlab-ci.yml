@@ -117,5 +117,3 @@ UnitTestJobLinux:
     changes:
     - .gitlab-ci.yml
     - README.md
-
-
