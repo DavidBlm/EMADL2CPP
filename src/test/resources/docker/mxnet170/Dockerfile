@@ -17,7 +17,7 @@ RUN cd /root/armadillo/armadillo-9.600.6 && cmake . && make && make install
 
 RUN git clone --recursive https://github.com/apache/incubator-mxnet.git mxnet
 RUN cd mxnet && git checkout tags/1.7.0 && git submodule update --recursive --init
-RUN cd mxnet && mkdir build && cd build && cmake -DUSE_CPP_PACKAGE=1 -DUSE_CUDA=0 -GNinja .. && ninja -v
+RUN cd mxnet && mkdir build && cd build && cmake -DUSE_CPP_PACKAGE=1 -DUSE_CUDA=0 -GNinja .. && ninja
 RUN cd mxnet && cp -r include/mxnet /usr/include/mxnet && cp -r cpp-package/include/mxnet-cpp /usr/include/ && cp -r 3rdparty/tvm/nnvm/include/nnvm /usr/include/ && cp -r 3rdparty/dmlc-core/include/dmlc /usr/include/
 
 RUN pip3 install --user --upgrade "cmake>=3.13.2"
