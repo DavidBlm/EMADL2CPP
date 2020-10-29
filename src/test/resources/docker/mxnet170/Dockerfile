@@ -5,9 +5,9 @@ RUN apt-get install -y build-essential git ninja-build ccache
 RUN apt-get install -y libopenblas-dev libblas-dev 
 RUN apt-get install -y liblapack-dev libopencv-dev 
 RUN apt-get install -y libarmadillo-dev cmake 
-RUN apt-get install -y python2.7 python-dev 
+RUN apt-get install -y python2.7 python-dev python-tk
 RUN apt-get install -y python-numpy 
-RUN apt-get install -y python3-pip python3-pip 
+RUN apt-get install -y python3-pip 
 RUN apt-get install -y swig unzip 
 RUN apt-get install -y libboost-all-dev
 
@@ -25,10 +25,6 @@ RUN pip3 install --user --upgrade "cmake>=3.13.2"
 RUN pip3 install --user h5py matplotlib 
 ADD mxnet-1.7.0b20200417-py2.py3-none-manylinux1_x86_64.whl /root/mxnet-1.7.0b20200417-py2.py3-none-manylinux1_x86_64.whl
 RUN pip3 install /root/mxnet-1.7.0b20200417-py2.py3-none-manylinux1_x86_64.whl
-
-RUN pip3 freeze
-
-RUN cd /usr/bin && ls
 
 RUN mkdir -p /root/.config/matplotlib
 RUN echo "backend : Agg" > /root/.config/matplotlib/matplotlibrc
