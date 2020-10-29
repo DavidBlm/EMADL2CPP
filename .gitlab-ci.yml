@@ -149,5 +149,6 @@ buildDockerDocker:
     - shell
   script:
     - cd src/test/resources/docker/docker_in_docker
+    - docker login registry.git.rwth-aachen.de -u someUserName -p yEep-tAt19HbsmNQJMNo
     - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/ci_docker_build:v0.0.1 .
     - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/ci_docker_build:v0.0.1
