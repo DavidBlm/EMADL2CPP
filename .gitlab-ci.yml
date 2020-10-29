@@ -2,7 +2,6 @@
 
 stages:
 #- windows
-- docker
 - linux
 - deploy
 
@@ -120,7 +119,7 @@ UnitTestJobLinux:
     - README.md
 
 buildDockerMXNet150:
-  stage: docker
+  stage: linux
   tags:
     - shell
   script:
@@ -133,7 +132,7 @@ buildDockerMXNet150:
     - src/test/resources/docker/mxnet150/**/*
 
 buildDockerMXNet170:
-  stage: docker
+  stage: linux
   tags:
     - shell
   script:
