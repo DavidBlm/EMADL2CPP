@@ -2,6 +2,7 @@
 
 stages:
 #- windows
+- docker
 - linux
 - deploy
 
@@ -119,7 +120,7 @@ UnitTestJobLinux:
     - README.md
 
 buildDockerMXNet150:
-  stage: linux
+  stage: docker
   tags:
     - shell
   script:
@@ -131,10 +132,13 @@ buildDockerMXNet150:
     - src/test/resources/docker/mxnet150/**/*
 
 buildDockerMXNet170:
-  stage: linux
+  stage: docker
   tags:
     - shell
   script:
     - cd src/test/resources/docker/mxnet170
     - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1 .
     - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1
+  only:
+    changes:
+    - src/test/resources/docker/mxnet170/**/*
