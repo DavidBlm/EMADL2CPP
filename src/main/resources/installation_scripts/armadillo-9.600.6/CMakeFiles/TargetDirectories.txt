@@ -1,7 +1,0 @@
-/home/julian/Documents/MontiCore/EMADL2CPP/src/main/resources/installation_scripts/armadillo-9.600.6/CMakeFiles/install/strip.dir
-/home/julian/Documents/MontiCore/EMADL2CPP/src/main/resources/installation_scripts/armadillo-9.600.6/CMakeFiles/install/local.dir
-/home/julian/Documents/MontiCore/EMADL2CPP/src/main/resources/installation_scripts/armadillo-9.600.6/CMakeFiles/install.dir
-/home/julian/Documents/MontiCore/EMADL2CPP/src/main/resources/installation_scripts/armadillo-9.600.6/CMakeFiles/list_install_components.dir
-/home/julian/Documents/MontiCore/EMADL2CPP/src/main/resources/installation_scripts/armadillo-9.600.6/CMakeFiles/rebuild_cache.dir
-/home/julian/Documents/MontiCore/EMADL2CPP/src/main/resources/installation_scripts/armadillo-9.600.6/CMakeFiles/edit_cache.dir
-/home/julian/Documents/MontiCore/EMADL2CPP/src/main/resources/installation_scripts/armadillo-9.600.6/CMakeFiles/armadillo.dir
