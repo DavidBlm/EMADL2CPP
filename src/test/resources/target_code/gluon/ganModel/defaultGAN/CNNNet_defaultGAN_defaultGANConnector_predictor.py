@@ -146,11 +146,21 @@ class DotProductSelfAttention(gluon.HybridBlock):
 
         score = F.batch_dot(head_queries, head_keys, transpose_b=True)
         score = score * self.scale_factor
+
         if self.use_mask:
-            mask = F.tile(mask, self.num_heads)
-            mask = F.repeat(mask, self.dim_model)
-            mask = F.reshape(mask, shape=(-1, self.dim_model))
-        weights = F.softmax(score, mask, use_length=self.use_mask)
+            seqs = F.contrib.arange_like(score, axis=1)
+            zeros = F.zeros_like(seqs)
+            zeros = F.reshape(zeros, shape=(1, -1))
+            mask = args[0]
+            mask = F.reshape(mask, shape=(-1, 1))
+            mask = F.broadcast_add(mask, zeros)
+            mask = F.expand_dims(mask, axis=1)
+            mask = F.broadcast_axis(mask, axis=1, size=self.num_heads)
+            mask = mask.reshape(shape=(-1, 0), reverse=True)
+            mask = F.cast(mask, dtype='int32')
+            weights = F.softmax(score, mask, use_length=self.use_mask)
+        else:
+            weights = F.softmax(score)
 
         head_values = F.reshape(head_values, shape=(0, 0, self.num_heads, -1))
         head_values = F.transpose(head_values, axes=(0,2,1,3))
@@ -169,7 +179,7 @@ class DotProductSelfAttention(gluon.HybridBlock):
 class EpisodicReplayMemoryInterface(gluon.HybridBlock):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, use_replay, replay_interval, replay_batch_size, replay_steps, replay_gradient_steps, num_heads, **kwargs):
+    def __init__(self, use_replay, replay_interval, replay_batch_size, replay_steps, replay_gradient_steps, use_local_adaptation, local_adaptation_gradient_steps, k, **kwargs):
         super(EpisodicReplayMemoryInterface, self).__init__(**kwargs)
 
         self.use_replay = use_replay
@@ -177,7 +187,10 @@ class EpisodicReplayMemoryInterface(gluon.HybridBlock):
         self.replay_batch_size = replay_batch_size
         self.replay_steps = replay_steps
         self.replay_gradient_steps = replay_gradient_steps
-        self.num_heads = num_heads
+
+        self.use_local_adaptation = use_local_adaptation
+        self.local_adaptation_gradient_steps = local_adaptation_gradient_steps
+        self.k = k
 
     @abc.abstractmethod
     def store_samples(self, data, y, query_network, store_prob, mx_context):
@@ -185,6 +198,10 @@ class EpisodicReplayMemoryInterface(gluon.HybridBlock):
 
     @abc.abstractmethod
     def sample_memory(self, batch_size, mx_context):
+        pass
+
+    @abc.abstractmethod
+    def sample_neighbours(self, data, query_network):
         pass
 
     @abc.abstractmethod
@@ -205,7 +222,6 @@ class LargeMemory(gluon.HybridBlock):
                  sub_key_size, 
                  query_size, 
                  query_act,
-                 dist_measure,
                  k, 
                  num_heads,
                  values_dim,
@@ -213,7 +229,6 @@ class LargeMemory(gluon.HybridBlock):
         super(LargeMemory, self).__init__(**kwargs)
         with self.name_scope():
             #Memory parameters
-            self.dist_measure = dist_measure
             self.k = k
             self.num_heads = num_heads
             self.query_act = query_act
@@ -250,46 +265,25 @@ class LargeMemory(gluon.HybridBlock):
 
         q_split = F.split(q, num_outputs=2, axis=-1)
 
-        if self.dist_measure == "l2":
-            q_split_resh = F.reshape(q_split[0], shape=(0,0,1,-1))
-            sub_keys1_resh = F.reshape(sub_keys1, shape=(1,0,0,-1), reverse=True)
-            q1_diff = F.broadcast_sub(q_split_resh, sub_keys1_resh)
-            q1_dist = F.norm(q1_diff, axis=-1)
-            q_split_resh = F.reshape(q_split[1], shape=(0,0,1,-1))
-            sub_keys2_resh = F.reshape(sub_keys2, shape=(1,0,0,-1), reverse=True)
-            q2_diff = F.broadcast_sub(q_split_resh, sub_keys2_resh)
-            q2_dist = F.norm(q2_diff, axis=-1)
-        else:
-            q1 = F.split(q_split[0], num_outputs=self.num_heads, axis=1)
-            q2 = F.split(q_split[1], num_outputs=self.num_heads, axis=1)
-            sub_keys1_resh = F.split(sub_keys1, num_outputs=self.num_heads, axis=0, squeeze_axis=True)
-            sub_keys2_resh = F.split(sub_keys2, num_outputs=self.num_heads, axis=0, squeeze_axis=True)
-            if self.num_heads == 1:
-                q1 = [q1]
-                q2 = [q2]
-                sub_keys1_resh = [sub_keys1_resh ]
-                sub_keys2_resh = [sub_keys2_resh ]
+        q1 = F.split(q_split[0], num_outputs=self.num_heads, axis=1)
+        q2 = F.split(q_split[1], num_outputs=self.num_heads, axis=1)
+        sub_keys1_resh = F.split(sub_keys1, num_outputs=self.num_heads, axis=0, squeeze_axis=True)
+        sub_keys2_resh = F.split(sub_keys2, num_outputs=self.num_heads, axis=0, squeeze_axis=True)
+        if self.num_heads == 1:
+            q1 = [q1]
+            q2 = [q2]
+            sub_keys1_resh = [sub_keys1_resh ]
+            sub_keys2_resh = [sub_keys2_resh ]
 
-            q1_dist = F.dot(q1[0], sub_keys1_resh[0], transpose_b=True)
-            q2_dist = F.dot(q2[0], sub_keys2_resh[0], transpose_b=True)
-            for h in range(1, self.num_heads):
-                q1_dist = F.concat(q1_dist, F.dot(q1[0], sub_keys1_resh[h], transpose_b=True), dim=1)
-                q2_dist = F.concat(q2_dist, F.dot(q2[0], sub_keys1_resh[h], transpose_b=True), dim=1)
+        q1_dist = F.dot(q1[0], sub_keys1_resh[0], transpose_b=True)
+        q2_dist = F.dot(q2[0], sub_keys2_resh[0], transpose_b=True)
+        for h in range(1, self.num_heads):
+           q1_dist = F.concat(q1_dist, F.dot(q1[0], sub_keys1_resh[h], transpose_b=True), dim=1)
+           q2_dist = F.concat(q2_dist, F.dot(q2[0], sub_keys1_resh[h], transpose_b=True), dim=1)
 
         i1 = F.topk(q1_dist, k=self.k, ret_typ="indices")
         i2 = F.topk(q2_dist, k=self.k, ret_typ="indices")
 
-        # Calculate cross product for keys at indices I1 and I2
-
-        # def head_take(data, state):
-        #     return [F.take(data[0], data[2]), F.take(data[1], data[3])], state,
-        #
-        # i1 = F.transpose(i1, axes=(1,0,2))
-        # i2 = F.transpose(i2, axes=(1, 0, 2))
-        # st = F.zeros(1)
-        # (k1, k2), _ = F.contrib.foreach(head_take, [sub_keys1, sub_keys2,i1,i2], st)
-        # k1 = F.reshape(k1, shape=(-1, 0, 0), reverse=True)
-        # k2 = F.reshape(k2, shape=(-1, 0, 0), reverse=True)
         i1 = F.split(i1, num_outputs=self.num_heads, axis=1)
         i2 = F.split(i2, num_outputs=self.num_heads, axis=1)
         sub_keys1 = F.split(sub_keys1, num_outputs=self.num_heads, axis=0, squeeze_axis=True)
@@ -313,12 +307,9 @@ class LargeMemory(gluon.HybridBlock):
         q = F.reshape(q, shape=(-1,0), reverse=True)
         q = F.reshape(q, shape=(0, 1, -1))
         c_cart = F.reshape(c_cart, shape=(-1, 0, 0), reverse=True)
-        if self.dist_measure == "l2":
-            k_diff = F.broadcast_sub(q, c_cart)
-            k_dist = F.norm(k_diff, axis=-1)
-        else:
-            k_dist = F.batch_dot(q, c_cart, transpose_b=True) #F.contrib.foreach(loop_batch_dot, [q, c_cart], init_states=state_batch_dist)
-            k_dist = F.reshape(k_dist, shape=(0, -1))
+
+        k_dist = F.batch_dot(q, c_cart, transpose_b=True) #F.contrib.foreach(loop_batch_dot, [q, c_cart], init_states=state_batch_dist)
+        k_dist = F.reshape(k_dist, shape=(0, -1))
 
         i = F.topk(k_dist, k=self.k, ret_typ="both")
 
@@ -359,11 +350,14 @@ class EpisodicMemory(EpisodicReplayMemoryInterface):
                  max_stored_samples,
                  memory_replacement_strategy,
                  use_replay,
+                 use_local_adaptation,
+                 local_adaptation_gradient_steps,
+                 k,
                  query_net_dir,
                  query_net_prefix,
                  query_net_num_inputs,
                  **kwargs):
-        super(EpisodicMemory, self).__init__(use_replay, replay_interval, replay_batch_size, replay_steps, replay_gradient_steps, 1, **kwargs)
+        super(EpisodicMemory, self).__init__(use_replay, replay_interval, replay_batch_size, replay_steps, replay_gradient_steps, use_local_adaptation, local_adaptation_gradient_steps, k, **kwargs)
         with self.name_scope():
             #Replay parameters
             self.store_prob = store_prob
@@ -455,6 +449,29 @@ class EpisodicMemory(EpisodicReplayMemoryInterface):
 
         sample_labels = [[self.label_memory[i][ind] for i in range(num_outputs)] for ind in sample_ind]
         sample_batches = [[[self.value_memory[j][ind] for j in range(len(self.value_memory))], sample_labels[i]] for i, ind in enumerate(sample_ind)]
+
+        return sample_batches
+
+    def sample_neighbours(self, data, query_network):
+        num_stored_samples = self.key_memory.shape[0]
+        batch_size = data[0].shape[0]
+
+        query = query_network(*data).as_in_context(mx.cpu())
+
+        vec1 = nd.repeat(query, repeats=num_stored_samples, axis=0)
+        vec2 = nd.tile(self.key_memory, reps=(batch_size, 1))
+        diff = nd.subtract(vec1, vec2)
+        sq = nd.square(diff)
+        batch_sum = nd.sum(sq, exclude=1, axis=0)
+        sqrt = nd.sqrt(batch_sum)
+
+        dist = nd.reshape(sqrt, shape=(batch_size, num_stored_samples))
+
+        sample_ind = nd.topk(dist, k=self.k, axis=1, ret_typ="indices")
+        num_outputs = len(self.label_memory)
+
+        sample_labels = [self.label_memory[i][sample_ind] for i in range(num_outputs)]
+        sample_batches = [[self.value_memory[j][sample_ind] for j in range(len(self.value_memory))], sample_labels]
 
         return sample_batches
 

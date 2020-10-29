@@ -11,6 +11,9 @@ find_package(Armadillo REQUIRED)
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${Armadillo_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${Armadillo_LIBRARIES})
 
+
+# additional library linkage
+
 # additional commands
 
 # create static library
