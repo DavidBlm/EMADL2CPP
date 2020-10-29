@@ -142,3 +142,12 @@ buildDockerMXNet170:
   only:
     changes:
     - src/test/resources/docker/mxnet170/**/*
+
+buildDockerDocker:
+  stage: docker
+  tags:
+    - shell
+  script:
+    - cd src/test/resources/docker/docker_in_docker
+    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/ci_docker_build:v0.0.1 .
+    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/ci_docker_build:v0.0.1
