@@ -117,3 +117,24 @@ UnitTestJobLinux:
     changes:
     - .gitlab-ci.yml
     - README.md
+
+buildDockerMXNet150:
+  stage: linux
+  tags:
+    - shell
+  script:
+    - cd src/test/resources/docker/mxnet150
+    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5 .
+    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5
+  only:
+    changes:
+    - src/test/resources/docker/mxnet150/**/*
+
+buildDockerMXNet170:
+  stage: linux
+  tags:
+    - shell
+  script:
+    - cd src/test/resources/docker/mxnet170
+    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1 .
+    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1
