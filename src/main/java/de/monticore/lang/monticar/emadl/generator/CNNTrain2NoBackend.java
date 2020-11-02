@@ -21,7 +21,7 @@ public class CNNTrain2NoBackend extends CNNTrainGenerator {
 
     @Override
     public void generate(Path modelsDirPath, String rootModelName) {
-        //ToDo: Throw exceptions. We can't generate anything here.
+        //Nothing to generate..
     }
 
     @Override
