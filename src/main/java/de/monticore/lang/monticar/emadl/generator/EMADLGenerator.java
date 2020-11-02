@@ -312,7 +312,7 @@ public class EMADLGenerator implements EMAMGenerator {
         return generatedFiles;
     }
 
-    protected List<File> generateCMakeFiles(EMAComponentInstanceSymbol componentInstanceSymbol) {
+    public List<File> generateCMakeFiles(EMAComponentInstanceSymbol componentInstanceSymbol) {
         List<File> files = new ArrayList<>();
         if(componentInstanceSymbol != null) {
             getCmakeConfig().getCMakeListsViewModel().setCompName(componentInstanceSymbol.getFullName().replace('.', '_').replace('[', '_').replace(']', '_'));
