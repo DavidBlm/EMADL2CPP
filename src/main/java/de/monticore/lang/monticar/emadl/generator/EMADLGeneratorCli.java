@@ -73,7 +73,7 @@ public class EMADLGeneratorCli {
         return options;
     }
 
-    // Add EMADL Options
+    // Add EMADL2CPP Options
     public static void addEMADL2CPPOptions(Options options) {
         options.addOption(OPTION_BACKEND);
         options.addOption(OPTION_RESTRAINED_TRAINING);
