@@ -43,9 +43,11 @@ import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.Co
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.Names;
 import de.se_rwth.commons.Splitters;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import javax.xml.bind.DatatypeConverter;
@@ -134,6 +136,12 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     private EMAComponentInstanceSymbol resolveComponentInstanceSymbol(String qualifiedName, TaggingResolver symtab) {
+        String simpleName = Names.getSimpleName(qualifiedName);
+        if (!Character.isUpperCase(simpleName.charAt(0))) {
+            String packageName = qualifiedName.substring(0, qualifiedName.length() - simpleName.length() - 1);
+            qualifiedName = Names.getQualifiedName(packageName, StringUtils.capitalize(simpleName));
+        }
+
         EMAComponentSymbol component = symtab.<EMAComponentSymbol>resolve(qualifiedName, EMAComponentSymbol.KIND).orElse(null);
 
         List<String> splitName = Splitters.DOT.splitToList(qualifiedName);
