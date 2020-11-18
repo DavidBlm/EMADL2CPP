@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 
 public class EMADLGenerator implements EMAMGenerator {
 
-    private boolean generateCMake = true;
+    private boolean generateCMake = false;
     private CMakeConfig cMakeConfig = new CMakeConfig("");
     private GeneratorCPP emamGen;
     private CNNArchGenerator cnnArchGenerator;
@@ -126,6 +126,8 @@ public class EMADLGenerator implements EMAMGenerator {
         generateFiles(symtab, instance, pythonPath, forced);
 
         if (doCompile) {
+            if (!generateCMake) // do it either way
+                generateCMakeFiles(instance);
             compile();
         }
         processedArchitecture = null;
