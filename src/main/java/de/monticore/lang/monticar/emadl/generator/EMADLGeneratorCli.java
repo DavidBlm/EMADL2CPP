@@ -16,20 +16,6 @@ import static de.monticore.lang.monticar.generator.cpp.GeneratorCppCli.*;
 
 public class EMADLGeneratorCli {
 
-    public static final Option OPTION_MODELS_PATH = Option.builder("m")
-            .longOpt("models-dir")
-            .desc("full path to directory with EMADL models e.g. C:\\Users\\vpupkin\\proj\\MyAwesomeAutopilot\\src\\main\\emam")
-            .hasArg(true)
-            .required(true)
-            .build();
-
-    public static final Option OPTION_ROOT_MODEL = Option.builder("r")
-            .longOpt("root-model")
-            .desc("fully qualified name of the root model e.g. de.rwth.vpupkin.modeling.mySuperAwesomeAutopilotComponent")
-            .hasArg(true)
-            .required(true)
-            .build();
-
     public static final Option OPTION_OUTPUT_PATH = Option.builder("o")
             .longOpt("output-dir")
             .desc("full path to output directory for tests e.g. C:\\Users\\vpupkin\\proj\\MyAwesomeAutopilot\\target\\gen-cpp\n" +
@@ -81,27 +67,13 @@ public class EMADLGeneratorCli {
 
     public static Options getOptions() {
         Options options = new Options();
-        options.addOption(OPTION_MODELS_PATH);
-        options.addOption(OPTION_ROOT_MODEL);
-        options.addOption(OPTION_OUTPUT_PATH);
-        options.addOption(OPTION_FLAG_TESTS);
-        options.addOption(OPTION_FLAG_ARMADILLO);
-        options.addOption(OPTION_FLAG_AUTOPILOT_ADAPTER);
-        options.addOption(OPTION_FLAG_CHECK_MODEL_DIR);
-        options.addOption(OPTION_FLAG_SERVER_WRAPPER);
-        options.addOption(OPTION_FLAG_ALGEBRAIC);
-        options.addOption(OPTION_FLAG_THREADING);
-        options.addOption(OPTION_FLAG_EXEC_LOGGING);
-        options.addOption(OPTION_FLAG_CMAKE);
-
-        options.addOption(OPTION_BACKEND);
-        options.addOption(OPTION_RESTRAINED_TRAINING);
-        options.addOption(OPTION_TRAINING_PYTHON_PATH);
-        options.addOption(OPTION_COMPILE);
+        addBaseOptions(options);
+        addEMADL2CPPOptions(options);
+        addEMADL2CPPOptions(options);
         return options;
     }
 
-    // Add EMADL Options
+    // Add EMADL2CPP Options
     public static void addEMADL2CPPOptions(Options options) {
         options.addOption(OPTION_BACKEND);
         options.addOption(OPTION_RESTRAINED_TRAINING);
