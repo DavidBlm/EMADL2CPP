@@ -4,9 +4,7 @@ package de.monticore.lang.monticar.emadl.generator;
 import de.monticore.ModelingLanguageFamily;
 import de.monticore.io.paths.ModelPath;
 import de.monticore.lang.embeddedmontiarc.LogConfig;
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarcmath._symboltable.EmbeddedMontiArcMathLanguage;
 import de.monticore.lang.embeddedmontiarc.helper.ConstantPortHelper;
-import de.monticore.lang.embeddedmontiarcdynamic.event._symboltable.EventLanguage;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathTagSchema;
 import de.monticore.lang.monticar.emadl.tagging.dltag.LayerPathParameterTagSchema;
@@ -55,12 +53,10 @@ public class EMADLAbstractSymtab {
         ModelingLanguageFamily fam = new ModelingLanguageFamily();
         EMADLLanguage montiArcLanguage = new EMADLLanguage();
 
-        fam.addModelingLanguage(new EmbeddedMontiArcMathLanguage());
-        fam.addModelingLanguage(montiArcLanguage);;
+        fam.addModelingLanguage(montiArcLanguage);
         fam.addModelingLanguage(new StreamUnitsLanguage());
         fam.addModelingLanguage(new StructLanguage());
         fam.addModelingLanguage(new EnumLangLanguage());
-        fam.addModelingLanguage(new EventLanguage());
         final ModelPath mp = new ModelPath();
         for (String m : modelPath) {
             mp.addEntry(Paths.get(m));
