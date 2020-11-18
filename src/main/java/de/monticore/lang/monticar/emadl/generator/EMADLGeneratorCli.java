@@ -61,7 +61,7 @@ public class EMADLGeneratorCli {
 
     public static final Option OPTION_COMPILE = Option.builder("c")
             .longOpt("compile")
-            .desc("Compile the generated c code. Needs to be disabled eg. on Windows. Options: y (compile), n (don't compile). Default is y")
+            .desc("Compile the generated c code. Options: y (compile), n (don't compile). Default is y")
             .hasArg(true)
             .required(false)
             .build();
@@ -148,7 +148,7 @@ public class EMADLGeneratorCli {
             compile = DEFAULT_COMPILE;
         }
         else if(!compile.equals("y") && !compile.equals("n")) {
-            Log.error("specified setting ("+compile+") for skipping the compilation not supported. set to default value " + DEFAULT_COMPILE);
+            Log.warn("specified setting ("+compile+") for skipping the compilation not supported. set to default value " + DEFAULT_COMPILE);
             compile = DEFAULT_COMPILE;
         }
 
