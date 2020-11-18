@@ -32,10 +32,7 @@ import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.MathCommandRegister;
 import de.monticore.lang.monticar.generator.cmake.CMakeConfig;
 import de.monticore.lang.monticar.generator.cmake.CMakeFindModule;
-import de.monticore.lang.monticar.generator.cpp.ArmadilloHelper;
-import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
-import de.monticore.lang.monticar.generator.cpp.SimulatorIntegrationHelper;
-import de.monticore.lang.monticar.generator.cpp.TypesGeneratorCPP;
+import de.monticore.lang.monticar.generator.cpp.*;
 import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperFactory;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
@@ -426,11 +423,20 @@ public class EMADLGenerator implements EMAMGenerator {
         }
 
         List<FileContent> fileContents = new ArrayList<>();
+        // Add Helpers
+        if (emamGen.usesArmadilloBackend()) {
+            fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
+        }
+        emamGen.searchForCVEverywhere(componentInstanceSymbol, taggingResolver);
+        if (emamGen.isGenerateCV) {
+            fileContents.add(ConversionHelper.getConversionHelperFileContent(emamGen.isGenerateTests()));
+        }
+
         processedArchitecture = new HashMap<>();
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
-        fileContents.addAll(generateCNNTrainer(allInstances, instanceName));fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
+        fileContents.addAll(generateCNNTrainer(allInstances, instanceName));
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
 
