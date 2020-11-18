@@ -46,6 +46,7 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Splitters;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang3.SystemUtils;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
@@ -151,7 +152,11 @@ public class EMADLGenerator implements EMAMGenerator {
     public void compile() throws IOException {
         File tempScript = createTempScript();
         try {
-            ProcessBuilder pb = new ProcessBuilder("bash", tempScript.toString());
+            ProcessBuilder pb;
+            if (!SystemUtils.IS_OS_WINDOWS)
+                pb = new ProcessBuilder("bash", tempScript.toString());
+            else
+                pb = new ProcessBuilder("cmd", tempScript.toString());
             pb.inheritIO();
             Process process = pb.start();
             int returnCode = process.waitFor();
@@ -169,21 +174,41 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public File createTempScript() throws IOException{
         File tempScript = File.createTempFile("script", null);
-        try{
-            Writer streamWriter = new OutputStreamWriter(new FileOutputStream(
-                    tempScript));
-            PrintWriter printWriter = new PrintWriter(streamWriter);
+        if (!SystemUtils.IS_OS_WINDOWS) {
+            try {
+                Writer streamWriter = new OutputStreamWriter(new FileOutputStream(
+                        tempScript));
+                PrintWriter printWriter = new PrintWriter(streamWriter);
 
-            printWriter.println("#!/bin/bash");
-            printWriter.println("cd " + getGenerationTargetPath());
-            printWriter.println("mkdir -p build");
-            printWriter.println("cd build");
-            printWriter.println("cmake ..");
-            printWriter.println("make");
+                printWriter.println("#!/bin/bash");
+                printWriter.println("cd " + getGenerationTargetPath());
+                printWriter.println("mkdir -p build");
+                printWriter.println("cd build");
+                printWriter.println("rm -r -f *");
+                printWriter.println("cmake ..");
+                printWriter.println("make");
 
-            printWriter.close();
-        }catch(Exception e){
-            System.out.println(e);
+                printWriter.close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        } else {
+            try {
+                Writer streamWriter = new OutputStreamWriter(new FileOutputStream(
+                        tempScript));
+                PrintWriter printWriter = new PrintWriter(streamWriter);
+
+                printWriter.println("cd " + getGenerationTargetPath());
+                printWriter.println("if exist build del /F /Q /S build");
+                printWriter.println("mkdir build");
+                printWriter.println("cd build");
+                printWriter.println("cmake ..");
+                printWriter.println("cmake --build .  --config release");
+
+                printWriter.close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         }
 
         return tempScript;
