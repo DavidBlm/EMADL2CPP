@@ -11,10 +11,6 @@ find_package(Armadillo REQUIRED)
 set(INCLUDE_DIRS ${INCLUDE_DIRS} ${Armadillo_INCLUDE_DIRS})
 set(LIBS ${LIBS} ${Armadillo_LIBRARIES})
 
-find_package(Armadillo REQUIRED)
-set(INCLUDE_DIRS ${INCLUDE_DIRS} ${Armadillo_INCLUDE_DIRS})
-set(LIBS ${LIBS} ${Armadillo_LIBRARIES})
-
 
 # additional library linkage
 
