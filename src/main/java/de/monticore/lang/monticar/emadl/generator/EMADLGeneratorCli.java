@@ -81,15 +81,28 @@ public class EMADLGeneratorCli {
 
     public static Options getOptions() {
         Options options = GeneratorCppCli.getOptions();
-        addEMADL2CPPOptions(options);
+        options.addOption(OPTION_MODELS_PATH);
+        options.addOption(OPTION_ROOT_MODEL);
+        options.addOption(OPTION_OUTPUT_PATH);
+        options.addOption(OPTION_FLAG_TESTS);
+        options.addOption(OPTION_FLAG_ARMADILLO);
+        options.addOption(OPTION_FLAG_AUTOPILOT_ADAPTER);
+        options.addOption(OPTION_FLAG_CHECK_MODEL_DIR);
+        options.addOption(OPTION_FLAG_SERVER_WRAPPER);
+        options.addOption(OPTION_FLAG_ALGEBRAIC);
+        options.addOption(OPTION_FLAG_THREADING);
+        options.addOption(OPTION_FLAG_EXEC_LOGGING);
+        options.addOption(OPTION_FLAG_CMAKE);
+
+        options.addOption(OPTION_BACKEND);
+        options.addOption(OPTION_RESTRAINED_TRAINING);
+        options.addOption(OPTION_TRAINING_PYTHON_PATH);
+        options.addOption(OPTION_COMPILE);
         return options;
     }
 
     // Add EMADL Options
     public static void addEMADL2CPPOptions(Options options) {
-//        options.addOption(OPTION_MODELS_PATH);
-//        options.addOption(OPTION_ROOT_MODEL);
-//        options.addOption(OPTION_OUTPUT_PATH);
         options.addOption(OPTION_BACKEND);
         options.addOption(OPTION_RESTRAINED_TRAINING);
         options.addOption(OPTION_TRAINING_PYTHON_PATH);
@@ -156,7 +169,7 @@ public class EMADLGeneratorCli {
             generator.setGenerationTargetPath(outputPath);
         }
 
-        generator.setGenerateCMake(cliArgs.hasOption(OPTION_FLAG_CMAKE.getLongOpt()));
+        generator.setGenerateCMake(true);
 
 
         // EMAM2CPP options
