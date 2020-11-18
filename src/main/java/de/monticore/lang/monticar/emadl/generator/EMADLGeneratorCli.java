@@ -4,10 +4,15 @@ package de.monticore.lang.monticar.emadl.generator;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
+
+import static de.monticore.lang.monticar.generator.cpp.GeneratorCppCli.*;
 
 public class EMADLGeneratorCli {
 
@@ -27,7 +32,8 @@ public class EMADLGeneratorCli {
 
     public static final Option OPTION_OUTPUT_PATH = Option.builder("o")
             .longOpt("output-dir")
-            .desc("full path to output directory for tests e.g. C:\\Users\\vpupkin\\proj\\MyAwesomeAutopilot\\target\\gen-cpp")
+            .desc("full path to output directory for tests e.g. C:\\Users\\vpupkin\\proj\\MyAwesomeAutopilot\\target\\gen-cpp\n" +
+                    "default is ./target/generated-sources-emadl/")
             .hasArg(true)
             .required(false)
             .build();
@@ -41,7 +47,7 @@ public class EMADLGeneratorCli {
 
     public static final Option OPTION_TRAINING_PYTHON_PATH = Option.builder("p")
             .longOpt("python")
-            .desc("path to python. Default is /usr/bin/python")
+            .desc("path to python. Default is /usr/bin/python, or python (PATH) for windows")
             .hasArg(true)
             .required(false)
             .build();
@@ -55,7 +61,7 @@ public class EMADLGeneratorCli {
 
     public static final Option OPTION_COMPILE = Option.builder("c")
             .longOpt("compile")
-            .desc("Compile the generated c code. Needs to be disabled eg. on Windows. Options: y (compile), n (don't compile). Default is y")
+            .desc("Compile the generated c code. Options: y (compile), n (don't compile). Default is y")
             .hasArg(true)
             .required(false)
             .build();
@@ -73,16 +79,34 @@ public class EMADLGeneratorCli {
         }
     }
 
-    private static Options getOptions() {
+    public static Options getOptions() {
         Options options = new Options();
         options.addOption(OPTION_MODELS_PATH);
         options.addOption(OPTION_ROOT_MODEL);
         options.addOption(OPTION_OUTPUT_PATH);
+        options.addOption(OPTION_FLAG_TESTS);
+        options.addOption(OPTION_FLAG_ARMADILLO);
+        options.addOption(OPTION_FLAG_AUTOPILOT_ADAPTER);
+        options.addOption(OPTION_FLAG_CHECK_MODEL_DIR);
+        options.addOption(OPTION_FLAG_SERVER_WRAPPER);
+        options.addOption(OPTION_FLAG_ALGEBRAIC);
+        options.addOption(OPTION_FLAG_THREADING);
+        options.addOption(OPTION_FLAG_EXEC_LOGGING);
+        options.addOption(OPTION_FLAG_CMAKE);
+
         options.addOption(OPTION_BACKEND);
         options.addOption(OPTION_RESTRAINED_TRAINING);
         options.addOption(OPTION_TRAINING_PYTHON_PATH);
         options.addOption(OPTION_COMPILE);
         return options;
+    }
+
+    // Add EMADL Options
+    public static void addEMADL2CPPOptions(Options options) {
+        options.addOption(OPTION_BACKEND);
+        options.addOption(OPTION_RESTRAINED_TRAINING);
+        options.addOption(OPTION_TRAINING_PYTHON_PATH);
+        options.addOption(OPTION_COMPILE);
     }
 
     private static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
@@ -120,14 +144,14 @@ public class EMADLGeneratorCli {
         }
 
         if (pythonPath == null) {
-            pythonPath = "/usr/bin/python";
+            pythonPath = SystemUtils.IS_OS_WINDOWS ? "python" : "/usr/bin/python";
         }
 
         if (forced == null) {
             forced = DEFAULT_FORCED;
         }
         else if (!forced.equals("y") && !forced.equals("n")) {
-            Log.error("specified setting ("+forced+") for forcing/preventing training not supported. set to default value " + DEFAULT_FORCED);
+            Log.warn("specified setting ("+forced+") for forcing/preventing training not supported. set to default value " + DEFAULT_FORCED);
             forced = DEFAULT_FORCED;
         }
 
@@ -137,13 +161,38 @@ public class EMADLGeneratorCli {
             compile = DEFAULT_COMPILE;
         }
         else if(!compile.equals("y") && !compile.equals("n")) {
-            Log.error("specified setting ("+compile+") for skipping the compilation not supported. set to default value " + DEFAULT_COMPILE);
+            Log.warn("specified setting ("+compile+") for skipping the compilation not supported. set to default value " + DEFAULT_COMPILE);
             compile = DEFAULT_COMPILE;
         }
 
         if (outputPath != null){
             generator.setGenerationTargetPath(outputPath);
         }
+
+        generator.setGenerateCMake(true);
+
+
+        // EMAM2CPP options
+        Path modelsDirPath = Paths.get(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()));
+        generator.getEmamGen().setUseAlgebraicOptimizations(false);
+        generator.getEmamGen().setUseThreadingOptimization(false);
+        generator.getEmamGen().setModelsDirPath(modelsDirPath);
+//        generator.getEmamGen().setGenerationTargetPath(outputPath); // done by EMADLGenerator
+        generator.getEmamGen().setGenerateTests(cliArgs.hasOption(OPTION_FLAG_TESTS.getOpt()));
+        if (cliArgs.hasOption(OPTION_FLAG_ARMADILLO.getOpt())) {
+            generator.getEmamGen().useArmadilloBackend();
+        }
+        generator.getEmamGen().setCheckModelDir(cliArgs.hasOption(OPTION_FLAG_CHECK_MODEL_DIR.getLongOpt()));
+        generator.getEmamGen().setGenerateServerWrapper(cliArgs.hasOption(OPTION_FLAG_SERVER_WRAPPER.getLongOpt()));
+        generator.getEmamGen().setGenerateAutopilotAdapter(cliArgs.hasOption(OPTION_FLAG_AUTOPILOT_ADAPTER.getLongOpt()));
+
+        generator.getEmamGen().setUseAlgebraicOptimizations(cliArgs.hasOption(OPTION_FLAG_ALGEBRAIC.getLongOpt()));
+        generator.getEmamGen().setUseThreadingOptimization(cliArgs.hasOption(OPTION_FLAG_THREADING.getLongOpt()));
+        generator.getEmamGen().setExecutionLoggingActive(cliArgs.hasOption(OPTION_FLAG_EXEC_LOGGING.getLongOpt()));
+        generator.getEmamGen().setGenerateCMake(cliArgs.hasOption(OPTION_FLAG_CMAKE.getLongOpt()));
+        // end EMAM2CPP options
+
+
         try{
             generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"));
         }

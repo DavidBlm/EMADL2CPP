@@ -32,10 +32,7 @@ import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.MathCommandRegister;
 import de.monticore.lang.monticar.generator.cmake.CMakeConfig;
 import de.monticore.lang.monticar.generator.cmake.CMakeFindModule;
-import de.monticore.lang.monticar.generator.cpp.ArmadilloHelper;
-import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
-import de.monticore.lang.monticar.generator.cpp.SimulatorIntegrationHelper;
-import de.monticore.lang.monticar.generator.cpp.TypesGeneratorCPP;
+import de.monticore.lang.monticar.generator.cpp.*;
 import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperFactory;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
@@ -43,9 +40,12 @@ import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.Co
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.Names;
 import de.se_rwth.commons.Splitters;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
 
 public class EMADLGenerator implements EMAMGenerator {
 
-    private boolean generateCMake = true;
+    private boolean generateCMake = false;
     private CMakeConfig cMakeConfig = new CMakeConfig("");
     private GeneratorCPP emamGen;
     private CNNArchGenerator cnnArchGenerator;
@@ -125,12 +125,20 @@ public class EMADLGenerator implements EMAMGenerator {
         generateFiles(symtab, instance, pythonPath, forced);
 
         if (doCompile) {
+            if (!generateCMake) // do it either way
+                generateCMakeFiles(instance);
             compile();
         }
         processedArchitecture = null;
     }
 
     private EMAComponentInstanceSymbol resolveComponentInstanceSymbol(String qualifiedName, TaggingResolver symtab) {
+        String simpleName = Names.getSimpleName(qualifiedName);
+        if (!Character.isUpperCase(simpleName.charAt(0))) {
+            String packageName = qualifiedName.substring(0, qualifiedName.length() - simpleName.length() - 1);
+            qualifiedName = Names.getQualifiedName(packageName, StringUtils.capitalize(simpleName));
+        }
+
         EMAComponentSymbol component = symtab.<EMAComponentSymbol>resolve(qualifiedName, EMAComponentSymbol.KIND).orElse(null);
 
         List<String> splitName = Splitters.DOT.splitToList(qualifiedName);
@@ -151,7 +159,11 @@ public class EMADLGenerator implements EMAMGenerator {
     public void compile() throws IOException {
         File tempScript = createTempScript();
         try {
-            ProcessBuilder pb = new ProcessBuilder("bash", tempScript.toString());
+            ProcessBuilder pb;
+            if (!SystemUtils.IS_OS_WINDOWS)
+                pb = new ProcessBuilder("bash", tempScript.toString());
+            else
+                pb = new ProcessBuilder("cmd", tempScript.toString());
             pb.inheritIO();
             Process process = pb.start();
             int returnCode = process.waitFor();
@@ -169,21 +181,41 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public File createTempScript() throws IOException{
         File tempScript = File.createTempFile("script", null);
-        try{
-            Writer streamWriter = new OutputStreamWriter(new FileOutputStream(
-                    tempScript));
-            PrintWriter printWriter = new PrintWriter(streamWriter);
+        if (!SystemUtils.IS_OS_WINDOWS) {
+            try {
+                Writer streamWriter = new OutputStreamWriter(new FileOutputStream(
+                        tempScript));
+                PrintWriter printWriter = new PrintWriter(streamWriter);
 
-            printWriter.println("#!/bin/bash");
-            printWriter.println("cd " + getGenerationTargetPath());
-            printWriter.println("mkdir -p build");
-            printWriter.println("cd build");
-            printWriter.println("cmake ..");
-            printWriter.println("make");
+                printWriter.println("#!/bin/bash");
+                printWriter.println("cd " + getGenerationTargetPath());
+                printWriter.println("mkdir -p build");
+                printWriter.println("cd build");
+                printWriter.println("rm -r -f *");
+                printWriter.println("cmake ..");
+                printWriter.println("make");
 
-            printWriter.close();
-        }catch(Exception e){
-            System.out.println(e);
+                printWriter.close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        } else {
+            try {
+                Writer streamWriter = new OutputStreamWriter(new FileOutputStream(
+                        tempScript));
+                PrintWriter printWriter = new PrintWriter(streamWriter);
+
+                printWriter.println("cd " + getGenerationTargetPath());
+                printWriter.println("if exist build del /F /Q /S build");
+                printWriter.println("mkdir build");
+                printWriter.println("cd build");
+                printWriter.println("cmake ..");
+                printWriter.println("cmake --build .  --config release");
+
+                printWriter.close();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
         }
 
         return tempScript;
@@ -391,11 +423,20 @@ public class EMADLGenerator implements EMAMGenerator {
         }
 
         List<FileContent> fileContents = new ArrayList<>();
+        // Add Helpers
+        if (emamGen.usesArmadilloBackend()) {
+            fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
+        }
+        emamGen.searchForCVEverywhere(componentInstanceSymbol, taggingResolver);
+        if (emamGen.isGenerateCV) {
+            fileContents.add(ConversionHelper.getConversionHelperFileContent(emamGen.isGenerateTests()));
+        }
+
         processedArchitecture = new HashMap<>();
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
-        fileContents.addAll(generateCNNTrainer(allInstances, instanceName));fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
+        fileContents.addAll(generateCNNTrainer(allInstances, instanceName));
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
 
@@ -858,28 +899,23 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     private void mergeCMakeConfigs() {
-        List<String> cmakeCommandList = emamGen.getCMakeConfig().getCMakeListsViewModel().getCmakeCommandList();
-        List<String> cmakeCommandListEnd = emamGen.getCMakeConfig().getCMakeListsViewModel().getCmakeCommandListEnd();
-        List<String> cmakeLibraryLinkageList = emamGen.getCMakeConfig().getCMakeListsViewModel().getCmakeLibraryLinkageList();
-        LinkedHashSet<CMakeFindModule> moduleDependencies = emamGen.getCMakeConfig().getCMakeListsViewModel().getModuleDependencies();
-        // merge
-        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandList()
-                .stream().filter(s -> !cmakeCommandList.contains(s))
-                .forEach(s -> cmakeCommandList.add(s));
-        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandListEnd()
-                .stream().filter(s -> !cmakeCommandListEnd.contains(s))
-                .forEach(s -> cmakeCommandListEnd.add(s));
-        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeLibraryLinkageList()
-                .stream().filter(s -> !cmakeLibraryLinkageList.contains(s))
-                .forEach(s -> cmakeLibraryLinkageList.add(s));
-        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getModuleDependencies()
-                .stream().filter(s -> !moduleDependencies.contains(s))
-                .forEach(s -> moduleDependencies.add(s));
+        emamGen.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandList()
+                .stream().forEach(s -> cMakeConfig.addCMakeCommand(s));
+        emamGen.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandListEnd()
+                .stream().forEach(s -> cMakeConfig.addCMakeCommandEnd(s));
+        emamGen.getCmakeConfig().getCMakeListsViewModel().getCmakeLibraryLinkageList()
+                .stream().forEach(s -> cMakeConfig.addCmakeLibraryLinkage(s));
+        emamGen.getCmakeConfig().getCMakeListsViewModel().getModuleDependencies()
+                .stream().forEach(s -> cMakeConfig.addModuleDependency(s));
 
-        cMakeConfig.getCMakeListsViewModel().setCmakeCommandList(cmakeCommandList);
-        cMakeConfig.getCMakeListsViewModel().setCmakeCommandListEnd(cmakeCommandListEnd);
-        cMakeConfig.getCMakeListsViewModel().setCmakeLibraryLinkageList(cmakeLibraryLinkageList);
-        cMakeConfig.getCMakeListsViewModel().setModuleDependencies(moduleDependencies);
+        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandList()
+                .stream().forEach(s -> cMakeConfig.addCMakeCommand(s));
+        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandListEnd()
+                .stream().forEach(s -> cMakeConfig.addCMakeCommandEnd(s));
+        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeLibraryLinkageList()
+                .stream().forEach(s -> cMakeConfig.addCmakeLibraryLinkage(s));
+        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getModuleDependencies()
+                .stream().forEach(s -> cMakeConfig.addModuleDependency(s));
     }
 
     @Override
