@@ -16,20 +16,6 @@ import static de.monticore.lang.monticar.generator.cpp.GeneratorCppCli.*;
 
 public class EMADLGeneratorCli {
 
-    public static final Option OPTION_MODELS_PATH = Option.builder("m")
-            .longOpt("models-dir")
-            .desc("full path to directory with EMADL models e.g. C:\\Users\\vpupkin\\proj\\MyAwesomeAutopilot\\src\\main\\emam")
-            .hasArg(true)
-            .required(true)
-            .build();
-
-    public static final Option OPTION_ROOT_MODEL = Option.builder("r")
-            .longOpt("root-model")
-            .desc("fully qualified name of the root model e.g. de.rwth.vpupkin.modeling.mySuperAwesomeAutopilotComponent")
-            .hasArg(true)
-            .required(true)
-            .build();
-
     public static final Option OPTION_OUTPUT_PATH = Option.builder("o")
             .longOpt("output-dir")
             .desc("full path to output directory for tests e.g. C:\\Users\\vpupkin\\proj\\MyAwesomeAutopilot\\target\\gen-cpp\n" +
