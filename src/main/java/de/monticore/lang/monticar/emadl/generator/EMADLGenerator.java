@@ -885,28 +885,23 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     private void mergeCMakeConfigs() {
-        List<String> cmakeCommandList = emamGen.getCMakeConfig().getCMakeListsViewModel().getCmakeCommandList();
-        List<String> cmakeCommandListEnd = emamGen.getCMakeConfig().getCMakeListsViewModel().getCmakeCommandListEnd();
-        List<String> cmakeLibraryLinkageList = emamGen.getCMakeConfig().getCMakeListsViewModel().getCmakeLibraryLinkageList();
-        LinkedHashSet<CMakeFindModule> moduleDependencies = emamGen.getCMakeConfig().getCMakeListsViewModel().getModuleDependencies();
-        // merge
-        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandList()
-                .stream().filter(s -> !cmakeCommandList.contains(s))
-                .forEach(s -> cmakeCommandList.add(s));
-        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandListEnd()
-                .stream().filter(s -> !cmakeCommandListEnd.contains(s))
-                .forEach(s -> cmakeCommandListEnd.add(s));
-        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeLibraryLinkageList()
-                .stream().filter(s -> !cmakeLibraryLinkageList.contains(s))
-                .forEach(s -> cmakeLibraryLinkageList.add(s));
-        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getModuleDependencies()
-                .stream().filter(s -> !moduleDependencies.contains(s))
-                .forEach(s -> moduleDependencies.add(s));
+        emamGen.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandList()
+                .stream().forEach(s -> cMakeConfig.addCMakeCommand(s));
+        emamGen.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandListEnd()
+                .stream().forEach(s -> cMakeConfig.addCMakeCommandEnd(s));
+        emamGen.getCmakeConfig().getCMakeListsViewModel().getCmakeLibraryLinkageList()
+                .stream().forEach(s -> cMakeConfig.addCmakeLibraryLinkage(s));
+        emamGen.getCmakeConfig().getCMakeListsViewModel().getModuleDependencies()
+                .stream().forEach(s -> cMakeConfig.addModuleDependency(s));
 
-        cMakeConfig.getCMakeListsViewModel().setCmakeCommandList(cmakeCommandList);
-        cMakeConfig.getCMakeListsViewModel().setCmakeCommandListEnd(cmakeCommandListEnd);
-        cMakeConfig.getCMakeListsViewModel().setCmakeLibraryLinkageList(cmakeLibraryLinkageList);
-        cMakeConfig.getCMakeListsViewModel().setModuleDependencies(moduleDependencies);
+        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandList()
+                .stream().forEach(s -> cMakeConfig.addCMakeCommand(s));
+        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeCommandListEnd()
+                .stream().forEach(s -> cMakeConfig.addCMakeCommandEnd(s));
+        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getCmakeLibraryLinkageList()
+                .stream().forEach(s -> cMakeConfig.addCmakeLibraryLinkage(s));
+        cnnArchGenerator.getCmakeConfig().getCMakeListsViewModel().getModuleDependencies()
+                .stream().forEach(s -> cMakeConfig.addModuleDependency(s));
     }
 
     @Override
