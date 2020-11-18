@@ -1,7 +1,6 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl.generator;
 
-import de.monticore.lang.monticar.generator.cpp.GeneratorCppCli;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
 import org.apache.commons.cli.*;
@@ -80,7 +79,7 @@ public class EMADLGeneratorCli {
     }
 
     public static Options getOptions() {
-        Options options = GeneratorCppCli.getOptions();
+        Options options = new Options();
         options.addOption(OPTION_MODELS_PATH);
         options.addOption(OPTION_ROOT_MODEL);
         options.addOption(OPTION_OUTPUT_PATH);
