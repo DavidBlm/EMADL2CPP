@@ -1,6 +1,7 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl.generator;
 
+import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
 import org.apache.commons.cli.*;
@@ -61,6 +62,40 @@ public class EMADLGeneratorCli {
             .build();
 
 
+
+    public static final Option OPTION_FLAG_DYNAMIC_INTERFACE = Option.builder("di")
+            .longOpt("dyn-interface")
+            .desc("Enable autopilot adapter generation")
+            .hasArg(false)
+            .required(false)
+            .build();
+    public static final Option OPTION_FLAG_GEN_TCP_SERVER = Option.builder("tcp")
+            .longOpt("tcp-adapter")
+            .desc("Generate the TCP-Server adapter for the model")
+            .hasArg(false)
+            .required(false)
+            .build();
+    public static final Option OPTION_FLAG_GEN_DDC_ADAPTER = Option.builder("ddc")
+            .longOpt("ddc-adapter")
+            .desc("Generate the DDC adapter for the model")
+            .hasArg(false)
+            .required(false)
+            .build();
+
+    public static final Option OPTION_IMPORT_ARMADILLO = Option.builder()
+            .longOpt("armadillo-import")
+            .desc("If enabled, the project will include Armadillo for compilation based on the ARMADILLO_PATH environment variable")
+            .hasArg(false)
+            .required(false)
+            .build();
+
+    public static final Option OPTION_OUTPUT_NAME = Option.builder("n")
+            .longOpt("output-name")
+            .desc("Name for the dynamic-interface or server adapter.")
+            .hasArg(true)
+            .required(false)
+            .build();
+
     private EMADLGeneratorCli() {
     }
 
@@ -82,6 +117,11 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_RESTRAINED_TRAINING);
         options.addOption(OPTION_TRAINING_PYTHON_PATH);
         options.addOption(OPTION_COMPILE);
+        options.addOption(OPTION_IMPORT_ARMADILLO);
+        options.addOption(OPTION_FLAG_GEN_TCP_SERVER);
+        options.addOption(OPTION_FLAG_GEN_DDC_ADAPTER);
+        options.addOption(OPTION_FLAG_DYNAMIC_INTERFACE);
+        options.addOption(OPTION_OUTPUT_NAME);
         return options;
     }
 
@@ -144,6 +184,15 @@ public class EMADLGeneratorCli {
         if (outputPath != null){
             generator.setGenerationTargetPath(outputPath);
         }
+
+        GeneratorCPP emamGen = generator.getEmamGen();
+        emamGen.setImportArmadillo(cliArgs.hasOption(OPTION_IMPORT_ARMADILLO.getLongOpt()));
+        emamGen.setGenerateDynamicInterface(cliArgs.hasOption(OPTION_FLAG_DYNAMIC_INTERFACE.getLongOpt()));
+        emamGen.setGenerateServerAdapter(cliArgs.hasOption(OPTION_FLAG_GEN_TCP_SERVER.getLongOpt()));
+        emamGen.setGenerateDDCAdapter(cliArgs.hasOption(OPTION_FLAG_GEN_DDC_ADAPTER.getLongOpt()));
+        emamGen.setOutputName(cliArgs.getOptionValue(OPTION_OUTPUT_NAME.getOpt()));
+        emamGen.useArmadilloBackend();
+
         try{
             generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"));
         }
