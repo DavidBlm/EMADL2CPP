@@ -257,6 +257,9 @@ public class EMADLGenerator implements EMAMGenerator {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
         List<FileContent> fileContents = generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
+        
+        System.out.println("Generating Adapters");
+        emamGen.generateAdapters(fileContents, EMAComponentSymbol);
 
         for (FileContent fileContent : fileContents) {
             generatedFiles.add(emamGen.generateFile(fileContent));
