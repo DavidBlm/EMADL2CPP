@@ -47,7 +47,6 @@ import freemarker.template.TemplateException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -230,12 +229,20 @@ public class EMADLGenerator implements EMAMGenerator {
             md5.update(Files.readAllBytes(wiki_path));
             byte[] digest = md5.digest();
 
-            return DatatypeConverter.printHexBinary(digest).toUpperCase();
+            return hex(digest);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             return "No_Such_Algorithm_Exception";
         }
     }
+    public static String hex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte aByte : bytes) {
+            result.append(String.format("%02X", aByte));
+        }
+        return result.toString();
+    }
+
 
     public String getChecksumForLargerFile(String filePath) throws IOException {
         try {
@@ -250,6 +257,9 @@ public class EMADLGenerator implements EMAMGenerator {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
         List<FileContent> fileContents = generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
+        
+        System.out.println("Generating Adapters");
+        emamGen.generateAdapters(fileContents, EMAComponentSymbol);
 
         for (FileContent fileContent : fileContents) {
             generatedFiles.add(emamGen.generateFile(fileContent));
