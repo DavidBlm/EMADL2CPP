@@ -9,7 +9,7 @@
 
   <groupId>de.monticore.lang.monticar</groupId>
   <artifactId>embedded-montiarc-emadl-generator</artifactId>
-  <version>0.4.5</version>
+  <version>0.4.6</version>
 
   <!-- == PROJECT DEPENDENCIES ============================================= -->
 
@@ -25,7 +25,7 @@
       <cnnarch-gluon-generator.version>0.4.0-SNAPSHOT</cnnarch-gluon-generator.version>
       <cnnarch-tensorflow-generator.version>0.4.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
       <Common-MontiCar.version>0.2.12-SNAPSHOT</Common-MontiCar.version>
-      <embedded-montiarc-math-generator.version>0.4.2</embedded-montiarc-math-generator.version>
+      <embedded-montiarc-math-generator.version>0.4.3</embedded-montiarc-math-generator.version>
 
       <!-- .. Libraries .................................................. -->
         <guava.version>25.1-jre</guava.version>
