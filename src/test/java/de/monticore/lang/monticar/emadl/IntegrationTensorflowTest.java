@@ -51,7 +51,7 @@ public class IntegrationTensorflowTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "TENSORFLOW"};
         EMADLGeneratorCli.main(args);
 
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     private void deleteHashFile(Path hashFile) {
