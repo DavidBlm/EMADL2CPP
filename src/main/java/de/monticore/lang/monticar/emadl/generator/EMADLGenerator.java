@@ -265,8 +265,8 @@ public class EMADLGenerator implements EMAMGenerator {
     public List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
 
-        ExecutionSemantics semantics = new ExecutionSemantics(taggingResolver, EMAComponentSymbol);
-        semantics.addExecutionSemantics();
+//        ExecutionSemantics semantics = new ExecutionSemantics(taggingResolver, EMAComponentSymbol);
+//        semantics.addExecutionSemantics();
 
         List<FileContent> fileContents = generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
