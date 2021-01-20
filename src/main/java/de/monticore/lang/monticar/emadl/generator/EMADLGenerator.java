@@ -265,9 +265,6 @@ public class EMADLGenerator implements EMAMGenerator {
     public List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
 
-//        ExecutionSemantics semantics = new ExecutionSemantics(taggingResolver, EMAComponentSymbol);
-//        semantics.addExecutionSemantics();
-
         List<FileContent> fileContents = generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
         
@@ -451,7 +448,7 @@ public class EMADLGenerator implements EMAMGenerator {
             fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
         }
         emamGen.searchForCVEverywhere(componentInstanceSymbol, taggingResolver);
-        if (emamGen.isGenerateCV) {
+        if (ConversionHelper.isUsedCV()) {
             fileContents.add(ConversionHelper.getConversionHelperFileContent(emamGen.isGenerateTests()));
         }
 
@@ -579,6 +576,8 @@ public class EMADLGenerator implements EMAMGenerator {
                                      Set<EMAComponentInstanceSymbol> allInstances,
                                      TaggingResolver taggingResolver,
                                      EMAComponentInstanceSymbol componentInstanceSymbol){
+        emamGen.addSemantics(taggingResolver, componentInstanceSymbol);
+
         allInstances.add(componentInstanceSymbol);
         EMAComponentSymbol EMAComponentSymbol = componentInstanceSymbol.getComponentType().getReferencedSymbol();
 
