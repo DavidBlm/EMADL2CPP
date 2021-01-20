@@ -55,7 +55,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "simulator.MainController", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -63,7 +63,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -71,7 +71,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "Alexnet", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "ResNeXt50", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -87,7 +87,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "ThreeInputCNN_M14", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 1);
+        checkFindingsCount(1L);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleOutputs", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 1);
+        checkFindingsCount(1L);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "VGG16", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -119,7 +119,7 @@ public class GenerationTest extends AbstractSymtabTest {
             Log.getFindings().clear();
             String[] args = {"-m", "src/test/resources/models/", "-r", "InstanceTest.MainB", "-b", "MXNET", "-f", "n", "-c", "n"};
             EMADLGeneratorCli.main(args);
-            assertTrue(Log.getFindings().isEmpty());
+            checkFindingsCount();
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -131,7 +131,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "CAFFE2", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
 
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -153,7 +153,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "TENSORFLOW", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
 
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -176,7 +176,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon"),
@@ -201,7 +201,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "Invariant", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 0);
+        checkFindingsCount();
     }
 
 
@@ -343,7 +343,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         Log.info(Log.getFindings().toString(), "testGluonPreprocessinWithSupervised");
-        assertTrue(Log.getFindings().size() == 0);
+        checkFindingsCount();
     }
 
     @Test
@@ -352,7 +352,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         Log.info(Log.getFindings().toString(), "testGluonPreprocessingWithGAN");
-        assertTrue(Log.getFindings().size() == 0);
+        checkFindingsCount();
     }
 
     @Test
@@ -361,7 +361,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = { "-m", "src/test/resources/models/", "-r", "tagging.Alexnet", "-b", "MXNET", "-f", "n", "-c",
                 "n" };
         EMADLGeneratorCli.main(args);
-        assertEquals(Log.getFindings().size(), 1);
+        checkFindingsCount(1L);
         assertEquals(Log.getFindings().get(0).toString(),
                 "Tagging info for DataPath symbol was found, ignoring data_paths.txt: src/test/resources/models");
         assertTrue(Log.getErrorCount() == 0);
