@@ -7,8 +7,9 @@ import de.monticore.lang.embeddedmontiarc.LogConfig;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarcmath._symboltable.EmbeddedMontiArcMathLanguage;
 import de.monticore.lang.embeddedmontiarc.helper.ConstantPortHelper;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
+import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactTagSchema;
+import de.monticore.lang.monticar.emadl.tagging.artifacttag.LayerArtifactParameterTagSchema;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathTagSchema;
-import de.monticore.lang.monticar.emadl.tagging.dltag.LayerArtifactParameterTagSchema;
 import de.monticore.lang.monticar.emadl.tagging.dltag.LayerPathParameterTagSchema;
 import de.monticore.lang.monticar.enumlang._symboltable.EnumLangLanguage;
 import de.monticore.lang.monticar.generator.cpp.converter.MathConverter;
@@ -44,6 +45,7 @@ public class EMADLAbstractSymtab {
         TagThresholdTagSchema.registerTagTypes(tagging);
         TagDelayTagSchema.registerTagTypes(tagging);
         DataPathTagSchema.registerTagTypes(tagging);
+        DatasetArtifactTagSchema.registerTagTypes(tagging);
         LayerPathParameterTagSchema.registerTagTypes(tagging);
         LayerArtifactParameterTagSchema.registerTagTypes(tagging);
         return tagging;
