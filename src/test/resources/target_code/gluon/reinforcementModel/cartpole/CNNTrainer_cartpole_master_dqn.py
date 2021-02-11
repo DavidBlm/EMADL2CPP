@@ -46,7 +46,9 @@ if __name__ == "__main__":
     env = reinforcement_learning.environment.GymEnvironment('CartPole-v0')
 
     context = mx.cpu()
+    initializer = mx.init.Normal()
     qnet_creator = CNNCreator_cartpole_master_dqn.CNNCreator_cartpole_master_dqn()
+    qnet_creator.setWeightInitializer(initializer)
     qnet_creator.construct(context)
 
     agent_params = {
