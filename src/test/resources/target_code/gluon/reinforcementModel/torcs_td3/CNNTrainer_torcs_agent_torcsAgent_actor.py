@@ -54,9 +54,13 @@ if __name__ == "__main__":
     env = reinforcement_learning.environment.RosEnvironment(**env_params)
 
     context = mx.gpu()
+    initializer = mx.init.Normal()
+    critic_initializer = mx.init.Normal()
     actor_creator = CNNCreator_torcs_agent_torcsAgent_actor.CNNCreator_torcs_agent_torcsAgent_actor()
+    actor_creator.setWeightInitializer(initializer)
     actor_creator.construct(context)
     critic_creator = CNNCreator_torcs_agent_network_torcsCritic()
+    critic_creator.setWeightInitializer(critic_initializer)
     critic_creator.construct(context)
 
     agent_params = {
