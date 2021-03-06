@@ -84,7 +84,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         
         Log.getFindings().clear();
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 1);
+        checkFindingsCount(1);
         assertTrue(Log.getFindings().get(0).getMsg().contains("skipped"));
 
         deleteHashFile();
@@ -111,7 +111,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "instanceTestCifar.MainC", "-b", this.backend};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 1);
+        checkFindingsCount(1);
         assertTrue(Log.getFindings().get(0).getMsg().contains("skipped"));
         deleteInstanceTestCifarHashFile();
     }

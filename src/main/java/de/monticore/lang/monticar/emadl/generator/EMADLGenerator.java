@@ -37,6 +37,9 @@ import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperFactory;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
+import de.monticore.lang.monticar.semantics.Constants;
+import de.monticore.lang.monticar.semantics.ExecutionSemantics;
+import de.monticore.lang.monticar.semantics.util.BasicLibrary;
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Scope;
@@ -131,8 +134,7 @@ public class EMADLGenerator implements EMAMGenerator {
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile) throws IOException, TemplateException {
         processedArchitecture = new HashMap<>();
         setModelsPath( modelPath );
-
-        TaggingResolver symtab = EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath());
+        TaggingResolver symtab = getSymTabAndTaggingResolver();
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
 
 
@@ -144,6 +146,12 @@ public class EMADLGenerator implements EMAMGenerator {
             compile();
         }
         processedArchitecture = null;
+    }
+
+    private TaggingResolver getSymTabAndTaggingResolver() {
+        BasicLibrary.extract();
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath(),
+                Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
     }
 
     private EMAComponentInstanceSymbol resolveComponentInstanceSymbol(String qualifiedName, TaggingResolver symtab) {
@@ -270,6 +278,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
+
         List<FileContent> fileContents = generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
         
@@ -453,7 +462,7 @@ public class EMADLGenerator implements EMAMGenerator {
             fileContents.add(ArmadilloHelper.getArmadilloHelperFileContent());
         }
         emamGen.searchForCVEverywhere(componentInstanceSymbol, taggingResolver);
-        if (emamGen.isGenerateCV) {
+        if (ConversionHelper.isUsedCV()) {
             fileContents.add(ConversionHelper.getConversionHelperFileContent(emamGen.isGenerateTests()));
         }
 
@@ -581,6 +590,8 @@ public class EMADLGenerator implements EMAMGenerator {
                                      Set<EMAComponentInstanceSymbol> allInstances,
                                      TaggingResolver taggingResolver,
                                      EMAComponentInstanceSymbol componentInstanceSymbol){
+        emamGen.addSemantics(taggingResolver, componentInstanceSymbol);
+
         allInstances.add(componentInstanceSymbol);
         EMAComponentSymbol EMAComponentSymbol = componentInstanceSymbol.getComponentType().getReferencedSymbol();
 
@@ -600,7 +611,6 @@ public class EMADLGenerator implements EMAMGenerator {
             String wPath = getWeightsPath(EMAComponentSymbol, componentInstanceSymbol);
             HashMap layerPathParameterTags = getLayerPathParameterTags(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
             architecture.get().setDataPath(dPath);
-            architecture.get().setCustomPyFilesPath(customPythonFilesPath);
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());
@@ -778,7 +788,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullCriticName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
                             + fullCriticName.substring(indexOfFirstNameCharacter + 1);
 
-                    TaggingResolver symtab = EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath());
+                    TaggingResolver symtab = getSymTabAndTaggingResolver();
                     EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(fullCriticName, symtab);
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> critic = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
@@ -800,7 +810,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullDiscriminatorName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
                             + fullDiscriminatorName.substring(indexOfFirstNameCharacter + 1);
 
-                    TaggingResolver symtab = EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath());
+                    TaggingResolver symtab = getSymTabAndTaggingResolver();
                     EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(fullDiscriminatorName, symtab);
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> discriminator = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
@@ -821,7 +831,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullQNetworkName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
                             + fullQNetworkName.substring(indexOfFirstNameCharacter + 1);
 
-                    TaggingResolver symtab = EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath());
+                    TaggingResolver symtab = getSymTabAndTaggingResolver();
                     EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(fullQNetworkName, symtab);
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> qnetwork = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
@@ -848,7 +858,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullPreprocessorName.substring(indexOfFirstNameCharacter + 1);
                     String instanceName = componentInstance.getFullName().replaceAll("\\.", "_");
 
-                    TaggingResolver symtab = EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath());
+                    TaggingResolver symtab = getSymTabAndTaggingResolver();
                     EMAComponentInstanceSymbol processor_instance = resolveComponentInstanceSymbol(fullPreprocessorName, symtab);
                     processor_instance.setFullName("CNNPreprocessor_" + instanceName);
                     List<FileContent> processorContents = new ArrayList<>();
