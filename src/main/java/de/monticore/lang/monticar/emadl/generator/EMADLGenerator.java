@@ -71,6 +71,7 @@ public class EMADLGenerator implements EMAMGenerator {
     private Backend backend;
 
     private String modelsPath;
+    private String customPythonFilesPath = null;
 
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
@@ -98,6 +99,19 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
+    public String getCustomPythonFilesPath() { return  customPythonFilesPath; }
+
+    public void setCustomPythonFilesPath(String customPythonFilesPath) {
+        if (!(customPythonFilesPath.endsWith("/"))){
+            this.customPythonFilesPath = customPythonFilesPath + "/";
+        }
+        else {
+            this.customPythonFilesPath = customPythonFilesPath;
+        }
+
+        this.customPythonFilesPath = this.customPythonFilesPath + (Backend.getBackendString(this.backend)).toLowerCase() + "/";
+    }
+
     public void setGenerationTargetPath(String generationTargetPath){
         if (!(generationTargetPath.substring(generationTargetPath.length() - 1).equals("/"))){
             getEmamGen().setGenerationTargetPath(generationTargetPath + "/");
@@ -118,6 +132,7 @@ public class EMADLGenerator implements EMAMGenerator {
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile) throws IOException, TemplateException {
         processedArchitecture = new HashMap<>();
         setModelsPath( modelPath );
+
         TaggingResolver symtab = EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath());
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
 
@@ -575,6 +590,7 @@ public class EMADLGenerator implements EMAMGenerator {
             String wPath = getWeightsPath(EMAComponentSymbol, componentInstanceSymbol);
             HashMap layerPathParameterTags = getLayerPathParameterTags(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
             architecture.get().setDataPath(dPath);
+            architecture.get().setCustomPyFilesPath(customPythonFilesPath);
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());

@@ -25,8 +25,12 @@ import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.Scope;
 
+import org.apache.commons.lang3.SystemUtils;
+
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.*;
+import java.io.*;
+
 
 public class EMADLAbstractSymtab {
     public EMADLAbstractSymtab() {
@@ -52,6 +56,9 @@ public class EMADLAbstractSymtab {
         MathConverter.resetIDs();
         ThreadingOptimizer.resetID();
         ModelingLanguageFamily fam = new ModelingLanguageFamily();
+
+        // EMADLLanguage montiArcLanguage = new EMADLLanguage(getParameters(customPythonFilesPath));
+
         EMADLLanguage montiArcLanguage = new EMADLLanguage();
 
         fam.addModelingLanguage(montiArcLanguage);
@@ -68,4 +75,61 @@ public class EMADLAbstractSymtab {
         de.monticore.lang.monticar.Utils.addBuiltInTypes(scope);
         return scope;
     }
+
+    //A method to extract the parameters of the custom layers from their respective .py files
+    private static ArrayList<String> getParameters(String pathToCustomPyFiles){
+        ArrayList<String> attributesDict = new ArrayList<>();
+        boolean osCheckWindows = SystemUtils.IS_OS_WINDOWS;
+        String[] pyFiles;
+        File path = new File(pathToCustomPyFiles + "custom_layers/");
+        pyFiles = path.list();
+
+        String printParametersOfLayer = "";
+        try {
+
+            for(int index = 0; index < pyFiles.length; index++){
+                if(pyFiles[index].equals("__init__.py") || !(pyFiles[index].substring(pyFiles[index].length() - 3, pyFiles[index].length())).equals(".py") ) continue;
+                String nameWithoutEnding = pyFiles[index].substring(0, pyFiles[index].length() - 3);
+
+                String callingPrintMethod = "import " + nameWithoutEnding + "; temp=" + nameWithoutEnding + "." + nameWithoutEnding + "(); temp.print_parameters_with_type()";
+                if(osCheckWindows == false){
+                    printParametersOfLayer = "python3 -c '" + callingPrintMethod + "'";
+                } else {
+                    printParametersOfLayer = "python -c \"" + callingPrintMethod + "\"";
+                }
+                Process process = Runtime.getRuntime().exec(new String [] {"/bin/bash", "-c", printParametersOfLayer},null, path);
+
+                String line = null;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                while ((line = reader.readLine()) != null) {
+                    attributesDict.add(line);
+                }
+                reader.close();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<String> attributes = new ArrayList<>();
+
+        // {'ones': 'int', 'alpha': 'int'}
+        for(int i = 0; i < attributesDict.size(); i++){
+            attributes.addAll(processAttributesDict(attributesDict.get(i)));
+        }
+
+        return attributes;
+    }
+
+    private static ArrayList<String> processAttributesDict(String attributesDict){
+        String dict = attributesDict;
+        dict = dict.replaceAll(",", " ");
+        dict = dict.replaceAll("'", " ");
+        dict = dict.replaceAll(" ", ":");
+        String noBrackets = dict.substring(2, dict.length() - 2);
+        String[] processed = noBrackets.split("\\::::");
+
+        return new ArrayList<>(Arrays.asList(processed));
+    }
+
 }

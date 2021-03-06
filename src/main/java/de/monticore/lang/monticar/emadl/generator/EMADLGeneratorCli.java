@@ -146,6 +146,9 @@ public class EMADLGeneratorCli {
 
         // EMAM2CPP options
         Path modelsDirPath = Paths.get(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()));
+        if (cliArgs.hasOption(OPTION_CUSTOM_PYTHON_FILES_PATH.getOpt())) {
+            generator.setCustomPythonFilesPath(cliArgs.getOptionValue(OPTION_CUSTOM_PYTHON_FILES_PATH.getOpt()));
+        }
         generator.getEmamGen().setUseAlgebraicOptimizations(false);
         generator.getEmamGen().setUseThreadingOptimization(false);
         generator.getEmamGen().setModelsDirPath(modelsDirPath);
@@ -156,7 +159,6 @@ public class EMADLGeneratorCli {
         }
         generator.getEmamGen().setCheckModelDir(cliArgs.hasOption(OPTION_FLAG_CHECK_MODEL_DIR.getLongOpt()));
         generator.getEmamGen().setGenerateServerWrapper(cliArgs.hasOption(OPTION_FLAG_SERVER_WRAPPER.getLongOpt()));
-        generator.getEmamGen().setGenerateAutopilotAdapter(cliArgs.hasOption(OPTION_FLAG_AUTOPILOT_ADAPTER.getLongOpt()));
 
         generator.getEmamGen().setUseAlgebraicOptimizations(cliArgs.hasOption(OPTION_FLAG_ALGEBRAIC.getLongOpt()));
         generator.getEmamGen().setUseThreadingOptimization(cliArgs.hasOption(OPTION_FLAG_THREADING.getLongOpt()));
