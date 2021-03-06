@@ -1,12 +1,12 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl.generator;
 
+import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.SystemUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -68,7 +68,7 @@ public class EMADLGeneratorCli {
     public static Options getOptions() {
         Options options = new Options();
         addBaseOptions(options);
-        addEMADL2CPPOptions(options);
+        addEMAM2CPPOptions(options);
         addEMADL2CPPOptions(options);
         return options;
     }
@@ -145,25 +145,32 @@ public class EMADLGeneratorCli {
 
 
         // EMAM2CPP options
+        GeneratorCPP emamGen = generator.getEmamGen();
         Path modelsDirPath = Paths.get(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()));
         if (cliArgs.hasOption(OPTION_CUSTOM_PYTHON_FILES_PATH.getOpt())) {
             generator.setCustomPythonFilesPath(cliArgs.getOptionValue(OPTION_CUSTOM_PYTHON_FILES_PATH.getOpt()));
         }
-        generator.getEmamGen().setUseAlgebraicOptimizations(false);
-        generator.getEmamGen().setUseThreadingOptimization(false);
-        generator.getEmamGen().setModelsDirPath(modelsDirPath);
-//        generator.getEmamGen().setGenerationTargetPath(outputPath); // done by EMADLGenerator
-        generator.getEmamGen().setGenerateTests(cliArgs.hasOption(OPTION_FLAG_TESTS.getOpt()));
-        if (cliArgs.hasOption(OPTION_FLAG_ARMADILLO.getOpt())) {
-            generator.getEmamGen().useArmadilloBackend();
-        }
-        generator.getEmamGen().setCheckModelDir(cliArgs.hasOption(OPTION_FLAG_CHECK_MODEL_DIR.getLongOpt()));
-        generator.getEmamGen().setGenerateServerWrapper(cliArgs.hasOption(OPTION_FLAG_SERVER_WRAPPER.getLongOpt()));
+        emamGen.setUseAlgebraicOptimizations(false);
+        emamGen.setUseThreadingOptimization(false);
+        emamGen.setModelsDirPath(modelsDirPath);
+//        emamGen.setGenerationTargetPath(outputPath); // done by EMADLGenerator
+        emamGen.setGenerateTests(cliArgs.hasOption(OPTION_FLAG_TESTS.getOpt()));
 
-        generator.getEmamGen().setUseAlgebraicOptimizations(cliArgs.hasOption(OPTION_FLAG_ALGEBRAIC.getLongOpt()));
-        generator.getEmamGen().setUseThreadingOptimization(cliArgs.hasOption(OPTION_FLAG_THREADING.getLongOpt()));
-        generator.getEmamGen().setExecutionLoggingActive(cliArgs.hasOption(OPTION_FLAG_EXEC_LOGGING.getLongOpt()));
-        generator.getEmamGen().setGenerateCMake(cliArgs.hasOption(OPTION_FLAG_CMAKE.getLongOpt()));
+        emamGen.setImportArmadillo(cliArgs.hasOption(OPTION_IMPORT_ARMADILLO.getLongOpt()));
+        emamGen.setGenerateDynamicInterface(cliArgs.hasOption(OPTION_FLAG_DYNAMIC_INTERFACE.getLongOpt()));
+        emamGen.setGenerateServerAdapter(cliArgs.hasOption(OPTION_FLAG_GEN_TCP_SERVER.getLongOpt()));
+        emamGen.setGenerateDDCAdapter(cliArgs.hasOption(OPTION_FLAG_GEN_DDC_ADAPTER.getLongOpt()));
+        emamGen.setOutputName(cliArgs.getOptionValue(OPTION_OUTPUT_NAME.getOpt()));
+        if (cliArgs.hasOption(OPTION_FLAG_ARMADILLO.getOpt())) {
+            emamGen.useArmadilloBackend();
+        }
+        emamGen.setCheckModelDir(cliArgs.hasOption(OPTION_FLAG_CHECK_MODEL_DIR.getLongOpt()));
+        emamGen.setGenerateServerWrapper(cliArgs.hasOption(OPTION_FLAG_SERVER_WRAPPER.getLongOpt()));
+
+        emamGen.setUseAlgebraicOptimizations(cliArgs.hasOption(OPTION_FLAG_ALGEBRAIC.getLongOpt()));
+        emamGen.setUseThreadingOptimization(cliArgs.hasOption(OPTION_FLAG_THREADING.getLongOpt()));
+        emamGen.setExecutionLoggingActive(cliArgs.hasOption(OPTION_FLAG_EXEC_LOGGING.getLongOpt()));
+        emamGen.setGenerateCMake(cliArgs.hasOption(OPTION_FLAG_CMAKE.getLongOpt()));
         // end EMAM2CPP options
 
 
