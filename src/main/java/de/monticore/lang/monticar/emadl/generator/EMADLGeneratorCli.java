@@ -52,6 +52,12 @@ public class EMADLGeneratorCli {
             .required(false)
             .build();
 
+    public static final Option OPTION_CUSTOM_PYTHON_FILES_PATH = Option.builder("cpf")
+            .longOpt("custom-python-files-path")
+            .desc("full path to directory with custom python files exp. layers e.g. C::\\Users\\vpupkin\\prok\\My>AwsomeAutopilot\\src\\main\\python")
+            .hasArg(true)
+            .required(false)
+            .build();
 
     private EMADLGeneratorCli() {
     }
@@ -79,6 +85,7 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_RESTRAINED_TRAINING);
         options.addOption(OPTION_TRAINING_PYTHON_PATH);
         options.addOption(OPTION_COMPILE);
+        options.addOption(OPTION_CUSTOM_PYTHON_FILES_PATH);
     }
 
     private static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {

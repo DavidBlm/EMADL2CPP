@@ -17,9 +17,9 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class AbstractSymtabTest {
-    protected static TaggingResolver createSymTab(String... modelPath) {
+    protected static TaggingResolver createSymTab(String customPythonFilesPath, String... modelPath) {
 
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(modelPath);
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(customPythonFilesPath, modelPath);
     }
 
     public static void checkFilesAreEqual(Path generationPath, Path resultsPath, List<String> fileNames) {

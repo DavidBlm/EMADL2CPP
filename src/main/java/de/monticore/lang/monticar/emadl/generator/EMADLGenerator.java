@@ -150,7 +150,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private TaggingResolver getSymTabAndTaggingResolver() {
         BasicLibrary.extract();
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath(),
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getCustomPythonFilesPath(), getModelsPath(),
                 Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
     }
 
@@ -614,6 +614,7 @@ public class EMADLGenerator implements EMAMGenerator {
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());
+            architecture.get().setCustomPyFilesPath(getCustomPythonFilesPath());
             generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
