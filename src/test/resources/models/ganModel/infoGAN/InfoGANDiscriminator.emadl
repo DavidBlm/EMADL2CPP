@@ -2,7 +2,7 @@
 package infoGAN;
 
 component InfoGANDiscriminator{
-    ports in Q(-1:1)^{1, 28, 28} data,
+    ports in Q(-1:1)^{1, 64, 64} data,
 		 out Q(-oo:oo)^{1024} features,
          out Q(-oo:oo)^{1} dis;
 

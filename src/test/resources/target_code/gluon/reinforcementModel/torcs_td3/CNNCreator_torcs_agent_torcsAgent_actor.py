@@ -186,7 +186,7 @@ class CNNCreator_torcs_agent_torcsAgent_actor:
         outputs = {}
         output_dimensions = (3,1,1,)
         output_domains = (float,-1.0,1.0,)
-        outputs["commands_"] = output_domains + (output_dimensions,)
+        outputs["action_"] = output_domains + (output_dimensions,)
         return outputs
 
     def validate_parameters(self):

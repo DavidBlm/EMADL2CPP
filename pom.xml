@@ -12,19 +12,15 @@
     <version>0.5.3-SNAPSHOT</version>
 
     <!-- == PROJECT DEPENDENCIES ============================================= -->
-
     <properties>
-
         <!-- .. SE-Libraries .................................................. -->
-
         <emadl.version>0.4.6-SNAPSHOT</emadl.version>
-        <CNNTrain.version>0.4.5-SNAPSHOT</CNNTrain.version>
         <CNNArch.version>0.4.8-SNAPSHOT</CNNArch.version>
         <cnnarch-generator.version>0.4.10-SNAPSHOT</cnnarch-generator.version>
-        <cnnarch-mxnet-generator.version>0.4.6</cnnarch-mxnet-generator.version>
-        <cnnarch-caffe2-generator.version>0.4.6</cnnarch-caffe2-generator.version>
-        <cnnarch-gluon-generator.version>0.4.13-SNAPSHOT</cnnarch-gluon-generator.version>
-        <cnnarch-tensorflow-generator.version>0.4.6</cnnarch-tensorflow-generator.version>
+        <cnnarch-mxnet-generator.version>0.4.8-SNAPSHOT</cnnarch-mxnet-generator.version>
+        <cnnarch-caffe2-generator.version>0.4.8-SNAPSHOT</cnnarch-caffe2-generator.version>
+        <cnnarch-tensorflow-generator.version>0.4.8-SNAPSHOT</cnnarch-tensorflow-generator.version>
+        <cnnarch-gluon-generator.version>0.4.14-SNAPSHOT</cnnarch-gluon-generator.version>
 
         <!-- .. Libraries .................................................. -->
         <guava.version>25.1-jre</guava.version>
@@ -92,12 +88,6 @@
             <groupId>de.monticore.lang.monticar</groupId>
             <artifactId>cnnarch-caffe2-generator</artifactId>
             <version>${cnnarch-caffe2-generator.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.monticore.lang.monticar</groupId>
-            <artifactId>cnn-train</artifactId>
-            <version>${CNNTrain.version}</version>
         </dependency>
 
         <dependency>

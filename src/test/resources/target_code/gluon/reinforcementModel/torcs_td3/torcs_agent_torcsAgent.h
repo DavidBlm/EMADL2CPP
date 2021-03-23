@@ -22,7 +22,7 @@ void execute()
 {
 actor.state = state;
 actor.execute();
-action = actor.commands;
+action = actor.action;
 }
 
 };

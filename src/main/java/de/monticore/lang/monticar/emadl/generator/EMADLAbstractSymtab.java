@@ -3,10 +3,8 @@ package de.monticore.lang.monticar.emadl.generator;
 
 import de.monticore.ModelingLanguageFamily;
 import de.monticore.io.paths.ModelPath;
-import de.monticore.lang.embeddedmontiarc.LogConfig;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarcmath._symboltable.EmbeddedMontiArcMathLanguage;
 import de.monticore.lang.embeddedmontiarc.helper.ConstantPortHelper;
-import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactTagSchema;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.LayerArtifactParameterTagSchema;
@@ -27,14 +25,9 @@ import de.monticore.lang.monticar.struct._symboltable.StructLanguage;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.CommonSymbolTableCreator;
 
-import org.apache.commons.lang3.SystemUtils;
-
-import javax.print.AttributeException;
 import java.nio.file.Paths;
-import java.util.*;
-import java.io.*;
+import java.util.Arrays;
 
 
 public class EMADLAbstractSymtab {
@@ -93,7 +86,6 @@ public class EMADLAbstractSymtab {
         for (String m : modelPath) {
             mp.addEntry(Paths.get(m));
         }
-        LogConfig.init();//TODO comment for debug output
         GlobalScope scope = new GlobalScope(mp, fam);
         de.monticore.lang.monticar.Utils.addBuiltInTypes(scope);
         return scope;
@@ -116,7 +108,6 @@ public class EMADLAbstractSymtab {
         for (String m : modelPath) {
             mp.addEntry(Paths.get(m));
         }
-        LogConfig.init();//TODO comment for debug output
         GlobalScope scope = new GlobalScope(mp, fam);
         de.monticore.lang.monticar.Utils.addBuiltInTypes(scope);
         return scope;

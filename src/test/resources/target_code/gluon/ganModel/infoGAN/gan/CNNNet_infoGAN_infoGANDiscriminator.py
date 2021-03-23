@@ -538,7 +538,7 @@ class Net_0(gluon.HybridBlock):
                 kernel_size=(4,4),
                 strides=(2,2),
                 use_bias=True)
-            # conv1_, output shape: {[64,14,14]}
+            # conv1_, output shape: {[64,32,32]}
 
             self.leakyrelu1_ = gluon.nn.LeakyReLU(0.2)
             self.conv2_padding = Padding(padding=(0,0,0,0,1,1,1,1))
@@ -546,21 +546,21 @@ class Net_0(gluon.HybridBlock):
                 kernel_size=(4,4),
                 strides=(2,2),
                 use_bias=True)
-            # conv2_, output shape: {[128,7,7]}
+            # conv2_, output shape: {[128,16,16]}
 
             self.batchnorm2_ = gluon.nn.BatchNorm()
-            # batchnorm2_, output shape: {[128,7,7]}
+            # batchnorm2_, output shape: {[128,16,16]}
 
             self.leakyrelu2_ = gluon.nn.LeakyReLU(0.2)
-            self.conv3_padding = Padding(padding=(0,0,0,0,2,1,2,1))
+            self.conv3_padding = Padding(padding=(0,0,0,0,1,1,1,1))
             self.conv3_ = gluon.nn.Conv2D(channels=256,
                 kernel_size=(4,4),
                 strides=(2,2),
                 use_bias=True)
-            # conv3_, output shape: {[256,4,4]}
+            # conv3_, output shape: {[256,8,8]}
 
             self.batchnorm3_ = gluon.nn.BatchNorm()
-            # batchnorm3_, output shape: {[256,4,4]}
+            # batchnorm3_, output shape: {[256,8,8]}
 
             self.leakyrelu3_ = gluon.nn.LeakyReLU(0.2)
             self.conv4_padding = Padding(padding=(0,0,0,0,1,1,1,1))
@@ -568,10 +568,10 @@ class Net_0(gluon.HybridBlock):
                 kernel_size=(4,4),
                 strides=(2,2),
                 use_bias=True)
-            # conv4_, output shape: {[512,2,2]}
+            # conv4_, output shape: {[512,4,4]}
 
             self.batchnorm4_ = gluon.nn.BatchNorm()
-            # batchnorm4_, output shape: {[512,2,2]}
+            # batchnorm4_, output shape: {[512,4,4]}
 
             self.leakyrelu4_ = gluon.nn.LeakyReLU(0.2)
             self.conv5_1_padding = Padding(padding=(0,0,0,0,2,1,2,1))
@@ -579,7 +579,7 @@ class Net_0(gluon.HybridBlock):
                 kernel_size=(4,4),
                 strides=(1,1),
                 use_bias=True)
-            # conv5_1_, output shape: {[1,2,2]}
+            # conv5_1_, output shape: {[1,4,4]}
 
             self.sigmoid5_1_ = gluon.nn.Activation(activation='sigmoid')
 
@@ -609,4 +609,3 @@ class Net_0(gluon.HybridBlock):
         features_ = F.identity(leakyrelu4_)
 
         return [[dis_, features_]]
-

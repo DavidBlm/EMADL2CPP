@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.generator.reinforcementlearning;
 
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
-import de.monticore.lang.monticar.cnnarch.gluongenerator.reinforcement.RewardFunctionSourceGenerator;
+import de.monticore.lang.monticar.cnnarch.generator.reinforcement.RewardFunctionSourceGenerator;
 import de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
@@ -11,7 +11,7 @@ import de.se_rwth.commons.logging.Log;
 import java.io.IOException;
 import java.util.Optional;
 
-public class RewardFunctionCppGenerator implements RewardFunctionSourceGenerator{
+public class RewardFunctionCppGenerator implements RewardFunctionSourceGenerator {
     public RewardFunctionCppGenerator() {
     }
 

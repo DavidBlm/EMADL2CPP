@@ -2,9 +2,9 @@
 
 stages:
 #- windows
-- docker 
+- docker
 - linux
-- deploy
+#- deploy
 
 githubjob:
   image: maven:3-jdk-8
@@ -19,7 +19,7 @@ githubjob:
   - mkdir -p ~/.ssh
 #  - cat gitlab-known-hosts >> ~/.ssh/known_hosts
   - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-  script: 
+  script:
   - git clone git@github.com:MontiCore/EmbeddedMontiArc.git
   - cd EmbeddedMontiArc
   - git subtree pull --prefix $PRJ_NAME https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/${PRJ_NAME}.git master --squash
@@ -126,9 +126,9 @@ buildDockerMXNet150:
     - shell
   script:
     - cd src/test/resources/docker/mxnet150
-    - docker login registry.git.rwth-aachen.de -u someUserName -p yEep-tAt19HbsmNQJMNo
-    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5 .
-    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5
+    #- docker login registry.git.rwth-aachen.de -u someUserName -p yEep-tAt19HbsmNQJMNo
+    #- docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5 .
+    #- docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5
   only:
     changes:
     - src/test/resources/docker/mxnet150/**/*
@@ -139,9 +139,9 @@ buildDockerMXNet170:
     - shell
   script:
     - cd src/test/resources/docker/mxnet170
-    - docker login registry.git.rwth-aachen.de -u someUserName -p yEep-tAt19HbsmNQJMNo
-    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1 .
-    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1
+    #- docker login registry.git.rwth-aachen.de -u someUserName -p yEep-tAt19HbsmNQJMNo
+    #- docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1 .
+    #- docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1
   only:
     changes:
     - src/test/resources/docker/mxnet170/**/*

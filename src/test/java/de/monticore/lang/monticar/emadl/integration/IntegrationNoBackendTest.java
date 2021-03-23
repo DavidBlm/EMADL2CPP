@@ -4,18 +4,25 @@ package de.monticore.lang.monticar.emadl.integration;
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
 import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
 
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 public class IntegrationNoBackendTest extends AbstractSymtabTest {
+
     public IntegrationNoBackendTest() {
 
+    }
+
+    @Before
+    public void setUp() {
+        Log.initWARN();
+        Log.getFindings().clear();
+        Log.enableFailQuick(false);
     }
 
     @Test

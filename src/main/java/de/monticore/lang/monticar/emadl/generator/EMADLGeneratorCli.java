@@ -1,6 +1,7 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl.generator;
 
+import de.monticore.lang.monticar.cnnarch.generator.GenerationAbortedException;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
@@ -132,13 +133,13 @@ public class EMADLGeneratorCli {
         final String DEFAULT_COMPILE = "y";
 
         if (backendString == null) {
-            Log.warn("backend not specified. backend set to default value " + DEFAULT_BACKEND);
+            Log.warn("Backend not specified. Backend set to default value " + DEFAULT_BACKEND);
             backendString = DEFAULT_BACKEND;
         }
 
         Optional<Backend> backend = Backend.getBackendFromString(backendString);
         if (!backend.isPresent()){
-            Log.warn("specified backend " + backendString + " not supported. backend set to default value " + DEFAULT_BACKEND);
+            Log.warn("Specified backend " + backendString + " is not supported. Backend set to default value " + DEFAULT_BACKEND);
             backend = Backend.getBackendFromString(DEFAULT_BACKEND);
         }
 
@@ -150,7 +151,7 @@ public class EMADLGeneratorCli {
             forced = DEFAULT_FORCED;
         }
         else if (!forced.equals("y") && !forced.equals("n")) {
-            Log.warn("specified setting ("+forced+") for forcing/preventing training not supported. set to default value " + DEFAULT_FORCED);
+            Log.warn("Specified setting ("+forced+") for forcing/preventing training not supported. Set to default value " + DEFAULT_FORCED);
             forced = DEFAULT_FORCED;
         }
 
@@ -160,7 +161,7 @@ public class EMADLGeneratorCli {
             compile = DEFAULT_COMPILE;
         }
         else if(!compile.equals("y") && !compile.equals("n")) {
-            Log.warn("specified setting ("+compile+") for skipping the compilation not supported. set to default value " + DEFAULT_COMPILE);
+            Log.warn("Specified setting ("+compile+") for skipping the compilation not supported. Set to default value " + DEFAULT_COMPILE);
             compile = DEFAULT_COMPILE;
         }
 
@@ -199,21 +200,19 @@ public class EMADLGeneratorCli {
         emamGen.setGenerateCMake(cliArgs.hasOption(OPTION_FLAG_CMAKE.getLongOpt()));
         // end EMAM2CPP options
 
-
-        try{
+        try {
             generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"));
-        }
-        catch (IOException e){
+        } catch (IOException e){
             String errMsg ="io error during generation"+ e.toString();
-
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
-        }
-        catch (TemplateException e){
+        } catch (TemplateException e){
             String errMsg = "template error during generation: "+ e.toString();
-
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
+        } catch (GenerationAbortedException e) {
+            String message = String.format("Generation aborted: %s", e.getMessage());
+            Log.error(message);
         }
     }
 }

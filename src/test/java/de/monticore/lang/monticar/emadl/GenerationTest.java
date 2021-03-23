@@ -14,15 +14,22 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertFalse;
 
 public class GenerationTest extends AbstractSymtabTest {
+
     @Before
     public void setUp() {
-        // ensure an empty log
+        Log.initWARN();
         Log.getFindings().clear();
         Log.enableFailQuick(false);
     }
@@ -243,10 +250,10 @@ public class GenerationTest extends AbstractSymtabTest {
     public void testHashFunction() {
         EMADLGenerator tester = new EMADLGenerator(Backend.MXNET);
 
-        try{
+        try {
             tester.getChecksumForFile("invalid Path!");
             assertTrue("Hash method should throw IOException on invalid path", false);
-        } catch(IOException e){
+        } catch (IOException e) {
         }
     }
 
@@ -422,5 +429,130 @@ public class GenerationTest extends AbstractSymtabTest {
                         "CNNNet_cNNCalculator_connector_predictor1.py",
                         "CNNCreator_cNNCalculator_connector_predictor1.py",
                         "CNNTrainer_cNNCalculator_connector_predictor1.py"));
+    }
+
+    @Test
+    public void checkTrainedRlNetworkHasExactlyOneInputOutputDdpg() {
+        String[] args = {"-m", "src/test/resources/models/architectureChecks", "-r", "ddpg.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+
+        /* Assert */
+        List<Finding> errors = Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList());
+        assertNotNull(errors);
+        assertFalse(errors.isEmpty());
+
+        Finding errorInputPorts = Finding.error("0xTA02C Component 'ddpg.agent.MountaincarActor' has the input ports " +
+                "'state, state2', but is only allowed to have the ports 'state'.");
+        Finding errorOutputPorts = Finding.error("0xTA03C Component 'ddpg.agent.MountaincarActor' has the output ports " +
+                "'action, action2', but is only allowed to have the ports 'action'.");
+        assertThat(errors, hasItem(errorInputPorts));
+        assertThat(errors, hasItem(errorOutputPorts));
+    }
+
+    @Test
+    public void checkTrainedRlNetworkHasExactlyOneInputOutputDqn() {
+        String[] args = {"-m", "src/test/resources/models/architectureChecks", "-r", "dqn.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+
+        /* Assert */
+        List<Finding> errors = Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList());
+        assertNotNull(errors);
+        assertFalse(errors.isEmpty());
+
+        Finding errorInputPorts = Finding.error("0xTA02C Component 'dqn.agent.CartPoleDQN' has the input ports " +
+                "'state, state2', but is only allowed to have the ports 'state'.");
+        Finding errorOutputPorts = Finding.error("0xTA03C Component 'dqn.agent.CartPoleDQN' has the output ports " +
+                "'qvalues, qvalues2', but is only allowed to have the ports 'qvalues'.");
+        assertThat(errors, hasItem(errorInputPorts));
+        assertThat(errors, hasItem(errorOutputPorts));
+    }
+
+    @Test
+    public void checkRlTrainedArchitectureHasVectorOutput() {
+        String[] args = {"-m", "src/test/resources/models/architectureChecks", "-r", "ddpg2.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+
+        /* Assert */
+        List<Finding> errors = Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList());
+        assertNotNull(errors);
+        assertFalse(errors.isEmpty());
+
+        Finding errorOutputPorts = Finding.error("0xTA06C Port 'action' of component 'ddpg2.agent.MountaincarActor' is " +
+                "expected to be 1-dimensional, but it is 2-dimensional.");
+        assertThat(errors, hasItem(errorOutputPorts));
+    }
+
+    @Test
+    public void checkCriticNetworkHasExactlyOneDimensionalOutput() {
+        String[] args = {"-m", "src/test/resources/models/architectureChecks", "-r", "ddpg3.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+
+        /* Assert */
+        List<Finding> errors = Log.getFindings().stream().filter(Finding::isError).collect(
+                Collectors.toList());
+        assertNotNull(errors);
+        assertFalse(errors.isEmpty());
+
+        Finding errorOutputPorts = Finding.error("0xTA03C Component 'ddpg3.agent.MountaincarCritic' has the output " +
+                "ports 'qvalues, qvalues2', but is only allowed to have the ports 'qvalues'.");
+        Finding errorOutputDimension = Finding.error("0xTA06C Port 'qvalues' of component " +
+                "'ddpg3.agent.MountaincarCritic' is expected to be 1-dimensional, but it is 2-dimensional.");
+        assertThat(errors, hasItem(errorOutputPorts));
+        assertThat(errors, hasItem(errorOutputDimension));
+    }
+
+    @Test
+    public void checkCriticNetworkInputs() {
+        String[] args = {"-m", "src/test/resources/models/architectureChecks", "-r", "ddpg4.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+
+        /* Assert */
+        List<Finding> errors = Log.getFindings().stream().filter(Finding::isError).collect(
+                Collectors.toList());
+        assertNotNull(errors);
+        assertFalse(errors.isEmpty());
+        assertThat(errors, hasItems(
+                Finding.error("0xTA02C Component 'ddpg4.agent.MountaincarCritic' has the input ports 'state, " +
+                        "action, action2', but is only allowed to have the ports 'state, action'."),
+                Finding.error("0xTA07C Port dimensions of components 'Actor' and 'Critic' do not match for " +
+                        "connection 'actor.action -> critic.action'."),
+                Finding.error("0xTA11C Port ranges of components 'Actor' and 'Critic' do not match for " +
+                        "connection 'actor.action -> critic.action'."),
+                Finding.error("0xTA08C Port types of components 'Actor' and 'Critic' do not match for " +
+                        "connection 'actor.action -> critic.action'."))
+        );
+    }
+
+    @Test
+    public void checkActorCriticRequiresCriticNetwork() {
+        String[] args = {"-m", "src/test/resources/models/architectureChecks", "-r", "ddpg5.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+
+        /* Assert */
+        List<Finding> errors = Log.getFindings().stream().filter(Finding::isError).collect(
+                Collectors.toList());
+        assertNotNull(errors);
+        assertFalse(errors.isEmpty());
+        assertThat(errors, hasItem(
+                Finding.error("0xTA01C No component with name 'critic' is available."))
+        );
+    }
+
+    @Test
+    public void checkGANGeneratorQNetworkDependency() {
+        String[] args = {"-m", "src/test/resources/models/architectureChecks", "-r", "infoGAN.InfoGANConnector", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+
+        /* Assert */
+        List<Finding> errors = Log.getFindings().stream().filter(Finding::isError).collect(
+                Collectors.toList());
+        assertNotNull(errors);
+        assertFalse(errors.isEmpty());
+        assertThat(errors, hasItem(
+                Finding.error("0xTA22C Incompatible array port connection 'qnetwork.c[1] -> generator.c[1]' " +
+                        "between components 'infoGAN.InfoGANQNetwork' and 'infoGAN.InfoGANGenerator'. " +
+                        "Component 'infoGAN.InfoGANQNetwork' has 1 output ports, whereas component " +
+                        "'infoGAN.InfoGANGenerator' has 0 input ports."))
+        );
     }
 }
