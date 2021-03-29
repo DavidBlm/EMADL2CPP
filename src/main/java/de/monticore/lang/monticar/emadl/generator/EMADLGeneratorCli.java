@@ -87,7 +87,6 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_TRAINING_PYTHON_PATH);
         options.addOption(OPTION_COMPILE);
         options.addOption(OPTION_HELP);
-        return options;
     }
 
     private static void printHelp(){
