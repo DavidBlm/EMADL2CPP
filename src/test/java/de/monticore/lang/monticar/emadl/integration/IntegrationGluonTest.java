@@ -52,7 +52,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Ignore
@@ -65,7 +65,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnencdec.Main", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Ignore
@@ -78,7 +78,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnsearch.Main", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -90,7 +90,17 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
+    }
+
+    @Test
+    public void testEpisodicMemorySimple() {
+        Log.getFindings().clear();
+
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/episodicMemorySimple/episodicMemorySimple.training_hash"));
+
+        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "y"};
+        EMADLGeneratorCli.main(args);
     }
 
     @Test
@@ -99,7 +109,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/PreprocessingNetwork.training_hash"));
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().toString(),Log.getFindings().size() == 0);
+        checkFindingsCount();
     }
 
     @Test
@@ -109,7 +119,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
-        assertTrue(Log.getFindings().toString(), Log.getFindings().size() == 0);
+        checkFindingsCount();
     }
 
     private void deleteHashFile(Path hashFile) {

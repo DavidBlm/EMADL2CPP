@@ -38,9 +38,7 @@ public class RewardFunctionCppGenerator implements RewardFunctionSourceGenerator
         generator.setGenerationTargetPath(targetPath);
 
         try {
-            //ToDo: Is this the correct call? Old one is commented.
             generator.generateFiles(taggingResolver, componentInstanceSymbol);
-            //generator.generate(componentInstanceSymbol, taggingResolver);
         } catch (IOException e) {
             Log.error("Generation of reward function is not possible: " + e.getMessage());
         }

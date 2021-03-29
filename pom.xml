@@ -9,25 +9,25 @@
 
   <groupId>de.monticore.lang.monticar</groupId>
   <artifactId>embedded-montiarc-emadl-generator</artifactId>
-  <version>0.4.2-SNAPSHOT</version>
+  <version>0.4.8-SNAPSHOT</version>
 
   <!-- == PROJECT DEPENDENCIES ============================================= -->
 
   <properties>
 
     <!-- .. SE-Libraries .................................................. -->
-    <emadl.version>0.2.12-SNAPSHOT</emadl.version>
-    <cnnarch-generator.version>0.4.1-SNAPSHOT</cnnarch-generator.version>
-    <cnnarch-mxnet-generator.version>0.4.0-SNAPSHOT</cnnarch-mxnet-generator.version>
-    <cnnarch-caffe2-generator.version>0.4.0-SNAPSHOT</cnnarch-caffe2-generator.version>
-    <cnnarch-gluon-generator.version>0.4.0-SNAPSHOT</cnnarch-gluon-generator.version>
-    <cnnarch-tensorflow-generator.version>0.4.0-SNAPSHOT</cnnarch-tensorflow-generator.version>
-    <Common-MontiCar.version>0.2.12-SNAPSHOT</Common-MontiCar.version>
-    <embedded-montiarc-math-generator>0.4.1-SNAPSHOT</embedded-montiarc-math-generator>
 
-        <!-- .. Libraries .................................................. -->
+      <emadl.version>0.4.4-SNAPSHOT</emadl.version>
+      <CNNTrain.version>0.4.4-SNAPSHOT</CNNTrain.version>
+      <cnnarch-generator.version>0.4.5</cnnarch-generator.version>
+      <cnnarch-mxnet-generator.version>0.4.5</cnnarch-mxnet-generator.version>
+      <cnnarch-caffe2-generator.version>0.4.5</cnnarch-caffe2-generator.version>
+      <cnnarch-gluon-generator.version>0.4.6-SNAPSHOT</cnnarch-gluon-generator.version>
+      <cnnarch-tensorflow-generator.version>0.4.5</cnnarch-tensorflow-generator.version>
+
+      <!-- .. Libraries .................................................. -->
         <guava.version>25.1-jre</guava.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <logback.version>1.1.2</logback.version>
         <jscience.version>4.3.1</jscience.version>
 
@@ -52,13 +52,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.0</version>
-        </dependency>
-
-
-        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>4.7.1</version>
@@ -69,13 +62,6 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-
-        <!-- MontiCore Dependencies -->
-<!--        <dependency>-->
-<!--            <groupId>de.monticore.lang.monticar</groupId>-->
-<!--            <artifactId>embedded-montiarc-math-opt-generator</artifactId>-->
-<!--            <version>${embedded-montiarc-math-opt-generator}</version>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
@@ -95,12 +81,6 @@
             <version>${cnnarch-gluon-generator.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>de.monticore.lang.monticar</groupId>
-            <artifactId>common-monticar</artifactId>
-            <version>${Common-MontiCar.version}</version>
-        </dependency>
-
 		<dependency>
 			<groupId>de.monticore.lang.monticar</groupId>
             <artifactId>cnnarch-tensorflow-generator</artifactId>
@@ -113,33 +93,17 @@
             <version>${cnnarch-caffe2-generator.version}</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>de.monticore.lang.monticar</groupId>-->
-<!--            <artifactId>cnn-train</artifactId>-->
-<!--            <version>${CNNTrain.version}</version>-->
-<!--        </dependency>-->
-
-<!--        <dependency>-->
-<!--            <groupId>de.monticore.lang.monticar</groupId>-->
-<!--            <artifactId>cnn-train</artifactId>-->
-<!--            <version>${CNNTrain.version}</version>-->
-<!--            <classifier>${grammars.classifier}</classifier>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>de.monticore.lang.monticar</groupId>
+            <artifactId>cnn-train</artifactId>
+            <version>${CNNTrain.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
             <artifactId>embedded-montiarc-deeplearning</artifactId>
             <version>${emadl.version}</version>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>de.monticore.lang.monticar</groupId>-->
-<!--            <artifactId>embedded-montiarc-deeplearning</artifactId>-->
-<!--            <version>${emadl.version}</version>-->
-<!--            <classifier>${grammars.classifier}</classifier>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
 
 
         <!-- .. Test Libraries ............................................... -->

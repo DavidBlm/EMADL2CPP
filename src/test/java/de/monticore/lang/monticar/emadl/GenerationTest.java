@@ -42,7 +42,7 @@ public class GenerationTest extends AbstractSymtabTest {
                         "cifar10_cifar10Classifier.cpp",
                         "cifar10_cifar10Classifier.h",
                         "CNNCreator_cifar10_cifar10Classifier_net.py",
-                        "CNNBufferFile.h",
+                        "CNNModelLoader.h",
                         "CNNPredictor_cifar10_cifar10Classifier_net.h",
                         "cifar10_cifar10Classifier_net.h",
                         "CNNTranslator.h",
@@ -55,7 +55,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "simulator.MainController", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -63,7 +63,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -71,7 +71,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "Alexnet", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "ResNeXt50", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
     }
 
     @Test
@@ -87,7 +87,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "ThreeInputCNN_M14", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 1);
+        checkFindingsCount(1L);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleOutputs", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 1);
+        checkFindingsCount(1L);
     }
 
     @Test
@@ -103,7 +103,14 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "VGG16", "-b", "MXNET", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
+    }
+
+    @Test
+    public void testEpisodicMemorySimpleGeneration() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
     }
 
     @Test
@@ -112,7 +119,7 @@ public class GenerationTest extends AbstractSymtabTest {
             Log.getFindings().clear();
             String[] args = {"-m", "src/test/resources/models/", "-r", "InstanceTest.MainB", "-b", "MXNET", "-f", "n", "-c", "n"};
             EMADLGeneratorCli.main(args);
-            assertTrue(Log.getFindings().isEmpty());
+            checkFindingsCount();
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -124,7 +131,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "CAFFE2", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
 
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -146,7 +153,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "TENSORFLOW", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount();
 
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -169,13 +176,12 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().isEmpty());
-
+        checkFindingsCount();
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon"),
                 Arrays.asList(
-                        "CNNBufferFile.h",
+                        "CNNModelLoader.h",
                         "CNNNet_mnist_mnistClassifier_net.py",
                         "mnist_mnistClassifier.cpp",
                         "mnist_mnistClassifier.h",
@@ -183,7 +189,6 @@ public class GenerationTest extends AbstractSymtabTest {
                         "CNNPredictor_mnist_mnistClassifier_net.h",
                         "CNNDataLoader_mnist_mnistClassifier_net.py",
                         "CNNSupervisedTrainer_mnist_mnistClassifier_net.py",
-                        "mnist_mnistClassifier_net.h",
                         "HelperA.h",
                         "CNNTranslator.h",
                         "mnist_mnistClassifier_calculateClass.h",
@@ -196,7 +201,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "Invariant", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().size() == 0);
+        checkFindingsCount();
     }
 
 
@@ -214,8 +219,8 @@ public class GenerationTest extends AbstractSymtabTest {
                         "cartpole_master.h",
                         "cartpole_master_dqn.h",
                         "cartpole_master_policy.h",
-                        "CMakeLists.txt",
-                        "CNNBufferFile.h",
+                        //"CMakeLists.txt",
+                        "CNNModelLoader.h",
                         "CNNCreator_cartpole_master_dqn.py",
                         "CNNNet_cartpole_master_dqn.py",
                         "CNNPredictor_cartpole_master_dqn.h",
@@ -250,8 +255,8 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/reinforcementModel", "-r", "mountaincar.Master", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertEquals(0, Log.getFindings().stream().filter(Finding::isError).count());
 
+        assertEquals(0, Log.getFindings().stream().filter(Finding::isError).count());
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon/reinforcementModel/mountaincar"),
@@ -259,8 +264,8 @@ public class GenerationTest extends AbstractSymtabTest {
                         "mountaincar_master.cpp",
                         "mountaincar_master.h",
                         "mountaincar_master_actor.h",
-                        "CMakeLists.txt",
-                        "CNNBufferFile.h",
+                        //"CMakeLists.txt",
+                        "CNNModelLoader.h",
                         "CNNCreator_mountaincar_master_actor.py",
                         "CNNNet_mountaincar_master_actor.py",
                         "CNNPredictor_mountaincar_master_actor.h",
@@ -298,9 +303,6 @@ public class GenerationTest extends AbstractSymtabTest {
                         "CNNNet_defaultGAN_defaultGANConnector_predictor.py",
                         "CNNPredictor_defaultGAN_defaultGANConnector_predictor.h",
                         "CNNTrainer_defaultGAN_defaultGANConnector_predictor.py",
-                        "defaultGAN_defaultGANConnector.cpp",
-                        "defaultGAN_defaultGANConnector.h",
-                        "defaultGAN_defaultGANConnector_predictor.h",
                         "defaultGAN_defaultGANConnector.cpp",
                         "defaultGAN_defaultGANConnector.h",
                         "defaultGAN_defaultGANConnector_predictor.h"
@@ -341,7 +343,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         Log.info(Log.getFindings().toString(), "testGluonPreprocessinWithSupervised");
-        assertTrue(Log.getFindings().size() == 0);
+        checkFindingsCount();
     }
 
     @Test
@@ -350,7 +352,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         Log.info(Log.getFindings().toString(), "testGluonPreprocessingWithGAN");
-        assertTrue(Log.getFindings().size() == 0);
+        checkFindingsCount();
     }
 
     @Test
@@ -359,9 +361,9 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = { "-m", "src/test/resources/models/", "-r", "tagging.Alexnet", "-b", "MXNET", "-f", "n", "-c",
                 "n" };
         EMADLGeneratorCli.main(args);
-        assertEquals(Log.getFindings().size(), 1);
+        checkFindingsCount(1L);
         assertEquals(Log.getFindings().get(0).toString(),
-                "Tagging info for symbol was found, ignoring data_paths.txt: src/test/resources/models");
+                "Tagging info for DataPath symbol was found, ignoring data_paths.txt: src/test/resources/models");
         assertTrue(Log.getErrorCount() == 0);
     }
 

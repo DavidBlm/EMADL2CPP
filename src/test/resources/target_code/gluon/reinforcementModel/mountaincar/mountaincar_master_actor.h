@@ -19,7 +19,9 @@ action=colvec(1);
 }
 void execute(){
     vector<float> state_ = CNNTranslator::translate(state);
+
     vector<float> action_(1);
+
 
     _predictor_0_.predict(state_, action_);
 

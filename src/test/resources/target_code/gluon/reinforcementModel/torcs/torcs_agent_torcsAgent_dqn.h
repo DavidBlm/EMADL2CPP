@@ -20,7 +20,9 @@ qvalues=colvec(discrete_actions);
 }
 void execute(){
     vector<float> state_ = CNNTranslator::translate(state);
+
     vector<float> qvalues_(30);
+
 
     _predictor_0_.predict(state_, qvalues_);
 

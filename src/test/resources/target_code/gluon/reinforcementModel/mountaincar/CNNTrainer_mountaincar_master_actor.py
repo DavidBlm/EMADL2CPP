@@ -47,9 +47,13 @@ if __name__ == "__main__":
     env = reinforcement_learning.environment.GymEnvironment('MountainCarContinuous-v0')
 
     context = mx.cpu()
+    initializer = mx.init.Normal()
+    critic_initializer = mx.init.Normal()
     actor_creator = CNNCreator_mountaincar_master_actor.CNNCreator_mountaincar_master_actor()
+    actor_creator.setWeightInitializer(initializer)
     actor_creator.construct(context)
     critic_creator = CNNCreator_mountaincar_agent_mountaincarCritic()
+    critic_creator.setWeightInitializer(critic_initializer)
     critic_creator.construct(context)
 
     agent_params = {
@@ -61,6 +65,7 @@ if __name__ == "__main__":
             'state_dtype': 'float32',
             'action_dtype': 'float32',
             'rewards_dtype': 'float32'
+
         },
         'strategy_params': {
             'method':'ornstein_uhlenbeck',
