@@ -527,7 +527,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
             }
             stopGeneratorIfWarning();
-            Log.warn("Tagging info for DataPath symbol was found, ignoring data_paths.txt: " + dataPath);
+            Log.warn("Tagging info for dataset was found, ignoring data_paths.txt: " + dataPath);
 
         }
         else {
