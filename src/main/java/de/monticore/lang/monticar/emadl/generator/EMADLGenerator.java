@@ -517,17 +517,18 @@ public class EMADLGenerator implements EMAMGenerator {
                 DataPathCocos.check(dataPathSymbol);
 
                 dataPath = dataPathSymbol.getPath();
-
+                Log.warn("Tagging info for DataPath symbol was found, ignoring data_paths.txt: " + dataPath);
             }
             else {
                 DatasetArtifactSymbol datasetArtifactSymbol = (DatasetArtifactSymbol) tags.get(0);
 
                 String localRepo = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
                 dataPath = getArtifactDestination(localRepo, datasetArtifactSymbol.getArtifact(), datasetArtifactSymbol.getJar()) + File.separator + "training_data";
+                Log.warn("Tagging info for DatasetArtifact symbol was found, ignoring data_paths.txt: " + dataPath);
 
             }
             stopGeneratorIfWarning();
-            Log.warn("Tagging info for dataset was found, ignoring data_paths.txt: " + dataPath);
+
 
         }
         else {
