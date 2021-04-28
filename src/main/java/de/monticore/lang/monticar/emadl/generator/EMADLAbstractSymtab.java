@@ -25,6 +25,7 @@ import de.monticore.lang.monticar.struct._symboltable.StructLanguage;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.CommonSymbolTableCreator;
 
 import org.apache.commons.lang3.SystemUtils;
 
@@ -38,8 +39,8 @@ public class EMADLAbstractSymtab {
     public EMADLAbstractSymtab() {
     }
 
-    public static TaggingResolver createSymTabAndTaggingResolver(String customPythonFilesPath, String... modelPath) {
-        Scope scope = createSymTab(customPythonFilesPath, modelPath);
+    public static TaggingResolver createSymTabAndTaggingResolver(String customFilesPath, Backend backend, String... modelPath) {
+        Scope scope = createSymTab(customFilesPath, backend, modelPath);
         TaggingResolver tagging = new TaggingResolver(scope, Arrays.asList(modelPath));
         TagMinMaxTagSchema.registerTagTypes(tagging);
         TagTableTagSchema.registerTagTypes(tagging);
@@ -53,15 +54,29 @@ public class EMADLAbstractSymtab {
         return tagging;
     }
 
-    public static Scope createSymTab(String customPythonFilesPath, String... modelPath) {
+    public static TaggingResolver createSymTabAndTaggingResolver(String... modelPath) {
+        Scope scope = createSymTab(modelPath);
+        TaggingResolver tagging = new TaggingResolver(scope, Arrays.asList(modelPath));
+        TagMinMaxTagSchema.registerTagTypes(tagging);
+        TagTableTagSchema.registerTagTypes(tagging);
+        TagBreakpointsTagSchema.registerTagTypes(tagging);
+        TagExecutionOrderTagSchema.registerTagTypes(tagging);
+        TagInitTagSchema.registerTagTypes(tagging);
+        TagThresholdTagSchema.registerTagTypes(tagging);
+        TagDelayTagSchema.registerTagTypes(tagging);
+        DataPathTagSchema.registerTagTypes(tagging);
+        LayerPathParameterTagSchema.registerTagTypes(tagging);
+        return tagging;
+    }
+
+    public static Scope createSymTab(String customFilesPath, Backend backend, String... modelPath) {
         ConstantPortHelper.resetLastID();
         MathConverter.resetIDs();
         ThreadingOptimizer.resetID();
         ModelingLanguageFamily fam = new ModelingLanguageFamily();
 
-        EMADLLanguage montiArcLanguage = new EMADLLanguage(getLayersWithParameters(customPythonFilesPath), customPythonFilesPath);
+        EMADLLanguage montiArcLanguage = new EMADLLanguage(customFilesPath, backend.getBackendString(backend).toLowerCase());
 
-        //EMADLLanguage montiArcLanguage = new EMADLLanguage();
 
         fam.addModelingLanguage(montiArcLanguage);
         fam.addModelingLanguage(new EmbeddedMontiArcMathLanguage());
@@ -78,78 +93,27 @@ public class EMADLAbstractSymtab {
         return scope;
     }
 
-    //A method to extract the parameters of the custom layers from their respective .py files
-    private static HashMap<String, ArrayList<String>> getLayersWithParameters(String pathToCustomPyFiles) {
-        HashMap<String, ArrayList<String>> layersAndParameters = new HashMap<>();
+    public static Scope createSymTab(String... modelPath) {
+        ConstantPortHelper.resetLastID();
+        MathConverter.resetIDs();
+        ThreadingOptimizer.resetID();
+        ModelingLanguageFamily fam = new ModelingLanguageFamily();
 
-        boolean osCheckWindows = SystemUtils.IS_OS_WINDOWS;
-        String[] pyFiles;
-        File path = new File(pathToCustomPyFiles + "custom_layers/");
-        pyFiles = path.list();
+        EMADLLanguage montiArcLanguage = new EMADLLanguage();
 
-        String printParametersOfLayer = "";
-        String terminal = "";
-        String com = "";
-        try {
-
-            for (int index = 0; index < pyFiles.length; index++) {
-                if (pyFiles[index].equals("__init__.py") || !(pyFiles[index].substring(pyFiles[index].length() - 3, pyFiles[index].length())).equals(".py"))
-                    continue;
-                String nameWithoutEnding = pyFiles[index].substring(0, pyFiles[index].length() - 3);
-
-                String callingPrintMethod = "import " + nameWithoutEnding + "; temp=" + nameWithoutEnding + "." + nameWithoutEnding + "(); temp.print_parameters()";
-                if (osCheckWindows == false) {
-                    printParametersOfLayer = "python3 -c '" + callingPrintMethod + "'";
-                    terminal = "/bin/bash";
-                    com = "-c";
-                } else {
-                    printParametersOfLayer = "python -c \"" + callingPrintMethod + "\"";
-                    terminal = "cmd.exe";
-                    com = "/c";
-                }
-                Process process = Runtime.getRuntime().exec(new String[]{terminal, com, printParametersOfLayer}, null, path);
-
-                String line = null;
-                ArrayList<String> hold = new ArrayList<>();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                while ((line = reader.readLine()) != null) {
-                    hold.add(line);
-                }
-                reader.close();
-
-                if (hold.isEmpty()) {
-                    Process process1 = Runtime.getRuntime().exec(new String[]{terminal, com, printParametersOfLayer}, null, path);
-
-                    String error = "";
-                    BufferedReader errorReader = new BufferedReader(new InputStreamReader(process1.getErrorStream()));
-                    while ((line = errorReader.readLine()) != null) {
-                        error += line;
-                    }
-                    errorReader.close();
-                    throw new IOException(error);
-                } else if ((hold.get(0)).equals("{}")) {
-                    layersAndParameters.put(nameWithoutEnding, new ArrayList<String>());
-                } else {
-                    layersAndParameters.put(nameWithoutEnding, (processAttributesDict(hold.get(0))));
-                }
-
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        fam.addModelingLanguage(montiArcLanguage);
+        fam.addModelingLanguage(new EmbeddedMontiArcMathLanguage());
+        fam.addModelingLanguage(new StreamUnitsLanguage());
+        fam.addModelingLanguage(new StructLanguage());
+        fam.addModelingLanguage(new EnumLangLanguage());
+        final ModelPath mp = new ModelPath();
+        for (String m : modelPath) {
+            mp.addEntry(Paths.get(m));
         }
-
-        return layersAndParameters;
-    }
-
-        private static ArrayList<String> processAttributesDict(String attributesDict){
-        String dict = attributesDict;
-        dict = dict.substring(1, dict.length()-1);
-        dict = dict.replaceAll(":", ",");
-        dict = dict.replaceAll("'", "");
-        dict = dict.replaceAll("\\s", "");
-        String[] processed = dict.split(",");
-
-        return new ArrayList<>(Arrays.asList(processed));
+        LogConfig.init();//TODO comment for debug output
+        GlobalScope scope = new GlobalScope(mp, fam);
+        de.monticore.lang.monticar.Utils.addBuiltInTypes(scope);
+        return scope;
     }
 
 }

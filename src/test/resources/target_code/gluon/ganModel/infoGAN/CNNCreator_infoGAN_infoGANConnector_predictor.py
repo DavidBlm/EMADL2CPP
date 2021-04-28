@@ -4,6 +4,7 @@ import os
 import shutil
 import warnings
 import inspect
+import sys
 
 from CNNNet_infoGAN_infoGANConnector_predictor import Net_0
 
@@ -189,3 +190,6 @@ class CNNCreator_infoGAN_infoGANConnector_predictor:
         output_domains = (float,-1.0,1.0,)
         outputs["data_"] = output_domains + (output_dimensions,)
         return outputs
+
+    def validate_parameters(self):
+    pass

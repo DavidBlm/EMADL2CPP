@@ -11,6 +11,7 @@ if __name__ == "__main__":
     logger.addHandler(handler)
 
     mnist_mnistClassifier_net_creator = CNNCreator_mnist_mnistClassifier_net.CNNCreator_mnist_mnistClassifier_net()
+    mnist_mnistClassifier_net_creator.validate_parameters()
     mnist_mnistClassifier_net_loader = CNNDataLoader_mnist_mnistClassifier_net.CNNDataLoader_mnist_mnistClassifier_net()
     mnist_mnistClassifier_net_trainer = CNNSupervisedTrainer_mnist_mnistClassifier_net.CNNSupervisedTrainer_mnist_mnistClassifier_net(
         mnist_mnistClassifier_net_loader,

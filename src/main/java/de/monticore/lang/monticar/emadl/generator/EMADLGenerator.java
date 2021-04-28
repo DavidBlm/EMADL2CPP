@@ -73,7 +73,7 @@ public class EMADLGenerator implements EMAMGenerator {
     private Backend backend;
 
     private String modelsPath;
-    private String customPythonFilesPath = null;
+    private String customFilesPath = "";
 
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
@@ -101,17 +101,16 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-    public String getCustomPythonFilesPath() { return  customPythonFilesPath; }
+    public String getCustomFilesPath() { return  customFilesPath; }
 
-    public void setCustomPythonFilesPath(String customPythonFilesPath) {
+    public void setCustomFilesPath(String customPythonFilesPath) {
         if (!(customPythonFilesPath.endsWith("/"))){
-            this.customPythonFilesPath = customPythonFilesPath + "/";
+            this.customFilesPath = customPythonFilesPath + "/";
         }
         else {
-            this.customPythonFilesPath = customPythonFilesPath;
+            this.customFilesPath = customPythonFilesPath;
         }
 
-        this.customPythonFilesPath = this.customPythonFilesPath + (Backend.getBackendString(this.backend)).toLowerCase() + "/";
     }
 
     public void setGenerationTargetPath(String generationTargetPath){
@@ -150,7 +149,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private TaggingResolver getSymTabAndTaggingResolver() {
         BasicLibrary.extract();
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getCustomPythonFilesPath(), getModelsPath(),
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getCustomFilesPath(), this.backend, getModelsPath(),
                 Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
     }
 
@@ -614,7 +613,9 @@ public class EMADLGenerator implements EMAMGenerator {
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());
-            architecture.get().setCustomPyFilesPath(getCustomPythonFilesPath());
+            if(!getCustomFilesPath().equals("")) {
+                architecture.get().setCustomPyFilesPath(getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
+            }
             generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());

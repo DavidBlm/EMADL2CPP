@@ -408,4 +408,19 @@ public class GenerationTest extends AbstractSymtabTest {
                 "n", "-c", "n" };
         EMADLGeneratorCli.main(args);
     }
+
+    @Test
+    public void testMnistCalculatorWithCustomLayerForGluon() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-cfp", "src/test/resources/custom_files", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        checkFindingsCount();
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/gluon/customMNISTCalculator"),
+                Arrays.asList(
+                        "CNNNet_cNNCalculator_connector_predictor1.py",
+                        "CNNCreator_cNNCalculator_connector_predictor1.py",
+                        "CNNTrainer_cNNCalculator_connector_predictor1.py"));
+    }
 }
