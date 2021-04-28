@@ -25,20 +25,20 @@ import de.monticore.lang.monticar.cnntrain._symboltable.LearningMethod;
 import de.monticore.lang.monticar.cnntrain._symboltable.PreprocessingComponentSymbol;
 import de.monticore.lang.monticar.emadl._cocos.DataPathCocos;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
+import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactSymbol;
+import de.monticore.lang.monticar.emadl.tagging.artifacttag.LayerArtifactParameterSymbol;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
-import de.monticore.lang.monticar.generator.EMAMGenerator;
 import de.monticore.lang.monticar.emadl.tagging.dltag.LayerPathParameterSymbol;
+import de.monticore.lang.monticar.generator.EMAMGenerator;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.MathCommandRegister;
 import de.monticore.lang.monticar.generator.cmake.CMakeConfig;
-import de.monticore.lang.monticar.generator.cmake.CMakeFindModule;
 import de.monticore.lang.monticar.generator.cpp.*;
 import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperFactory;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
 import de.monticore.lang.monticar.semantics.Constants;
-import de.monticore.lang.monticar.semantics.ExecutionSemantics;
 import de.monticore.lang.monticar.semantics.util.BasicLibrary;
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
@@ -58,9 +58,10 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-
-import java.io.File;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class EMADLGenerator implements EMAMGenerator {
 
@@ -505,24 +506,43 @@ public class EMADLGenerator implements EMAMGenerator {
 
             // filter corresponding instantiation of instance and add tags
             instantiationSymbols.stream().filter(e -> e.getName().equals(instance.getName())).findFirst()
-                    .ifPresent(symbol -> instanceTags.addAll(taggingResolver.getTags(symbol, DataPathSymbol.KIND)));
+                    .ifPresent(symbol -> {
+                        instanceTags.addAll(taggingResolver.getTags(symbol, DataPathSymbol.KIND));
+                        instanceTags.addAll(taggingResolver.getTags(symbol, DatasetArtifactSymbol.KIND));
+                    });
         }
 
         // instance tags have priority
-        List<TagSymbol> tags = !instanceTags.isEmpty() ? instanceTags
-                : (List<TagSymbol>) taggingResolver.getTags(component, DataPathSymbol.KIND);
-
+        List<TagSymbol> tags;
+        if (!instanceTags.isEmpty()) {
+            tags = instanceTags;
+        }
+        else {
+            tags = Stream
+                .concat(taggingResolver.getTags(component, DataPathSymbol.KIND).stream(), taggingResolver.getTags(component, DatasetArtifactSymbol.KIND).stream())
+                .collect(Collectors.toList());
+        }
         String dataPath;
 
         if (!tags.isEmpty()) {
-            DataPathSymbol dataPathSymbol = (DataPathSymbol) tags.get(0);
-            DataPathCocos.check(dataPathSymbol);
+            if (tags.get(0) instanceof DataPathSymbol) {
+                DataPathSymbol dataPathSymbol = (DataPathSymbol) tags.get(0);
+                DataPathCocos.check(dataPathSymbol);
 
-            dataPath = dataPathSymbol.getPath();
+                dataPath = dataPathSymbol.getPath();
+                Log.warn("Tagging info for DataPath symbol was found, ignoring data_paths.txt: " + dataPath);
+            }
+            else {
+                DatasetArtifactSymbol datasetArtifactSymbol = (DatasetArtifactSymbol) tags.get(0);
 
-            // TODO: Replace warinings with errors, until then use this method
+                String localRepo = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
+                dataPath = getArtifactDestination(localRepo, datasetArtifactSymbol.getArtifact(), datasetArtifactSymbol.getJar()) + File.separator + "training_data";
+                Log.warn("Tagging info for DatasetArtifact symbol was found, ignoring data_paths.txt: " + dataPath);
+
+            }
             stopGeneratorIfWarning();
-            Log.warn("Tagging info for DataPath symbol was found, ignoring data_paths.txt: " + dataPath);
+
+
         }
         else {
             Path dataPathDefinition = Paths.get(getModelsPath(), "data_paths.txt");
@@ -585,6 +605,91 @@ public class EMADLGenerator implements EMAMGenerator {
         return layerPathParameterTags;
     }
 
+    protected HashMap getLayerArtifactParameterTags(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance){
+        List<TagSymbol> instanceTags = new LinkedList<>();
+
+        boolean isChildComponent = instance.getEnclosingComponent().isPresent();
+
+        if (isChildComponent) {
+            // get all instantiated components of parent
+            List<EMAComponentInstantiationSymbol> instantiationSymbols = (List<EMAComponentInstantiationSymbol>) instance
+                .getEnclosingComponent().get().getComponentType().getReferencedSymbol().getSubComponents();
+
+            // filter corresponding instantiation of instance and add tags
+            instantiationSymbols.stream().filter(e -> e.getName().equals(instance.getName())).findFirst()
+                .ifPresent(symbol -> instanceTags.addAll(taggingResolver.getTags(symbol, LayerArtifactParameterSymbol.KIND)));
+        }
+
+        List<TagSymbol> tags = !instanceTags.isEmpty() ? instanceTags
+            : (List<TagSymbol>) taggingResolver.getTags(component, LayerArtifactParameterSymbol.KIND);
+
+        HashMap layerArtifactParameterTags = new HashMap();
+        String localRepo = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
+        if (!tags.isEmpty()) {
+            for(TagSymbol tag: tags) {
+                LayerArtifactParameterSymbol layerArtifactParameterSymbol = (LayerArtifactParameterSymbol) tag;
+                String path = getArtifactDestination(localRepo, layerArtifactParameterSymbol.getArtifact(), layerArtifactParameterSymbol.getJar());
+                layerArtifactParameterTags.put(layerArtifactParameterSymbol.getId(), path);
+            }
+            stopGeneratorIfWarning();
+            Log.warn("Tagging info for LayerArtifact symbols was found.");
+        }
+        return layerArtifactParameterTags;
+    }
+
+    private String getArtifactDestination(String localRepo, String artifact, String jar) {
+        String destinationPath = localRepo + File.separator + artifact + File.separator + jar;
+        try {
+            unzipJar(destinationPath);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return destinationPath;
+    }
+
+    private void unzipJar(String destinationPath) throws IOException {
+        File destination = new File(destinationPath);
+        if (destination.exists() && destination.isDirectory()) {
+            return;
+        }
+        destination.mkdir();
+
+        File jar = new File(destination.getAbsolutePath() + ".jar");
+        if (!jar.exists()) {
+            Log.error("dependency " + destination.getAbsolutePath() + " could not be found");
+        }
+        ZipFile zipFile = new ZipFile(jar);
+
+        Enumeration jarFileEntries = zipFile.entries();
+        while (jarFileEntries.hasMoreElements()) {
+            ZipEntry jarEntry = (ZipEntry) jarFileEntries.nextElement();
+            File outputFile = new File(destination.getAbsolutePath(), jarEntry.getName());
+            outputFile.getParentFile().mkdirs();
+
+            if (outputFile.isDirectory()) {
+                outputFile.mkdirs();
+            }
+            else {
+                BufferedInputStream is = new BufferedInputStream(zipFile.getInputStream(jarEntry));
+                int currentByte;
+                byte data[] = new byte[1024];
+
+                FileOutputStream fos = new FileOutputStream(outputFile);
+                BufferedOutputStream dest = new BufferedOutputStream(fos, 1024);
+
+                // read and write until last byte is encountered
+                while ((currentByte = is.read(data, 0, 1024)) != -1) {
+                    dest.write(data, 0, currentByte);
+                }
+                dest.flush();
+                dest.close();
+                is.close();
+            }
+
+        }
+    }
+
     protected void generateComponent(List<FileContent> fileContents,
                                      Set<EMAComponentInstanceSymbol> allInstances,
                                      TaggingResolver taggingResolver,
@@ -609,6 +714,7 @@ public class EMADLGenerator implements EMAMGenerator {
             String dPath = getDataPath(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
             String wPath = getWeightsPath(EMAComponentSymbol, componentInstanceSymbol);
             HashMap layerPathParameterTags = getLayerPathParameterTags(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
+            layerPathParameterTags.putAll(getLayerArtifactParameterTags(taggingResolver, EMAComponentSymbol, componentInstanceSymbol));
             architecture.get().setDataPath(dPath);
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
