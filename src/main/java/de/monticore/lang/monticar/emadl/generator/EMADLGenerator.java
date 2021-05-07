@@ -155,8 +155,9 @@ public class EMADLGenerator implements EMAMGenerator {
         String instanceName = componentName.substring(0, 1).toLowerCase() + componentName.substring(1);
 
         if (component == null){
-            Log.error("Component with name '" + componentName + "' does not exist.");
-            System.exit(1);
+            String errMsg = "Component with name '" + componentName + "' does not exist.";
+            Log.error(errMsg);
+            throw new RuntimeException(errMsg);
         }
 
         Scope c1 = component.getEnclosingScope();
@@ -177,12 +178,14 @@ public class EMADLGenerator implements EMAMGenerator {
             Process process = pb.start();
             int returnCode = process.waitFor();
             if(returnCode != 0) {
-                Log.error("During compilation, an error occured. See above for more details.");
-                System.exit(1);
+                String errMsg = "During compilation, an error occured. See above for more details.";
+                Log.error(errMsg);
+                throw new RuntimeException(errMsg);
             }
         }catch(Exception e){
-            Log.error("During compilation, the following error occured: '" + e.toString() + "'");
-            System.exit(1);
+            String errMsg ="During compilation, the following error occured: '" + e.toString() + "'";
+            Log.error(errMsg);
+            throw new RuntimeException(errMsg);
         } finally {
             tempScript.delete();
         }
@@ -268,7 +271,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         List<FileContent> fileContents = generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
-        
+
         System.out.println("Generating Adapters");
         emamGen.generateAdapters(fileContents, EMAComponentSymbol);
 
@@ -336,13 +339,17 @@ public class EMADLGenerator implements EMAMGenerator {
                         exitCode = p.waitFor();
                     }
                     catch(InterruptedException e) {
-                        Log.error("Training aborted: exit code " + Integer.toString(exitCode));
-                        System.exit(1);
+                        String errMsg = "Training aborted: exit code " + Integer.toString(exitCode);
+
+                        Log.error(errMsg);
+                        throw new RuntimeException(errMsg);
                     }
 
                     if(exitCode != 0) {
-                        Log.error("Training failed: exit code " + Integer.toString(exitCode));
-                        System.exit(1);
+                        String errMsg = "Training failed: exit code " + Integer.toString(exitCode);
+
+                        Log.error(errMsg);
+                        throw new RuntimeException(errMsg);
                     }
 
                     fileContentsTrainingHashes.add(new FileContent(trainingHash, componentConfigFilename + ".training_hash"));
@@ -885,9 +892,11 @@ public class EMADLGenerator implements EMAMGenerator {
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> critic = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     if (!critic.isPresent()) {
-                        Log.error("During the resolving of critic component: Critic component "
-                                + fullCriticName + " does not have a CNN implementation but is required to have one");
-                        System.exit(-1);
+                        String errMsg = "During the resolving of critic component: Critic component "
+                                + fullCriticName + " does not have a CNN implementation but is required to have one";
+
+                        Log.error(errMsg);
+                        throw new RuntimeException(errMsg);
                     }
                     critic.get().setComponentName(fullCriticName);
                     configuration.setCriticNetwork(new ArchitectureAdapter(fullCriticName, critic.get()));
@@ -907,9 +916,10 @@ public class EMADLGenerator implements EMAMGenerator {
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> discriminator = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     if (!discriminator.isPresent()) {
-                        Log.error("During the resolving of critic component: Critic component "
-                                + fullDiscriminatorName + " does not have a CNN implementation but is required to have one");
-                        System.exit(-1);
+                        String errMsg ="During the resolving of critic component: Critic component "
+                                + fullDiscriminatorName + " does not have a CNN implementation but is required to have one";
+                        Log.error(errMsg);
+                        throw new RuntimeException(errMsg);
                     }
                     discriminator.get().setComponentName(fullDiscriminatorName);
                     configuration.setDiscriminatorNetwork(new ArchitectureAdapter(fullDiscriminatorName, discriminator.get()));
@@ -928,9 +938,10 @@ public class EMADLGenerator implements EMAMGenerator {
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> qnetwork = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     if (!qnetwork.isPresent()) {
-                        Log.error("During the resolving of qnetwork component: qnetwork component "
-                                + fullQNetworkName + " does not have a CNN implementation but is required to have one");
-                        System.exit(-1);
+                        String errMsg = "During the resolving of qnetwork component: qnetwork component "
+                                + fullQNetworkName + " does not have a CNN implementation but is required to have one";
+                        Log.error(errMsg);
+                        throw new RuntimeException(errMsg);
                     }
                     qnetwork.get().setComponentName(fullQNetworkName);
                     configuration.setQNetwork(new ArchitectureAdapter(fullQNetworkName, qnetwork.get()));
@@ -988,12 +999,10 @@ public class EMADLGenerator implements EMAMGenerator {
 
         } catch (IllegalArgumentException e) {
             System.err.println("Resource file " + fileName + " not found");
-            System.exit(1);
-            return null;
+            throw new RuntimeException("Resource file " + fileName + " not found");
         } catch (IOException e) {
             System.err.println("IO Error occurred");
-            System.exit(1);
-            return null;
+            throw new RuntimeException("IO Error occurred");
         }
     }
 

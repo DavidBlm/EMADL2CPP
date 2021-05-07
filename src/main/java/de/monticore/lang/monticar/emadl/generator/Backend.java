@@ -16,6 +16,16 @@ import de.monticore.lang.monticar.cnnarch.tensorflowgenerator.CNNTrain2Tensorflo
 import java.util.Optional;
 
 public enum Backend {
+    NONE{
+        @Override
+        public CNNArchGenerator getCNNArchGenerator() {
+            return new CNNArch2NoBackend();
+        }
+        @Override
+        public CNNTrainGenerator getCNNTrainGenerator() {
+            return new CNNTrain2NoBackend();
+        }
+    },
     MXNET{
         @Override
         public CNNArchGenerator getCNNArchGenerator() {
@@ -61,6 +71,9 @@ public enum Backend {
 
     public static Optional<Backend> getBackendFromString(String backend){
         switch (backend){
+            case "NONE":
+                return Optional.of(NONE);
+
             case "MXNET":
                 return Optional.of(MXNET);
 
@@ -80,6 +93,9 @@ public enum Backend {
 
     public static String getBackendString(Backend backend){
         switch (backend){
+            case NONE:
+                return "NONE";
+
             case CAFFE2:
                 return "CAFFE2";
                 
