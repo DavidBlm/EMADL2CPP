@@ -58,6 +58,13 @@ public class EMADLGeneratorCli {
             .hasArg(true)
             .required(false)
             .build();
+    public static final Option OPTION_HELP = Option.builder("h")
+            .longOpt("help")
+            .desc("Show CLI parameters")
+            .hasArg(false)
+            .required(false)
+            .build();
+
 
     private EMADLGeneratorCli() {
     }
@@ -86,16 +93,29 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_TRAINING_PYTHON_PATH);
         options.addOption(OPTION_COMPILE);
         options.addOption(OPTION_CUSTOM_FILES_PATH);
+        options.addOption(OPTION_HELP);
+    }
+
+    private static void printHelp(){
+        System.err.println("Arguments:");
+        System.err.println("\t -m <parent model path>");
+        System.err.println("\t -r <root model including full package name>");
+        System.err.println("\t [-o <output directory>]  e.g. \"./target/\"");
+        System.err.println("\t [-b <used backend>]  e.g. \"MXNET\"");
+        System.err.println("\t [-f <force/prevent training>]  e.g. \"UNSET\"");
+        System.err.println("\t [-p <training path>]");
+        System.err.println("\t [-c <compile>] e.g. \"y\"/\"n\"");
     }
 
     private static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
         CommandLine cliArgs;
         try {
             cliArgs = parser.parse(options, args);
+
         } catch (ParseException e) {
             System.err.println("argument parsing exception: " + e.getMessage());
-            System.exit(1);
-            return null;
+            printHelp();
+            throw new RuntimeException("argument parsing exception: " + e.getMessage());
         }
         return cliArgs;
     }
@@ -185,12 +205,16 @@ public class EMADLGeneratorCli {
             generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"));
         }
         catch (IOException e){
-            Log.error("io error during generation", e);
-            System.exit(1);
+            String errMsg ="io error during generation"+ e.toString();
+
+            Log.error(errMsg);
+            throw new RuntimeException(errMsg);
         }
         catch (TemplateException e){
-            Log.error("template error during generation", e);
-            System.exit(1);
+            String errMsg = "template error during generation: "+ e.toString();
+
+            Log.error(errMsg);
+            throw new RuntimeException(errMsg);
         }
     }
 }
