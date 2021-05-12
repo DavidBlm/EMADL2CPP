@@ -74,6 +74,7 @@ public class EMADLGenerator implements EMAMGenerator {
     private Backend backend;
 
     private String modelsPath;
+    private String customFilesPath = "";
 
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
@@ -99,6 +100,18 @@ public class EMADLGenerator implements EMAMGenerator {
         else {
             this.modelsPath = modelsPath;
         }
+    }
+
+    public String getCustomFilesPath() { return  customFilesPath; }
+
+    public void setCustomFilesPath(String customPythonFilesPath) {
+        if (!(customPythonFilesPath.endsWith("/"))){
+            this.customFilesPath = customPythonFilesPath + "/";
+        }
+        else {
+            this.customFilesPath = customPythonFilesPath;
+        }
+
     }
 
     public void setGenerationTargetPath(String generationTargetPath){
@@ -137,7 +150,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private TaggingResolver getSymTabAndTaggingResolver() {
         BasicLibrary.extract();
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getModelsPath(),
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getCustomFilesPath(), this.backend, getModelsPath(),
                 Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
     }
 
@@ -713,6 +726,9 @@ public class EMADLGenerator implements EMAMGenerator {
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());
+            if(!getCustomFilesPath().equals("")) {
+                architecture.get().setCustomPyFilesPath(getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
+            }
             generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());

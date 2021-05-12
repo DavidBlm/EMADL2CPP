@@ -4,6 +4,7 @@ import os
 import shutil
 import warnings
 import inspect
+import sys
 
 from CNNNet_mountaincar_master_actor import Net_0
 
@@ -186,3 +187,6 @@ class CNNCreator_mountaincar_master_actor:
         output_domains = (float,-1.0,1.0,)
         outputs["action_"] = output_domains + (output_dimensions,)
         return outputs
+
+    def validate_parameters(self):
+    pass

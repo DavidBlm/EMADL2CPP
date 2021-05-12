@@ -1,11 +1,13 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl;
 
+import de.monticore.lang.monticar.emadl.generator.Backend;
 import de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
 
+import javax.swing.text.html.HTML;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,6 +22,10 @@ public class AbstractSymtabTest {
     protected static TaggingResolver createSymTab(String... modelPath) {
 
         return EMADLAbstractSymtab.createSymTabAndTaggingResolver(modelPath);
+    }
+
+    protected static TaggingResolver createSymTab(String customFilesPath, Backend backend, String... modelPath){
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(customFilesPath, backend, modelPath);
     }
 
     public static void checkFilesAreEqual(Path generationPath, Path resultsPath, List<String> fileNames) {

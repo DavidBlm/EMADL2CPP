@@ -122,6 +122,18 @@ public class IntegrationGluonTest extends IntegrationTest {
         checkFindingsCount();
     }
 
+    @Test
+    public void testMNISTCalculatorWithCustomLayer() {
+        Log.getFindings().clear();
+
+        deleteHashFile(Paths.get("./target/generated-sources-emadl/cNNCalculator/Network.training_hash"));
+
+        String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-cfp", "src/test/resources/custom_files"};
+        EMADLGeneratorCli.main(args);
+
+        checkFindingsCount(5);
+    }
+
     private void deleteHashFile(Path hashFile) {
         try {
             Files.delete(hashFile);

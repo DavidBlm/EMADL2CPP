@@ -52,6 +52,12 @@ public class EMADLGeneratorCli {
             .required(false)
             .build();
 
+    public static final Option OPTION_CUSTOM_FILES_PATH = Option.builder("cfp")
+            .longOpt("custom-files-path")
+            .desc("full path to directory with language folders with custom files C::\\Users\\vpupkin\\prok\\My>AwsomeAutopilot\\src")
+            .hasArg(true)
+            .required(false)
+            .build();
     public static final Option OPTION_HELP = Option.builder("h")
             .longOpt("help")
             .desc("Show CLI parameters")
@@ -86,6 +92,7 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_RESTRAINED_TRAINING);
         options.addOption(OPTION_TRAINING_PYTHON_PATH);
         options.addOption(OPTION_COMPILE);
+        options.addOption(OPTION_CUSTOM_FILES_PATH);
         options.addOption(OPTION_HELP);
     }
 
@@ -167,6 +174,9 @@ public class EMADLGeneratorCli {
         // EMAM2CPP options
         GeneratorCPP emamGen = generator.getEmamGen();
         Path modelsDirPath = Paths.get(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()));
+        if (cliArgs.hasOption(OPTION_CUSTOM_FILES_PATH.getOpt())) {
+            generator.setCustomFilesPath(cliArgs.getOptionValue(OPTION_CUSTOM_FILES_PATH.getOpt()));
+        }
         emamGen.setUseAlgebraicOptimizations(false);
         emamGen.setUseThreadingOptimization(false);
         emamGen.setModelsDirPath(modelsDirPath);

@@ -6,6 +6,7 @@ import de.monticore.io.paths.ModelPath;
 import de.monticore.lang.embeddedmontiarc.LogConfig;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarcmath._symboltable.EmbeddedMontiArcMathLanguage;
 import de.monticore.lang.embeddedmontiarc.helper.ConstantPortHelper;
+import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactTagSchema;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.LayerArtifactParameterTagSchema;
@@ -26,12 +27,33 @@ import de.monticore.lang.monticar.struct._symboltable.StructLanguage;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.CommonSymbolTableCreator;
 
+import org.apache.commons.lang3.SystemUtils;
+
+import javax.print.AttributeException;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.*;
+import java.io.*;
+
 
 public class EMADLAbstractSymtab {
     public EMADLAbstractSymtab() {
+    }
+
+    public static TaggingResolver createSymTabAndTaggingResolver(String customFilesPath, Backend backend, String... modelPath) {
+        Scope scope = createSymTab(customFilesPath, backend, modelPath);
+        TaggingResolver tagging = new TaggingResolver(scope, Arrays.asList(modelPath));
+        TagMinMaxTagSchema.registerTagTypes(tagging);
+        TagTableTagSchema.registerTagTypes(tagging);
+        TagBreakpointsTagSchema.registerTagTypes(tagging);
+        TagExecutionOrderTagSchema.registerTagTypes(tagging);
+        TagInitTagSchema.registerTagTypes(tagging);
+        TagThresholdTagSchema.registerTagTypes(tagging);
+        TagDelayTagSchema.registerTagTypes(tagging);
+        DataPathTagSchema.registerTagTypes(tagging);
+        LayerPathParameterTagSchema.registerTagTypes(tagging);
+        return tagging;
     }
 
     public static TaggingResolver createSymTabAndTaggingResolver(String... modelPath) {
@@ -51,11 +73,36 @@ public class EMADLAbstractSymtab {
         return tagging;
     }
 
+    public static Scope createSymTab(String customFilesPath, Backend backend, String... modelPath) {
+        ConstantPortHelper.resetLastID();
+        MathConverter.resetIDs();
+        ThreadingOptimizer.resetID();
+        ModelingLanguageFamily fam = new ModelingLanguageFamily();
+
+        EMADLLanguage montiArcLanguage = new EMADLLanguage(customFilesPath, backend.getBackendString(backend).toLowerCase());
+
+
+        fam.addModelingLanguage(montiArcLanguage);
+        fam.addModelingLanguage(new EmbeddedMontiArcMathLanguage());
+        fam.addModelingLanguage(new StreamUnitsLanguage());
+        fam.addModelingLanguage(new StructLanguage());
+        fam.addModelingLanguage(new EnumLangLanguage());
+        final ModelPath mp = new ModelPath();
+        for (String m : modelPath) {
+            mp.addEntry(Paths.get(m));
+        }
+        LogConfig.init();//TODO comment for debug output
+        GlobalScope scope = new GlobalScope(mp, fam);
+        de.monticore.lang.monticar.Utils.addBuiltInTypes(scope);
+        return scope;
+    }
+
     public static Scope createSymTab(String... modelPath) {
         ConstantPortHelper.resetLastID();
         MathConverter.resetIDs();
         ThreadingOptimizer.resetID();
         ModelingLanguageFamily fam = new ModelingLanguageFamily();
+
         EMADLLanguage montiArcLanguage = new EMADLLanguage();
 
         fam.addModelingLanguage(montiArcLanguage);
@@ -72,4 +119,5 @@ public class EMADLAbstractSymtab {
         de.monticore.lang.monticar.Utils.addBuiltInTypes(scope);
         return scope;
     }
+
 }
