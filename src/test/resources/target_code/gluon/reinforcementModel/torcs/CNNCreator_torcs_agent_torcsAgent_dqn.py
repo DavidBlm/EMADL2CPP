@@ -4,6 +4,7 @@ import os
 import shutil
 import warnings
 import inspect
+import sys
 
 from CNNNet_torcs_agent_torcsAgent_dqn import Net_0
 
@@ -186,3 +187,6 @@ class CNNCreator_torcs_agent_torcsAgent_dqn:
         output_domains = (float,float('-inf'),float('inf'),)
         outputs["qvalues_"] = output_domains + (output_dimensions,)
         return outputs
+
+    def validate_parameters(self):
+        pass
