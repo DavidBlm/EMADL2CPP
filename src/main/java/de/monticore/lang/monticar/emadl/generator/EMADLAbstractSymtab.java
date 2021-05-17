@@ -52,7 +52,9 @@ public class EMADLAbstractSymtab {
         TagThresholdTagSchema.registerTagTypes(tagging);
         TagDelayTagSchema.registerTagTypes(tagging);
         DataPathTagSchema.registerTagTypes(tagging);
+        DatasetArtifactTagSchema.registerTagTypes(tagging);
         LayerPathParameterTagSchema.registerTagTypes(tagging);
+        LayerArtifactParameterTagSchema.registerTagTypes(tagging);
         return tagging;
     }
 
