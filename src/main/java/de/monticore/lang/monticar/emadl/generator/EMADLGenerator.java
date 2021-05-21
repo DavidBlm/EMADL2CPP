@@ -75,6 +75,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private String modelsPath;
     private String customFilesPath = "";
+    private String pythonPath = "";
 
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
@@ -114,6 +115,15 @@ public class EMADLGenerator implements EMAMGenerator {
 
     }
 
+    private String getPythonPath() {return pythonPath;}
+
+    private void setPythonPath (String pythonPath){
+        if(!pythonPath.startsWith("/")){
+            pythonPath = "/" + pythonPath;
+        }
+        this.pythonPath = pythonPath;
+    }
+
     public void setGenerationTargetPath(String generationTargetPath){
         if (!(generationTargetPath.substring(generationTargetPath.length() - 1).equals("/"))){
             getEmamGen().setGenerationTargetPath(generationTargetPath + "/");
@@ -134,6 +144,7 @@ public class EMADLGenerator implements EMAMGenerator {
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile) throws IOException, TemplateException {
         processedArchitecture = new HashMap<>();
         setModelsPath( modelPath );
+        setPythonPath(pythonPath);
         TaggingResolver symtab = getSymTabAndTaggingResolver();
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
 
@@ -150,7 +161,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private TaggingResolver getSymTabAndTaggingResolver() {
         BasicLibrary.extract();
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getCustomFilesPath(), this.backend, getModelsPath(),
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getCustomFilesPath(), getPythonPath() ,this.backend, getModelsPath(),
                 Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
     }
 
