@@ -115,9 +115,9 @@ public class EMADLGenerator implements EMAMGenerator {
 
     }
 
-    private String getPythonPath() {return pythonPath;}
+    public String getPythonPath() {return pythonPath;}
 
-    private void setPythonPath (String pythonPath){
+    public void setPythonPath (String pythonPath){
         if(!pythonPath.startsWith("/")){
             pythonPath = "/" + pythonPath;
         }
