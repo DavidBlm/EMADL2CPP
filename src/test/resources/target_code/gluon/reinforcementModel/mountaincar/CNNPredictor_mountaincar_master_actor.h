@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef CNNPREDICTOR_MOUNTAINCAR_MASTER_ACTOR
 #define CNNPREDICTOR_MOUNTAINCAR_MASTER_ACTOR
 

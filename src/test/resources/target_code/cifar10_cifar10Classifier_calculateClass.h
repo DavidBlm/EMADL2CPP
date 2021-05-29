@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef CIFAR10_CIFAR10CLASSIFIER_CALCULATECLASS
 #define CIFAR10_CIFAR10CLASSIFIER_CALCULATECLASS
 #ifndef M_PI

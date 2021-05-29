@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #include "torcs_agent_network_reward_executor.h"
 
 void torcs_agent_network_reward_executor::init() {

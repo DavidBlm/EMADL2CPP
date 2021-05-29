@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef TORCS_AGENT_TORCSAGENT_ACTOR
 #define TORCS_AGENT_TORCSAGENT_ACTOR
 #ifndef M_PI

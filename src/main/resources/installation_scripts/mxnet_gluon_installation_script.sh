@@ -1,4 +1,5 @@
 sudo apt-get update -y
+# (c) https://github.com/MontiCore/monticore  
 sudp apt-get install -y build-essential git openjdk-8-jdk maven ninja-build ccache libopenblas-dev libblas-dev /
 						liblapack-dev libopencv-dev libarmadillo-dev cmake python2.7 python-dev /
 						python-numpy python-tk python3-pip python3-pip swig unzip libboost-all-dev

@@ -1,3 +1,4 @@
+# (c) https://github.com/MontiCore/monticore  
 import logging
 import CNNCreator_mnist_mnistClassifier_net
 

@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 configuration Show_attend_tell{
      num_epoch:2
      batch_size:2

@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef CNNPREDICTOR_MNIST_MNISTCLASSIFIER_NET
 #define CNNPREDICTOR_MNIST_MNISTCLASSIFIER_NET
 

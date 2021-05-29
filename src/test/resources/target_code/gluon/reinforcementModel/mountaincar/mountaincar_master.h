@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef MOUNTAINCAR_MASTER
 #define MOUNTAINCAR_MASTER
 #ifndef M_PI

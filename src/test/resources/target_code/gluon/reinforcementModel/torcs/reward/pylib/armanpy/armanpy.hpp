@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 // Copyright (C) 2012 thomas.natschlaeger@gmail.com
 // 
 // This file is part of the ArmaNpy library.

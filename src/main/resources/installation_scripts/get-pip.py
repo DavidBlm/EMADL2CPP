@@ -1,3 +1,4 @@
+# (c) https://github.com/MontiCore/monticore  
 #!/usr/bin/env python
 #
 # Hi There!

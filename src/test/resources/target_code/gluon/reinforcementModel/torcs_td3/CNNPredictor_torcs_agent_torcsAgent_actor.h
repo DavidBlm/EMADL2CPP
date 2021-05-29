@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef CNNPREDICTOR_TORCS_AGENT_TORCSAGENT_ACTOR
 #define CNNPREDICTOR_TORCS_AGENT_TORCSAGENT_ACTOR
 

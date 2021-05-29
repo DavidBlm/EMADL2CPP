@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef TORCS_AGENT_DQN_REWARD
 #define TORCS_AGENT_DQN_REWARD
 #ifndef M_PI

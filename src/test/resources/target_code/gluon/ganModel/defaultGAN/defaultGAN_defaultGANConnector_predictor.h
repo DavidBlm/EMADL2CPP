@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef DEFAULTGAN_DEFAULTGANCONNECTOR_PREDICTOR
 #define DEFAULTGAN_DEFAULTGANCONNECTOR_PREDICTOR
 #ifndef M_PI

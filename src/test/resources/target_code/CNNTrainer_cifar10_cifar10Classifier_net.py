@@ -1,3 +1,4 @@
+# (c) https://github.com/MontiCore/monticore  
 import logging
 import mxnet as mx
 import CNNCreator_cifar10_cifar10Classifier_net

@@ -1,3 +1,4 @@
+# (c) https://github.com/MontiCore/monticore  
 import mxnet as mx
 from mxnet import gluon, util
 

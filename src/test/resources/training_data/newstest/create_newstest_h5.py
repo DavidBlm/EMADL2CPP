@@ -1,3 +1,4 @@
+# (c) https://github.com/MontiCore/monticore  
 import h5py
 import numpy as np
 import os.path

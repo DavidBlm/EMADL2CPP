@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef _TORCS_AGENT_DQN_REWARD_EXECUTOR_H_
 #define _TORCS_AGENT_DQN_REWARD_EXECUTOR_H_
 #include "armadillo"

@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef HELPERA_H
 #define HELPERA_H
 #include <iostream>

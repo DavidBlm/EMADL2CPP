@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef ADD
 #define ADD
 #ifndef M_PI

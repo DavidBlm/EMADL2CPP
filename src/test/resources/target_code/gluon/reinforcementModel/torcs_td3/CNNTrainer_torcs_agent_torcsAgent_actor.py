@@ -1,3 +1,4 @@
+# (c) https://github.com/MontiCore/monticore  
 from reinforcement_learning.agent import TwinDelayedDdpgAgent
 from reinforcement_learning.util import AgentSignalHandler
 from reinforcement_learning.cnnarch_logger import ArchLogger

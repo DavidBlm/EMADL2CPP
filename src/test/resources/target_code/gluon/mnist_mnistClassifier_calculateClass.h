@@ -1,3 +1,4 @@
+/* (c) https://github.com/MontiCore/monticore */
 #ifndef MNIST_MNISTCLASSIFIER_CALCULATECLASS
 #define MNIST_MNISTCLASSIFIER_CALCULATECLASS
 #ifndef M_PI

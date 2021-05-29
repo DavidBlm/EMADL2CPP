@@ -1,3 +1,4 @@
+# (c) https://github.com/MontiCore/monticore  
 from os.path import dirname, basename, isfile, join
 import glob
 
