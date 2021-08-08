@@ -1,7 +1,4 @@
 import CoreAdaNet
-import mxnet
-from mxnet import gluon, io
-from adaNetUtils import train_candidate
 from typing import Dict, Tuple, List
 
 
