@@ -134,7 +134,6 @@ class SuperBuilder(ABC):
         candidate.hybridize()
         candidate_loss = train_candidate(candidate, epochs=self.epochs, optimizer=self.optimizer,
                                          optimizer_params=self.optimizer_params, loss=self.loss,
-                                         batch_size=self.batch_size,
                                          trainIter=self.train_iterator)
         return candidate_loss
 
