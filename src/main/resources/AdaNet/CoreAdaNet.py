@@ -21,6 +21,9 @@ class SuperBuildingBlock(ABC, mxnet.gluon.HybridBlock):
         self.operation = operation()  # it is expected that the block doesn't take any parameters
         self.oc = None
 
+    def get_emadl_repr(self) -> str:
+        return self.operation.__name__
+
     def count_nodes(self):
         if self.node_count is None:
             oc = 0
@@ -89,11 +92,20 @@ class SuperCandidateHull(ABC, mxnet.gluon.HybridBlock):
         return self.rade_aprox(self.count_nodes())
 
     @abstractmethod
+    def get_emadl_repr(self) -> str:
+
+        raise NotImplementedError(f"this function has to be fitted for your builder design, the {SuperBuildingBlock}"
+                                  f"provides the function get_emadl_repr "
+                                  f"it returns the name of the generated HybridBlock"
+                                  f"its name is the same as in the emadl file")
+
+    @abstractmethod
     def build(self) -> None:
         """
             this function builds the model
         """
-        raise NotImplementedError
+        raise NotImplementedError("No build function defined, you have to design your own building "
+                                  "function which builds your candidates according your chosen strategy")
 
     @abstractmethod
     def count_nodes(self) -> int:
@@ -101,7 +113,9 @@ class SuperCandidateHull(ABC, mxnet.gluon.HybridBlock):
             counts the nodes in this candidate
             should call count_nodes() of its building_block properties
         """
-        raise NotImplementedError
+        raise NotImplementedError(
+            f" this function needs to be applied for your model design, use the {SuperBuildingBlock} "
+            f"function count_nodes to get the number of nodes within a =BuildingBlock ")
 
 
 class SuperBuilder(ABC):
