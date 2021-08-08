@@ -5,7 +5,7 @@ from adaNetUtils import train_candidate
 from typing import Dict, Tuple, List
 
 
-class CandidateHull(CoreAdaNet.CandidateHull):
+class CandidateHull(CoreAdaNet.SuperCandidateHull):
     """
         the hull which holds the stacked building blocks and is potentially added to the model
     """
@@ -22,7 +22,7 @@ class CandidateHull(CoreAdaNet.CandidateHull):
             if there are parameters needed for the construction make sure they are added before the superclasses
             constructor is called!
         """
-        body = {self.name_ + f"{i}": CoreAdaNet.BuildingBlock(operation=self.building_block) for i in
+        body = {self.name_ + f"{i}": CoreAdaNet.SuperBuildingBlock(operation=self.building_block) for i in
                 range(self.stack)}
         for name, operation in body.items():
             self.__setattr__(name, operation)
@@ -51,37 +51,19 @@ class CandidateHull(CoreAdaNet.CandidateHull):
         return x
 
 
-class Builder(CoreAdaNet.Builder):
+class Builder(CoreAdaNet.SuperBuilder):
     """
-    the object which generates the new candidates
+        the object which generates the new candidates
     """
 
-    def __init__(self, batch_size: int,
-                 model_shape: Tuple[int],
-                 epochs: int,
-                 optimizer: str,
-                 optimizer_params: dict,
-                 loss: mxnet.gluon.loss.Loss,
-                 build_operation: gluon.HybridBlock,
-                 train_iterator: io.NDArrayIter,
-                 ctx: mxnet.context.Context,
-                 in_block: gluon.HybridBlock = None,
-                 out_block: gluon.HybridBlock = None,
-
-                 **kwargs):
-        super(Builder, self).__init__(batch_size=batch_size, model_shape=model_shape, build_operation=build_operation,
-                                      train_iterator=train_iterator, in_block=in_block, out_block=out_block, loss=loss,
-                                      ctx=ctx, epochs=epochs,
-                                      **kwargs)
+    def __init__(self, **kwargs):
+        super(Builder, self).__init__(**kwargs)
         self.round = 0
         self.pre_stack = 1
         self.step = 0
         self.candidate_per_round = 2
-        self.epochs = epochs
-        self.optimizer = optimizer
-        self.optimizer_params = optimizer_params
 
-    def get_candidates(self) -> Dict[str:Tuple[CandidateHull, List[float]]]:
+    def get_candidates(self) -> Dict[str, Tuple[CandidateHull, List[float]]]:
         """
         :returns a dict of already trained
         """
