@@ -2,20 +2,21 @@
     this module provides the abstract classes as well as concrete classes for the AdaNet algorithm components
 """
 from abc import ABC, abstractmethod
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List, AnyStr
 import mxnet.gluon
 import numpy as np
 import mxnet.gluon.nn as nn
 from mxnet.ndarray import zeros
+from adaNetUtils import train_candidate
 
 
-class BuildingBlock(ABC, mxnet.gluon.HybridBlock):
+class SuperBuildingBlock(ABC, mxnet.gluon.HybridBlock):
     """
         the essential building block which gets stacked
     """
 
     def __init__(self, operation: mxnet.gluon.HybridBlock, **kwargs):
-        super(BuildingBlock, self).__init__(**kwargs)
+        super(SuperBuildingBlock, self).__init__(**kwargs)
         self.node_count = None
         self.operation = operation()  # it is expected that the block doesn't take any parameters
         self.oc = None
@@ -36,7 +37,7 @@ class BuildingBlock(ABC, mxnet.gluon.HybridBlock):
         return self.operation(x)
 
 
-class CandidateHull(ABC, mxnet.gluon.HybridBlock):
+class SuperCandidateHull(ABC, mxnet.gluon.HybridBlock):
     """
         this is a wrapper to resemble a ensemble candidate
     """
@@ -45,7 +46,7 @@ class CandidateHull(ABC, mxnet.gluon.HybridBlock):
                  rade_aprox: callable = np.sqrt,
                  in_block: mxnet.gluon.HybridBlock = None,
                  out_block: mxnet.gluon.HybridBlock = None, **kwargs):
-        super(CandidateHull, self).__init__(**kwargs)
+        super(SuperCandidateHull, self).__init__(**kwargs)
         with self.name_scope():
             self.building_block = building_block
             self.name_ = name
@@ -69,7 +70,7 @@ class CandidateHull(ABC, mxnet.gluon.HybridBlock):
         """
             getter for complexity score
 
-            returns the complexity calculated by the training loss function
+            returns the complexity calculated by the training loss function and is updated there
             (alpha * r + beta)* ||w||_L1
             r = approximation of the rademacher complexity
         """
@@ -90,10 +91,9 @@ class CandidateHull(ABC, mxnet.gluon.HybridBlock):
     @abstractmethod
     def build(self) -> None:
         """
-            this function builds the candidate based on the passed parameter provided by initialization
+            this function builds the model
         """
         raise NotImplementedError
-        pass
 
     @abstractmethod
     def count_nodes(self) -> int:
@@ -102,16 +102,17 @@ class CandidateHull(ABC, mxnet.gluon.HybridBlock):
             should call count_nodes() of its building_block properties
         """
         raise NotImplementedError
-        pass
 
 
-class Builder(ABC):
+class SuperBuilder(ABC):
     def __init__(self, batch_size: int,
                  model_shape: Tuple[int],
                  loss: mxnet.gluon.loss.Loss,
                  build_operation: mxnet.gluon.HybridBlock,
                  train_iterator: mxnet.io.NDArrayIter,
                  epochs: int,
+                 optimizer: str,
+                 optimizer_params: dict,
                  ctx: mxnet.context.Context,
                  in_block: mxnet.gluon.HybridBlock = None,
                  out_block: mxnet.gluon.HybridBlock = None,
@@ -125,22 +126,35 @@ class Builder(ABC):
         self.loss = loss
         self.ctx = ctx
         self.epochs = epochs
+        self.optimizer = optimizer
+        self.optimizer_params = optimizer_params
+
+    def train(self, candidate) -> List[float]:
+        candidate.initialize(ctx=self.ctx)
+        candidate.hybridize()
+        candidate_loss = train_candidate(candidate, epochs=self.epochs, optimizer=self.optimizer,
+                                         optimizer_params=self.optimizer_params, loss=self.loss,
+                                         batch_size=self.batch_size,
+                                         trainIter=self.train_iterator)
+        return candidate_loss
+
 
     @abstractmethod
-    def get_candidates(self) -> Dict:
+    def get_candidates(self) -> Dict[str, Tuple[SuperCandidateHull, List[float]]]:
         """
             this fucntion returns a dictionary containing the trained candidates
+            key: name of the candidte
+            data: tuple of size 2,
+                (candidate,training_loss)
         """
         raise NotImplementedError
-        pass
 
     @abstractmethod
-    def update(self, up=1):
+    def update(self, up=1) -> None:
         """
             :param up function to update the builder for its next round
         """
         raise NotImplementedError
-        pass
 
 
 class ModelTemplate(mxnet.gluon.HybridBlock):
