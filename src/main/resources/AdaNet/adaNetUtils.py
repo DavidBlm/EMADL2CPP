@@ -1,8 +1,10 @@
 from mxnet.gluon.loss import Loss
 from mxnet.ndarray import add, concatenate
-from mxnet import gluon, autograd, nd
+import mxnet.ndarray as nd
+from mxnet import gluon, autograd
 import mxnet as mx
-from typing import List
+from typing import List, Union
+from AdaNetConfig import AdaNetConfig
 
 try:
     import AdamW
@@ -10,18 +12,19 @@ except ModuleNotFoundError:
     pass
 
 
-def objective_function(model, data, loss, gamma=.1) -> float:
+def objective_function(model: mx.gluon.HybridBlock,
+                       training_data_iterator: mx.io.NDArrayIter, loss: mx.gluon.loss.Loss,
+                       gamma=AdaNetConfig.GAMMA.value) -> nd.array:
     """
-    :param model:
-    :param trainer:
-    :param data:
+    :param model: Union[SuperCandidateHull, ModelTemplate]
+    :param training_data_iterator:
     :param loss:
     :param gamma:
     :return:
     """
-    data.reset()
+    training_data_iterator.reset()
     err_list = []
-    for batch_i, batch in enumerate(data):
+    for batch_i, batch in enumerate(training_data_iterator):
         pred = model(batch.data[0])[0][0]
         label = batch.label[0]
         error = loss(pred, label)
@@ -49,15 +52,15 @@ def calculate_l1(params: dict) -> float:
     return l1
 
 
-class CandidateTrainingloss(Loss):
+class CandidateTrainingLoss(Loss):
     def __init__(self,
                  weight=None,
                  candidate=None,
                  loss=None,
                  batch_axis=0,
-                 alpha=.07,
-                 beta=0.0001,
-                 gamma=.1,
+                 alpha=AdaNetConfig.ALPHA.value,
+                 beta=AdaNetConfig.BETA.value,
+                 gamma=AdaNetConfig.GAMMA.value,
                  **kwargs):
         """
         loss function which is used to train each candidate
@@ -66,10 +69,10 @@ class CandidateTrainingloss(Loss):
         added which consists of  complexity of the candidate and the L1-Norm applied
         to the candidate weights
         """
-        super(CandidateTrainingloss, self).__init__(weight, batch_axis, **kwargs)
+        super(CandidateTrainingLoss, self).__init__(weight, batch_axis, **kwargs)
 
-        self.a = alpha  # weight for the rade macher approximation
-        self.b = beta  # fixed added value to the weightend rademacher approximation
+        self.a = alpha  # weight for the rademacher approximation
+        self.b = beta  # fixed added value to the weighted rademacher approximation
         self.g = gamma  # weight of the combined complexity of L1 and rademacher approximation
 
         self.coreLoss = loss  # in template, the loss function is passed initialized!!!!
@@ -88,10 +91,10 @@ class CandidateTrainingloss(Loss):
         self.model.update_complexity(reg_term)
 
         # calculate the actual loss and add the regularization term
-        l = self.coreLoss(x, label)
-        ad = F.multiply(F.ones(l.shape), reg_term * self.g)
+        core_loss = self.coreLoss(x, label)
+        ad = F.multiply(F.ones(core_loss.shape), reg_term * self.g)
 
-        res = F.add(l, ad)
+        res = F.add(core_loss, ad)
 
         return res
 
@@ -101,9 +104,8 @@ class AdaLoss(Loss):
     objective function of the whole model
     """
 
-    def __init__(self, weight=None, model=None, loss=None, loss_args=(True,), batch_axis=0, lamb=0.0001, gamma=.1,
-                 beta=.0001,
-                 **kwargs):
+    def __init__(self, weight=None, model=None, loss=None, batch_axis=0, lamb=AdaNetConfig.LAMBDA.value,
+                 gamma=AdaNetConfig.GAMMA.value, beta=AdaNetConfig.BETA.value, **kwargs):
         super(AdaLoss, self).__init__(weight, batch_axis, **kwargs)
         self.g = gamma
         self.coreLoss = loss
@@ -112,26 +114,26 @@ class AdaLoss(Loss):
         self.lamb = lamb
         self.beta = beta
 
-    def hybrid_forward(self, F, x, label):
+    def hybrid_forward(self, F, x, label, **kwargs):
         cl = self.coreLoss(x, label)
         l1 = calculate_l1(self.model.out.collect_params())
         reg_term = F.sum(((self.lamb * self.c_complexities) + self.beta) * l1)
         return F.add(cl, reg_term * self.g)
 
 
-def fitComponent(trainIter: mx.io.NDArrayIter, trainer: mx.gluon.Trainer, epochs: int, component: gluon.HybridBlock,
-                 loss_class: gluon.loss, loss_params: dict, model_flag: bool) -> List[
-    float]:
+def fit_component(train_data_iterator: mx.io.NDArrayIter, trainer: mx.gluon.Trainer, epochs: int,
+                  component: gluon.HybridBlock,
+                  loss_class: gluon.loss, loss_params: dict, model_flag: bool) -> List[float]:
     """
     function trains a component of the generated model.
-    expects a compoment, a trainern instance with corresponding parameters.
+    expects a component, a trainer instance with corresponding parameters.
 
     """
     loss_list = []
     loss = loss_class(**loss_params)
     for epoch in range(epochs):
-        trainIter.reset()
-        for batch_i, batch in enumerate(trainIter):
+        train_data_iterator.reset()
+        for batch_i, batch in enumerate(train_data_iterator):
             with autograd.record():
                 data = batch.data[0]
                 label = batch.label[0]
@@ -149,18 +151,22 @@ def fitComponent(trainIter: mx.io.NDArrayIter, trainer: mx.gluon.Trainer, epochs
     return loss_list
 
 
-def train_candidate(candidate, epochs: int, optimizer: str, optimizer_params: dict, trainIter, loss: Loss) -> List[float]:
+def train_candidate(candidate, epochs: int, optimizer: str, optimizer_params: dict,
+                    train_data_iterator: mx.io.NDArrayIter, loss: Loss) -> List[float]:
     candidate_trainer = get_trainer(optimizer, candidate.collect_params(), optimizer_params)
-    return fitComponent(trainIter=trainIter, trainer=candidate_trainer, epochs=epochs, component=candidate,
-                        loss_class=CandidateTrainingloss, loss_params={'loss': loss, 'candidate': candidate},
-                        model_flag=False)
+    return fit_component(train_data_iterator=train_data_iterator, trainer=candidate_trainer, epochs=epochs,
+                         component=candidate,
+                         loss_class=CandidateTrainingLoss, loss_params={'loss': loss, 'candidate': candidate},
+                         model_flag=False)
 
 
-def train_model(candidate, epochs: int, optimizer: str, optimizer_params: dict, trainIter, loss: Loss) -> List[float]:
+def train_model(candidate, epochs: int, optimizer: str, optimizer_params: dict, train_data_iterator: mx.io.NDArrayIter,
+                loss: Loss) -> List[float]:
     params = candidate.out.collect_params()
     model_trainer = get_trainer(optimizer=optimizer, parameters=params, optimizer_params=optimizer_params)
-    return fitComponent(trainIter=trainIter, trainer=model_trainer, epochs=epochs, component=candidate,
-                        loss_class=AdaLoss, loss_params={'loss': loss, 'model': candidate}, model_flag=True)
+    return fit_component(train_data_iterator=train_data_iterator, trainer=model_trainer, epochs=epochs,
+                         component=candidate,
+                         loss_class=AdaLoss, loss_params={'loss': loss, 'model': candidate}, model_flag=True)
 
 
 def get_trainer(optimizer: str, parameters: mx.gluon.ParameterDict, optimizer_params: dict) -> mx.gluon.Trainer:
