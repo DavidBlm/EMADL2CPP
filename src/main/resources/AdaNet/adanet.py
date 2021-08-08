@@ -2,13 +2,14 @@
     this module exposes the fit function for the AdaNet algorithm which returns a newly designed model
 """
 import CoreAdaNet
-import AdaNetDefault as adaDefault
+import AdaNetDefault as DefaultAda
 
-import adaNetUtils as anu
+import adaNetUtils as anUtils
 import numpy as np
 import mxnet as mx
 from mxnet import gluon
 from mxnet import ndarray as nd
+from AdaNetConfig import AdaNetConfig
 
 
 def fit(loss: gluon.loss.Loss,
@@ -16,30 +17,28 @@ def fit(loss: gluon.loss.Loss,
         epochs: int,
         optimizer_params: dict,
         train_iter,
-        dataClass,
-        T=100,
+        data_class,
         batch_size=10,
         ctx=None,
         logging=None
         ) -> gluon.HybridBlock:
     logging.info(f"AdaNet: starting with {epochs} epochs and batch_size:{batch_size} ...")
 
-    cg = adaDefault.Builder(batch_size=batch_size, model_shape=dataClass.model_shape, optimizer=optimizer,
-                            optimizer_params=optimizer_params, loss=loss, build_operation=dataClass.block,
-                            in_block=dataClass.inBlock, out_block=dataClass.outBlock, ctx=ctx, epochs=epochs,
+    cg = DefaultAda.Builder(batch_size=batch_size, model_shape=data_class.model_shape, optimizer=optimizer,
+                            optimizer_params=optimizer_params, loss=loss, build_operation=data_class.block,
+                            in_block=data_class.inBlock, out_block=data_class.outBlock, ctx=ctx, epochs=epochs,
                             train_iterator=train_iter)
     model_template = CoreAdaNet.ModelTemplate
     model_operations = {}
     model_score = None
-    model = model_template(model_operations, batch_size=batch_size, model_shape=dataClass.model_shape)
+    model = model_template(model_operations, batch_size=batch_size, model_shape=data_class.model_shape)
 
     if ctx is None:
         ctx = mx.gpu() if mx.context.num_gpus() else mx.cpu()
 
     model.initialize(ctx=ctx)
 
-    for rnd in range(T):
-
+    for rnd in range(AdaNetConfig.MAX_NUM_ROUNDS.value):
         candidates = cg.get_candidates()
         model_data = {}
         for name, data in candidates.items():
@@ -53,15 +52,15 @@ def fit(loss: gluon.loss.Loss,
 
             # create new model
             candidate_model = model_template(operations=candidate_op, batch_size=batch_size,
-                                             model_shape=dataClass.model_shape, )
+                                             model_shape=data_class.model_shape, )
 
             candidate_model.out.initialize(ctx=ctx)
 
             candidate_model.hybridize()
 
-            model_loss = anu.train_model(candidate_model, epochs, optimizer, optimizer_params, train_iter, loss,
-                                         batch_size=batch_size)
-            objective_score = anu.objective_function(model=candidate_model, data=train_iter, loss=loss)
+            model_loss = anUtils.train_model(candidate_model, epochs, optimizer, optimizer_params, train_iter, loss)
+            objective_score = anUtils.objective_function(model=candidate_model, training_data_iterator=train_iter,
+                                                         loss=loss)
 
             model_eval['model'] = candidate_model
             model_eval['score'] = objective_score
@@ -93,17 +92,17 @@ def fit(loss: gluon.loss.Loss,
                 old_score = nd.array(model_score)
                 model_score = nd.array(score)
             else:
-                logging.info("AdaNet: abort in Round {}/{}".format(rnd + 1, T))
+                logging.info("AdaNet: abort in Round {}/{}".format(rnd + 1, AdaNetConfig.MAX_NUM_ROUNDS.value))
                 # this is not a finally trained model!!
                 model = model_template(operations=model_operations, generation=False, batch_size=batch_size,
-                                       model_shape=dataClass.model_shape)
+                                       model_shape=data_class.model_shape)
                 model.hybridize()
                 model.initialize(ctx=ctx, force_reinit=True)
                 return model
 
         model_operations[operation.name] = operation
         cg.update()
-        round_msg = 'AdaNet:round: {}/{} finished,'.format(rnd + 1, T)
+        round_msg = 'AdaNet:round: {}/{} finished,'.format(rnd + 1, AdaNetConfig.MAX_NUM_ROUNDS.value)
         improvement = (1 - (model_score / old_score).asscalar()) * 100
         score_msg = 'current model score:{:.5f} improvement {:.5f}% current model node count:{}'.format(
             model_score.asscalar(), improvement, model.get_node_count())
