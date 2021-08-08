@@ -15,49 +15,36 @@ def fit(loss: gluon.loss.Loss,
         optimizer: str,
         epochs: int,
         optimizer_params: dict,
-        dataLoader,
         train_iter,
         dataClass,
-        shuffle_data: bool,
-        preprocessing: bool,
         T=100,
         batch_size=10,
         ctx=None,
         logging=None
         ) -> gluon.HybridBlock:
     logging.info(f"AdaNet: starting with {epochs} epochs and batch_size:{batch_size} ...")
-    #cg = dataClass.Builder(batch_size=batch_size)
-    bKWargs = {
-        'batch_size':batch_size, 'model_shape' :dataClass.model_shape, 'build_operation' : dataClass.block, 'train_iterator' : train_iter, 'in_block' : dataClass.inBlock, 'out_block' : dataClass.outBlock}
-    cg = adaDefault.Builder(**bKWargs)
+
+    cg = adaDefault.Builder(batch_size=batch_size, model_shape=dataClass.model_shape, optimizer=optimizer,
+                            optimizer_params=optimizer_params, loss=loss, build_operation=dataClass.block,
+                            in_block=dataClass.inBlock, out_block=dataClass.outBlock, ctx=ctx, epochs=epochs,
+                            train_iterator=train_iter)
     model_template = CoreAdaNet.ModelTemplate
     model_operations = {}
     model_score = None
-    model = model_template(model_operations, batch_size=batch_size,model_shape=dataClass.model_shape)
+    model = model_template(model_operations, batch_size=batch_size, model_shape=dataClass.model_shape)
+
     if ctx is None:
         ctx = mx.gpu() if mx.context.num_gpus() else mx.cpu()
 
     model.initialize(ctx=ctx)
-    '''
-    if preprocessing:
-        preproc_lib = "CNNPreprocessor_${tc.fileNameWithoutEnding?keep_after("CNNSupervisedTrainer_")}_executor"
-        train_iter, test_iter, data_mean, data_std, train_images, test_images = dataLoader.load_preprocessed_data(
-            batch_size, preproc_lib, shuffle_data)
-    else:
-        train_iter, test_iter, data_mean, data_std, train_images, test_images = dataLoader.load_data(batch_size,
-                                                                                                     shuffle_data)
-    '''
+
     for rnd in range(T):
-        # get new candidates
+
         candidates = cg.get_candidates()
-        can_count = len([x for x in candidates])
         model_data = {}
-        for name, candidate in candidates.items():
+        for name, data in candidates.items():
+            candidate, candidate_loss = data
             model_eval = {}
-            candidate.initialize(ctx=ctx)
-            candidate.hybridize()
-            candidate_loss = anu.train_candidate(candidate, epochs, optimizer, optimizer_params, train_iter, loss,
-                                                 batch_size=batch_size)
             model_name = name + '_model'
 
             # add the current candidate as operation
@@ -65,7 +52,8 @@ def fit(loss: gluon.loss.Loss,
             candidate_op[name] = candidate
 
             # create new model
-            candidate_model = model_template(operations=candidate_op, batch_size=batch_size,model_shape=dataClass.model_shape)
+            candidate_model = model_template(operations=candidate_op, batch_size=batch_size,
+                                             model_shape=dataClass.model_shape,)
 
             candidate_model.out.initialize(ctx=ctx)
 
@@ -106,7 +94,8 @@ def fit(loss: gluon.loss.Loss,
             else:
                 logging.info("AdaNet: abort in Round {}/{}".format(rnd + 1, T))
                 # this is not a finally trained model!!
-                model = model_template(operations=model_operations, generation=False, batch_size=batch_size,model_shape=dataClass.model_shape)
+                model = model_template(operations=model_operations, generation=False, batch_size=batch_size,
+                                       model_shape=dataClass.model_shape)
                 model.hybridize()
                 model.initialize(ctx=ctx, force_reinit=True)
                 return model
