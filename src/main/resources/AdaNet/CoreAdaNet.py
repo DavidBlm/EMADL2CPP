@@ -22,7 +22,7 @@ class SuperBuildingBlock(ABC, mxnet.gluon.HybridBlock):
         self.oc = None
 
     def get_emadl_repr(self) -> str:
-        return self.operation.__name__
+        return type(self.operation).__name__
 
     def count_nodes(self):
         if self.node_count is None:
@@ -67,7 +67,8 @@ class SuperCandidateHull(ABC, mxnet.gluon.HybridBlock):
             else:
                 self.output = None
             self.build()
-            self.finalOut = nn.Dense(units=int(np.prod(self.model_shape)), flatten=False)
+            self.units = int(np.prod(self.model_shape))
+            self.finalOut = nn.Dense(units=self.units, flatten=False)
 
     def get_complexity(self) -> float:
         """
@@ -169,46 +170,35 @@ class SuperBuilder(ABC):
         raise NotImplementedError
 
 
-class ModelTemplate(mxnet.gluon.HybridBlock):
-    def __init__(self, operations: dict, batch_size: int, model_shape: Tuple[int], generation: bool = True, **kwargs):
-        super(ModelTemplate, self).__init__(**kwargs)
-        self.AdaNet = True
-        self.op_names = []
-        self.generation = generation,
-        self.candidate_complexities = {}
-
+class SuperModelTemplate(ABC, mxnet.gluon.HybridBlock):
+    def __init__(self, operations: Dict[str, SuperCandidateHull], batch_size: int, model_shape: Tuple[int],
+                 generation: bool = True, **kwargs):
+        super(SuperModelTemplate, self).__init__(**kwargs)
         with self.name_scope():
+            self.operations = operations
+            self.AdaNet = True
+            self.op_names = []
+            self.generation = generation
+            self.candidate_complexities = {}
             self.batch_size = batch_size
             self.model_shape = model_shape
-            self.classes = int(np.prod(self.model_shape))
-            if operations is not None:
-                for name, operation in operations.items():
-                    self.__setattr__(name, operation)
-                    self.op_names.append(name)
-                    self.candidate_complexities[name] = operation.get_complexity()
-
-            self.out = nn.Dense(units=self.classes, flatten=True)
-
-    def get_node_count(self) -> int:
-        count = self.classes
-        for name in self.op_names:
-            count += self.__getattribute__(name).count_nodes()
-        return count
-
-    def hybrid_forward(self, F, x):
-        res_list = []
-        for name in self.op_names:
-            res_list.append(self.__getattribute__(name)(x))
-        if not res_list:
-            res_list = [F.identity(x)]
-        res = tuple(res_list)
-        y = F.concat(*res, dim=1)
-        y = self.out(y)
-        y = F.reshape(y, (1, 1, self.batch_size, *self.model_shape))
-        return y
+            self.units = int(np.prod(self.model_shape))
+            self.build()
+            self.out = nn.Dense(units=self.units, flatten=True)
+        pass
 
     def get_candidate_complexity(self):
         mean_complexity = zeros(len(self.op_names))
         for i, name in enumerate(self.op_names):
             mean_complexity[i] = self.candidate_complexities[name]
         return mean_complexity
+
+    @abstractmethod
+    def build(self) -> None:
+        raise NotImplementedError('this function builds your model is called by this superclass')
+
+    @abstractmethod
+    def get_emadl_repr(self) -> str:
+        raise NotImplementedError('fit this function to your building strategy')
+
+
