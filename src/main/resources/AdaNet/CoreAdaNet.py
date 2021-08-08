@@ -6,6 +6,7 @@ from typing import Tuple, Dict
 import mxnet.gluon
 import numpy as np
 import mxnet.gluon.nn as nn
+from mxnet.ndarray import zeros
 
 
 class BuildingBlock(ABC, mxnet.gluon.HybridBlock):
@@ -91,6 +92,7 @@ class CandidateHull(ABC, mxnet.gluon.HybridBlock):
         """
             this function builds the candidate based on the passed parameter provided by initialization
         """
+        raise NotImplementedError
         pass
 
     @abstractmethod
@@ -99,6 +101,7 @@ class CandidateHull(ABC, mxnet.gluon.HybridBlock):
             counts the nodes in this candidate
             should call count_nodes() of its building_block properties
         """
+        raise NotImplementedError
         pass
 
 
@@ -122,6 +125,7 @@ class Builder(ABC):
         """
             this fucntion returns a dictionary containing the trained candidates
         """
+        raise NotImplementedError
         pass
 
     @abstractmethod
@@ -129,4 +133,50 @@ class Builder(ABC):
         """
             :param up function to update the builder for its next round
         """
+        raise NotImplementedError
         pass
+
+
+class ModelTemplate(mxnet.gluon.HybridBlock):
+    def __init__(self, operations: dict, batch_size: int, model_shape: Tuple[int], generation: bool = True, **kwargs):
+        super(ModelTemplate, self).__init__(**kwargs)
+        self.AdaNet = True
+        self.op_names = []
+        self.generation = generation,
+        self.candidate_complexities = {}
+
+        with self.name_scope():
+            self.batch_size = batch_size
+            self.model_shape = model_shape
+            self.classes = int(np.prod(self.model_shape))
+            if operations is not None:
+                for name, operation in operations.items():
+                    self.__setattr__(name, operation)
+                    self.op_names.append(name)
+                    self.candidate_complexities[name] = operation.get_complexity()
+
+            self.out = nn.Dense(units=self.classes, activation=None, flatten=True)
+
+    def get_node_count(self) -> int:
+        count = self.classes
+        for name in self.op_names:
+            count += self.__getattribute__(name).count_nodes()
+        return count
+
+    def hybrid_forward(self, F, x):
+        res_list = []
+        for name in self.op_names:
+            res_list.append(self.__getattribute__(name)(x))
+        if not res_list:
+            res_list = [F.identity(x)]
+        res = tuple(res_list)
+        y = F.concat(*res, dim=1)
+        y = self.out(y)
+        y = F.reshape(y, (1, 1, self.batch_size, *self.model_shape))
+        return y
+
+    def get_candidate_complexity(self):
+        mean_complexity = zeros(len(self.op_names))
+        for i, name in enumerate(self.op_names):
+            mean_complexity[i] = self.candidate_complexities[name]
+        return mean_complexity
