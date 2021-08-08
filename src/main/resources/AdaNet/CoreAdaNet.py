@@ -108,8 +108,11 @@ class CandidateHull(ABC, mxnet.gluon.HybridBlock):
 class Builder(ABC):
     def __init__(self, batch_size: int,
                  model_shape: Tuple[int],
+                 loss: mxnet.gluon.loss.Loss,
                  build_operation: mxnet.gluon.HybridBlock,
                  train_iterator: mxnet.io.NDArrayIter,
+                 epochs: int,
+                 ctx: mxnet.context.Context,
                  in_block: mxnet.gluon.HybridBlock = None,
                  out_block: mxnet.gluon.HybridBlock = None,
                  **kwargs):
@@ -119,6 +122,9 @@ class Builder(ABC):
         self.input = in_block
         self.output = out_block
         self.train_iterator = train_iterator
+        self.loss = loss
+        self.ctx = ctx
+        self.epochs = epochs
 
     @abstractmethod
     def get_candidates(self) -> Dict:
