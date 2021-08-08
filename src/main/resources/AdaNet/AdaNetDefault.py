@@ -1,5 +1,6 @@
 import CoreAdaNet
 from typing import Dict, Tuple, List
+import mxnet as mx
 
 
 class CandidateHull(CoreAdaNet.SuperCandidateHull):
@@ -10,7 +11,7 @@ class CandidateHull(CoreAdaNet.SuperCandidateHull):
     def __init__(self, stack: int, **kwargs):
         self.names = []
         self.stack = stack
-        self.body = None
+        self.body: Dict[str, CoreAdaNet.SuperCandidateHull] = {}
         super(CandidateHull, self).__init__(**kwargs)
 
     def build(self) -> None:
@@ -46,6 +47,21 @@ class CandidateHull(CoreAdaNet.SuperCandidateHull):
         x = self.finalOut(x)
 
         return x
+
+    def get_emadl_repr(self) -> str:
+        emadl_str = ''
+        if self.input:
+            emadl_str += self.input.__name__
+        for op_name, op in self.body.items():
+            if emadl_str:
+                emadl_str += f'->\n{op.get_emadl_repr()}()'
+            else:
+                emadl_str += f'{op.get_emadl_repr()}()'
+        if self.output:
+            emadl_str += f'->\n{self.output.__name__}'
+        if emadl_str:
+            emadl_str += f'->\nFullyConnected(units={self.units})'
+        return emadl_str
 
 
 class Builder(CoreAdaNet.SuperBuilder):
@@ -84,3 +100,49 @@ class Builder(CoreAdaNet.SuperBuilder):
         """
         self.pre_stack += up
         self.round += 1
+
+
+class ModelTemplate(CoreAdaNet.SuperModelTemplate, mx.gluon.HybridBlock):
+    def __init__(self, **kwargs):
+        super(ModelTemplate, self).__init__(**kwargs)
+
+    def get_emadl_repr(self) -> str:
+        emadl_str = ''
+        op_strings: List[str] = []
+        for name, operation in self.operations.items():
+            op_strings.append(operation.get_emadl_repr())
+        if len(op_strings) > 1:
+            for op_string in op_strings:
+                if emadl_str:
+                    emadl_str += f'\n |{op_string}'
+                else:
+                    emadl_str += f'({op_string}'
+            emadl_str += ')->\nConcatenate()'
+        if emadl_str:
+            emadl_str += f'->\nFullyConnected(units={self.units})->'
+        return emadl_str
+
+    def build(self):
+        if self.operations is not None:
+            for name, operation in self.operations.items():
+                self.__setattr__(name, operation)
+                self.op_names.append(name)
+                self.candidate_complexities[name] = operation.get_complexity()
+
+    def get_node_count(self) -> int:
+        count = self.units
+        for name in self.op_names:
+            count += self.__getattribute__(name).count_nodes()
+        return count
+
+    def hybrid_forward(self, F, x):
+        res_list = []
+        for name in self.op_names:
+            res_list.append(self.__getattribute__(name)(x))
+        if not res_list:
+            res_list = [F.identity(x)]
+        res = tuple(res_list)
+        y = F.concat(*res, dim=1)
+        y = self.out(y)
+        y = F.reshape(y, (1, 1, self.batch_size, *self.model_shape))
+        return y

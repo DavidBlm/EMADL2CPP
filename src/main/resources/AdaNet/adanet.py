@@ -10,6 +10,7 @@ import mxnet as mx
 from mxnet import gluon
 from mxnet import ndarray as nd
 from AdaNetConfig import AdaNetConfig
+import AdaNetDefault
 
 
 def fit(loss: gluon.loss.Loss,
@@ -27,10 +28,10 @@ def fit(loss: gluon.loss.Loss,
                             optimizer_params=optimizer_params, loss=loss, build_operation=data_class.block,
                             in_block=data_class.inBlock, out_block=data_class.outBlock, ctx=ctx, epochs=epochs,
                             train_iterator=train_iter)
-    model_template = CoreAdaNet.ModelTemplate
+    model_template = AdaNetDefault.ModelTemplate
     model_operations = {}
     model_score = None
-    model = model_template(model_operations, batch_size=batch_size, model_shape=data_class.model_shape)
+    model = model_template(operations=model_operations, batch_size=batch_size, model_shape=data_class.model_shape)
 
     if ctx is None:
         ctx = mx.gpu() if mx.context.num_gpus() else mx.cpu()
@@ -92,12 +93,14 @@ def fit(loss: gluon.loss.Loss,
                 model_score = nd.array(score)
             else:
                 logging.info("AdaNet: abort in Round {}/{}".format(rnd + 1, AdaNetConfig.MAX_NUM_ROUNDS.value))
+
                 # this is not a finally trained model!!
-                model = model_template(operations=model_operations, generation=False, batch_size=batch_size,
-                                       model_shape=data_class.model_shape)
-                model.hybridize()
-                model.initialize(ctx=ctx, force_reinit=True)
-                return model
+                #model = model_template(operations=model_operations, generation=False, batch_size=batch_size,
+                #                       model_shape=data_class.model_shape)
+                #model.hybridize()
+                #model.initialize(ctx=ctx, force_reinit=True)
+                #logging.info(model.get_emadl_repr())
+                #return model
 
         model_operations[operation.name] = operation
         cg.update()
@@ -107,4 +110,9 @@ def fit(loss: gluon.loss.Loss,
             model_score.asscalar(), improvement, model.get_node_count())
         logging.info(round_msg + score_msg)
 
+    model = model_template(operations=model_operations, generation=False, batch_size=batch_size,
+                           model_shape=data_class.model_shape)
+    model.hybridize()
+    model.initialize(ctx=ctx, force_reinit=True)
+    logging.info(model.get_emadl_repr())
     return model
