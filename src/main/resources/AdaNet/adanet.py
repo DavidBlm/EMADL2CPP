@@ -20,8 +20,7 @@ def fit(loss: gluon.loss.Loss,
         data_class,
         batch_size=10,
         ctx=None,
-        logging=None
-        ) -> gluon.HybridBlock:
+        logging=None) -> gluon.HybridBlock:
     logging.info(f"AdaNet: starting with {epochs} epochs and batch_size:{batch_size} ...")
 
     cg = DefaultAda.Builder(batch_size=batch_size, model_shape=data_class.model_shape, optimizer=optimizer,
