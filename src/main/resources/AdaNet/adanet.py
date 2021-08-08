@@ -3,6 +3,7 @@
 """
 import CoreAdaNet
 import AdaNetDefault as adaDefault
+
 import adaNetUtils as anu
 import numpy as np
 import mxnet as mx
@@ -29,10 +30,10 @@ def fit(loss: gluon.loss.Loss,
     bKWargs = {
         'batch_size':batch_size, 'model_shape' :dataClass.model_shape, 'build_operation' : dataClass.block, 'train_iterator' : train_iter, 'in_block' : dataClass.inBlock, 'out_block' : dataClass.outBlock}
     cg = adaDefault.Builder(**bKWargs)
-    model_template = dataClass.model_template
+    model_template = CoreAdaNet.ModelTemplate
     model_operations = {}
     model_score = None
-    model = model_template(model_operations, batch_size=batch_size)
+    model = model_template(model_operations, batch_size=batch_size,model_shape=dataClass.model_shape)
     if ctx is None:
         ctx = mx.gpu() if mx.context.num_gpus() else mx.cpu()
 
@@ -64,7 +65,7 @@ def fit(loss: gluon.loss.Loss,
             candidate_op[name] = candidate
 
             # create new model
-            candidate_model = model_template(operations=candidate_op, batch_size=batch_size)
+            candidate_model = model_template(operations=candidate_op, batch_size=batch_size,model_shape=dataClass.model_shape)
 
             candidate_model.out.initialize(ctx=ctx)
 
@@ -105,7 +106,7 @@ def fit(loss: gluon.loss.Loss,
             else:
                 logging.info("AdaNet: abort in Round {}/{}".format(rnd + 1, T))
                 # this is not a finally trained model!!
-                model = model_template(operations=model_operations, generation=False, batch_size=batch_size)
+                model = model_template(operations=model_operations, generation=False, batch_size=batch_size,model_shape=dataClass.model_shape)
                 model.hybridize()
                 model.initialize(ctx=ctx, force_reinit=True)
                 return model
