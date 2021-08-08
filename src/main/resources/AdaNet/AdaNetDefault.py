@@ -51,14 +51,14 @@ class CandidateHull(CoreAdaNet.SuperCandidateHull):
     def get_emadl_repr(self) -> str:
         emadl_str = ''
         if self.input:
-            emadl_str += self.input.__name__
+            emadl_str += f'{type(self.input).__name__}()'
         for op_name, op in self.body.items():
             if emadl_str:
                 emadl_str += f'->\n{op.get_emadl_repr()}()'
             else:
                 emadl_str += f'{op.get_emadl_repr()}()'
         if self.output:
-            emadl_str += f'->\n{self.output.__name__}'
+            emadl_str += f'->\n{type(self.output).__name__}()'
         if emadl_str:
             emadl_str += f'->\nFullyConnected(units={self.units})'
         return emadl_str
