@@ -2,7 +2,7 @@
     this module provides the abstract classes as well as concrete classes for the AdaNet algorithm components
 """
 from abc import ABC, abstractmethod
-from typing import Tuple, Dict, List, AnyStr
+from typing import Tuple, Dict, List
 import mxnet.gluon
 import numpy as np
 import mxnet.gluon.nn as nn
@@ -64,7 +64,7 @@ class SuperCandidateHull(ABC, mxnet.gluon.HybridBlock):
             else:
                 self.output = None
             self.build()
-            self.finalOut = nn.Dense(units=int(np.prod(self.model_shape)), activation=None, flatten=False)
+            self.finalOut = nn.Dense(units=int(np.prod(self.model_shape)), flatten=False)
 
     def get_complexity(self) -> float:
         """
@@ -134,15 +134,14 @@ class SuperBuilder(ABC):
         candidate.hybridize()
         candidate_loss = train_candidate(candidate, epochs=self.epochs, optimizer=self.optimizer,
                                          optimizer_params=self.optimizer_params, loss=self.loss,
-                                         trainIter=self.train_iterator)
+                                         train_data_iterator=self.train_iterator)
         return candidate_loss
-
 
     @abstractmethod
     def get_candidates(self) -> Dict[str, Tuple[SuperCandidateHull, List[float]]]:
         """
-            this fucntion returns a dictionary containing the trained candidates
-            key: name of the candidte
+            this function returns a dictionary containing the trained candidates
+            key: name of the candidate
             data: tuple of size 2,
                 (candidate,training_loss)
         """
@@ -174,7 +173,7 @@ class ModelTemplate(mxnet.gluon.HybridBlock):
                     self.op_names.append(name)
                     self.candidate_complexities[name] = operation.get_complexity()
 
-            self.out = nn.Dense(units=self.classes, activation=None, flatten=True)
+            self.out = nn.Dense(units=self.classes, flatten=True)
 
     def get_node_count(self) -> int:
         count = self.classes
