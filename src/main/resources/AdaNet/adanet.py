@@ -53,7 +53,7 @@ def fit(loss: gluon.loss.Loss,
 
             # create new model
             candidate_model = model_template(operations=candidate_op, batch_size=batch_size,
-                                             model_shape=dataClass.model_shape,)
+                                             model_shape=dataClass.model_shape, )
 
             candidate_model.out.initialize(ctx=ctx)
 
@@ -62,6 +62,7 @@ def fit(loss: gluon.loss.Loss,
             model_loss = anu.train_model(candidate_model, epochs, optimizer, optimizer_params, train_iter, loss,
                                          batch_size=batch_size)
             objective_score = anu.objective_function(model=candidate_model, data=train_iter, loss=loss)
+
             model_eval['model'] = candidate_model
             model_eval['score'] = objective_score
             model_eval['operation'] = candidate

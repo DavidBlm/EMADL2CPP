@@ -120,7 +120,7 @@ class AdaLoss(Loss):
 
 
 def fitComponent(trainIter: mx.io.NDArrayIter, trainer: mx.gluon.Trainer, epochs: int, component: gluon.HybridBlock,
-                 loss_class: gluon.loss, loss_params: dict, model_flag: bool, batch_size: int, log_period=100) -> List[
+                 loss_class: gluon.loss, loss_params: dict, model_flag: bool) -> List[
     float]:
     """
     function trains a component of the generated model.
@@ -143,31 +143,27 @@ def fitComponent(trainIter: mx.io.NDArrayIter, trainer: mx.gluon.Trainer, epochs
             error.backward()
             trainer.step(data.shape[0], ignore_stale_grad=True)
 
-        #    if batch_i%log_period==0:
         loss_avg = error.mean().asscalar()
         loss_list.append(loss_avg)
-        # logging.info("In Epoch[%d] trained %s with average Loss: %.5f" % (epoch, 'model'if model_flag else component.name_,loss_avg))
+
     return loss_list
 
 
-def train_candidate(candidate, epochs: int, optimizer: str, optimizer_params: dict, trainIter, loss: Loss,
-                    batch_size: int) -> List[float]:
+def train_candidate(candidate, epochs: int, optimizer: str, optimizer_params: dict, trainIter, loss: Loss) -> List[float]:
     candidate_trainer = get_trainer(optimizer, candidate.collect_params(), optimizer_params)
     return fitComponent(trainIter=trainIter, trainer=candidate_trainer, epochs=epochs, component=candidate,
                         loss_class=CandidateTrainingloss, loss_params={'loss': loss, 'candidate': candidate},
-                        model_flag=False, batch_size=batch_size)
+                        model_flag=False)
 
 
-def train_model(candidate, epochs: int, optimizer: str, optimizer_params: dict, trainIter, loss: Loss,
-                batch_size: int) -> List[float]:
+def train_model(candidate, epochs: int, optimizer: str, optimizer_params: dict, trainIter, loss: Loss) -> List[float]:
     params = candidate.out.collect_params()
-    model_trainer = get_trainer(optimizer, params, optimizer_params)
+    model_trainer = get_trainer(optimizer=optimizer, parameters=params, optimizer_params=optimizer_params)
     return fitComponent(trainIter=trainIter, trainer=model_trainer, epochs=epochs, component=candidate,
-                        loss_class=AdaLoss, loss_params={'loss': loss, 'model': candidate}, model_flag=True,
-                        batch_size=batch_size)
+                        loss_class=AdaLoss, loss_params={'loss': loss, 'model': candidate}, model_flag=True)
 
 
-def get_trainer(optimizer: str, parameters: dict, optimizer_params: dict) -> mx.gluon.Trainer:
+def get_trainer(optimizer: str, parameters: mx.gluon.ParameterDict, optimizer_params: dict) -> mx.gluon.Trainer:
     # gluon.Trainer doesnt take a ctx
     if optimizer == 'Adamw':
         trainer = mx.gluon.Trainer(parameters, AdamW.AdamW(**optimizer_params))
