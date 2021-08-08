@@ -114,7 +114,7 @@ class ModelTemplate(CoreAdaNet.SuperModelTemplate, mx.gluon.HybridBlock):
         if len(op_strings) > 1:
             for op_string in op_strings:
                 if emadl_str:
-                    emadl_str += f'\n |{op_string}'
+                    emadl_str += f'|{op_string}'
                 else:
                     emadl_str += f'({op_string}'
             emadl_str += ')->\nConcatenate()'
