@@ -93,7 +93,7 @@ def fit(loss: gluon.loss.Loss,
                 model_score = nd.array(score)
             else:
                 logging.info("AdaNet: abort in Round {}/{}".format(rnd + 1, AdaNetConfig.MAX_NUM_ROUNDS.value))
-
+                break
                 # this is not a finally trained model!!
                 #model = model_template(operations=model_operations, generation=False, batch_size=batch_size,
                 #                       model_shape=data_class.model_shape)
