@@ -10,6 +10,21 @@ from mxnet.ndarray import zeros
 from adaNetUtils import train_candidate
 from AdaNetConfig import AdaNetConfig
 
+class DataClass:
+    """
+        this object holds all the necessary information for AdaNet
+    """
+
+    def __init__(self, outBlock: mxnet.gluon.HybridBlock, inBlock: mxnet.gluon.HybridBlock,
+                 block: mxnet.gluon.HybridBlock, model_shape: Tuple[int], **kwargs):
+        FullyConnected = AdaNetConfig.DEFAULT_BLOCK.value
+        self.inBlock = inBlock
+        self.block = block
+        if self.block is AdaNetConfig.DEFAULT_BLOCK.value:
+            self.block = DefaultBuildingBlock
+        self.outBlock = outBlock
+        self.model_shape = model_shape
+
 
 class DefaultBuildingBlock(mxnet.gluon.HybridBlock):
     def __init__(self, **kwargs):
