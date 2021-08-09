@@ -76,7 +76,7 @@ public class EMADLGenerator implements EMAMGenerator {
     private String modelsPath;
     private String customFilesPath = "";
     private String pythonPath = "";
-
+    private String adaNetUtils = "./src/main/resources/AdaNet/";
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
     public EMADLGenerator(Backend backend) {
@@ -88,6 +88,14 @@ public class EMADLGenerator implements EMAMGenerator {
         pythonWrapper = new GeneratorPythonWrapperStandaloneApi();
         cnnArchGenerator = backend.getCNNArchGenerator();
         cnnTrainGenerator = backend.getCNNTrainGenerator();
+    }
+
+    public String getAdaNetUtils() {
+        return adaNetUtils;
+    }
+
+    public void setAdaNetUtils(String adaNetUtils) {
+        this.adaNetUtils = adaNetUtils;
     }
 
     public String getModelsPath() {
@@ -313,6 +321,7 @@ public class EMADLGenerator implements EMAMGenerator {
         List<String> newHashes = new ArrayList<>();
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
             Optional<ArchitectureSymbol> architecture = componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+            // added for future use if one wants to change the location of the AdaNet python files
 
             if(!architecture.isPresent()) {
                 continue;
@@ -723,6 +732,9 @@ public class EMADLGenerator implements EMAMGenerator {
         /* */
 
         Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+
+        // set the path to AdaNet python files
+        architecture.ifPresent(architectureSymbol -> {architectureSymbol.setAdaNetUtils(getAdaNetUtils());});
         Optional<MathStatementsSymbol> mathStatements = EMAComponentSymbol.getSpannedScope().resolve("MathStatements", MathStatementsSymbol.KIND);
 
         EMADLCocos.checkAll(componentInstanceSymbol);
