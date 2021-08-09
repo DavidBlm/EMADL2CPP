@@ -17,8 +17,8 @@ def fit(loss: gluon.loss.Loss,
         optimizer: str,
         epochs: int,
         optimizer_params: dict,
-        train_iter,
-        data_class,
+        train_iter: mx.io.NDArrayIter,
+        data_class: CoreAdaNet.DataClass,
         batch_size=10,
         ctx=None,
         logging=None) -> gluon.HybridBlock:
@@ -94,13 +94,6 @@ def fit(loss: gluon.loss.Loss,
             else:
                 logging.info("AdaNet: abort in Round {}/{}".format(rnd + 1, AdaNetConfig.MAX_NUM_ROUNDS.value))
                 break
-                # this is not a finally trained model!!
-                #model = model_template(operations=model_operations, generation=False, batch_size=batch_size,
-                #                       model_shape=data_class.model_shape)
-                #model.hybridize()
-                #model.initialize(ctx=ctx, force_reinit=True)
-                #logging.info(model.get_emadl_repr())
-                #return model
 
         model_operations[operation.name] = operation
         cg.update()
