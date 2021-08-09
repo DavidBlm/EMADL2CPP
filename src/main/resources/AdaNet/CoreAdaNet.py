@@ -8,6 +8,20 @@ import numpy as np
 import mxnet.gluon.nn as nn
 from mxnet.ndarray import zeros
 from adaNetUtils import train_candidate
+from AdaNetConfig import AdaNetConfig
+
+
+class DefaultBuildingBlock(mxnet.gluon.HybridBlock):
+    def __init__(self, **kwargs):
+        super(DefaultBuildingBlock, self).__init__(**kwargs)
+        with self.name_scope():
+            self.operation = nn.Dense(**AdaNetConfig.DEFAULT_BLOCK_ARGS.value)
+
+    def get_emadl_repr(self) -> str:
+        return f"{AdaNetConfig.DEFAULT_BLOCK.value}(units={AdaNetConfig.DEFAULT_BLOCK_ARGS.value['units']})"
+
+    def hybrid_forward(self, F, x, *args, **kwargs):
+        return self.operation(x)
 
 
 class SuperBuildingBlock(ABC, mxnet.gluon.HybridBlock):
@@ -200,5 +214,3 @@ class SuperModelTemplate(ABC, mxnet.gluon.HybridBlock):
     @abstractmethod
     def get_emadl_repr(self) -> str:
         raise NotImplementedError('fit this function to your building strategy')
-
-
