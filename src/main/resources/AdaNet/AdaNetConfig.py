@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class AdaNetConfig(Enum):
-    MAX_NUM_ROUNDS = 3
+    MAX_NUM_ROUNDS = 2
     GAMMA = .01
     ALPHA = .07
     BETA = .001

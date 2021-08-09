@@ -18,7 +18,7 @@ class DefaultBuildingBlock(mxnet.gluon.HybridBlock):
             self.operation = nn.Dense(**AdaNetConfig.DEFAULT_BLOCK_ARGS.value)
 
     def get_emadl_repr(self) -> str:
-        return f"{AdaNetConfig.DEFAULT_BLOCK.value}(units={AdaNetConfig.DEFAULT_BLOCK_ARGS.value['units']})"
+        return f"{AdaNetConfig.DEFAULT_BLOCK.value}(units={AdaNetConfig.DEFAULT_BLOCK_ARGS.value['units']})->\nRelu"
 
     def hybrid_forward(self, F, x, *args, **kwargs):
         return self.operation(x)
@@ -36,7 +36,12 @@ class SuperBuildingBlock(ABC, mxnet.gluon.HybridBlock):
         self.oc = None
 
     def get_emadl_repr(self) -> str:
-        return type(self.operation).__name__
+        if isinstance(self.operation, DefaultBuildingBlock):
+            res = self.operation.get_emadl_repr()
+        else:
+            res = type(self.operation).__name__
+
+        return res
 
     def count_nodes(self):
         if self.node_count is None:
