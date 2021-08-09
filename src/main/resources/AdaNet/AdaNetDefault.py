@@ -49,6 +49,9 @@ class CandidateHull(CoreAdaNet.SuperCandidateHull):
         return x
 
     def get_emadl_repr(self) -> str:
+        """
+            this function generates the emadl representation of this candidate model
+        """
         emadl_str = ''
         if self.input:
             emadl_str += f'{type(self.input).__name__}()'
@@ -107,6 +110,11 @@ class ModelTemplate(CoreAdaNet.SuperModelTemplate, mx.gluon.HybridBlock):
         super(ModelTemplate, self).__init__(**kwargs)
 
     def get_emadl_repr(self) -> str:
+        """
+            this function generates an EMADL representation of the generated model
+            replace the AdaNet call in the .emadl file with the generated string
+            to avoid restarting the model
+        """
         emadl_str = ''
         op_strings: List[str] = []
         for name, operation in self.operations.items():
@@ -118,11 +126,16 @@ class ModelTemplate(CoreAdaNet.SuperModelTemplate, mx.gluon.HybridBlock):
                 else:
                     emadl_str += f'({op_string}'
             emadl_str += ')->\nConcatenate()'
-        if emadl_str:
+        elif len(op_strings) == 1:
+            emadl_str += op_strings[0]
+        if emadl_str:  # this string should never be empty when this function gets called
             emadl_str += f'->\nFullyConnected(units={self.units})->'
         return emadl_str
 
     def build(self):
+        """
+            this function builds the actual model, is called by the superclasses constructor
+        """
         if self.operations is not None:
             for name, operation in self.operations.items():
                 self.__setattr__(name, operation)
