@@ -8,3 +8,6 @@ class AdaNetConfig(Enum):
     BETA = .001
     LAMBDA = 0.01
     DEFAULT_BLOCK = 'FullyConnected'
+    DEFAULT_BLOCK_ARGS = {'units': 10,
+                          'activation': 'relu',
+                          'flatten': True}
