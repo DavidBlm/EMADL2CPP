@@ -11,7 +11,7 @@ class CandidateHull(CoreAdaNet.SuperCandidateHull):
     def __init__(self, stack: int, **kwargs):
         self.names = []
         self.stack = stack
-        self.body: Dict[str, CoreAdaNet.SuperCandidateHull] = {}
+        self.body: Dict[str, CoreAdaNet.SuperBuildingBlock] = {}
         super(CandidateHull, self).__init__(**kwargs)
 
     def build(self) -> None:
@@ -55,13 +55,16 @@ class CandidateHull(CoreAdaNet.SuperCandidateHull):
         emadl_str = ''
         if self.input:
             emadl_str += f'{type(self.input).__name__}()'
-        for op_name, op in self.body.items():
-            if emadl_str:
-                emadl_str += f'->\n{op.get_emadl_repr()}()'
-            else:
-                emadl_str += f'{op.get_emadl_repr()}()'
+
+        block_emadl_string = self.body[self.names[0]].get_emadl_repr()
+
+        if self.stack > 1:
+            emadl_str += f'\n{block_emadl_string}(->={self.stack})'
+        else:
+            emadl_str += f'\n{block_emadl_string}()'
         if self.output:
             emadl_str += f'->\n{type(self.output).__name__}()'
+
         if emadl_str:
             emadl_str += f'->\nFullyConnected(units={self.units})'
         return emadl_str
@@ -87,7 +90,7 @@ class Builder(CoreAdaNet.SuperBuilder):
         candidates = {}
         for i in range(self.candidate_per_round):
             name = f'candidate{i}round{self.round}'
-            candidate = CandidateHull(name=name, in_block=self.input, out_block=self.output, stack=i + 1,
+            candidate = CandidateHull(name=name, in_block=self.input, out_block=self.output, stack=i + self.pre_stack,
                                       model_shape=self.model_shape, building_block=self.build_operation)
             candidate_loss = self.train(candidate)
             candidates.setdefault(name, (candidate, candidate_loss))
@@ -116,18 +119,19 @@ class ModelTemplate(CoreAdaNet.SuperModelTemplate, mx.gluon.HybridBlock):
             to avoid restarting the model
         """
         emadl_str = ''
-        op_strings: List[str] = []
-        for name, operation in self.operations.items():
-            op_strings.append(operation.get_emadl_repr())
-        if len(op_strings) > 1:
-            for op_string in op_strings:
+        candidate_strings: List[str] = []
+        for name, candidate in self.operations.items():
+            candidate_strings.append(candidate.get_emadl_repr())
+        if len(candidate_strings) > 1:
+            for candidate_str in candidate_strings:
                 if emadl_str:
-                    emadl_str += f'|{op_string}'
+                    emadl_str += f'|{candidate_str}'
                 else:
-                    emadl_str += f'({op_string}'
+                    emadl_str += f'({candidate_str}'
             emadl_str += ')->\nConcatenate()'
-        elif len(op_strings) == 1:
-            emadl_str += op_strings[0]
+        elif len(candidate_strings) == 1:
+            emadl_str += candidate_strings[0]
+
         if emadl_str:  # this string should never be empty when this function gets called
             emadl_str += f'->\nFullyConnected(units={self.units})->'
         return emadl_str
