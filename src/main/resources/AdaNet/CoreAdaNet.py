@@ -10,6 +10,7 @@ from mxnet.ndarray import zeros
 from adaNetUtils import train_candidate
 from AdaNetConfig import AdaNetConfig
 
+
 class DataClass:
     """
         this object holds all the necessary information for AdaNet
@@ -24,19 +25,6 @@ class DataClass:
             self.block = DefaultBuildingBlock
         self.outBlock = outBlock
         self.model_shape = model_shape
-
-
-class DefaultBuildingBlock(mxnet.gluon.HybridBlock):
-    def __init__(self, **kwargs):
-        super(DefaultBuildingBlock, self).__init__(**kwargs)
-        with self.name_scope():
-            self.operation = nn.Dense(**AdaNetConfig.DEFAULT_BLOCK_ARGS.value)
-
-    def get_emadl_repr(self) -> str:
-        return f"{AdaNetConfig.DEFAULT_BLOCK.value}(units={AdaNetConfig.DEFAULT_BLOCK_ARGS.value['units']})->\nRelu"
-
-    def hybrid_forward(self, F, x, *args, **kwargs):
-        return self.operation(x)
 
 
 class SuperBuildingBlock(ABC, mxnet.gluon.HybridBlock):
@@ -74,6 +62,19 @@ class SuperBuildingBlock(ABC, mxnet.gluon.HybridBlock):
         return self.operation(x)
 
 
+class DefaultBuildingBlock(mxnet.gluon.HybridBlock):
+    def __init__(self, **kwargs):
+        super(DefaultBuildingBlock, self).__init__(**kwargs)
+        with self.name_scope():
+            self.operation = nn.Dense(**AdaNetConfig.DEFAULT_BLOCK_ARGS.value)
+
+    def get_emadl_repr(self) -> str:
+        return f"{AdaNetConfig.DEFAULT_BLOCK.value}(units={AdaNetConfig.DEFAULT_BLOCK_ARGS.value['units']})->\nRelu"
+
+    def hybrid_forward(self, F, x, *args, **kwargs):
+        return self.operation(x)
+
+
 class SuperCandidateHull(ABC, mxnet.gluon.HybridBlock):
     """
         this is a wrapper to resemble a ensemble candidate
@@ -92,14 +93,17 @@ class SuperCandidateHull(ABC, mxnet.gluon.HybridBlock):
             self.complexity = None
             self.rade = None
             self.model_shape = model_shape
+
             if in_block is not None:
                 self.input = in_block()
             else:
                 self.input = None
+
             if out_block is not None:
                 self.output = out_block()
             else:
                 self.output = None
+
             self.build()
             self.units = int(np.prod(self.model_shape))
             self.finalOut = nn.Dense(units=self.units, flatten=False)

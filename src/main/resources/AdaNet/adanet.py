@@ -22,7 +22,8 @@ def fit(loss: gluon.loss.Loss,
         batch_size=10,
         ctx=None,
         logging=None) -> gluon.HybridBlock:
-    logging.info(f"AdaNet: starting with {epochs} epochs and batch_size:{batch_size} ...")
+    logging.info(
+        f"AdaNet: starting with {epochs} epoch(s) per training with batch_size:{batch_size} and in max {AdaNetConfig.MAX_NUM_ROUNDS.value} rounds  ...")
 
     cg = DefaultAda.Builder(batch_size=batch_size, model_shape=data_class.model_shape, optimizer=optimizer,
                             optimizer_params=optimizer_params, loss=loss, build_operation=data_class.block,
@@ -88,7 +89,8 @@ def fit(loss: gluon.loss.Loss,
             old_score = nd.array(model_score)
         else:
             # if the new score is better than the old one continue else return current model
-            if score <= model_score:
+            improvement_in_percent = (1 - (model_score / old_score).asscalar()) * 100
+            if score <= model_score and ((improvement_in_percent >= .5) or improvement_in_percent == 0):
                 old_score = nd.array(model_score)
                 model_score = nd.array(score)
             else:
