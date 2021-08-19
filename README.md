@@ -102,3 +102,8 @@ configuration VGG16{
 
     Assuming both the architecture definition `VGG16.emadl` and the corresponding training configuration `VGG16.cnnt` are located in a folder `models` and the target code should be generated in  a `target` folder using the `MXNet` backend, an example of a command is then:  
     ```java -jar embedded-montiarc-emadl-generator-0.2.10-jar-with-dependencies.jar -m models -r VGG16 -o target -b MXNET```
+### AdaNet related changes
+There is a String variable within the EMADLGenerator "adaNetUtils" this variable holds the path to the AdaNet python files.
+This has been added for possible future work. An ArchitectureSymbol has the same variable and is ,for now, hardcoded to the same 
+value. Still it gets set by the EMADLGenerator. There is a Check in CNNArch that checks if the path has been changed. 
+The check ```CheckAdaNetPathToFilesExists```

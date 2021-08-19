@@ -184,7 +184,7 @@ public class EMADLGeneratorCli {
         emamGen.setGenerateTests(cliArgs.hasOption(OPTION_FLAG_TESTS.getOpt()));
 
         emamGen.setImportArmadillo(cliArgs.hasOption(OPTION_IMPORT_ARMADILLO.getLongOpt()));
-        emamGen.setGenerateLibraryInterface(cliArgs.hasOption(OPTION_FLAG_LIBRARY_INTERFACE.getLongOpt()));
+        emamGen.setGenerateDynamicInterface(cliArgs.hasOption(OPTION_FLAG_DYNAMIC_INTERFACE.getLongOpt()));
         emamGen.setGenerateServerAdapter(cliArgs.hasOption(OPTION_FLAG_GEN_TCP_SERVER.getLongOpt()));
         emamGen.setOutputName(cliArgs.getOptionValue(OPTION_OUTPUT_NAME.getOpt()));
         if (cliArgs.hasOption(OPTION_FLAG_ARMADILLO.getOpt())) {
