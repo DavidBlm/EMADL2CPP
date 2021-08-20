@@ -51,6 +51,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileSystem;
+import java.nio.file.StandardCopyOption;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -149,13 +154,48 @@ public class EMADLGenerator implements EMAMGenerator {
         return emamGen;
     }
 
+
+    private void copyPythonFilesFromResource(String folder) throws URISyntaxException, IOException {
+        // this function copys the passed folder to the generation target
+        // important for AdaNet
+        String jarPath = getClass().getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .toURI()
+                .getPath();
+        String target_path = getGenerationTargetPath() + folder;
+        if (!target_path.endsWith("/")) {
+            target_path = target_path + '/';
+        }
+        Files.createDirectories(Paths.get(target_path));
+        URI uri = URI.create("jar:file:" + jarPath);
+        try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
+            for (Path path : Files.walk(fs.getPath(folder)).filter(Files::isRegularFile).collect(Collectors.toList())) {
+                if (path.toString().endsWith(".py")) {
+                    String destination = target_path + path.getFileName();
+
+                    Files.copy(path, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+            setAdaNetUtils(getGenerationTargetPath()+"/"+folder+ "/");
+        }catch (UnsupportedOperationException e){
+            System.out.println("this should only be printed if the generator is run unpacked");
+        }
+    }
+
+
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile) throws IOException, TemplateException {
         processedArchitecture = new HashMap<>();
         setModelsPath( modelPath );
         setPythonPath(pythonPath);
         TaggingResolver symtab = getSymTabAndTaggingResolver();
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
-
+        try {
+            // copy the AdaNet files to
+            copyPythonFilesFromResource("AdaNet");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
 
         generateFiles(symtab, instance, pythonPath, forced);
 
