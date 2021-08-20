@@ -76,8 +76,7 @@ public class EMADLGenerator implements EMAMGenerator {
     private String modelsPath;
     private String customFilesPath = "";
     private String pythonPath = "";
-    private String adaNetUtils = "/AdaNet/";
-    private String adaNetFallBack = "./src/main/resources/AdaNet/";
+    private String adaNetUtils = "./src/main/resources/AdaNet/";
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
     public EMADLGenerator(Backend backend) {
@@ -174,13 +173,9 @@ public class EMADLGenerator implements EMAMGenerator {
                     Files.copy(path, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
                 }
             }
-
+            setAdaNetUtils(getGenerationTargetPath()+"/"+folder+ "/");
         }catch (UnsupportedOperationException e){
-            // this error only occures if not run as jar
-            // when setting the adaNetUtils it is checkd wherether getAdaNetUtils == adaNetFallback
-            // if yes then the import of adanEt is directet to the project resource path
-            // otherwise it is set to getGenerationTargetPath() + /AdaNet/
-            setAdaNetUtils(adaNetFallBack);
+            System.out.println("this should only be printed if the generator is run unpacked");
         }
     }
 
@@ -767,18 +762,7 @@ public class EMADLGenerator implements EMAMGenerator {
         Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
 
         // set the path to AdaNet python files
-        if(architecture.isPresent()){
-            if(getAdaNetUtils().equals(adaNetFallBack)){
-                // if you get here you are running the programm not packed
-                // the imports of AdaNet is changed to src/main/resources/AdaNet
-                architecture.get().setAdaNetUtils(getAdaNetUtils());
-            }else{
-                architecture.get().setAdaNetUtils(getGenerationTargetPath() + getAdaNetUtils());
-            }
-        };
-        //architecture.ifPresent(architectureSymbol -> {
-        //     architectureSymbol.setAdaNetUtils(getGenerationTargetPath() + getAdaNetUtils());
-        //});
+        architecture.ifPresent(architectureSymbol -> {architectureSymbol.setAdaNetUtils(getAdaNetUtils());});
         Optional<MathStatementsSymbol> mathStatements = EMAComponentSymbol.getSpannedScope().resolve("MathStatements", MathStatementsSymbol.KIND);
 
         EMADLCocos.checkAll(componentInstanceSymbol);
