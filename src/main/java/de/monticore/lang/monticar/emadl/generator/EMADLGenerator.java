@@ -53,8 +53,13 @@ import org.apache.commons.lang3.SystemUtils;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileSystem;
+import java.nio.file.StandardCopyOption;
 import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -103,46 +108,45 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     public void setModelsPath(String modelsPath) {
-        if (!(modelsPath.substring(modelsPath.length() - 1).equals("/"))) {
+        if (!(modelsPath.substring(modelsPath.length() - 1).equals("/"))){
             this.modelsPath = modelsPath + "/";
-        } else {
+        }
+        else {
             this.modelsPath = modelsPath;
         }
     }
 
-    public String getCustomFilesPath() {
-        return customFilesPath;
-    }
+    public String getCustomFilesPath() { return  customFilesPath; }
 
     public void setCustomFilesPath(String customPythonFilesPath) {
-        if (!(customPythonFilesPath.endsWith("/"))) {
+        if (!(customPythonFilesPath.endsWith("/"))){
             this.customFilesPath = customPythonFilesPath + "/";
-        } else {
+        }
+        else {
             this.customFilesPath = customPythonFilesPath;
         }
 
     }
 
-    public String getPythonPath() {
-        return pythonPath;
-    }
+    public String getPythonPath() {return pythonPath;}
 
-    public void setPythonPath(String pythonPath) {
-        if (!pythonPath.startsWith("/")) {
+    public void setPythonPath (String pythonPath){
+        if(!pythonPath.startsWith("/")){
             pythonPath = "/" + pythonPath;
         }
         this.pythonPath = pythonPath;
     }
 
-    public void setGenerationTargetPath(String generationTargetPath) {
-        if (!(generationTargetPath.substring(generationTargetPath.length() - 1).equals("/"))) {
+    public void setGenerationTargetPath(String generationTargetPath){
+        if (!(generationTargetPath.substring(generationTargetPath.length() - 1).equals("/"))){
             getEmamGen().setGenerationTargetPath(generationTargetPath + "/");
-        } else {
+        }
+        else {
             getEmamGen().setGenerationTargetPath(generationTargetPath);
         }
     }
 
-    public String getGenerationTargetPath() {
+    public String getGenerationTargetPath(){
         return getEmamGen().getGenerationTargetPath();
     }
 
@@ -182,7 +186,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile) throws IOException, TemplateException {
         processedArchitecture = new HashMap<>();
-        setModelsPath(modelPath);
+        setModelsPath( modelPath );
         setPythonPath(pythonPath);
         TaggingResolver symtab = getSymTabAndTaggingResolver();
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
@@ -205,7 +209,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private TaggingResolver getSymTabAndTaggingResolver() {
         BasicLibrary.extract();
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getCustomFilesPath(), getPythonPath(), this.backend, getModelsPath(),
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(getCustomFilesPath(), getPythonPath() ,this.backend, getModelsPath(),
                 Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
     }
 
@@ -222,7 +226,7 @@ public class EMADLGenerator implements EMAMGenerator {
         String componentName = splitName.get(splitName.size() - 1);
         String instanceName = componentName.substring(0, 1).toLowerCase() + componentName.substring(1);
 
-        if (component == null) {
+        if (component == null){
             String errMsg = "Component with name '" + componentName + "' does not exist.";
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
@@ -245,13 +249,13 @@ public class EMADLGenerator implements EMAMGenerator {
             pb.inheritIO();
             Process process = pb.start();
             int returnCode = process.waitFor();
-            if (returnCode != 0) {
+            if(returnCode != 0) {
                 String errMsg = "During compilation, an error occured. See above for more details.";
                 Log.error(errMsg);
                 throw new RuntimeException(errMsg);
             }
-        } catch (Exception e) {
-            String errMsg = "During compilation, the following error occured: '" + e.toString() + "'";
+        }catch(Exception e){
+            String errMsg ="During compilation, the following error occured: '" + e.toString() + "'";
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
         } finally {
@@ -259,7 +263,7 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-    public File createTempScript() throws IOException {
+    public File createTempScript() throws IOException{
         File tempScript = File.createTempFile("script", null);
         if (!SystemUtils.IS_OS_WINDOWS) {
             try {
@@ -316,7 +320,6 @@ public class EMADLGenerator implements EMAMGenerator {
             return "No_Such_Algorithm_Exception";
         }
     }
-
     public static String hex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
         for (byte aByte : bytes) {
@@ -350,7 +353,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         // train
         Map<String, String> fileContentMap = new HashMap<>();
-        for (FileContent f : fileContents) {
+        for(FileContent f : fileContents) {
             fileContentMap.put(f.getFileName(), f.getFileContent());
         }
 
@@ -360,11 +363,11 @@ public class EMADLGenerator implements EMAMGenerator {
             Optional<ArchitectureSymbol> architecture = componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
             // added for future use if one wants to change the location of the AdaNet python files
 
-            if (!architecture.isPresent()) {
+            if(!architecture.isPresent()) {
                 continue;
             }
 
-            if (forced.equals("n")) {
+            if(forced.equals("n")) {
                 continue;
             }
 
@@ -385,7 +388,7 @@ public class EMADLGenerator implements EMAMGenerator {
                 if (b.equals("CAFFE2")) {
                     trainingDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/train_lmdb/data.mdb");
                     testDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/test_lmdb/data.mdb");
-                } else {
+                }else{
                     trainingDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/train.h5");
                     testDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/test.h5");
                 }
@@ -393,27 +396,29 @@ public class EMADLGenerator implements EMAMGenerator {
             String trainingHash = emadlHash + "#" + cnntHash + "#" + trainingDataHash + "#" + testDataHash;
 
             boolean alreadyTrained = newHashes.contains(trainingHash) || isAlreadyTrained(trainingHash, componentInstance);
-            if (alreadyTrained && !forced.equals("y")) {
+            if(alreadyTrained && !forced.equals("y")) {
                 Log.warn("Training of model " + componentInstance.getFullName() + " skipped");
-            } else {
+            }
+            else {
                 String parsedFullName = componentInstance.getFullName().substring(0, 1).toLowerCase() + componentInstance.getFullName().substring(1).replaceAll("\\.", "_");
                 String trainerScriptName = "CNNTrainer_" + parsedFullName + ".py";
                 String trainingPath = getGenerationTargetPath() + trainerScriptName;
-                if (Files.exists(Paths.get(trainingPath))) {
+                if(Files.exists(Paths.get(trainingPath))){
                     ProcessBuilder pb = new ProcessBuilder(Arrays.asList(pythonPath, trainingPath)).inheritIO();
                     Process p = pb.start();
 
                     int exitCode = 0;
                     try {
                         exitCode = p.waitFor();
-                    } catch (InterruptedException e) {
+                    }
+                    catch(InterruptedException e) {
                         String errMsg = "Training aborted: exit code " + Integer.toString(exitCode);
 
                         Log.error(errMsg);
                         throw new RuntimeException(errMsg);
                     }
 
-                    if (exitCode != 0) {
+                    if(exitCode != 0) {
                         String errMsg = "Training failed: exit code " + Integer.toString(exitCode);
 
                         Log.error(errMsg);
@@ -422,7 +427,8 @@ public class EMADLGenerator implements EMAMGenerator {
 
                     fileContentsTrainingHashes.add(new FileContent(trainingHash, componentConfigFilename + ".training_hash"));
                     newHashes.add(trainingHash);
-                } else {
+                }
+                else{
                     System.out.println("Trainingfile " + trainingPath + " not found.");
                 }
             }
@@ -441,7 +447,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public List<File> generateCMakeFiles(EMAComponentInstanceSymbol componentInstanceSymbol) {
         List<File> files = new ArrayList<>();
-        if (componentInstanceSymbol != null) {
+        if(componentInstanceSymbol != null) {
             getCmakeConfig().getCMakeListsViewModel().setCompName(componentInstanceSymbol.getFullName().replace('.', '_').replace('[', '_').replace(']', '_'));
         }
         List<FileContent> contents = getCmakeConfig().generateCMakeFiles();
@@ -495,24 +501,25 @@ public class EMADLGenerator implements EMAMGenerator {
             String componentConfigFilename = component.getFullName().replaceAll("\\.", "/");
 
             String checkFilePathString = getGenerationTargetPath() + componentConfigFilename + ".training_hash";
-            Path checkFilePath = Paths.get(checkFilePathString);
-            if (Files.exists(checkFilePath)) {
+            Path checkFilePath = Paths.get( checkFilePathString);
+            if(Files.exists(checkFilePath)) {
                 List<String> hashes = Files.readAllLines(checkFilePath);
-                for (String hash : hashes) {
-                    if (hash.equals(trainingHash)) {
+                for(String hash : hashes) {
+                    if(hash.equals(trainingHash)) {
                         return true;
                     }
                 }
             }
 
             return false;
-        } catch (Exception e) {
+        }
+        catch(Exception e) {
             return false;
         }
     }
 
-    public List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Set<EMAComponentInstanceSymbol> allInstances, String forced) {
-        if (componentInstanceSymbol != null) {
+    public List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Set<EMAComponentInstanceSymbol> allInstances, String forced){
+        if(componentInstanceSymbol != null) {
             getCmakeConfig().getCMakeListsViewModel().setCompName(componentInstanceSymbol.getFullName().replace('.', '_').replace('[', '_').replace(']', '_'));
         }
 
@@ -554,7 +561,7 @@ public class EMADLGenerator implements EMAMGenerator {
         return fileContents;
     }
 
-    protected String getDataPath(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
+    protected String getDataPath(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance){
         List<TagSymbol> instanceTags = new LinkedList<>();
 
         boolean isChildComponent = instance.getEnclosingComponent().isPresent();
@@ -576,10 +583,11 @@ public class EMADLGenerator implements EMAMGenerator {
         List<TagSymbol> tags;
         if (!instanceTags.isEmpty()) {
             tags = instanceTags;
-        } else {
+        }
+        else {
             tags = Stream
-                    .concat(taggingResolver.getTags(component, DataPathSymbol.KIND).stream(), taggingResolver.getTags(component, DatasetArtifactSymbol.KIND).stream())
-                    .collect(Collectors.toList());
+                .concat(taggingResolver.getTags(component, DataPathSymbol.KIND).stream(), taggingResolver.getTags(component, DatasetArtifactSymbol.KIND).stream())
+                .collect(Collectors.toList());
         }
         String dataPath;
 
@@ -590,7 +598,8 @@ public class EMADLGenerator implements EMAMGenerator {
 
                 dataPath = dataPathSymbol.getPath();
                 Log.warn("Tagging info for DataPath symbol was found, ignoring data_paths.txt: " + dataPath);
-            } else {
+            }
+            else {
                 DatasetArtifactSymbol datasetArtifactSymbol = (DatasetArtifactSymbol) tags.get(0);
 
                 String localRepo = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
@@ -601,7 +610,8 @@ public class EMADLGenerator implements EMAMGenerator {
             stopGeneratorIfWarning();
 
 
-        } else {
+        }
+        else {
             Path dataPathDefinition = Paths.get(getModelsPath(), "data_paths.txt");
             if (dataPathDefinition.toFile().exists()) {
                 DataPathConfigParser newParserConfig = new DataPathConfigParser(getModelsPath() + "data_paths.txt");
@@ -616,7 +626,7 @@ public class EMADLGenerator implements EMAMGenerator {
         return dataPath;
     }
 
-    protected String getWeightsPath(EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
+    protected String getWeightsPath(EMAComponentSymbol component, EMAComponentInstanceSymbol instance){
         String weightsPath;
 
         Path weightsPathDefinition = Paths.get(getModelsPath(), "weights_paths.txt");
@@ -631,7 +641,7 @@ public class EMADLGenerator implements EMAMGenerator {
         return weightsPath;
     }
 
-    protected HashMap getLayerPathParameterTags(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
+    protected HashMap getLayerPathParameterTags(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance){
         List<TagSymbol> instanceTags = new LinkedList<>();
 
         boolean isChildComponent = instance.getEnclosingComponent().isPresent();
@@ -651,7 +661,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         HashMap layerPathParameterTags = new HashMap();
         if (!tags.isEmpty()) {
-            for (TagSymbol tag : tags) {
+            for(TagSymbol tag: tags) {
                 LayerPathParameterSymbol layerPathParameterSymbol = (LayerPathParameterSymbol) tag;
                 layerPathParameterTags.put(layerPathParameterSymbol.getId(), layerPathParameterSymbol.getPath());
             }
@@ -662,7 +672,7 @@ public class EMADLGenerator implements EMAMGenerator {
         return layerPathParameterTags;
     }
 
-    protected HashMap getLayerArtifactParameterTags(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
+    protected HashMap getLayerArtifactParameterTags(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance){
         List<TagSymbol> instanceTags = new LinkedList<>();
 
         boolean isChildComponent = instance.getEnclosingComponent().isPresent();
@@ -670,20 +680,20 @@ public class EMADLGenerator implements EMAMGenerator {
         if (isChildComponent) {
             // get all instantiated components of parent
             List<EMAComponentInstantiationSymbol> instantiationSymbols = (List<EMAComponentInstantiationSymbol>) instance
-                    .getEnclosingComponent().get().getComponentType().getReferencedSymbol().getSubComponents();
+                .getEnclosingComponent().get().getComponentType().getReferencedSymbol().getSubComponents();
 
             // filter corresponding instantiation of instance and add tags
             instantiationSymbols.stream().filter(e -> e.getName().equals(instance.getName())).findFirst()
-                    .ifPresent(symbol -> instanceTags.addAll(taggingResolver.getTags(symbol, LayerArtifactParameterSymbol.KIND)));
+                .ifPresent(symbol -> instanceTags.addAll(taggingResolver.getTags(symbol, LayerArtifactParameterSymbol.KIND)));
         }
 
         List<TagSymbol> tags = !instanceTags.isEmpty() ? instanceTags
-                : (List<TagSymbol>) taggingResolver.getTags(component, LayerArtifactParameterSymbol.KIND);
+            : (List<TagSymbol>) taggingResolver.getTags(component, LayerArtifactParameterSymbol.KIND);
 
         HashMap layerArtifactParameterTags = new HashMap();
         String localRepo = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
         if (!tags.isEmpty()) {
-            for (TagSymbol tag : tags) {
+            for(TagSymbol tag: tags) {
                 LayerArtifactParameterSymbol layerArtifactParameterSymbol = (LayerArtifactParameterSymbol) tag;
                 String path = getArtifactDestination(localRepo, layerArtifactParameterSymbol.getArtifact(), layerArtifactParameterSymbol.getJar());
                 layerArtifactParameterTags.put(layerArtifactParameterSymbol.getId(), path);
@@ -698,7 +708,8 @@ public class EMADLGenerator implements EMAMGenerator {
         String destinationPath = localRepo + File.separator + artifact + File.separator + jar;
         try {
             unzipJar(destinationPath);
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
         return destinationPath;
@@ -725,7 +736,8 @@ public class EMADLGenerator implements EMAMGenerator {
 
             if (outputFile.isDirectory()) {
                 outputFile.mkdirs();
-            } else {
+            }
+            else {
                 BufferedInputStream is = new BufferedInputStream(zipFile.getInputStream(jarEntry));
                 int currentByte;
                 byte data[] = new byte[1024];
@@ -748,7 +760,7 @@ public class EMADLGenerator implements EMAMGenerator {
     protected void generateComponent(List<FileContent> fileContents,
                                      Set<EMAComponentInstanceSymbol> allInstances,
                                      TaggingResolver taggingResolver,
-                                     EMAComponentInstanceSymbol componentInstanceSymbol) {
+                                     EMAComponentInstanceSymbol componentInstanceSymbol){
         emamGen.addSemantics(taggingResolver, componentInstanceSymbol);
 
         allInstances.add(componentInstanceSymbol);
@@ -767,7 +779,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         EMADLCocos.checkAll(componentInstanceSymbol);
 
-        if (architecture.isPresent()) {
+        if (architecture.isPresent()){
             cnnArchGenerator.check(architecture.get());
             String dPath = getDataPath(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
             String wPath = getWeightsPath(EMAComponentSymbol, componentInstanceSymbol);
@@ -777,36 +789,38 @@ public class EMADLGenerator implements EMAMGenerator {
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());
-            if (!getCustomFilesPath().equals("")) {
+            if(!getCustomFilesPath().equals("")) {
                 architecture.get().setCustomPyFilesPath(getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
             }
             generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
             }
-        } else if (mathStatements.isPresent()) {
+        }
+        else if (mathStatements.isPresent()){
             generateMathComponent(fileContents, taggingResolver, componentInstanceSymbol, mathStatements.get());
-        } else {
+        }
+        else {
             generateSubComponents(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
         }
     }
 
-    private void fixArmadilloImports(List<FileContent> fileContents) {
-        for (FileContent fileContent : fileContents) {
+    private void fixArmadilloImports(List<FileContent> fileContents){
+        for (FileContent fileContent : fileContents){
             fileContent.setFileContent(fileContent.getFileContent()
                     .replaceFirst("#include \"armadillo.h\"",
                             "#include \"armadillo\""));
         }
     }
 
-    public void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture) {
+    public void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture){
         List<FileContent> contents = cnnArchGenerator.generateStrings(taggingResolver, architecture);
         String fullName = instance.getFullName().replaceAll("\\.", "_");
 
         //get the components execute method
         String executeKey = "execute_" + fullName;
         List<String> executeMethods = getContentOf(contents, executeKey);
-        if (executeMethods.size() != 1) {
+        if (executeMethods.size() != 1){
             throw new IllegalStateException("execute method of " + fullName + " not found");
         }
         String executeMethod = executeMethods.get(0);
@@ -814,7 +828,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         List<String> applyBeamSearchMethods = getContentOf(contents, "BeamSearch_" + fullName);
         String applyBeamSearchMethod = null;
-        if (applyBeamSearchMethods.size() == 1) {
+        if (applyBeamSearchMethods.size() == 1){
             applyBeamSearchMethod = applyBeamSearchMethods.get(0);
         }
 
@@ -839,7 +853,7 @@ public class EMADLGenerator implements EMAMGenerator {
                 .collect(Collectors.toList());
     }
 
-    protected String transformComponent(String component, String predictorClassName, String applyBeamSearchMethod, String executeMethod, ArchitectureSymbol architecture) {
+    protected String transformComponent(String component, String predictorClassName, String applyBeamSearchMethod, String executeMethod, ArchitectureSymbol architecture){
         //insert includes
         component = component.replaceFirst("using namespace",
                 "#include \"" + predictorClassName + ".h" + "\"\n" +
@@ -867,13 +881,13 @@ public class EMADLGenerator implements EMAMGenerator {
         return component;
     }
 
-    public void generateMathComponent(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, MathStatementsSymbol mathStatementsSymbol) {
+    public void generateMathComponent(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, MathStatementsSymbol mathStatementsSymbol){
         fileContents.add(new FileContent(
                 emamGen.generateString(taggingResolver, EMAComponentSymbol, mathStatementsSymbol),
                 EMAComponentSymbol));
     }
 
-    public void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) {
+    public void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol){
         fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol));
         String lastNameWithoutArrayPart = "";
         for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) {
@@ -895,14 +909,17 @@ public class EMADLGenerator implements EMAMGenerator {
         String trainConfigFilename;
         String mainComponentConfigFilename = mainComponentName.replaceAll("\\.", "/");
         String componentConfigFilename = componentFullName.replaceAll("\\.", "/");
-        String instanceConfigFilename = componentFullName.replaceAll("\\.", "/") + "_" + componentName;
-        if (Files.exists(Paths.get(getModelsPath() + instanceConfigFilename + ".cnnt"))) {
+        String instanceConfigFilename = componentFullName.replaceAll("\\.", "/") + "_"  + componentName;
+        if (Files.exists(Paths.get( getModelsPath() + instanceConfigFilename + ".cnnt"))) {
             trainConfigFilename = instanceConfigFilename;
-        } else if (Files.exists(Paths.get(getModelsPath() + componentConfigFilename + ".cnnt"))) {
+        }
+        else if (Files.exists(Paths.get( getModelsPath() + componentConfigFilename + ".cnnt"))){
             trainConfigFilename = componentConfigFilename;
-        } else if (Files.exists(Paths.get(getModelsPath() + mainComponentConfigFilename + ".cnnt"))) {
+        }
+        else if (Files.exists(Paths.get( getModelsPath() + mainComponentConfigFilename + ".cnnt"))){
             trainConfigFilename = mainComponentConfigFilename;
-        } else {
+        }
+        else{
             Log.error("Missing configuration file. " +
                     "Could not find a file with any of the following names (only one needed): '"
                     + getModelsPath() + instanceConfigFilename + ".cnnt', '"
@@ -929,8 +946,8 @@ public class EMADLGenerator implements EMAMGenerator {
                     ((CNNTrain2Gluon) cnnTrainGenerator).setRootProjectModelsDir(getModelsPath());
                 }
                 List<String> names = Splitter.on("/").splitToList(trainConfigFilename);
-                trainConfigFilename = names.get(names.size() - 1);
-                Path modelPath = Paths.get(getModelsPath() + Joiner.on("/").join(names.subList(0, names.size() - 1)));
+                trainConfigFilename = names.get(names.size()-1);
+                Path modelPath = Paths.get(getModelsPath() + Joiner.on("/").join(names.subList(0,names.size()-1)));
                 ConfigurationSymbol configuration = cnnTrainGenerator.getConfigurationSymbol(modelPath, trainConfigFilename);
 
                 // Annotate train configuration with architecture
@@ -978,7 +995,7 @@ public class EMADLGenerator implements EMAMGenerator {
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> discriminator = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     if (!discriminator.isPresent()) {
-                        String errMsg = "During the resolving of critic component: Critic component "
+                        String errMsg ="During the resolving of critic component: Critic component "
                                 + fullDiscriminatorName + " does not have a CNN implementation but is required to have one";
                         Log.error(errMsg);
                         throw new RuntimeException(errMsg);
@@ -1048,7 +1065,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
                 cnnTrainGenerator.setInstanceName(componentInstance.getFullName().replaceAll("\\.", "_"));
 
-                List<FileContent> fileContentMap = cnnTrainGenerator.generateStrings(configuration);
+                List<FileContent> fileContentMap =  cnnTrainGenerator.generateStrings(configuration);
                 fileContents.addAll(fileContentMap);
             }
         }
@@ -1078,6 +1095,7 @@ public class EMADLGenerator implements EMAMGenerator {
             }
         }
     }
+
 
 
     @Override
