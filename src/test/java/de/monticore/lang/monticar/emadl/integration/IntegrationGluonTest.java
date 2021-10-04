@@ -52,7 +52,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
-        checkFindingsCount();
+        checkFindingsCount(1);
     }
 
     @Ignore
@@ -90,7 +90,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
-        checkFindingsCount();
+        checkFindingsCount(1);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/PreprocessingNetwork.training_hash"));
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(1);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
-        checkFindingsCount();
+        checkFindingsCount(1);
     }
 
     @Test
@@ -131,7 +131,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-cfp", "src/test/resources/custom_files"};
         EMADLGeneratorCli.main(args);
 
-        checkFindingsCount(5);
+        checkFindingsCount(6);
     }
 
     private void deleteHashFile(Path hashFile) {
