@@ -402,6 +402,7 @@ public class EMADLGenerator implements EMAMGenerator {
             else {
                 String parsedFullName = componentInstance.getFullName().substring(0, 1).toLowerCase() + componentInstance.getFullName().substring(1).replaceAll("\\.", "_");
                 String trainerScriptName = "CNNTrainer_" + parsedFullName + ".py";
+                Log.warn("Training of model " + trainerScriptName);
                 String trainingPath = getGenerationTargetPath() + trainerScriptName;
                 if(Files.exists(Paths.get(trainingPath))){
                     ProcessBuilder pb = new ProcessBuilder(Arrays.asList(pythonPath, trainingPath)).inheritIO();

@@ -103,10 +103,17 @@ public:
             }
         }
 
-        //Load Loss
-        loss_json_path = file_prefix + "_loss-symbol.json";
-        loss_param_path = file_prefix + "_loss-0000.params";
-        loadComponent(loss_json_path, loss_param_path, loss_symbol, loss_param_map);
+        //Check if loss files exists. If not, they arent necessary and are skipped
+        std::ifstream f(file_prefix + "_loss-symbol.json");
+        if (f.good()){
+            //Load Loss
+            loss_json_path = file_prefix + "_loss-symbol.json";
+            loss_param_path = file_prefix + "_loss-0000.params";
+            loadComponent(loss_json_path, loss_param_path, loss_symbol, loss_param_map);
+        }
+        else {
+            std::cerr << "Can't open the file. Please check if " << file_prefix << "_loss-symbol.json" << "exists. \n";
+        }
 
         NDArray::WaitAll();
     }

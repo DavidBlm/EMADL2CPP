@@ -6,7 +6,7 @@ RUN apt-get install -y libopenblas-dev libblas-dev
 RUN apt-get install -y liblapack-dev libopencv-dev 
 RUN apt-get install -y libarmadillo-dev cmake 
 RUN apt-get install -y python2.7 python-dev python-tk
-RUN apt-get install -y python-numpy 
+RUN apt-get install -y python-numpy
 RUN apt-get install -y python3-pip
 RUN apt-get install -y swig unzip 
 RUN apt-get install -y libboost-all-dev

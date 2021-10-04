@@ -232,12 +232,15 @@ class CNNGanTrainer_defaultGAN_defaultGANConnector_predictor:
             qnet_trainer = mx.gluon.Trainer(q_net.collect_params(), discriminator_optimizer, discriminator_optimizer_params)
 
         dis_loss = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss(from_sigmoid=True)
+        dis_loss.hybridize()
 
         if not generator_loss == None:
             if generator_loss == "l2":
                 generator_loss_func = mx.gluon.loss.L2Loss()
+                generator_loss_func.hybridize()
             elif generator_loss == "l1":
                 generator_loss_func = mx.gluon.loss.L1Loss()
+                generator_loss_func.hybridize()
             else:
                 logging.error("Invalid generator loss parameter")
 
@@ -422,6 +425,9 @@ class CNNGanTrainer_defaultGAN_defaultGANConnector_predictor:
         gen_net.export(self.parameter_path_gen() + '_newest', epoch=0)
         dis_net.save_parameters(self.parameter_path_dis() + '-' + str(num_epoch + begin_epoch).zfill(4) + '.params')
         dis_net.export(self.parameter_path_dis() + '_newest', epoch=0)
+        if not generator_loss == None:
+            generator_loss_func.export(self.parameter_path_gen() + '_newest_loss', epoch=0)
+        dis_loss.export(self.parameter_path_dis() + '_newest_loss', epoch=0)
 
     def parameter_path_gen(self):
         return self._net_creator_gen._model_dir_ + self._net_creator_gen._model_prefix_ + '_' + str(0)
