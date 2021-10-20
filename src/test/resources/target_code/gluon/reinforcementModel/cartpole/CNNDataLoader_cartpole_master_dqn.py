@@ -26,8 +26,25 @@ class CNNDataLoader_cartpole_master_dqn:
 
         for input_name in self._input_names_:
             train_data[input_name] = train_h5[input_name]
-            data_mean[input_name + '_'] = nd.array(train_h5[input_name][:].mean(axis=0))
-            data_std[input_name + '_'] = nd.array(train_h5[input_name][:].std(axis=0) + 1e-5)
+            train_dataset = train_h5[input_name]
+            train_dataset_shape = train_data[input_name].shape
+            # slice_size limits the memory consumption, by only loading slices of size <500MB into memory
+            slice_size = min(train_dataset_shape[0] - 1, int(500e6 / (train_h5[input_name][0].size * \
+                train_h5[input_name][0].itemsize)))
+            num_slices = max(1, int(train_h5[input_name].shape[0] / slice_size))
+            mean = np.zeros(train_dataset_shape[1: ])
+            std = np.zeros(train_dataset_shape[1: ])
+
+            for i in range(int(train_dataset_shape[0] / slice_size)):
+                mean += train_dataset[i * slice_size: (i + 1) * slice_size].mean(axis=0) / num_slices
+                std += train_dataset[i * slice_size: (i + 1) * slice_size].std(axis=0) / num_slices
+            if slice_size > train_dataset_shape[0] - 1:
+                mean += train_dataset[num_slices * slice_size: ].mean(axis=0) / (slice_size - num_slices % slice_size)
+                std += train_dataset[num_slices * slice_size: ].std(axis=0) / (slice_size - num_slices % slice_size)
+            std += 1e-5
+
+            data_mean[input_name + '_'] = nd.array(mean)
+            data_std[input_name + '_'] = nd.array(std)
 
             if 'images' in train_h5:
                 train_images = train_h5['images']
