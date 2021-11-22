@@ -17,13 +17,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class GenerationTest extends AbstractSymtabTest {
 
@@ -210,7 +207,6 @@ public class GenerationTest extends AbstractSymtabTest {
         EMADLGeneratorCli.main(args);
         checkFindingsCount();
     }
-
 
     @Test
     public void testGluonReinforcementModelGymEnvironment() {
