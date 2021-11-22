@@ -4,7 +4,7 @@ stages:
 #- windows
 - docker
 - linux
-#- deploy
+- deploy
 
 githubjob:
   image: maven:3-jdk-8
