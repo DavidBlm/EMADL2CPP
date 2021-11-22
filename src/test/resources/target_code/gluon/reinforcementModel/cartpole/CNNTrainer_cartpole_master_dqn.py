@@ -65,7 +65,7 @@ if __name__ == "__main__":
         },
         'strategy_params': {
             'method':'epsgreedy',
-            'epsilon': 1,
+            'epsilon': 1.0,
             'min_epsilon': 0.01,
             'epsilon_decay_method': 'linear',
             'epsilon_decay': 0.01,

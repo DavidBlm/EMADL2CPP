@@ -7,7 +7,6 @@ import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
 
-import javax.swing.text.html.HTML;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,8 +18,8 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class AbstractSymtabTest {
-    protected static TaggingResolver createSymTab(String... modelPath) {
 
+    protected static TaggingResolver createSymTab(String... modelPath) {
         return EMADLAbstractSymtab.createSymTabAndTaggingResolver(modelPath);
     }
 

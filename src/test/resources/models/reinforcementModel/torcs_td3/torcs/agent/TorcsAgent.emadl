@@ -11,5 +11,5 @@ component TorcsAgent {
     instance TorcsActor actor;
 
     connect state -> actor.state;
-    connect actor.commands -> action;
+    connect actor.action -> action;
 }

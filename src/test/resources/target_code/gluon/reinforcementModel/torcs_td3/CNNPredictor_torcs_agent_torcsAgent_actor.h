@@ -44,7 +44,7 @@ public:
     }
 
     void predict(const std::vector<float> &in_state_,
-                 std::vector<float> &out_commands_){
+                 std::vector<float> &out_action_){
 
 
         NDArray input_temp;
@@ -64,8 +64,8 @@ public:
         curr_output_size = 1;
         for (mx_uint i : curr_output_shape) curr_output_size *= i;
         //Fix due to a bug in the in how the output arrays are initialized when there are multiple outputs
-        assert((curr_output_size == out_commands_.size()) || (curr_output_size == out_commands_[0]));
-        output[0].SyncCopyToCPU(&out_commands_);
+        assert((curr_output_size == out_action_.size()) || (curr_output_size == out_action_[0]));
+        output[0].SyncCopyToCPU(&out_action_);
     
     }
     

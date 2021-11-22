@@ -164,7 +164,7 @@ class CNNCreator_infoGAN_infoGANDiscriminator:
             warnings.simplefilter("ignore")
             self.networks[0].collect_params().initialize(self.weight_initializer, force_reinit=False, ctx=context)
         self.networks[0].hybridize()
-        self.networks[0](mx.nd.zeros((1, 1,28,28,), ctx=context[0]))
+        self.networks[0](mx.nd.zeros((1, 1,64,64,), ctx=context[0]))
 
         if not os.path.exists(self._model_dir_):
             os.makedirs(self._model_dir_)
@@ -177,20 +177,21 @@ class CNNCreator_infoGAN_infoGANDiscriminator:
 
     def getInputs(self):
         inputs = {}
-        input_dimensions = (1,28,28,)
+        input_dimensions = (1,64,64,)
         input_domains = (float,-1.0,1.0,)
         inputs["data_"] = input_domains + (input_dimensions,)
         return inputs
 
     def getOutputs(self):
         outputs = {}
-        output_dimensions = (1,2,2,)
+        output_dimensions = (1,4,4,)
         output_domains = (float,0.0,1.0,)
         outputs["dis_"] = output_domains + (output_dimensions,)
-        output_dimensions = (512,2,2,)
+        output_dimensions = (512,4,4,)
         output_domains = (float,0.0,float('inf'),)
         outputs["features_"] = output_domains + (output_dimensions,)
         return outputs
 
     def validate_parameters(self):
+
     pass

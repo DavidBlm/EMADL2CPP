@@ -5,6 +5,7 @@ import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
 import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -15,6 +16,14 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
 public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
+
+    @Before
+    public void setUp() {
+        Log.initWARN();
+        Log.getFindings().clear();
+        Log.enableFailQuick(false);
+    }
+
     @Test
     public void testGluonReinforcementModelRosEnvironment() {
         assumeFalse(System.getProperty("os.name").toLowerCase().startsWith("win"));

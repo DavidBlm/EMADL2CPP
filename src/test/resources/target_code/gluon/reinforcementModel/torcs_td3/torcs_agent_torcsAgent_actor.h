@@ -12,21 +12,21 @@ class torcs_agent_torcsAgent_actor{
 public:
 CNNPredictor_torcs_agent_torcsAgent_actor_0 _predictor_0_;
 colvec state;
-colvec commands;
+colvec action;
 void init()
 {
 state=colvec(29);
-commands=colvec(3);
+action=colvec(3);
 }
 void execute(){
     vector<float> state_ = CNNTranslator::translate(state);
 
-    vector<float> commands_(3);
+    vector<float> action_(3);
 
 
-    _predictor_0_.predict(state_, commands_);
+    _predictor_0_.predict(state_, action_);
 
-    commands = CNNTranslator::translateToCol(commands_, std::vector<size_t> {3});
+    action = CNNTranslator::translateToCol(action_, std::vector<size_t> {3});
 
 }
 

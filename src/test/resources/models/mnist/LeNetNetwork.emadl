@@ -16,6 +16,5 @@ component LeNetNetwork<Z(2:oo) classes = 10>{
         FullyConnected(units=classes) ->
         Softmax() ->
         predictions;
-
     }
 }
