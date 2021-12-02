@@ -64,6 +64,8 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static de.monticore.lang.monticar.cnnarch.generator.validation.Constants.ROOT_SCHEMA_MODEL_PATH;
+
 public class EMADLGenerator implements EMAMGenerator {
 
     private boolean generateCMake = false;
@@ -918,6 +920,7 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     public List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName) {
+        boolean copied = copySchemaFilesFromResource(ROOT_SCHEMA_MODEL_PATH);
         List<FileContent> fileContents = new ArrayList<>();
         TaggingResolver symTabAndTaggingResolver = getSymTabAndTaggingResolver();
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
@@ -943,7 +946,8 @@ public class EMADLGenerator implements EMAMGenerator {
                 List<String> names = Splitter.on("/").splitToList(trainConfigFilename);
                 trainConfigFilename = names.get(names.size() - 1);
                 Path modelPath = Paths.get(getModelsPath() + Joiner.on("/").join(names.subList(0, names.size() - 1)));
-                TrainingConfiguration trainingConfiguration = cnnTrainGenerator.createTrainingConfiguration(modelPath, trainConfigFilename);
+                TrainingConfiguration trainingConfiguration = cnnTrainGenerator.createTrainingConfiguration(modelPath,
+                        trainConfigFilename, copied ? Paths.get(getGenerationTargetPath()) : null);
 
                 // Annotate train configuration with architecture
                 final String fullConfigName = String.join(".", names);
@@ -1089,11 +1093,48 @@ public class EMADLGenerator implements EMAMGenerator {
                 }
 
                 cnnTrainGenerator.setInstanceName(componentInstance.getFullName().replaceAll("\\.", "_"));
-                List<FileContent> fileContentList = cnnTrainGenerator.generateStrings(trainingConfiguration, trainingComponentsContainer);
+                List<FileContent> fileContentList = cnnTrainGenerator.generateStrings(trainingConfiguration,
+                        trainingComponentsContainer, copied ? Paths.get(getGenerationTargetPath()) : null);
                 fileContents.addAll(fileContentList);
             }
         }
         return fileContents;
+    }
+
+    private boolean copySchemaFilesFromResource(String rootSchemaModelPath) {
+        try {
+            String jarPath = getClass().getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()
+                    .getPath();
+
+            String target_path = getGenerationTargetPath() + rootSchemaModelPath;
+            if (!target_path.endsWith("/")) {
+                target_path = target_path + '/';
+            }
+            Files.createDirectories(Paths.get(target_path));
+            URI uri = URI.create("jar:file:" + jarPath);
+            try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
+                for (Path path : Files.walk(fs.getPath(rootSchemaModelPath)).filter(Files::isRegularFile).collect(Collectors.toList())) {
+                    if (path.toString().endsWith(".scm")) {
+                        String destination = target_path + path.getFileName();
+                        Files.copy(path, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
+                setAdaNetUtils(getGenerationTargetPath()+"/"+rootSchemaModelPath+ "/");
+            } catch (UnsupportedOperationException e){
+                System.out.println("this should only be printed if the generator is run unpacked");
+                return false;
+            }
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     public String readResource(final String fileName, Charset charset) {
