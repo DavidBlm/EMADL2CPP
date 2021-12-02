@@ -1,0 +1,23 @@
+package cvae;
+
+component Decoder{
+    ports in Q(-1000:1000)^{8} encoding,
+          in Q(-oo:oo)^{10} label,
+          out Q(-oo:oo)^{1,28,28} data;
+
+    implementation CNN {
+        (
+            encoding ->
+            Flatten()
+        |
+            label
+        ) ->
+        Concatenate() ->
+        FullyConnected(units=24) ->
+        FullyConnected(units=49) ->
+        FullyConnected(units=784) ->
+        Reshape(shape=(1,28,28)) ->
+        Sigmoid() ->
+        data;
+    }
+}

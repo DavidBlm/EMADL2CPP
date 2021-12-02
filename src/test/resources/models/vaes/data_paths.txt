@@ -1,0 +1,1 @@
+cvae.Decoder src/test/resources/training_data/Cifar

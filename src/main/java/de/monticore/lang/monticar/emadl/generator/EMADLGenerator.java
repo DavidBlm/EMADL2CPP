@@ -1027,6 +1027,36 @@ public class EMADLGenerator implements EMAMGenerator {
                     trainingComponentsContainer.setQNetwork(new ArchitectureAdapter(architectureSymbol));
                 }
 
+                // Resolve encoder network if present
+                Optional<String> encoderName = trainingConfiguration.getEncoderName();
+                if (encoderName.isPresent()) {
+                    String fullEncoderName = encoderName.get();
+                    int indexOfFirstNameCharacter = fullEncoderName.lastIndexOf('.') + 1;
+                    fullEncoderName = fullEncoderName.substring(0, indexOfFirstNameCharacter)
+                            + fullEncoderName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                            + fullEncoderName.substring(indexOfFirstNameCharacter + 1);
+
+                    EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(
+                            fullEncoderName, getSymTabAndTaggingResolver());
+                    EMADLCocos.checkAll(instanceSymbol);
+                    Optional<ArchitectureSymbol> encoder = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+                    if (!encoder.isPresent()) {
+                        String message = String.format("Resolving encoder component failed. Encoder component '%s' does not have a CNN implementation, but is required to have one.", fullEncoderName);
+                        Log.error(message);
+                        throw new RuntimeException(message);
+                    }
+                    ArchitectureSymbol architectureSymbol = encoder.get();
+                    architectureSymbol.setComponentName(fullEncoderName);
+                    trainingComponentsContainer.setEncoderNetwork(
+                            new ArchitectureAdapter(architectureSymbol));
+
+                    ArchitectureAdapter decoder = trainingComponentsContainer.getTrainedArchitecture().get();
+                    ArchitectureSymbol decoderArchitectureSymbol = decoder.getArchitectureSymbol();
+
+                    encoder.get().setAuxiliaryArchitecture(decoderArchitectureSymbol);
+
+                }
+
                 Optional<String> rewardFunctionNameOpt = trainingConfiguration.getRewardFunctionName();
                 if (rewardFunctionNameOpt.isPresent()) {
                     String fullRewardFunctionName =  rewardFunctionNameOpt.get();

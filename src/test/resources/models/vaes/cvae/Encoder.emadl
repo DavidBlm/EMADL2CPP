@@ -1,0 +1,27 @@
+package cvae;
+
+component Encoder{
+    ports in Q(-oo:oo)^{1,28,28} data,
+          in Q(-oo:oo)^{10} label,
+          out Q(-1000:1000)^{8} encoding;
+
+    implementation CNN {
+        (
+            data ->
+            Flatten()
+        |
+            label
+        ) ->
+        Concatenate() ->
+        FullyConnected(units=784) ->
+        FullyConnected(units=16) ->
+        Split(n=2) ->
+        (
+            [0]  /* mean */
+        |
+            [1] /* log variance squared */
+        ) ->
+        Reparameterize() ->
+        encoding;
+    }
+}
