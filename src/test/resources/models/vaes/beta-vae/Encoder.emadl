@@ -1,0 +1,27 @@
+package bvae;
+
+component Encoder{
+    ports in Q(-1000:1000)^{1,28,28} data,
+          out Q(-1000:1000)^{64,4,4} encoding;
+
+    implementation CNN {
+        data ->
+        Convolution(channels=64,kernel=(4,4),stride=(2,2),padding="same") ->
+        Relu() ->
+        Dropout() ->
+        Convolution(channels=64,kernel=(4,4),stride=(2,2),padding="same") ->
+        Relu() ->
+        Dropout() ->
+        Convolution(channels=64,kernel=(4,4),stride=(2,2),padding="same") ->
+        Relu() ->
+        Dropout() ->
+        Split(n=2) ->
+        (
+            [0]
+        |
+            [1]
+        ) ->
+        Reparameterize() ->
+        encoding;
+    }
+}

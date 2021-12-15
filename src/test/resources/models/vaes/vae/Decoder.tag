@@ -1,0 +1,7 @@
+/* (c) https://github.com/MontiCore/monticore */
+package vae;
+conforms to artifacttag.DatasetArtifactTagSchema;
+
+tags NeuronalNetwork {
+    tag Decoder with DatasetArtifact = {artifact = de.monticore.lang.monticar.datasets:mnist:1, type = HDF5};
+}

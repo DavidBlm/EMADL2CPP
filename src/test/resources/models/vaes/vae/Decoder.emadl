@@ -1,18 +1,11 @@
-package cvae;
+package vae;
 
 component Decoder{
     ports in Q(-1000:1000)^{8} encoding,
-          in Q(-1000:1000)^{10} label,
           out Q(-1000:1000)^{1,28,28} data;
 
     implementation CNN {
-        (
-            encoding ->
-            Flatten()
-        |
-            label
-        ) ->
-        Concatenate() ->
+        encoding ->
         FullyConnected(units=200) ->
         Relu() ->
         Dropout() ->
