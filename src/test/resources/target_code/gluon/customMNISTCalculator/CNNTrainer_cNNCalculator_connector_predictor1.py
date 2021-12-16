@@ -32,5 +32,5 @@ if __name__ == "__main__":
             'weight_decay': 0.0,
             'learning_rate': 0.1,
             'learning_rate_decay': 0.85,
-            'step_size': 1000}
+            'step_size': 1000},
     )
