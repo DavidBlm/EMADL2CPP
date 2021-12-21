@@ -368,6 +368,15 @@ public class GenerationTest extends AbstractSymtabTest {
     }
 
     @Test
+    public void testGluonBetaVAEGeneration() {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/vaes", "-r", "bvae.Connector", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
+        checkFindingsCount();
+    }
+
+    @Test
     public void testGluonPreprocessingWithSupervised() throws IOException, TemplateException {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON", "-f", "n", "-c", "n"};

@@ -1,11 +1,13 @@
 package bvae;
 
 component Decoder{
-    ports in Q(-1000:1000)^{8} encoding,
-          out Q(-1000:1000)^{1,28,28} data;
+    ports in Q(-oo:oo)^{8} encoding,
+          out Q(-oo:oo)^{1,28,28} data;
 
     implementation CNN {
         encoding ->
+        FullyConnected(units=1024) ->
+        Reshape(shape=(64,4,4)) ->
         UpConvolution(channels=64,kernel=(4,4),stride=(2,2),padding="same") ->
         Relu() ->
         Dropout() ->

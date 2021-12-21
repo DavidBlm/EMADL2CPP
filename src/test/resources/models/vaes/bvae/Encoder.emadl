@@ -1,8 +1,8 @@
 package bvae;
 
 component Encoder{
-    ports in Q(-1000:1000)^{1,28,28} data,
-          out Q(-1000:1000)^{64,4,4} encoding;
+    ports in Q(-oo:oo)^{1,28,28} data,
+          out Q(-oo:oo)^{8} encoding;
 
     implementation CNN {
         data ->
@@ -15,6 +15,7 @@ component Encoder{
         Convolution(channels=64,kernel=(4,4),stride=(2,2),padding="same") ->
         Relu() ->
         Dropout() ->
+        FullyConnected(units=16) ->
         Split(n=2) ->
         (
             [0]

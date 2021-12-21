@@ -2,8 +2,8 @@
 package vae;
 
 component Connector{
-    ports in Q(-1000:1000)^{8} data,
-          out Q(-1000:1000)^{1,28,28} res;
+    ports in Q(-oo:oo)^{2} data,
+          out Q(0:1)^{1,28,28} res;
 
     instance Decoder decoder;
 

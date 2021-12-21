@@ -1,9 +1,9 @@
 package cvae;
 
 component Encoder{
-    ports in Q(-1000:1000)^{1,28,28} data,
-          in Q(-1000:1000)^{10} label,
-          out Q(-1000:1000)^{8} encoding;
+    ports in Q(0:1)^{1,28,28} data,
+          in Z(0:oo)^{10} label,
+          out Q(-oo:oo)^{2} encoding;
 
     implementation CNN {
         (
@@ -13,18 +13,22 @@ component Encoder{
             label
         ) ->
         Concatenate() ->
-        FullyConnected(units=400) ->
+        FullyConnected(units=784) ->
         Relu() ->
-        Dropout() ->
-        FullyConnected(units=200) ->
+        Reshape(shape=(1,28,28)) ->
+        Convolution(channels=32,kernel=(3,3),stride=(2,2)) ->
         Relu() ->
-        Dropout() ->
+        Convolution(channels=64,kernel=(3,3),stride=(2,2)) ->
+        Relu() ->
+        Flatten() ->
         FullyConnected(units=16) ->
+        Relu() ->
+        FullyConnected(units=4) ->
         Split(n=2) ->
         (
-            [0]
+            [0] /* mean */
         |
-            [1]
+            [1] /* log squared std */
         ) ->
         Reparameterize() ->
         encoding;
