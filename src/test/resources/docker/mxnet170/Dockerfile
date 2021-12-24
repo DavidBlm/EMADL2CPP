@@ -5,14 +5,11 @@ RUN apt-get install -y build-essential git ninja-build ccache
 RUN apt-get install -y libopenblas-dev libblas-dev 
 RUN apt-get install -y liblapack-dev libopencv-dev 
 RUN apt-get install -y libarmadillo-dev cmake 
-RUN apt-get install -y python2.7 python-dev python-tk python-pip-whl
-RUN apt-get install -y python-pip-whl
+RUN apt-get install -y python2.7 python-dev python-tk
+RUN apt-get install -y python-numpy 
 RUN apt-get install -y python3-pip 
 RUN apt-get install -y swig unzip 
 RUN apt-get install -y libboost-all-dev
-RUN apt-get install -y libprotobuf-dev protobuf-compiler
-
-RUN pip install --user numpy
 
 ADD armadillo-9.600.6.zip /root/armadillo.zip
 RUN unzip /root/armadillo.zip -d /root/armadillo
@@ -28,7 +25,6 @@ RUN pip3 install --user --upgrade "cmake>=3.13.2"
 RUN pip3 install --user h5py matplotlib 
 ADD mxnet-1.7.0b20200417-py2.py3-none-manylinux1_x86_64.whl /root/mxnet-1.7.0b20200417-py2.py3-none-manylinux1_x86_64.whl
 RUN pip3 install /root/mxnet-1.7.0b20200417-py2.py3-none-manylinux1_x86_64.whl
-RUN export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON" && pip3 install onnx==1.2.1
 
 RUN mkdir -p /root/.config/matplotlib
 RUN echo "backend : Agg" > /root/.config/matplotlib/matplotlibrc
