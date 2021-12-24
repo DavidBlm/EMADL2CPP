@@ -1,4 +1,4 @@
-FROM registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170
+FROM registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/mxnet170:latest
 
 RUN apt-get update
 RUN apt-get install -y libprotobuf-dev protobuf-compiler
