@@ -1,5 +1,5 @@
-FROM registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170
+FROM registry.git.rwth-aachen.de/monticore/embeddedmontiarc/applications/gans/3d-gan/mxnet180:latest
 
 RUN apt-get update
 RUN apt-get install -y libprotobuf-dev protobuf-compiler
-RUN export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON" && pip3 install onnx==1.2.1
+RUN export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON" && pip3 install onnx==1.8
