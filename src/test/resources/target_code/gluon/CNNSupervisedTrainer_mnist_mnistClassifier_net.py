@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 import mxnet as mx
 import logging
 import numpy as np
@@ -314,7 +314,8 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
               normalize=True,
               shuffle_data=False,
               clip_global_grad_norm=None,
-              preprocessing = False):
+              preprocessing=False,
+              onnx_export=False):
         num_pus = 1
         if context == 'gpu':
             num_pus = mx.context.num_gpus()
@@ -422,9 +423,8 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             loss_function = LogCoshLoss()
         else:
             logging.error("Invalid loss parameter.")
-        
+
         loss_function.hybridize()
-        
 
 
         tic = None
@@ -450,7 +450,6 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                                  
                 with autograd.record():
                     labels = [gluon.utils.split_and_load(batch.label[i], ctx_list=mx_context, even_split=False) for i in range(1)]
-
                     image_ = gluon.utils.split_and_load(batch.data[0], ctx_list=mx_context, even_split=False)
 
                     predictions_ = [mx.nd.zeros((single_pu_batch_size, 10,), ctx=context) for context in mx_context]
@@ -576,6 +575,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                             os.makedirs(target_dir)
                         plt.savefig(target_dir + '/attention_train.png')
                         plt.close()
+
                     predictions = []
                     for output_name in outputs:
                         if mx.nd.shape_array(mx.nd.squeeze(output_name)).size > 1:
@@ -656,6 +656,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                             os.makedirs(target_dir)
                         plt.savefig(target_dir + '/attention_test.png')
                         plt.close()
+
                 loss = 0
                 for element in lossList:
                     loss = loss + element
@@ -674,7 +675,6 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                 metric.update(preds=predictions, labels=[labels[j] for j in range(len(labels))])
 
             global_loss_test /= (test_batches * single_pu_batch_size)
-
             test_metric_name = metric.get()[0]
             test_metric_score = metric.get()[1]
 
@@ -687,21 +687,17 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             if (epoch+1) % checkpoint_period == 0:
                 for i, network in self._networks.items():
                     network.save_parameters(self.parameter_path(i) + '-' + str(epoch).zfill(4) + '.params')
-                    if hasattr(network, 'episodic_sub_nets'):
-                        for j, net in enumerate(network.episodic_sub_nets):
-                            episodic_layers[i][j].save_memory(self.parameter_path(i) + "_episodic_memory_sub_net_" + str(j + 1) + "-" + str(epoch).zfill(4))
 
         for i, network in self._networks.items():
             network.save_parameters(self.parameter_path(i) + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
             network.export(self.parameter_path(i) + '_newest', epoch=0)
-            
-            if hasattr(network, 'episodic_sub_nets'):
-                network.episodicsubnet0_.export(self.parameter_path(i) + '_newest_episodic_sub_net_' + str(0), epoch=0)
-                for j, net in enumerate(network.episodic_sub_nets):
-                    net.export(self.parameter_path(i) + '_newest_episodic_sub_net_' + str(j+1), epoch=0)
-                    episodic_query_networks[i][j].export(self.parameter_path(i) + '_newest_episodic_query_net_' + str(j+1), epoch=0)
-                    episodic_layers[i][j].save_memory(self.parameter_path(i) + "_episodic_memory_sub_net_" + str(j + 1) + "-" + str((num_epoch - 1) + begin_epoch).zfill(4))
-                    episodic_layers[i][j].save_memory(self.parameter_path(i) + "_newest_episodic_memory_sub_net_" + str(j + 1) + "-0000")
+
+            if onnx_export:
+                from mxnet.contrib import onnx as onnx_mxnet
+                input_shapes = [(1,) + d.shape[1:] for _, d in test_iter.data]
+                model_path = self.parameter_path(i) + '_newest'
+                onnx_mxnet.export_model(model_path+'-symbol.json', model_path+'-0000.params', input_shapes, np.float32, model_path+'.onnx')
+
             loss_function.export(self.parameter_path(i) + '_newest_loss', epoch=0)
 
     def parameter_path(self, index):
