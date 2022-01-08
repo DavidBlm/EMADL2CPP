@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 import logging
 import mxnet as mx
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         optimizer='sgd',
         optimizer_params={
             'weight_decay': 0.0,
-            'learning_rate': 0.1,
-            'learning_rate_decay': 0.85,
-            'step_size': 1000},
+                    'learning_rate': 0.1,
+                    'learning_rate_decay': 0.85,
+                    'step_size': 1000},
     )
