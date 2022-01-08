@@ -22,5 +22,5 @@ if __name__ == "__main__":
             'beta1': 0.9,
             'beta2': 0.999,
             'learning_rate_policy': 'fixed',
-            'learning_rate': 0.001}
+            'learning_rate': 0.001},
     )
