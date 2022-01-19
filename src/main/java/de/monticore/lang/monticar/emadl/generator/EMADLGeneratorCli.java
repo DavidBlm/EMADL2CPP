@@ -225,7 +225,7 @@ public class EMADLGeneratorCli {
         // end EMAM2CPP options
 
         try {
-            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl.equals("y"));
+            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl);
         } catch (IOException e){
             String errMsg ="io error during generation"+ e.toString();
             Log.error(errMsg);

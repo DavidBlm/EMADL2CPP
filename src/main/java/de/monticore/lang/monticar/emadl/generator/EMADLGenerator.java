@@ -189,11 +189,11 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
 
-    public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, boolean useDgl) throws IOException, TemplateException {
+    public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws IOException, TemplateException {
         processedArchitecture = new HashMap<>();
         setModelsPath( modelPath );
         setPythonPath(pythonPath);
-        setUseDgl(useDgl);
+        setUseDgl(useDgl.equals("y"));
         TaggingResolver symtab = getSymTabAndTaggingResolver();
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
         try {
