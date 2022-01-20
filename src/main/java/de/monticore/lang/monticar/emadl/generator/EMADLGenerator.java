@@ -1109,20 +1109,19 @@ public class EMADLGenerator implements EMAMGenerator {
                     .toURI()
                     .getPath();
 
-            String target_path = getGenerationTargetPath() + rootSchemaModelPath;
+            String target_path = getGenerationTargetPath();
             if (!target_path.endsWith("/")) {
                 target_path = target_path + '/';
             }
-            Files.createDirectories(Paths.get(target_path));
             URI uri = URI.create("jar:file:" + jarPath);
             try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
                 for (Path path : Files.walk(fs.getPath(rootSchemaModelPath)).filter(Files::isRegularFile).collect(Collectors.toList())) {
-                    if (path.toString().endsWith(".scm")) {
-                        String destination = target_path + path.getFileName();
-                        Files.copy(path, Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
+                    if (path.toString().endsWith(".scm") || path.toString().endsWith(".ema")) {
+                        Path destination = Paths.get(target_path + path.toString());
+                        Files.createDirectories(destination.getParent());
+                        Files.copy(path, destination, StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
-                setAdaNetUtils(getGenerationTargetPath()+"/"+rootSchemaModelPath+ "/");
             } catch (UnsupportedOperationException e){
                 System.out.println("this should only be printed if the generator is run unpacked");
                 return false;
