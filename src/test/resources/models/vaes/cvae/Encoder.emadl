@@ -2,7 +2,7 @@ package cvae;
 
 component Encoder{
     ports in Q(0:1)^{1,28,28} data,
-          in Z(0:oo)^{10} label,
+          in Z(0:oo)^{1} label,
           out Q(-oo:oo)^{2} encoding;
 
     implementation CNN {
@@ -10,7 +10,9 @@ component Encoder{
             data ->
             Flatten()
         |
-            label
+            label ->
+            OneHot(size=10) ->
+            Flatten()
         ) ->
         Concatenate() ->
         FullyConnected(units=784) ->

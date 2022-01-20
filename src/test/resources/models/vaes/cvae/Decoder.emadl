@@ -2,14 +2,16 @@ package cvae;
 
 component Decoder{
     ports in Q(-oo:oo)^{2} encoding,
-          in Z(0:oo)^{10} label,
+          in Z(0:oo)^{1} label,
           out Q(0:1)^{1,28,28} data;
 
     implementation CNN {
         (
             encoding
         |
-            label
+            label ->
+            OneHot(size=10) ->
+            Flatten()
         ) ->
         Concatenate() ->
         FullyConnected(units=3136) ->
