@@ -452,7 +452,6 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
         loss_function.hybridize()
 
 
-
         tic = None
 
         avg_speed = 0
@@ -462,7 +461,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             if shuffle_data:
                 if preprocessing:
                     preproc_lib = "CNNPreprocessor_mnist_mnistClassifier_net_executor"
-                    train_iter, test_iter, data_mean, data_std, train_images, test_images, train_graph, test_graph = self._data_loader.load_preprocessed_data(batch_size, preproc_lib, shuffle_data)
+                    train_iter, test_iter, data_mean, data_std, train_images, test_images = self._data_loader.load_preprocessed_data(batch_size, preproc_lib, shuffle_data)
                 else:
                     train_iter, test_iter, data_mean, data_std, train_images, test_images, train_graph, test_graph = self._data_loader.load_data(batch_size, shuffle_data, multi_graph)
 

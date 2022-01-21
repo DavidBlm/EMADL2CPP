@@ -211,11 +211,13 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor:
 
         if os.path.isfile(train_path):
             train_h5 = h5py.File(train_path, 'r')
+
             for input_name in self._input_names_:
                 if not input_name in train_h5:
                     logging.error("The HDF5 file '" + os.path.abspath(train_path) + "' has to contain the dataset "
                                   + "'" + input_name + "'")
                     sys.exit(1)
+
             for output_name in self._output_names_:
                 if not output_name in train_h5:
                     logging.error("The HDF5 file '" + os.path.abspath(train_path) + "' has to contain the dataset "
@@ -224,11 +226,13 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor:
 
             if os.path.isfile(test_path):
                 test_h5 = h5py.File(test_path, 'r')
+
                 for input_name in self._input_names_:
                     if not input_name in test_h5:
                         logging.error("The HDF5 file '" + os.path.abspath(test_path) + "' has to contain the dataset "
                                       + "'" + input_name + "'")
                         sys.exit(1)
+
                 for output_name in self._output_names_:
                     if not output_name in test_h5:
                         logging.error("The HDF5 file '" + os.path.abspath(test_path) + "' has to contain the dataset "
