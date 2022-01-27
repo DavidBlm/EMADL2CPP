@@ -2,7 +2,7 @@ package cvae;
 
 component Decoder{
     ports in Q(-oo:oo)^{2} encoding,
-          in Z(0:oo)^{1} label,
+          in Z(0:9)^{1} label,
           out Q(0:1)^{1,28,28} data;
 
     implementation CNN {

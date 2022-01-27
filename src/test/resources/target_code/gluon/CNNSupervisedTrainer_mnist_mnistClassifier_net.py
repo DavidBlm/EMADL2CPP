@@ -354,9 +354,9 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             del optimizer_params['learning_rate_decay']
 
         if normalize:
-            self._net_creator.construct(context=mx_context, data_mean=data_mean, data_std=data_std)
+            self._net_creator.construct(context=mx_context, batch_size=batch_size, data_mean=data_mean, data_std=data_std)
         else:
-            self._net_creator.construct(context=mx_context)
+            self._net_creator.construct(context=mx_context, batch_size=batch_size)
 
         begin_epoch = 0
         if load_checkpoint:
