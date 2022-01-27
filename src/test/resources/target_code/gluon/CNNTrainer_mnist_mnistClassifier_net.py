@@ -1,6 +1,7 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 import logging
 import mxnet as mx
+
 import CNNCreator_mnist_mnistClassifier_net
 import CNNDataLoader_mnist_mnistClassifier_net
 import CNNSupervisedTrainer_mnist_mnistClassifier_net
@@ -30,9 +31,9 @@ if __name__ == "__main__":
         optimizer='adam',
         optimizer_params={
             'epsilon': 1.0E-8,
-            'weight_decay': 0.001,
-            'beta1': 0.9,
-            'beta2': 0.999,
-            'learning_rate_policy': 'fixed',
-            'learning_rate': 0.001}
+                    'weight_decay': 0.001,
+                    'beta1': 0.9,
+                    'beta2': 0.999,
+                    'learning_rate_policy': 'fixed',
+                    'learning_rate': 0.001},
     )

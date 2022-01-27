@@ -22,7 +22,9 @@ public class CNNTrain2NoBackend extends CNNTrainGenerator {
     }
 
     @Override
-    public List<FileContent> generateStrings(TrainingConfiguration trainingConfiguration, TrainingComponentsContainer trainingComponentsContainer) {
+    public List<FileContent> generateStrings(TrainingConfiguration trainingConfiguration,
+                                             TrainingComponentsContainer trainingComponentsContainer,
+                                             Path outputPath) {
         FileContent temp = new FileContent("print ('No Backend Selected!')","CNNTrainer_" + getInstanceName() + ".py");
         List<FileContent>  ret = new ArrayList<>();
         ret.add(temp);
