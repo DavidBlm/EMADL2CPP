@@ -62,13 +62,17 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor:
         for output_name in self._output_names_:
             train_label[index] = train_h5[output_name]
             index += 1
-        if not multi_graph:
-            train_iter = mx.io.NDArrayIter(data=train_data,
-                                           label=train_label,
-                                           batch_size=batch_size,
-                                           shuffle=shuffle)
+        if len(train_data) == 0:
+            train_data = train_label
+        if multi_graph:
+            batch_handle = 'discard'
         else:
-            train_iter = mx.io.NDArrayIter(data=train_label, batch_size=batch_size, last_batch_handle='discard')
+            batch_handle = 'pad'
+        train_iter = mx.io.NDArrayIter(data=train_data,
+                                       label=train_label,
+                                       batch_size=batch_size,
+                                       shuffle=shuffle,
+                                       last_batch_handle=batch_handle)
         test_iter = None
 
         if test_h5 != None:
@@ -90,12 +94,12 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor:
             for output_name in self._output_names_:
                 test_label[index] = test_h5[output_name]
                 index += 1
-            if not multi_graph:
-                test_iter = mx.io.NDArrayIter(data=test_data,
-                                              label=test_label,
-                                              batch_size=batch_size)
-            else:
-                test_iter = mx.io.NDArrayIter(data=test_label, batch_size=batch_size, last_batch_handle='discard')
+            if len(test_data) == 0:
+                test_data = test_label
+            test_iter = mx.io.NDArrayIter(data=test_data,
+                                          label=test_label,
+                                          batch_size=batch_size,
+                                          last_batch_handle=batch_handle)
         return train_iter, test_iter, data_mean, data_std, train_images, test_images, train_graph, test_graph
 
     def load_preprocessed_data(self, batch_size, preproc_lib, shuffle=False):
@@ -211,13 +215,11 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor:
 
         if os.path.isfile(train_path):
             train_h5 = h5py.File(train_path, 'r')
-
             for input_name in self._input_names_:
                 if not input_name in train_h5:
                     logging.error("The HDF5 file '" + os.path.abspath(train_path) + "' has to contain the dataset "
                                   + "'" + input_name + "'")
                     sys.exit(1)
-
             for output_name in self._output_names_:
                 if not output_name in train_h5:
                     logging.error("The HDF5 file '" + os.path.abspath(train_path) + "' has to contain the dataset "
@@ -226,13 +228,11 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor:
 
             if os.path.isfile(test_path):
                 test_h5 = h5py.File(test_path, 'r')
-
                 for input_name in self._input_names_:
                     if not input_name in test_h5:
                         logging.error("The HDF5 file '" + os.path.abspath(test_path) + "' has to contain the dataset "
                                       + "'" + input_name + "'")
                         sys.exit(1)
-
                 for output_name in self._output_names_:
                     if not output_name in test_h5:
                         logging.error("The HDF5 file '" + os.path.abspath(test_path) + "' has to contain the dataset "

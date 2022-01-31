@@ -474,10 +474,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                 
                                  
                 with autograd.record():
-                    if multi_graph:
-                        labels = [gluon.utils.split_and_load(batch.data[0], ctx_list=mx_context, even_split=False)]
-                    else:
-                        labels = [gluon.utils.split_and_load(batch.label[i], ctx_list=mx_context, even_split=False) for i in range(1)]
+                    labels = [gluon.utils.split_and_load(batch.label[i], ctx_list=mx_context, even_split=False) for i in range(1)]
                     image_ = gluon.utils.split_and_load(batch.data[0], ctx_list=mx_context, even_split=False)
 
                     predictions_ = [mx.nd.zeros((single_pu_batch_size, 10,), ctx=context) for context in mx_context]
@@ -551,10 +548,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                 metric = mx.metric.create(eval_metric, **eval_metric_params)
                 for batch_i, batch in enumerate(train_iter):
 
-                    if multi_graph:
-                        labels = [batch.data[0].as_in_context(mx_context[0])]
-                    else:
-                        labels = [batch.label[i].as_in_context(mx_context[0]) for i in range(1)]
+                    labels = [batch.label[i].as_in_context(mx_context[0]) for i in range(1)]
                     image_ = batch.data[0].as_in_context(mx_context[0])
 
                     predictions_ = mx.nd.zeros((single_pu_batch_size, 10,), ctx=mx_context[0])
@@ -634,10 +628,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             for batch_i, batch in enumerate(test_iter):
                 if test_mask == None: 
 
-                    if multi_graph:
-                        labels = [batch.data[0].as_in_context(mx_context[0])]
-                    else:
-                        labels = [batch.label[i].as_in_context(mx_context[0]) for i in range(1)]
+                    labels = [batch.label[i].as_in_context(mx_context[0]) for i in range(1)]
                     image_ = batch.data[0].as_in_context(mx_context[0])
 
                     predictions_ = mx.nd.zeros((single_pu_batch_size, 10,), ctx=mx_context[0])
