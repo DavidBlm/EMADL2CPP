@@ -543,19 +543,19 @@ class DdpgAgent(Agent):
 
                     actor_target_actions = self._actor_target(next_states)
                     critic_target_qvalues = self._critic_target(
-                        next_states, actor_target_actions)
+                        next_states, actor_target_actions[0][0])
 
                     rewards = rewards.reshape(self._minibatch_size, 1)
                     terminals = terminals.reshape(self._minibatch_size, 1)
 
                     # y = r_i + discount * Q'(s_(i+1), mu'(s_(i+1)))
                     y = rewards + (1.0 - terminals) * self._discount_factor\
-                        * critic_target_qvalues
+                        * critic_target_qvalues[0][0]
 
                     # Train the critic network
                     with autograd.record():
                         qvalues = self._critic(states, actions)
-                        critic_loss = l2_loss(qvalues, y)
+                        critic_loss = l2_loss(qvalues[0][0], y)
                     critic_loss.backward()
                     trainer_critic.step(self._minibatch_size)
 
@@ -567,7 +567,7 @@ class DdpgAgent(Agent):
                         # For maximizing qvalues we have to multiply with -1
                         # as we use a minimizer
                         actor_loss = -tmp_critic(
-                            states, self._actor(states)).mean()
+                            states, self._actor(states)[0][0])[0][0].mean()
                     actor_loss.backward()
                     trainer_actor.step(self._minibatch_size)
 
@@ -585,7 +585,7 @@ class DdpgAgent(Agent):
                     episode_actor_loss +=\
                         np.sum(actor_loss.asnumpy()) / self._minibatch_size
                     episode_avg_q_value +=\
-                        np.sum(qvalues.asnumpy()) / self._minibatch_size
+                         np.sum(qvalues[0][0].asnumpy()) / self._minibatch_size
 
                     training_steps += 1
 
