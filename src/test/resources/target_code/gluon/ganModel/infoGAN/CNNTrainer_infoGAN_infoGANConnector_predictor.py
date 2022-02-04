@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 
 import mxnet as mx
 import logging
@@ -10,10 +10,12 @@ from mxnet import gluon, autograd, nd
 
 import CNNCreator_infoGAN_infoGANConnector_predictor
 import CNNDataLoader_infoGAN_infoGANConnector_predictor
+import CNNCreator_infoGAN_infoGANConnector_predictor
 import CNNGanTrainer_infoGAN_infoGANConnector_predictor
-
 from gan.CNNCreator_infoGAN_infoGANDiscriminator import CNNCreator_infoGAN_infoGANDiscriminator
 from gan.CNNCreator_infoGAN_infoGANQNetwork import CNNCreator_infoGAN_infoGANQNetwork
+
+
 
 if __name__ == "__main__":
 
@@ -21,9 +23,11 @@ if __name__ == "__main__":
     logger = logging.getLogger()
     handler = logging.FileHandler("train.log", "w", encoding=None, delay="true")
     logger.addHandler(handler)
+    logging.getLogger('matplotlib.font_manager').disabled = True
+    logging.getLogger('matplotlib.colorbar').disabled = True
+    logger.addHandler(handler)
 
     data_loader = CNNDataLoader_infoGAN_infoGANConnector_predictor.CNNDataLoader_infoGAN_infoGANConnector_predictor()
-
     gen_creator = CNNCreator_infoGAN_infoGANConnector_predictor.CNNCreator_infoGAN_infoGANConnector_predictor()
     dis_creator = CNNCreator_infoGAN_infoGANDiscriminator()
     qnet_creator = CNNCreator_infoGAN_infoGANQNetwork()
