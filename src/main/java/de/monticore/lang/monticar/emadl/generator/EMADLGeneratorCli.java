@@ -59,6 +59,14 @@ public class EMADLGeneratorCli {
             .hasArg(true)
             .required(false)
             .build();
+
+    public static final Option OPTION_USE_DGL = Option.builder("dgl")
+            .longOpt("use-dgl")
+            .desc("If you use GNN Training whether to use DGL Layers or your own Custom Layers")
+            .hasArg(true)
+            .required(false)
+            .build();
+
     public static final Option OPTION_HELP = Option.builder("h")
             .longOpt("help")
             .desc("Show CLI parameters")
@@ -94,6 +102,7 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_TRAINING_PYTHON_PATH);
         options.addOption(OPTION_COMPILE);
         options.addOption(OPTION_CUSTOM_FILES_PATH);
+        options.addOption(OPTION_USE_DGL);
         options.addOption(OPTION_HELP);
     }
 
@@ -106,6 +115,8 @@ public class EMADLGeneratorCli {
         System.err.println("\t [-f <force/prevent training>]  e.g. \"UNSET\"");
         System.err.println("\t [-p <training path>]");
         System.err.println("\t [-c <compile>] e.g. \"y\"/\"n\"");
+        System.err.println("\t [-cfp <custom file path>]");
+        System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
     }
 
     private static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
@@ -128,9 +139,11 @@ public class EMADLGeneratorCli {
         String forced = cliArgs.getOptionValue(OPTION_RESTRAINED_TRAINING.getOpt());
         String pythonPath = cliArgs.getOptionValue(OPTION_TRAINING_PYTHON_PATH.getOpt());
         String compile = cliArgs.getOptionValue(OPTION_COMPILE.getOpt());
+        String useDgl = cliArgs.getOptionValue(OPTION_USE_DGL.getOpt());
         final String DEFAULT_BACKEND = "MXNET";
         final String DEFAULT_FORCED = "UNSET";
         final String DEFAULT_COMPILE = "y";
+        final String DEFAULT_USE_DGL = "n";
 
         if (backendString == null) {
             Log.warn("Backend not specified. Backend set to default value " + DEFAULT_BACKEND);
@@ -165,6 +178,14 @@ public class EMADLGeneratorCli {
             compile = DEFAULT_COMPILE;
         }
 
+        if (useDgl == null) {
+            useDgl = DEFAULT_USE_DGL;
+        }
+        else if(!useDgl.equals("y") && !useDgl.equals("n")) {
+            Log.warn("Specified setting ("+useDgl+") for using the DGL package not supported. Set to default value " + DEFAULT_USE_DGL);
+            useDgl = DEFAULT_USE_DGL;
+        }
+
         if (outputPath != null){
             generator.setGenerationTargetPath(outputPath);
         }
@@ -177,6 +198,9 @@ public class EMADLGeneratorCli {
         Path modelsDirPath = Paths.get(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()));
         if (cliArgs.hasOption(OPTION_CUSTOM_FILES_PATH.getOpt())) {
             generator.setCustomFilesPath(cliArgs.getOptionValue(OPTION_CUSTOM_FILES_PATH.getOpt()));
+        }
+        if (cliArgs.hasOption(OPTION_USE_DGL.getOpt())) {
+            generator.setUseDgl(cliArgs.getOptionValue(OPTION_USE_DGL.getOpt()).equals("y"));
         }
         emamGen.setUseAlgebraicOptimizations(false);
         emamGen.setUseThreadingOptimization(false);
@@ -201,7 +225,7 @@ public class EMADLGeneratorCli {
         // end EMAM2CPP options
 
         try {
-            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"));
+            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl);
         } catch (IOException e){
             String errMsg ="io error during generation"+ e.toString();
             Log.error(errMsg);

@@ -169,10 +169,8 @@ class CNNCreator_mountaincar_agent_mountaincarCritic:
 
         if not os.path.exists(self._model_dir_):
             os.makedirs(self._model_dir_)
-
         for i, network in self.networks.items():
             network.export(self._model_dir_ + self._model_prefix_ + "_" + str(i), epoch=0)
-
     def setWeightInitializer(self, initializer):
         self.weight_initializer = initializer
 

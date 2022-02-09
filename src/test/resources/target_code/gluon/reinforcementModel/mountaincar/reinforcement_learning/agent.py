@@ -3,6 +3,8 @@ import mxnet as mx
 import numpy as np
 import time
 import os
+import subprocess #library to call shell script
+import shlex #library to pass variable to shell script
 import sys
 import util
 import matplotlib.pyplot as plt
@@ -33,6 +35,7 @@ class Agent(object):
         agent_name='Agent',
         max_episode_step=99999,
         evaluation_samples=1000,
+        self_play='no',
         output_directory='model_parameters',
         verbose=True,
         target_score=None
@@ -79,6 +82,7 @@ class Agent(object):
         self._target_score = target_score
 
         self._evaluation_samples = evaluation_samples
+        self._self_play = self_play
         self._best_avg_score = -np.infty
         self._best_net = None
 
@@ -142,6 +146,7 @@ class Agent(object):
         config['training_episodes'] = self._training_episodes
         config['start_training'] = self._start_training
         config['evaluation_samples'] = self._evaluation_samples
+        config['self_play'] = self._self_play 
         config['train_interval'] = self._train_interval
         config['snapshot_interval'] = self._snapshot_interval
         config['agent_name'] = self._agent_name
@@ -226,7 +231,19 @@ class Agent(object):
         if do_snapshot:
             self.save_parameters(episode=episode)
             self._evaluate()
+            if self._self_play == 'yes':
+                print("Self Play activated")
+                path = os.getcwd()
+                file = os.path.join(os.getcwd(), os.listdir(os.getcwd())[0])
+                home_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(file))))))
+                os.chdir(home_path)
+                snapshot_param = str(self._snapshot_interval)
+                subprocess.check_call(['./update_agent.sh', snapshot_param])
+                os.chdir(path)
+            elif self._self_play == 'no':
+                print("Self play deactivated")
 
+    
     def _evaluate(self, verbose=True):
         avg_reward = self.evaluate(
             sample_games=self._evaluation_samples, verbose=False)
@@ -323,6 +340,7 @@ class DdpgAgent(Agent):
         agent_name='DdpgAgent',
         max_episode_step=9999,
         evaluation_samples=100,
+        self_play='no',
         output_directory='model_parameters',
         verbose=True,
         target_score=None
@@ -336,7 +354,7 @@ class DdpgAgent(Agent):
             snapshot_interval=snapshot_interval, agent_name=agent_name,
             max_episode_step=max_episode_step,
             output_directory=output_directory, verbose=verbose,
-            target_score=target_score, evaluation_samples=evaluation_samples)
+            target_score=target_score, evaluation_samples=evaluation_samples, self_play=self_play)
         assert critic is not None, 'Critic not set'
         assert actor is not None, 'Actor is not set'
         assert soft_target_update_rate > 0,\
@@ -445,7 +463,7 @@ class DdpgAgent(Agent):
 
     def get_next_action(self, state):
         action = self._actor(nd.array([state], ctx=self._ctx))
-        return action[0].asnumpy()
+        return action[0][0][0].asnumpy()
 
     def save_parameters(self, episode):
         self._export_net(
@@ -525,19 +543,19 @@ class DdpgAgent(Agent):
 
                     actor_target_actions = self._actor_target(next_states)
                     critic_target_qvalues = self._critic_target(
-                        next_states, actor_target_actions)
+                        next_states, actor_target_actions[0][0])
 
                     rewards = rewards.reshape(self._minibatch_size, 1)
                     terminals = terminals.reshape(self._minibatch_size, 1)
 
                     # y = r_i + discount * Q'(s_(i+1), mu'(s_(i+1)))
                     y = rewards + (1.0 - terminals) * self._discount_factor\
-                        * critic_target_qvalues
+                        * critic_target_qvalues[0][0]
 
                     # Train the critic network
                     with autograd.record():
                         qvalues = self._critic(states, actions)
-                        critic_loss = l2_loss(qvalues, y)
+                        critic_loss = l2_loss(qvalues[0][0], y)
                     critic_loss.backward()
                     trainer_critic.step(self._minibatch_size)
 
@@ -549,7 +567,7 @@ class DdpgAgent(Agent):
                         # For maximizing qvalues we have to multiply with -1
                         # as we use a minimizer
                         actor_loss = -tmp_critic(
-                            states, self._actor(states)).mean()
+                            states, self._actor(states)[0][0])[0][0].mean()
                     actor_loss.backward()
                     trainer_actor.step(self._minibatch_size)
 
@@ -567,7 +585,7 @@ class DdpgAgent(Agent):
                     episode_actor_loss +=\
                         np.sum(actor_loss.asnumpy()) / self._minibatch_size
                     episode_avg_q_value +=\
-                        np.sum(qvalues.asnumpy()) / self._minibatch_size
+                         np.sum(qvalues[0][0].asnumpy()) / self._minibatch_size
 
                     training_steps += 1
 
@@ -665,6 +683,7 @@ class TwinDelayedDdpgAgent(DdpgAgent):
         agent_name='DdpgAgent',
         max_episode_step=9999,
         evaluation_samples=100,
+        self_play='no',
         output_directory='model_parameters',
         verbose=True,
         target_score=None,
@@ -682,6 +701,7 @@ class TwinDelayedDdpgAgent(DdpgAgent):
             max_episode_step=max_episode_step,
             output_directory=output_directory, verbose=verbose,
             target_score=target_score, evaluation_samples=evaluation_samples,
+            self_play=self_play,
             critic=critic, soft_target_update_rate=soft_target_update_rate,
             actor=actor, actor_optimizer=actor_optimizer,
             actor_optimizer_params=actor_optimizer_params,
@@ -884,7 +904,7 @@ class TwinDelayedDdpgAgent(DdpgAgent):
                         ctx=self._ctx
                     )
                     target_action = np.clip(
-                        self._actor_target(next_states) + clipped_noise,
+                        self._actor_target(next_states)[0][0] + clipped_noise,
                         self._strategy._action_low,
                         self._strategy._action_high)
 
@@ -892,9 +912,9 @@ class TwinDelayedDdpgAgent(DdpgAgent):
                     terminals = terminals.reshape(self._minibatch_size, 1)
 
                     target_qvalues1 = self._critic_target(next_states,
-                                                          target_action)
+                                                          target_action)[0][0]
                     target_qvalues2 = self._critic2_target(next_states,
-                                                           target_action)
+                                                           target_action)[0][0]
                     target_qvalues = nd.minimum(target_qvalues1,
                                                 target_qvalues2)
                     y = rewards + (1 - terminals) * self._discount_factor\
@@ -902,13 +922,13 @@ class TwinDelayedDdpgAgent(DdpgAgent):
 
                     with autograd.record():
                         qvalues1 = self._critic(states, actions)
-                        critic1_loss = l2_loss(qvalues1, y)
+                        critic1_loss = l2_loss(qvalues1[0][0], y)
                     critic1_loss.backward()
                     trainer_critic.step(self._minibatch_size)
 
                     with autograd.record():
                         qvalues2 = self._critic2(states, actions)
-                        critic2_loss = l2_loss(qvalues2, y)
+                        critic2_loss = l2_loss(qvalues2[0][0], y)
                     critic2_loss.backward()
                     trainer_critic2.step(self._minibatch_size)
 
@@ -918,7 +938,7 @@ class TwinDelayedDdpgAgent(DdpgAgent):
                         tmp_critic = self._copy_critic()
                         with autograd.record():
                             actor_loss = -tmp_critic(
-                                states, self._actor(states)).mean()
+                                states, self._actor(states)[0][0])[0][0].mean()
                         actor_loss.backward()
                         trainer_actor.step(self._minibatch_size)
 
@@ -1016,6 +1036,7 @@ class DqnAgent(Agent):
         target_update_interval=10,
         snapshot_interval=200,
         evaluation_samples=100,
+        self_play='no',
         agent_name='Dqn_agent',
         max_episode_step=99999,
         output_directory='model_parameters',
@@ -1031,7 +1052,8 @@ class DqnAgent(Agent):
             snapshot_interval=snapshot_interval, agent_name=agent_name,
             max_episode_step=max_episode_step,
             output_directory=output_directory, verbose=verbose,
-            target_score=target_score, evaluation_samples=evaluation_samples)
+            target_score=target_score, evaluation_samples=evaluation_samples,
+            self_play=self_play)
 
         self._qnet = qnet
         self._target_update_interval = target_update_interval

@@ -9,7 +9,6 @@ import sys
 from mxnet import gluon, nd
 
 
-
 class ZScoreNormalization(gluon.HybridBlock):
     def __init__(self, data_mean, data_std, **kwargs):
         super(ZScoreNormalization, self).__init__(**kwargs)
@@ -38,14 +37,12 @@ class Padding(gluon.HybridBlock):
             constant_value=0)
         return x
 
-
 class NoNormalization(gluon.HybridBlock):
     def __init__(self, **kwargs):
         super(NoNormalization, self).__init__(**kwargs)
 
     def hybrid_forward(self, F, x):
         return x
-
 
 class Reshape(gluon.HybridBlock):
     def __init__(self, shape, **kwargs):
@@ -566,9 +563,6 @@ class VectorQuantize(gluon.HybridBlock):
         return quantized
 
 #Stream 0
-
-
-
 class Net_0(gluon.HybridBlock):
     def __init__(self, data_mean=None, data_std=None, mx_context=None, batch_size=None, **kwargs):
         super(Net_0, self).__init__(**kwargs)
