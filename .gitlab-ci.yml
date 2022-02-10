@@ -146,12 +146,17 @@ buildDockerMXNet170:
     changes:
     - src/test/resources/docker/mxnet170/**/*
 
+<<<<<<< HEAD
 buildDockerMXNet170onnx:
+=======
+buildDockerMXNet170dgl:
+>>>>>>> d45a48f (DGL Dockerfile)
   stage: docker
   tags:
     - shell
   script:
     - cd src/test/resources/docker/mxnet170
+<<<<<<< HEAD
     # - docker login registry.git.rwth-aachen.de -u someUserName -p glpat--9siQV_pCkA2wFRqeDhf
     # - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-onnx:v0.0.1 -f Dockerfile-onnx .
     # - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-onnx:v0.0.1
@@ -171,3 +176,11 @@ buildDockerTensorflowONNX:
   only:
     changes:
     - src/test/resources/docker/tensorflow/**/*
+=======
+    - docker login registry.git.rwth-aachen.de -u someUserName -p glpat--9siQV_pCkA2wFRqeDhf
+    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-dgl:v0.0.1 -f Dockerfile-dgl .
+    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-dgl:v0.0.1
+  only:
+    changes:
+      - src/test/resources/docker/mxnet170/**/*
+>>>>>>> d45a48f (DGL Dockerfile)
