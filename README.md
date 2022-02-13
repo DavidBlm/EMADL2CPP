@@ -138,3 +138,19 @@ If your models require a lot of time to process the training, consider using the
 
 Now you can simply run the code and send the trained model back to your machine using ``scp``.
 
+Here is an example bash script to configure the system using SLURM commands.
+    
+```
+#!/usr/local_rwth/bin/zsh
+#SBATCH --gres=gpu:volta:2
+#SBATCH --output=<your_home_directory>/slurmOutput.txt
+
+module load python3
+module load cuda
+module load cudnn
+module load nccl
+
+source <your_python_environement>/bin/activate
+
+python3 example/CNNTrainer_<your_network_component>.py
+```
