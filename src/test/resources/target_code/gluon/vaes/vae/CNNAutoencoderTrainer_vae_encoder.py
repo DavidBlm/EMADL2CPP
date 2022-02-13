@@ -204,7 +204,6 @@ class CNNAutoencoderTrainer:
                     if "data" == "label":
                         data_ = gluon.utils.split_and_load(batch.label[indexed_labels], ctx_list=mx_context, even_split=False)
                         indexed_labels += 1
-                        #data_ = [mx.nd.one_hot(label_[i], 1) for i in range(num_pus)]
                     else:
                         data_ = gluon.utils.split_and_load(batch.data[indexed_data], ctx_list=mx_context, even_split=False)
                         indexed_data += 1
@@ -305,9 +304,8 @@ class CNNAutoencoderTrainer:
                 indexed_labels = 0
                 indexed_data = 0
                 if "data" == "label":
-                    #data_ = gluon.utils.split_and_load(batch.label[indexed_labels], ctx_list=mx_context, even_split=False)
+                    data_ = gluon.utils.split_and_load(batch.label[indexed_labels], ctx_list=mx_context, even_split=False)
                     indexed_labels += 1
-                    data_ = [mx.nd.one_hot(label_[i], 1) for i in range(num_pus)]
                 else:
                     data_ = gluon.utils.split_and_load(batch.data[indexed_data], ctx_list=mx_context, even_split=False)
                     indexed_data += 1
@@ -359,12 +357,12 @@ class CNNAutoencoderTrainer:
                 for i, network in encoder_nets.items():
                     if network.save_specific_params_list:
                         for name, param_dic in network.save_specific_params_list:
-                            param_dic.save(self.encoder_parameter_path(i) + '-' + name + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
+                            param_dic.save(self.encoder_parameter_path(i) + '-' + name + '.params')
                     network.save_parameters(self.encoder_parameter_path(i) + '-' + str(epoch).zfill(4) + '.params')
                 for i, network in decoder_nets.items():
                     if network.save_specific_params_list:
                         for name, param_dic in network.save_specific_params_list:
-                            param_dic.save(self.decoder_parameter_path(i) + '-' + name + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
+                            param_dic.save(self.decoder_parameter_path(i) + '-' + name + '.params')
                     network.save_parameters(self.decoder_parameter_path(i) + '-' + str(epoch).zfill(4) + '.params')
 
             if print_images:
@@ -403,16 +401,20 @@ class CNNAutoencoderTrainer:
         for i, network in encoder_nets.items():
             if network.save_specific_params_list:
                 for name, param_dic in network.save_specific_params_list:
-                    param_dic.save(self.encoder_parameter_path(i) + '-' + name + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
+                    param_dic.save(self.encoder_parameter_path(i) + '-' + name + '.params')
             network.save_parameters(self.encoder_parameter_path(i) + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
-            network.export(self.encoder_parameter_path(i) + '_newest', epoch=num_epoch)
+            network.export(self.encoder_parameter_path(i) + '_newest', epoch=0)
+
+            loss_function.export(self.encoder_parameter_path(i) + '_newest_loss', epoch=0)
 
         for i, network in decoder_nets.items():
             if network.save_specific_params_list:
                 for name, param_dic in network.save_specific_params_list:
-                    param_dic.save(self.decoder_parameter_path(i) + '-' + name + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
+                    param_dic.save(self.decoder_parameter_path(i) + '-' + name + '.params')
             network.save_parameters(self.decoder_parameter_path(i) + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
-            network.export(self.decoder_parameter_path(i) + '_newest', epoch=num_epoch)
+            network.export(self.decoder_parameter_path(i) + '_newest', epoch=0)
+
+            loss_function.export(self.decoder_parameter_path(i) + '_newest_loss', epoch=0)
 
     def encoder_parameter_path(self, index):
         return self._enc_creator._model_dir_ + self._enc_creator._model_prefix_ + '_' + str(index)

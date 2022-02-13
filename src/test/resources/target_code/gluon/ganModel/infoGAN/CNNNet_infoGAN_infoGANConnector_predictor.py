@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 import mxnet as mx
 import numpy as np
 import math
@@ -7,6 +7,7 @@ import abc
 import warnings
 import sys
 from mxnet import gluon, nd
+
 
 
 class ZScoreNormalization(gluon.HybridBlock):
@@ -37,14 +38,12 @@ class Padding(gluon.HybridBlock):
             constant_value=0)
         return x
 
-
 class NoNormalization(gluon.HybridBlock):
     def __init__(self, **kwargs):
         super(NoNormalization, self).__init__(**kwargs)
 
     def hybrid_forward(self, F, x):
         return x
-
 
 class Reshape(gluon.HybridBlock):
     def __init__(self, shape, **kwargs):
@@ -520,11 +519,57 @@ class EpisodicMemory(EpisodicReplayMemoryInterface):
                 self.label_memory.append(mem_dict[key])
 
 
+class Reparameterize(gluon.HybridBlock):
+    def __init__(self, shape, pdf="normal", **kwargs):
+        super(Reparameterize, self).__init__(**kwargs)
+        self.sample_shape = shape
+        self.latent_dim = shape[0]
+        self.pdf = pdf
+
+    def hybrid_forward(self, F, x):
+        sample = None
+
+        if self.pdf == "normal":
+            eps = F.random_normal(shape=(-1,self.latent_dim))
+            sample = x[0] + x[1] * eps
+
+        return sample
+
+class VectorQuantize(gluon.HybridBlock):
+    def __init__(self,batch_size, num_embeddings, embedding_dim, input_shape, total_feature_maps_size, **kwargs):
+        super(VectorQuantize,self).__init__(**kwargs)
+        self.embedding_dim = embedding_dim
+        self.num_embeddings = num_embeddings
+        self.input_shape = input_shape
+        self.size = int(total_feature_maps_size / embedding_dim)
+
+        # Codebook
+        self.embeddings = self.params.get('embeddings', shape=(num_embeddings,embedding_dim), init=mx.init.Uniform())
+
+    def hybrid_forward(self, F, x, *args, **params):
+        # Flatten the inputs keeping and `embedding_dim` intact.
+        flattened = F.reshape(x, shape=(-1, self.embedding_dim))
+
+        # Get best representation
+        a = F.broadcast_axis(F.sum(flattened ** 2, axis=1, keepdims=True), axis=1, size=self.num_embeddings)
+        b = F.sum(F.broadcast_axis(F.expand_dims(self.embeddings.var() ** 2,axis=0),axis=0,size=self.size), axis=2)
+
+        distances = a + b - 2 * F.dot(flattened, F.transpose(self.embeddings.var()))
+
+        encoding_indices = F.argmin(distances, axis=1)
+        encodings = F.one_hot(encoding_indices, self.num_embeddings)
+
+        # Quantize and unflatten
+        quantized = F.dot(encodings, self.embeddings.var()).reshape(self.input_shape)
+
+        return quantized
+
 #Stream 0
 class Net_0(gluon.HybridBlock):
-    def __init__(self, data_mean=None, data_std=None, mx_context=None, **kwargs):
+    def __init__(self, data_mean=None, data_std=None, mx_context=None, batch_size=None, **kwargs):
         super(Net_0, self).__init__(**kwargs)
         with self.name_scope():
+            self.save_specific_params_list = []
             if data_mean:
                 assert(data_std)
                 self.input_normalization_noise_ = ZScoreNormalization(data_mean=data_mean['noise_'],
@@ -599,6 +644,7 @@ class Net_0(gluon.HybridBlock):
 
             pass
 
+
     def hybrid_forward(self, F, noise_, c1_):
         noise_ = self.input_normalization_noise_(noise_)
         c1_ = self.input_normalization_c1_(c1_)
@@ -621,4 +667,3 @@ class Net_0(gluon.HybridBlock):
         data_ = F.identity(tanh7_)
 
         return [[data_]]
-
