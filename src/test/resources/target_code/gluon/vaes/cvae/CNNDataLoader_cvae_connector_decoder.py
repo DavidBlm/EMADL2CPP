@@ -13,7 +13,7 @@ class CNNDataLoader_cvae_connector_decoder:
     _output_names_ = ['data_label']
 
     def __init__(self):
-        self._data_dir = "/home/asmeta/.m2/repository/de/monticore/lang/monticar/datasets/vae-mnist/1/vae-mnist-1-dataset/training_data/"
+        self._data_dir = "src/test/resources/training_data/Cifar/"
 
     def load_data(self, batch_size, shuffle=False, multi_graph=False):
         train_h5, test_h5 = self.load_h5_files()
