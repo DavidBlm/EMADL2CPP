@@ -9,6 +9,7 @@ import sys
 from mxnet import gluon, nd
 
 
+
 class ZScoreNormalization(gluon.HybridBlock):
     def __init__(self, data_mean, data_std, **kwargs):
         super(ZScoreNormalization, self).__init__(**kwargs)
@@ -517,6 +518,7 @@ class EpisodicMemory(EpisodicReplayMemoryInterface):
             elif key.startswith("labels_"):
                 self.label_memory.append(mem_dict[key])
 
+
 class Reparameterize(gluon.HybridBlock):
     def __init__(self, shape, pdf="normal", **kwargs):
         super(Reparameterize, self).__init__(**kwargs)
@@ -652,4 +654,3 @@ class Net_0(gluon.HybridBlock):
         features_ = F.identity(leakyrelu4_)
 
         return [[dis_, features_]]
-

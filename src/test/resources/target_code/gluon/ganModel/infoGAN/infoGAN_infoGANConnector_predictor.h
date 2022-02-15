@@ -1,4 +1,3 @@
-/* (c) https://github.com/MontiCore/monticore */
 #ifndef INFOGAN_INFOGANCONNECTOR_PREDICTOR
 #define INFOGAN_INFOGANCONNECTOR_PREDICTOR
 #ifndef M_PI

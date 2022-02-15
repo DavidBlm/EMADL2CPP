@@ -260,7 +260,7 @@
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/classes</outputDirectory>
-                                    <includes>schemas/**/*</includes>
+                                    <includes>schemas/**/*.*</includes>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

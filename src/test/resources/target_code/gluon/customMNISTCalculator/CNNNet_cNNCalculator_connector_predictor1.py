@@ -7,6 +7,7 @@ import abc
 import warnings
 import sys
 from mxnet import gluon, nd
+
 sys.path.insert(1, 'src/test/resources/custom_files/python/gluon')
 from custom_layers import *
 
@@ -519,6 +520,7 @@ class EpisodicMemory(EpisodicReplayMemoryInterface):
             elif key.startswith("labels_"):
                 self.label_memory.append(mem_dict[key])
 
+
 class Reparameterize(gluon.HybridBlock):
     def __init__(self, shape, pdf="normal", **kwargs):
         super(Reparameterize, self).__init__(**kwargs)
@@ -655,4 +657,3 @@ class Net_0(gluon.HybridBlock):
         softmax_ = F.identity(softmax_)
 
         return [[softmax_]]
-

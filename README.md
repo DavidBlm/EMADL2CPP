@@ -100,10 +100,56 @@ configuration VGG16{
     * `-f`   forced training (Not mandatory; values can be `y` for a forced training and `n` for a skip (a forced no-training)). By default, the hash value (from the training and test data, the structure of the model (.emadl) and the training parameters (.cnnt) of the model) will be compared. The model is retrained only if the hash changes. This can be used to distribute trained models, by distributing the corresponding `.training_hash` file as well, which will prevent a retraining
     * `-c`    compiling of generated c code (Not mandators; Default is `y`). Disable by setting to `n` when running on Windows, or on machines without `make` and `cmake` commands
 
-    Assuming both the architecture definition `VGG16.emadl` and the corresponding training configuration `VGG16.cnnt` are located in a folder `models` and the target code should be generated in  a `target` folder using the `MXNet` backend, an example of a command is then:  
+    Assuming both the architecture definition `VGG16.emadl` and the corresponding training configuration `VGG16.cnnt` are located in a folder `models` and the target code should be generated in  a `target` folder using the `MXNet` backend, an example of a command is then:
     ```java -jar embedded-montiarc-emadl-generator-0.2.10-jar-with-dependencies.jar -m models -r VGG16 -o target -b MXNET```
 ### AdaNet related changes
 There is a String variable within the EMADLGenerator "adaNetUtils" this variable holds the path to the AdaNet python files.
 This has been added for possible future work. An ArchitectureSymbol has the same variable and is ,for now, hardcoded to the same 
 value. Still it gets set by the EMADLGenerator. There is a Check in CNNArch that checks if the path has been changed. 
 The check ```CheckAdaNetPathToFilesExists```
+
+## Training using the Computer Cluster
+If your models require a lot of time to process the training, consider using the [RWTH HPC](https://help.itc.rwth-aachen.de/service/rhr4fjjutttf/).
+
+1. Create an account using the RWTH Selfservice identity management system. (1-2 days)
+
+
+2. Use this account to access a dialog system of the cluster using ``ssh`` e.g.
+
+   ```ssh -l <your_userid> login18-g-1.hpc.itc.rwth-aachen.de```
+
+
+3. Generate your training files and send them with the ``scp`` command to your file system on the cluster. (It doesn't matter which dialog system you use. You can access the same file system with any dialog system).
+   
+    ```scp -r <source_directory> <target_host>:<target_directory>```
+
+
+4. Make sure that you have the necessary configurations inorder to run your code. Create a batch file in which you can configure the used hardware, for example how many GPUs you want to use. You can read the documentation [here](https://help.itc.rwth-aachen.de/service/rhr4fjjutttf/article/13ace46cfbb84e92a64c1361e0e4c104/).
+   If you want to use GPUs, you need to load e.g. the pre-installed CUDA toolkit using ``module load cuda``. To list all loadable modules you can use ``module avail``. For more information: [module system](https://help.itc.rwth-aachen.de/service/rhr4fjjutttf/article/417f822b8a7849eb8c9c2753045ad67f/).
+
+
+5. You probably need libraries, that are not available in the module system. Create a virtual environment with python and install the libraries with ``pip`` e.g.
+
+    ```
+    python3 -m venv env      #<-- only once inorder to create the environment
+    source env/bin/activate  #<-- use this when reconnecting to load the packages
+    pip install mxnet-cu102
+    ```
+
+Now you can simply run the code and send the trained model back to your machine using ``scp``.
+
+Here is an example bash script to configure the system using SLURM commands.
+    
+```
+#!/usr/local_rwth/bin/zsh
+#SBATCH --gres=gpu:volta:2
+#SBATCH --output=<your_home_directory>/slurmOutput.txt
+
+module load cuda
+module load cudnn
+module load nccl
+
+source <your_python_environement>/bin/activate
+
+python3 example/CNNTrainer_<your_network_component>.py
+```
