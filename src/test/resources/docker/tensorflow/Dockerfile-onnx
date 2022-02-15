@@ -3,3 +3,4 @@ FROM registry.git.rwth-aachen.de/monticore/embeddedmontiarc/applications/mnistca
 RUN apt-get update --allow-releaseinfo-change
 RUN apt-get install -y libprotobuf-dev protobuf-compiler
 RUN export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON" && pip3 install onnx==1.2.1 onnxmltools==1.10.0
+
