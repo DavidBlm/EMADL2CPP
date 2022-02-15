@@ -170,4 +170,4 @@ buildDockerMXNet170onnx:
     - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/tensorflow-onnx
   only:
     changes:
-    - src/test/resources/docker/mxnet170/**/*
+    - src/test/resources/docker/tensorflow/**/*
