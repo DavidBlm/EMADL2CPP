@@ -145,7 +145,6 @@ Here is an example bash script to configure the system using SLURM commands.
 #SBATCH --gres=gpu:volta:2
 #SBATCH --output=<your_home_directory>/slurmOutput.txt
 
-module load python3
 module load cuda
 module load cudnn
 module load nccl
