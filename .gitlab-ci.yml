@@ -159,7 +159,7 @@ buildDockerMXNet170onnx:
     changes:
     - src/test/resources/docker/mxnet170/**/*
 
-buildDockerMXNet170onnx:
+buildDockerTensorflowONNX:
   stage: docker
   tags:
     - shell
