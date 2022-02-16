@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 import mxnet as mx
 import logging
 import os
@@ -6,6 +6,7 @@ import shutil
 import warnings
 import inspect
 import sys
+
 
 from CNNNet_mountaincar_master_actor import Net_0
 
@@ -158,20 +159,18 @@ class CNNCreator_mountaincar_master_actor:
                 else:
                     logging.info("No pretrained weights available at: " + self._weights_dir_ + param_file)
 
-    def construct(self, context, data_mean=None, data_std=None):
-        self.networks[0] = Net_0(data_mean=data_mean, data_std=data_std, mx_context=context, prefix="")
+    def construct(self, context, batch_size=1, data_mean=None, data_std=None):
+        self.networks[0] = Net_0(batch_size=batch_size, data_mean=data_mean, data_std=data_std, mx_context=context, prefix="")
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             self.networks[0].collect_params().initialize(self.weight_initializer, force_reinit=False, ctx=context)
         self.networks[0].hybridize()
-        self.networks[0](mx.nd.zeros((1, 2,), ctx=context[0]))
+        self.networks[0](mx.nd.zeros((batch_size, 2,), ctx=context[0]))
 
         if not os.path.exists(self._model_dir_):
             os.makedirs(self._model_dir_)
-
         for i, network in self.networks.items():
             network.export(self._model_dir_ + self._model_prefix_ + "_" + str(i), epoch=0)
-
     def setWeightInitializer(self, initializer):
         self.weight_initializer = initializer
 
@@ -190,4 +189,5 @@ class CNNCreator_mountaincar_master_actor:
         return outputs
 
     def validate_parameters(self):
-    pass
+
+        pass

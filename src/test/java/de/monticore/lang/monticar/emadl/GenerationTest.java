@@ -341,6 +341,81 @@ public class GenerationTest extends AbstractSymtabTest {
     }
 
     @Test
+    public void testGluonCVAEGeneration() {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/vaes", "-r", "cvae.Connector", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/gluon/vaes/cvae"),
+                Arrays.asList(
+                        "CNNAutoencoderTrainer_cvae_encoder.py",
+                        "CNNCreator_cvae_encoder.py",
+                        "CNNNet_cvae_encoder.py",
+                        "CNNCreator_cvae_connector_decoder.py",
+                        "CNNDataLoader_cvae_connector_decoder.py",
+                        "CNNNet_cvae_connector_decoder.py",
+                        "CNNPredictor_cvae_connector_decoder.h",
+                        "CNNTrainer_cvae_connector_decoder.py",
+                        "cvae_connector.cpp",
+                        "cvae_connector.h",
+                        "cvae_connector_decoder.h"
+                )
+        );
+    }
+
+    @Test
+    public void testGluonVQVAEGeneration() {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/vaes", "-r", "vqvae.Connector", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/gluon/vaes/vqvae"),
+                Arrays.asList(
+                        "CNNAutoencoderTrainer_vqvae_encoder.py",
+                        "CNNCreator_vqvae_encoder.py",
+                        "CNNNet_vqvae_encoder.py",
+                        "CNNCreator_vqvae_connector_decoder.py",
+                        "CNNDataLoader_vqvae_connector_decoder.py",
+                        "CNNNet_vqvae_connector_decoder.py",
+                        "CNNPredictor_vqvae_connector_decoder.h",
+                        "CNNTrainer_vqvae_connector_decoder.py",
+                        "vqvae_connector.cpp",
+                        "vqvae_connector.h",
+                        "vqvae_connector_decoder.h"
+                )
+        );
+    }
+
+    @Test
+    public void testGluonVAEGeneration() {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/vaes", "-r", "vae.Connector", "-b", "GLUON", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/gluon/vaes/vae"),
+                Arrays.asList(
+                        "CNNAutoencoderTrainer_vae_encoder.py",
+                        "CNNCreator_vae_encoder.py",
+                        "CNNNet_vae_encoder.py",
+                        "CNNCreator_vae_connector_decoder.py",
+                        "CNNDataLoader_vae_connector_decoder.py",
+                        "CNNNet_vae_connector_decoder.py",
+                        "CNNPredictor_vae_connector_decoder.h",
+                        "CNNTrainer_vae_connector_decoder.py",
+                        "vae_connector.cpp",
+                        "vae_connector.h",
+                        "vae_connector_decoder.h"
+                )
+        );
+    }
+
+    @Test
     public void testGluonPreprocessingWithSupervised() throws IOException, TemplateException {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON", "-f", "n", "-c", "n"};
@@ -415,6 +490,7 @@ public class GenerationTest extends AbstractSymtabTest {
     @Test
     public void testMnistCalculatorWithCustomLayerForGluon() throws IOException, TemplateException {
         Log.getFindings().clear();
+        //Test depends on the python version
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-cfp", "src/test/resources/custom_files", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         checkFindingsCount();

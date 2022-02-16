@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 import abc
 import logging
 logging.basicConfig(level=logging.INFO)

@@ -80,6 +80,7 @@ public class EMADLGenerator implements EMAMGenerator {
     private String customFilesPath = "";
     private String pythonPath = "";
     private String adaNetUtils = "./src/main/resources/AdaNet/";
+    private boolean useDgl = false;
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
     public EMADLGenerator(Backend backend) {
@@ -124,6 +125,12 @@ public class EMADLGenerator implements EMAMGenerator {
             this.customFilesPath = customPythonFilesPath;
         }
 
+    }
+
+    public boolean getUseDgl() { return useDgl; }
+
+    public void setUseDgl(boolean useDgl){
+        this.useDgl = useDgl;
     }
 
     public String getPythonPath() {return pythonPath;}
@@ -182,10 +189,11 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
 
-    public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile) throws IOException, TemplateException {
+    public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws IOException, TemplateException {
         processedArchitecture = new HashMap<>();
         setModelsPath( modelPath );
         setPythonPath(pythonPath);
+        setUseDgl(useDgl.equals("y"));
         TaggingResolver symtab = getSymTabAndTaggingResolver();
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
         try {
@@ -789,6 +797,7 @@ public class EMADLGenerator implements EMAMGenerator {
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());
+            architecture.get().setUseDgl(getUseDgl());
             if(!getCustomFilesPath().equals("")) {
                 architecture.get().setCustomPyFilesPath(getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
             }
@@ -1029,6 +1038,36 @@ public class EMADLGenerator implements EMAMGenerator {
                     ArchitectureSymbol architectureSymbol = qNetwork.get();
                     architectureSymbol.setComponentName(fullQNetworkName);
                     trainingComponentsContainer.setQNetwork(new ArchitectureAdapter(architectureSymbol));
+                }
+
+                // Resolve encoder network if present
+                Optional<String> encoderName = trainingConfiguration.getEncoderName();
+                if (encoderName.isPresent()) {
+                    String fullEncoderName = encoderName.get();
+                    int indexOfFirstNameCharacter = fullEncoderName.lastIndexOf('.') + 1;
+                    fullEncoderName = fullEncoderName.substring(0, indexOfFirstNameCharacter)
+                            + fullEncoderName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                            + fullEncoderName.substring(indexOfFirstNameCharacter + 1);
+
+                    EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(
+                            fullEncoderName, getSymTabAndTaggingResolver());
+                    EMADLCocos.checkAll(instanceSymbol);
+                    Optional<ArchitectureSymbol> encoder = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+                    if (!encoder.isPresent()) {
+                        String message = String.format("Resolving encoder component failed. Encoder component '%s' does not have a CNN implementation, but is required to have one.", fullEncoderName);
+                        Log.error(message);
+                        throw new RuntimeException(message);
+                    }
+                    ArchitectureSymbol architectureSymbol = encoder.get();
+                    architectureSymbol.setComponentName(fullEncoderName);
+                    trainingComponentsContainer.setEncoderNetwork(
+                            new ArchitectureAdapter(architectureSymbol));
+
+                    ArchitectureAdapter decoder = trainingComponentsContainer.getTrainedArchitecture().get();
+                    ArchitectureSymbol decoderArchitectureSymbol = decoder.getArchitectureSymbol();
+
+                    encoder.get().setAuxiliaryArchitecture(decoderArchitectureSymbol);
+
                 }
 
                 Optional<String> rewardFunctionNameOpt = trainingConfiguration.getRewardFunctionName();
