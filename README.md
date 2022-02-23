@@ -124,11 +124,13 @@ If your models require a lot of time to process the training, consider using the
     ```scp -r <source_directory> <target_host>:<target_directory>```
 
 
-4. Make sure that you have the necessary configurations inorder to run your code. Create a batch file in which you can configure the used hardware, for example how many GPUs you want to use. You can read the documentation [here](https://help.itc.rwth-aachen.de/service/rhr4fjjutttf/article/13ace46cfbb84e92a64c1361e0e4c104/).
-   If you want to use GPUs, you need to load e.g. the pre-installed CUDA toolkit using ``module load cuda``. To list all loadable modules you can use ``module avail``. For more information: [module system](https://help.itc.rwth-aachen.de/service/rhr4fjjutttf/article/417f822b8a7849eb8c9c2753045ad67f/).
+4. Make sure that you have the necessary configurations inorder to run your code. Create a batch script with SLURM commands in which you can configure the training environment like the used hardware, for example how many GPUs you want to use. You can read the documentation [here](https://help.itc.rwth-aachen.de/service/rhr4fjjutttf/article/13ace46cfbb84e92a64c1361e0e4c104/).
+   
+
+5. If you want to use GPUs, you need to load e.g. the pre-installed CUDA toolkit using ``module load cuda``. To list all loadable modules you can use ``module avail``. For more information on the module system click [here](https://help.itc.rwth-aachen.de/service/rhr4fjjutttf/article/417f822b8a7849eb8c9c2753045ad67f/).
 
 
-5. You probably need libraries, that are not available in the module system. Create a virtual environment with python and install the libraries with ``pip`` e.g.
+6. You probably need libraries, that are not available in the module system. Create a virtual environment with python and install the libraries with ``pip`` e.g.
 
     ```
     python3 -m venv env      #<-- only once inorder to create the environment
@@ -138,7 +140,7 @@ If your models require a lot of time to process the training, consider using the
 
 Now you can simply run the code and send the trained model back to your machine using ``scp``.
 
-Here is an example bash script to configure the system using SLURM commands.
+Here is an example batch script.
     
 ```
 #!/usr/local_rwth/bin/zsh
@@ -153,3 +155,6 @@ source <your_python_environement>/bin/activate
 
 python3 example/CNNTrainer_<your_network_component>.py
 ```
+
+You can submit the job with `sbatch <your-bash-script>.sh` on a backend node. It is also possible to just run the script on the frontend node.
+If you did submit the job, you can access the status information with `sacct <job-id>`.
