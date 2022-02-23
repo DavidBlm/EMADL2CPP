@@ -25,7 +25,7 @@ class VAELoss(gluon.loss.Loss):
         y = pred
         loss = 0
 
-        # Calculate the regulariazation terms with the Layerparameters
+        # Calculate the regulariazation terms with the Layer parameters
         if len(self.loss_ctx_list) != 0:
             for i in range(len(self.loss_ctx_list)):
                 dict = self.loss_ctx_list[i]
@@ -54,7 +54,7 @@ class VAELoss(gluon.loss.Loss):
 
     def kl_loss(self, F, pdf, params, weight=1):
         kl = 0
-        # All possible KL-Divergence between two Distr.
+        #Calculates the KL-Divergence between two Distr. that are given by the Layerparameter 'pdf' from Reparameterize
         if pdf == "normal":
             # KL-Div between two gaussians
             mu = params[0]
@@ -109,6 +109,7 @@ class CNNAutoencoderTrainer:
                 logging.info("Creating 'images' directory...")
                 if not os.path.isdir('images'):
                     os.mkdir('images')
+                    logging.info("Created 'images' directory.")
                 else:
                     logging.info("'images' directory already exists.")
             except:
@@ -163,6 +164,7 @@ class CNNAutoencoderTrainer:
             logging.error("VAE-components don't support multiple networkmodels yet. Decoder-Networks found: " + str(len(decoder_nets)))
             sys.exit(1)
 
+        #Loss parameters from layers
         loss_ctx_list = []
 
         loss_ctx_list.append(encoder_nets[0].loss_ctx_dict)
@@ -174,7 +176,7 @@ class CNNAutoencoderTrainer:
         dec_trainers = [mx.gluon.Trainer(network.collect_params(), optimizer, optimizer_params) for network in
                     decoder_nets.values() if len(network.collect_params().values()) != 0]
 
-
+        #Calculates the Loss dependent on the modeled architecture
         loss_function = VAELoss(recon_loss=reconstruction_loss, kl_loss_weight=kl_loss_weight, loss_ctx_list=loss_ctx_list)
 
         loss_function.hybridize()
@@ -196,6 +198,7 @@ class CNNAutoencoderTrainer:
             recon_total = 0
             train_iter.reset()
 
+            #Using training dataset
             for batch_i, batch in enumerate(train_iter):
 
                 with autograd.record():
@@ -214,6 +217,7 @@ class CNNAutoencoderTrainer:
                         label_ = gluon.utils.split_and_load(batch.data[indexed_data], ctx_list=mx_context, even_split=False)
                         indexed_data += 1
 
+                    #Lists to keep data during Multi-GPU Training
                     lossList = []
                     loss_param_list = []
                     reconstruction_losses = []
@@ -227,6 +231,7 @@ class CNNAutoencoderTrainer:
                         encoding_.append([])
                         pred_.append([])
 
+                    #Feed-Forward - Training
                     nd.waitall()
                     for i in range(num_pus):
                         feature_vec, loss_params_enc = encoder_nets[0]( data_[i], label_[i])
@@ -304,7 +309,7 @@ class CNNAutoencoderTrainer:
             test_iter.batch_size = single_pu_batch_size
             test_iter.reset()
 
-
+            #Using test dataset
             for batch_i, batch in enumerate(test_iter):
 
                 indexed_labels = 0
@@ -333,6 +338,7 @@ class CNNAutoencoderTrainer:
                     encoding_.append([])
                     pred_.append([])
 
+                #Feed-Forward - Testing
                 nd.waitall()
                 for i in range(num_pus):
                     feature_vec, loss_params_enc = encoder_nets[0]( data_[i], label_[i])
@@ -369,12 +375,12 @@ class CNNAutoencoderTrainer:
                 for i, network in encoder_nets.items():
                     if network.save_specific_params_list:
                         for name, param_dic in network.save_specific_params_list:
-                            param_dic.save(self.encoder_parameter_path(i) + '-' + name + '.params')
+                            param_dic.save(self.encoder_parameter_path(i) + '-' + name + str(epoch).zfill(4) + '.params')
                     network.save_parameters(self.encoder_parameter_path(i) + '-' + str(epoch).zfill(4) + '.params')
                 for i, network in decoder_nets.items():
                     if network.save_specific_params_list:
                         for name, param_dic in network.save_specific_params_list:
-                            param_dic.save(self.decoder_parameter_path(i) + '-' + name + '.params')
+                            param_dic.save(self.decoder_parameter_path(i) + '-' + name + str(epoch).zfill(4) + '.params')
                     network.save_parameters(self.decoder_parameter_path(i) + '-' + str(epoch).zfill(4) + '.params')
 
             if print_images:
@@ -413,18 +419,26 @@ class CNNAutoencoderTrainer:
         for i, network in encoder_nets.items():
             if network.save_specific_params_list:
                 for name, param_dic in network.save_specific_params_list:
-                    param_dic.save(self.encoder_parameter_path(i) + '-' + name + '.params')
+                    param_dic.save(self.encoder_parameter_path(i) + '-' + name + str((num_epoch-1) + begin_epoch).zfill(4) +'.params')
             network.save_parameters(self.encoder_parameter_path(i) + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
             network.export(self.encoder_parameter_path(i) + '_newest', epoch=0)
+            has_vq_layer = self.remove_vq(network)
+            if has_vq_layer:
+                network.save_parameters(self.encoder_parameter_path(i) + '_no_vq' + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
+                network.export(self.encoder_parameter_path(i) + '_newest_no_vq', epoch=0)
 
             loss_function.export(self.encoder_parameter_path(i) + '_newest_loss', epoch=0)
 
         for i, network in decoder_nets.items():
             if network.save_specific_params_list:
                 for name, param_dic in network.save_specific_params_list:
-                    param_dic.save(self.decoder_parameter_path(i) + '-' + name + '.params')
+                    param_dic.save(self.decoder_parameter_path(i) + '-' + name + str((num_epoch-1) + begin_epoch).zfill(4) +'.params')
             network.save_parameters(self.decoder_parameter_path(i) + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
             network.export(self.decoder_parameter_path(i) + '_newest', epoch=0)
+            has_vq_layer = self.remove_vq(network)
+            if has_vq_layer:
+                network.save_parameters(self.decoder_parameter_path(i) + '_no_vq' + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
+                network.export(self.decoder_parameter_path(i) + '_newest_no_vq', epoch=0)
 
             loss_function.export(self.decoder_parameter_path(i) + '_newest_loss', epoch=0)
 
@@ -433,3 +447,17 @@ class CNNAutoencoderTrainer:
 
     def decoder_parameter_path(self, index):
         return self._dec_creator._model_dir_ + self._dec_creator._model_prefix_ + '_' + str(index)
+
+    # To save networks with the vq-layer and without it inorder to provide more convenient options to work with
+    def remove_vq(self, net):
+        has_vq_layer = False
+        for key, layer in net._children.items():
+            if hasattr(net, "vq_type"):
+                if isinstance(layer, net.vq_type):
+                    if hasattr(net,str(key)):
+                        delattr(net,str(key))
+                    del net._children[key]
+                has_vq_layer = True
+            else:
+                has_vq_layer = self.remove_vq(layer)
+        return has_vq_layer

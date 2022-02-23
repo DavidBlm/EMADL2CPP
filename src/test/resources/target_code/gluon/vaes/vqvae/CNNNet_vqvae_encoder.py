@@ -609,6 +609,7 @@ class Net_0(gluon.HybridBlock):
                                                   total_feature_maps_size=int(batch_size*16*7*7))
             self.loss_ctx_dict = {"loss": "quantization_loss",
                                   "values": { "beta":0.25,}}
+            self.vq_type = type(self.vectorquantize3_)
 
 
 
