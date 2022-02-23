@@ -4,3 +4,8 @@ RUN apt-get update --allow-releaseinfo-change
 RUN apt-get install -y libprotobuf-dev protobuf-compiler
 RUN export CMAKE_ARGS="-DONNX_USE_PROTOBUF_SHARED_LIBS=ON" && pip3 install onnx==1.2.1 onnxmltools==1.10.0
 
+# install java and maven
+RUN apt-get install -y openjdk-8-jdk
+RUN wget https://www-us.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz -P /tmp \
+    && tar xf /tmp/apache-maven-*.tar.gz -C /opt \
+    && ln -s /opt/apache-maven-3.6.3 /opt/maven
