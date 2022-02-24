@@ -119,7 +119,7 @@ If your models require a lot of time to process the training, consider using the
    ```ssh -l <your_userid> login18-g-1.hpc.itc.rwth-aachen.de```
 
 
-3. Generate your training files and send them with the ``scp`` command to your file system on the cluster. (It doesn't matter which dialog system you use. You can access the same file system with any dialog system).
+3. Generate your training files and send them with the ``scp`` command to your file system on the cluster or clone a repository with git. (It doesn't matter which dialog system you use. You can access the same file system with any dialog system).
    
     ```scp -r <source_directory> <target_host>:<target_directory>```
 
