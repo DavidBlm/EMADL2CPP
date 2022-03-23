@@ -416,6 +416,25 @@ public class GenerationTest extends AbstractSymtabTest {
     }
 
     @Test
+    public void testGluonCoraDglGeneration() {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/gnns", "-r", "coraDgl.DGLNetwork", "-b", "GLUON", "-f", "n", "-c", "n", "-dgl", "y"};
+        EMADLGeneratorCli.main(args);
+        assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/gluon/gnns/coraDgl"),
+                Arrays.asList(
+                        "CNNNet_coraDgl_dGLNetwork.py",
+                        "CNNCreator_coraDgl_dGLNetwork.py",
+                        "CNNDataLoader_coraDgl_dGLNetwork.py",
+                        "CNNNet_coraDgl_dGLNetwork.py",
+                        "CNNTrainer_coraDgl_dGLNetwork.py"
+                )
+        );
+    }
+
+    @Test
     public void testGluonPreprocessingWithSupervised() throws IOException, TemplateException {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON", "-f", "n", "-c", "n"};
