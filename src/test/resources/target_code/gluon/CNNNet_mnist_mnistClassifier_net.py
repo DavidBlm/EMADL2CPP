@@ -9,6 +9,7 @@ import sys
 from mxnet import gluon, nd
 
 
+
 class ZScoreNormalization(gluon.HybridBlock):
     def __init__(self, data_mean, data_std, **kwargs):
         super(ZScoreNormalization, self).__init__(**kwargs)
@@ -517,6 +518,7 @@ class EpisodicMemory(EpisodicReplayMemoryInterface):
             elif key.startswith("labels_"):
                 self.label_memory.append(mem_dict[key])
 
+
 class Reparameterize(gluon.HybridBlock):
     def __init__(self, shape, pdf="normal", **kwargs):
         super(Reparameterize, self).__init__(**kwargs)
@@ -609,7 +611,6 @@ class Net_0(gluon.HybridBlock):
 
             pass
 
-
     def hybrid_forward(self, F, image_):
         image_ = self.input_normalization_image_(image_)
         conv1_padding = self.conv1_padding(image_)
@@ -625,4 +626,3 @@ class Net_0(gluon.HybridBlock):
         predictions_ = F.identity(softmax3_)
 
         return [[predictions_]]
-
