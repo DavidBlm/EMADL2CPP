@@ -61,7 +61,7 @@ public class EMADLGeneratorCli {
             .build();
 
     public static final Option OPTION_USE_DGL = Option.builder("dgl")
-            .longOpt("use-dgl")
+            .longOpt("useDgl")
             .desc("If you use GNN Training whether to use DGL Layers or your own Custom Layers")
             .hasArg(true)
             .required(false)
