@@ -9,6 +9,7 @@ import sys
 from mxnet import gluon, nd
 
 
+
 class ZScoreNormalization(gluon.HybridBlock):
     def __init__(self, data_mean, data_std, **kwargs):
         super(ZScoreNormalization, self).__init__(**kwargs)
@@ -517,6 +518,7 @@ class EpisodicMemory(EpisodicReplayMemoryInterface):
             elif key.startswith("labels_"):
                 self.label_memory.append(mem_dict[key])
 
+
 class Reparameterize(gluon.HybridBlock):
     def __init__(self, shape, pdf="normal", **kwargs):
         super(Reparameterize, self).__init__(**kwargs)
@@ -534,33 +536,44 @@ class Reparameterize(gluon.HybridBlock):
         return sample
 
 class VectorQuantize(gluon.HybridBlock):
-    def __init__(self,batch_size, num_embeddings, embedding_dim, input_shape, total_feature_maps_size, **kwargs):
+    def __init__(self, num_embeddings, embedding_dim, input_shape, total_feature_maps_size, **kwargs):
         super(VectorQuantize,self).__init__(**kwargs)
         self.embedding_dim = embedding_dim
         self.num_embeddings = num_embeddings
-        self.input_shape = input_shape
-        self.size = int(total_feature_maps_size / embedding_dim)
 
         # Codebook
-        self.embeddings = self.params.get('embeddings', shape=(num_embeddings,embedding_dim), init=mx.init.Uniform())
+        with self.name_scope():
+            self.embeddings = self.params.get('embeddings', shape=(num_embeddings,embedding_dim), init=mx.init.Uniform())
 
     def hybrid_forward(self, F, x, *args, **params):
-        # Flatten the inputs keeping and `embedding_dim` intact.
+        # Change BCHW to BHWC
+        x = F.swapaxes(x, 1, 2)
+        x = F.swapaxes(x, 2, 3)
+
+        #Shape: (BHW (all pixels), C (pixel vectors))
         flattened = F.reshape(x, shape=(-1, self.embedding_dim))
 
-        # Get best representation
-        a = F.broadcast_axis(F.sum(flattened ** 2, axis=1, keepdims=True), axis=1, size=self.num_embeddings)
-        b = F.sum(F.broadcast_axis(F.expand_dims(self.embeddings.var() ** 2,axis=0),axis=0,size=self.size), axis=2)
+        # Get best representation from Codebook
+        ab = F.dot(flattened, F.transpose(self.embeddings.var()))
+        a2 = F.broadcast_like(F.sum(flattened ** 2, axis=1, keepdims=True),ab)
+        b2 = F.broadcast_like(F.expand_dims(F.sum(self.embeddings.var() ** 2, axis=1),axis=0),ab)
 
-        distances = a + b - 2 * F.dot(flattened, F.transpose(self.embeddings.var()))
-
+        distances = a2 - 2*ab + b2
         encoding_indices = F.argmin(distances, axis=1)
         encodings = F.one_hot(encoding_indices, self.num_embeddings)
 
         # Quantize and unflatten
-        quantized = F.dot(encodings, self.embeddings.var()).reshape(self.input_shape)
+        quantized = F.reshape_like(F.dot(encodings, self.embeddings.var()), x)
 
-        return quantized
+        commit_l = F.mean((F.stop_gradient(quantized) - x) ** 2, axis=0, exclude=True)
+        codebook_l = F.mean((quantized - F.stop_gradient(x)) ** 2, axis=0, exclude=True)
+
+        quantized = x - F.stop_gradient(x + quantized)
+
+        quantized = F.swapaxes(quantized, 3, 2)
+        quantized = F.swapaxes(quantized, 2, 1)
+
+        return [quantized, commit_l, codebook_l]
 
 #Stream 0
 class Net_0(gluon.HybridBlock):
@@ -609,4 +622,3 @@ class Net_0(gluon.HybridBlock):
         qvalues_ = F.identity(fc5_)
 
         return [[qvalues_]]
-
