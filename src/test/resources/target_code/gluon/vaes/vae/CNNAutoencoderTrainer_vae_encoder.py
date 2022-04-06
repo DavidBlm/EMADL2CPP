@@ -25,7 +25,7 @@ class VAELoss(gluon.loss.Loss):
         y = pred
         loss = 0
 
-        # Calculate the regulariazation terms with the Layerparameters
+        # Calculate the regulariazation terms with the Layer parameters
         if len(self.loss_ctx_list) != 0:
             for i in range(len(self.loss_ctx_list)):
                 dict = self.loss_ctx_list[i]
@@ -35,13 +35,11 @@ class VAELoss(gluon.loss.Loss):
                     pdf = val_dict["pdf"]
                     loss = - self.kl_loss(F, pdf, loss_params, self.kl_weight) + loss
                 elif dict["loss"] == "quantization_loss":
-                    encoding = loss_params[0]
-                    quantization = loss_params[1]
                     commitment_weight = val_dict['beta']
 
                     # Calculate vector quantization loss
-                    commitment_loss = commitment_weight * F.mean((F.stop_gradient(quantization) - encoding) ** 2, axis=0, exclude=True)
-                    codebook_loss = F.mean((quantization - F.stop_gradient(encoding)) ** 2, axis=0, exclude=True)
+                    commitment_loss = commitment_weight * loss_params[0]
+                    codebook_loss = loss_params[1]
                     loss = commitment_loss + codebook_loss + loss
 
         # Reconstruction Loss
@@ -54,7 +52,7 @@ class VAELoss(gluon.loss.Loss):
 
     def kl_loss(self, F, pdf, params, weight=1):
         kl = 0
-        # All possible KL-Divergence between two Distr.
+        #Calculates the KL-Divergence between two Distr. that are given by the Layerparameter 'pdf' from Reparameterize
         if pdf == "normal":
             # KL-Div between two gaussians
             mu = params[0]
@@ -77,14 +75,13 @@ class CNNAutoencoderTrainer:
               load_checkpoint=False,
               context='cpu',
               reconstruction_loss='mse',
-              preprocessing=False,
+              preprocessing=False, #TODO
               checkpoint_period=5,
               load_pretrained=False,
               normalize=False,
               log_period = 50,
               kl_loss_weight=1,
               print_images=False):
-        preprocessing = False #TODO to be added - create an additional load_vae_data for preprocessing case
         num_pus = 1
         if context == 'gpu':
             num_pus = mx.context.num_gpus()
@@ -109,13 +106,14 @@ class CNNAutoencoderTrainer:
                 logging.info("Creating 'images' directory...")
                 if not os.path.isdir('images'):
                     os.mkdir('images')
+                    logging.info("Created 'images' directory.")
                 else:
                     logging.info("'images' directory already exists.")
             except:
                 logging.error("Creation of the 'images' directory failed.")
 
         input_names = [ "data"]
-        train_iter, test_iter, data_mean, data_std, _, _ = self._data_loader.load_vae_data(batch_size=batch_size, input_names=input_names)
+        train_iter, test_iter, data_mean, data_std, _, _ = self._data_loader.load_vae_data(batch_size=batch_size, input_names=input_names, shuffle=True)
 
         if 'weight_decay' in optimizer_params:
             optimizer_params['wd'] = optimizer_params['weight_decay']
@@ -127,6 +125,7 @@ class CNNAutoencoderTrainer:
                 del optimizer_params['learning_rate_minimum']
             optimizer_params['lr_scheduler'] = mx.lr_scheduler.FactorScheduler(
                                                   optimizer_params['step_size'],
+                                                  base_lr=optimizer_params['learning_rate'],
                                                   factor=optimizer_params['learning_rate_decay'],
                                                   stop_factor_lr=min_learning_rate)
             del optimizer_params['step_size']
@@ -163,6 +162,7 @@ class CNNAutoencoderTrainer:
             logging.error("VAE-components don't support multiple networkmodels yet. Decoder-Networks found: " + str(len(decoder_nets)))
             sys.exit(1)
 
+        #Loss parameters from layers
         loss_ctx_list = []
 
         loss_ctx_list.append(encoder_nets[0].loss_ctx_dict)
@@ -174,7 +174,7 @@ class CNNAutoencoderTrainer:
         dec_trainers = [mx.gluon.Trainer(network.collect_params(), optimizer, optimizer_params) for network in
                     decoder_nets.values() if len(network.collect_params().values()) != 0]
 
-
+        #Calculates the Loss dependent on the modeled architecture
         loss_function = VAELoss(recon_loss=reconstruction_loss, kl_loss_weight=kl_loss_weight, loss_ctx_list=loss_ctx_list)
 
         loss_function.hybridize()
@@ -196,6 +196,7 @@ class CNNAutoencoderTrainer:
             recon_total = 0
             train_iter.reset()
 
+            #Using training dataset
             for batch_i, batch in enumerate(train_iter):
 
                 with autograd.record():
@@ -208,6 +209,7 @@ class CNNAutoencoderTrainer:
                         data_ = gluon.utils.split_and_load(batch.data[indexed_data], ctx_list=mx_context, even_split=False)
                         indexed_data += 1
 
+                    #Lists to keep data during Multi-GPU Training
                     lossList = []
                     loss_param_list = []
                     reconstruction_losses = []
@@ -221,6 +223,7 @@ class CNNAutoencoderTrainer:
                         encoding_.append([])
                         pred_.append([])
 
+                    #Feed-Forward - Training
                     nd.waitall()
                     for i in range(num_pus):
                         feature_vec, loss_params_enc = encoder_nets[0]( data_[i])
@@ -298,7 +301,7 @@ class CNNAutoencoderTrainer:
             test_iter.batch_size = single_pu_batch_size
             test_iter.reset()
 
-
+            #Using test dataset
             for batch_i, batch in enumerate(test_iter):
 
                 indexed_labels = 0
@@ -321,21 +324,23 @@ class CNNAutoencoderTrainer:
                     encoding_.append([])
                     pred_.append([])
 
+                #Feed-Forward - Testing
+                num_test_images = 5
                 nd.waitall()
                 for i in range(num_pus):
-                    feature_vec, loss_params_enc = encoder_nets[0]( data_[i])
+                    feature_vec, loss_params_enc = encoder_nets[0]( data_[i][:num_test_images])
                     loss_param_list[i].append(loss_params_enc)
                     encoding_[i] = feature_vec[0]
 
                 nd.waitall()
                 for i in range(num_pus):
-                    res_ = decoder_nets[0]( encoding_[i])
+                    res_ = decoder_nets[0]( encoding_[i][:num_test_images])
                     
                     pred_[i] = res_[0][0]
 
                 nd.waitall()
                 for i in range(num_pus):
-                    elbo, reconstruction_loss = loss_function(pred_[i], data_[i], loss_param_list[i])
+                    elbo, reconstruction_loss = loss_function(pred_[i], data_[i][:num_test_images], loss_param_list[i])
                     lossList[i].append(elbo)
 
                 losses = [0] * num_pus
@@ -348,7 +353,7 @@ class CNNAutoencoderTrainer:
 
                 test_batches += 1
 
-            global_loss_test /= (test_batches * single_pu_batch_size)
+            global_loss_test /= (test_batches * num_test_images)
 
             logging.info("Epoch[%d], Epoch Train Loss: %f, Epoch Reconstruction Loss: %f, Validation Loss: %f" % (
                 epoch, global_loss_train, global_reconloss, global_loss_test))
@@ -357,31 +362,36 @@ class CNNAutoencoderTrainer:
                 for i, network in encoder_nets.items():
                     if network.save_specific_params_list:
                         for name, param_dic in network.save_specific_params_list:
-                            param_dic.save(self.encoder_parameter_path(i) + '-' + name + '.params')
-                    network.save_parameters(self.encoder_parameter_path(i) + '-' + str(epoch).zfill(4) + '.params')
+                            param_dic.save(self.encoder_parameter_path(i) + '-' + name + '-' + str(epoch).zfill(4) + '.params')
+                    #Not sure if actually needed. Keeping it because CNNSupervised has it. Had problems reloading parameters with this.
+                    #network.save_parameters(self.encoder_parameter_path(i) + '-' + str(epoch).zfill(4) + '.params')
+                    network.export(self.encoder_parameter_path(i), epoch=epoch)
                 for i, network in decoder_nets.items():
                     if network.save_specific_params_list:
                         for name, param_dic in network.save_specific_params_list:
-                            param_dic.save(self.decoder_parameter_path(i) + '-' + name + '.params')
-                    network.save_parameters(self.decoder_parameter_path(i) + '-' + str(epoch).zfill(4) + '.params')
+                            param_dic.save(self.decoder_parameter_path(i) + '-' + name + '-' + str(epoch).zfill(4) + '.params')
+                    #Not sure if actually needed. Keeping it because CNNSupervised has it. Had problems reloading parameters with this.
+                    #network.save_parameters(self.decoder_parameter_path(i) + '-' + str(epoch).zfill(4) + '.params')
+                    network.export(self.decoder_parameter_path(i), epoch=epoch)
 
             if print_images:
                 train_lost_list.append(global_loss_train)
                 test_lost_list.append(global_loss_test)
 
                 try:
-                    #Reconstructions
-                    filename = 'test_reconstruction_%06d%06d.png' % (epoch, batch_i)
-                    fig = plt.figure()
-                    ax = fig.add_subplot(1, 2, 1)
-                    plt.imshow(data_[0][0].squeeze(0).asnumpy())
-                    ax.set_title('Original')
-                    ax = fig.add_subplot(1, 2, 2)
-                    plt.imshow(pred_[0][0].squeeze(0).asnumpy())
-                    ax.set_title('Reconstruction')
-                    plt.tight_layout()
-                    plt.savefig('images/' + filename)
-                    plt.close()
+                    for i in range(num_test_images):
+                        # Reconstructions
+                        filename = 'test_reconstruction_%d_epoch%d_batch_size%d.png' % (i,epoch, batch_size)
+                        fig = plt.figure()
+                        ax = fig.add_subplot(1, 2, 1)
+                        plt.imshow(data_[0][i].squeeze(0).asnumpy())
+                        ax.set_title('Original')
+                        ax = fig.add_subplot(1, 2, 2)
+                        plt.imshow(pred_[0][i].squeeze(0).asnumpy())
+                        ax.set_title('Reconstruction')
+                        plt.tight_layout()
+                        plt.savefig('images/' + filename)
+                        plt.close()
                 except:
                     logging.info("Could not print reconstruction images.")
 
@@ -401,8 +411,9 @@ class CNNAutoencoderTrainer:
         for i, network in encoder_nets.items():
             if network.save_specific_params_list:
                 for name, param_dic in network.save_specific_params_list:
-                    param_dic.save(self.encoder_parameter_path(i) + '-' + name + '.params')
-            network.save_parameters(self.encoder_parameter_path(i) + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
+                    param_dic.save(self.encoder_parameter_path(i) + '-' + name + '-' + str((num_epoch-1) + begin_epoch).zfill(4) +'.params')
+            #Not sure if actually needed. Keeping it because CNNSupervised has it. Had problems reloading parameters with this.
+            #network.save_parameters(self.encoder_parameter_path(i) + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
             network.export(self.encoder_parameter_path(i) + '_newest', epoch=0)
 
             loss_function.export(self.encoder_parameter_path(i) + '_newest_loss', epoch=0)
@@ -410,8 +421,9 @@ class CNNAutoencoderTrainer:
         for i, network in decoder_nets.items():
             if network.save_specific_params_list:
                 for name, param_dic in network.save_specific_params_list:
-                    param_dic.save(self.decoder_parameter_path(i) + '-' + name + '.params')
-            network.save_parameters(self.decoder_parameter_path(i) + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
+                    param_dic.save(self.decoder_parameter_path(i) + '-' + name + '-' + str((num_epoch-1) + begin_epoch).zfill(4) +'.params')
+            #Not sure if actually needed. Keeping it because CNNSupervised has it. Had problems reloading parameters with this.
+            #network.save_parameters(self.decoder_parameter_path(i) + '-' + str((num_epoch-1) + begin_epoch).zfill(4) + '.params')
             network.export(self.decoder_parameter_path(i) + '_newest', epoch=0)
 
             loss_function.export(self.decoder_parameter_path(i) + '_newest_loss', epoch=0)
@@ -421,3 +433,4 @@ class CNNAutoencoderTrainer:
 
     def decoder_parameter_path(self, index):
         return self._dec_creator._model_dir_ + self._dec_creator._model_prefix_ + '_' + str(index)
+

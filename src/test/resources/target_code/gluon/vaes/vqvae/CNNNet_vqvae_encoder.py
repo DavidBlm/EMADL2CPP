@@ -536,33 +536,44 @@ class Reparameterize(gluon.HybridBlock):
         return sample
 
 class VectorQuantize(gluon.HybridBlock):
-    def __init__(self,batch_size, num_embeddings, embedding_dim, input_shape, total_feature_maps_size, **kwargs):
+    def __init__(self, num_embeddings, embedding_dim, input_shape, total_feature_maps_size, **kwargs):
         super(VectorQuantize,self).__init__(**kwargs)
         self.embedding_dim = embedding_dim
         self.num_embeddings = num_embeddings
-        self.input_shape = input_shape
-        self.size = int(total_feature_maps_size / embedding_dim)
 
         # Codebook
-        self.embeddings = self.params.get('embeddings', shape=(num_embeddings,embedding_dim), init=mx.init.Uniform())
+        with self.name_scope():
+            self.embeddings = self.params.get('embeddings', shape=(num_embeddings,embedding_dim), init=mx.init.Uniform())
 
     def hybrid_forward(self, F, x, *args, **params):
-        # Flatten the inputs keeping and `embedding_dim` intact.
+        # Change BCHW to BHWC
+        x = F.swapaxes(x, 1, 2)
+        x = F.swapaxes(x, 2, 3)
+
+        #Shape: (BHW (all pixels), C (pixel vectors))
         flattened = F.reshape(x, shape=(-1, self.embedding_dim))
 
-        # Get best representation
-        a = F.broadcast_axis(F.sum(flattened ** 2, axis=1, keepdims=True), axis=1, size=self.num_embeddings)
-        b = F.sum(F.broadcast_axis(F.expand_dims(self.embeddings.var() ** 2,axis=0),axis=0,size=self.size), axis=2)
+        # Get best representation from Codebook
+        ab = F.dot(flattened, F.transpose(self.embeddings.var()))
+        a2 = F.broadcast_like(F.sum(flattened ** 2, axis=1, keepdims=True),ab)
+        b2 = F.broadcast_like(F.expand_dims(F.sum(self.embeddings.var() ** 2, axis=1),axis=0),ab)
 
-        distances = a + b - 2 * F.dot(flattened, F.transpose(self.embeddings.var()))
-
+        distances = a2 - 2*ab + b2
         encoding_indices = F.argmin(distances, axis=1)
         encodings = F.one_hot(encoding_indices, self.num_embeddings)
 
         # Quantize and unflatten
-        quantized = F.dot(encodings, self.embeddings.var()).reshape(self.input_shape)
+        quantized = F.reshape_like(F.dot(encodings, self.embeddings.var()), x)
 
-        return quantized
+        commit_l = F.mean((F.stop_gradient(quantized) - x) ** 2, axis=0, exclude=True)
+        codebook_l = F.mean((quantized - F.stop_gradient(x)) ** 2, axis=0, exclude=True)
+
+        quantized = x - F.stop_gradient(x + quantized)
+
+        quantized = F.swapaxes(quantized, 3, 2)
+        quantized = F.swapaxes(quantized, 2, 1)
+
+        return [quantized, commit_l, codebook_l]
 
 #Stream 0
 class Net_0(gluon.HybridBlock):
@@ -602,11 +613,10 @@ class Net_0(gluon.HybridBlock):
             # conv3_, output shape: {[16,7,7]}
 
 
-            self.vectorquantize3_ = VectorQuantize(batch_size=batch_size,
-                                                  num_embeddings=64,
+            self.vectorquantize3_ = VectorQuantize(num_embeddings=64,
                                                   embedding_dim=16,
-                                                  input_shape=(batch_size,16,7,7),
-                                                  total_feature_maps_size=int(batch_size*16*7*7))
+                                                  input_shape=(16,7,7),
+                                                  total_feature_maps_size=int(16*7*7))
             self.loss_ctx_dict = {"loss": "quantization_loss",
                                   "values": { "beta":0.25,}}
 
@@ -627,9 +637,9 @@ class Net_0(gluon.HybridBlock):
         relu2_ = self.relu2_(conv2_)
         dropout2_ = self.dropout2_(relu2_)
         conv3_ = self.conv3_(dropout2_)
-        vectorquantize3_ = self.vectorquantize3_(conv3_)
-        loss_params.append(conv3_)
-        loss_params.append(vectorquantize3_)
+        vectorquantize3_, vectorquantize3__commit_loss, vectorquantize3__codebook_loss = self.vectorquantize3_(conv3_)
+        loss_params.append(vectorquantize3__commit_loss)
+        loss_params.append(vectorquantize3__codebook_loss)
         self.save_specific_params_list.append((self.vectorquantize3_.name,self.vectorquantize3_.collect_params()))
         encoding_ = F.identity(vectorquantize3_)
 
