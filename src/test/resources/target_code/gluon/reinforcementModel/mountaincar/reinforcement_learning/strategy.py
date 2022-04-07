@@ -130,7 +130,7 @@ class EpsilonGreedyStrategy(BaseStrategy):
         if do_exploration:
             action = np.random.randint(low=0, high=self.__number_of_actions)
         else:
-            action = values.asnumpy().argmax()
+            action = values[0][0].asnumpy().argmax()
         return action
 
 
