@@ -52,8 +52,8 @@ integrationMXNetJobLinux:
   allow_failure: true
   except:
     changes:
-    - README.md
     - .gitlab-ci.yml
+    - README.md
 
 
 integrationCaffe2JobLinux:
@@ -63,8 +63,8 @@ integrationCaffe2JobLinux:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationCaffe2Test
   except:
     changes:
-    - README.md
     - .gitlab-ci.yml
+    - README.md
 
 
 integrationGluonJobLinux:
@@ -74,8 +74,8 @@ integrationGluonJobLinux:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=IntegrationGluonTest
   except:
     changes:
-    - README.md
     - .gitlab-ci.yml
+    - README.md
 
 
 integrationTensorflowJobLinux:
@@ -85,8 +85,8 @@ integrationTensorflowJobLinux:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=IntegrationTensorflowTest
   except:
     changes:
-    - README.md
     - .gitlab-ci.yml
+    - README.md
 
 
 integrationPythonWrapperTest:
@@ -96,8 +96,8 @@ integrationPythonWrapperTest:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U  clean install --settings settings.xml -Dtest=IntegrationPythonWrapperTest
   except:
     changes:
-    - README.md
     - .gitlab-ci.yml
+    - README.md
 
 
 #masterJobWindows:
@@ -117,8 +117,8 @@ UnitTestJobLinux:
 #  - cat target/site/jacoco/index.html
   except:
     changes:
-    - README.md
     - .gitlab-ci.yml
+    - README.md
 
 buildDockerMXNet150:
   stage: docker
@@ -146,17 +146,12 @@ buildDockerMXNet170:
     changes:
     - src/test/resources/docker/mxnet170/**/*
 
-<<<<<<< HEAD
 buildDockerMXNet170onnx:
-=======
-buildDockerMXNet170dgl:
->>>>>>> d45a48f (DGL Dockerfile)
   stage: docker
   tags:
     - shell
   script:
     - cd src/test/resources/docker/mxnet170
-<<<<<<< HEAD
     # - docker login registry.git.rwth-aachen.de -u someUserName -p glpat--9siQV_pCkA2wFRqeDhf
     # - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-onnx:v0.0.1 -f Dockerfile-onnx .
     # - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-onnx:v0.0.1
@@ -176,9 +171,6 @@ buildDockerTensorflowONNX:
   only:
     changes:
     - src/test/resources/docker/tensorflow/**/*
-<<<<<<< HEAD
-=======
-=======
 
 buildDockerMXNet170DGL:
   stage: docker
@@ -186,11 +178,9 @@ buildDockerMXNet170DGL:
     - shell
   script:
     - cd src/test/resources/docker/mxnet170
->>>>>>> dd3b9b7 (Small DGL fixes)
     - docker login registry.git.rwth-aachen.de -u someUserName -p glpat--9siQV_pCkA2wFRqeDhf
     - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-dgl:v0.0.1 -f Dockerfile-dgl .
     - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-dgl:v0.0.1
   only:
     changes:
       - src/test/resources/docker/mxnet170/**/*
->>>>>>> d45a48f (DGL Dockerfile)
