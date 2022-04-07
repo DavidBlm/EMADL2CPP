@@ -487,13 +487,15 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
                     net_ret = [self._networks[0](image_[i]) for i in range(num_pus)]
                     predictions_ = [net_ret[i][0][0] for i in range(num_pus)]
-                    if train_mask != None:
-                        outputs = []
-                        outputs.append(predictions_[0])
-                        train_samples = train_mask[1] - train_mask[0]
-                        [lossList[i].append(loss_function(mx.nd.squeeze(predictions_[i]), mx.nd.squeeze(labels[0][i]), self.get_mask_array(predictions_[0].shape[0], train_mask)).sum() / train_samples) for i in range(num_pus)]
+                    if (train_mask is not None or test_mask is not None) and epoch == 0:
+                        train_mask = self.get_mask_array(predictions_[0].shape[0], train_mask)
+                        test_mask = self.get_mask_array(predictions_[0].shape[0], test_mask)
+                    if train_mask is not None:
+                        outputs = [predictions_[0]]
+                        [lossList[i].append(loss_function(mx.nd.squeeze(predictions_[i]), mx.nd.squeeze(labels[0][i]), mx.nd.expand_dims(train_mask, 1)).sum() / train_mask.sum().asscalar()) for i in range(num_pus)]
                     else:
                         [lossList[i].append(loss_function(predictions_[i], labels[0][i])) for i in range(num_pus)]
+
 
 
                     losses = [0]*num_pus
@@ -530,6 +532,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
                         loss_avg = loss_total / (batch_size * log_period)
                         loss_total = 0
+
                         logging.info("Epoch[%d] Batch[%d] Speed: %.2f samples/sec Loss: %.5f" % (epoch, batch_i, speed, loss_avg))
                         
                         avg_speed += speed
@@ -626,7 +629,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             test_iter.reset()
             metric = mx.metric.create(eval_metric, **eval_metric_params)
             for batch_i, batch in enumerate(test_iter):
-                if test_mask == None: 
+                if test_mask is None:
 
                     labels = [batch.label[i].as_in_context(mx_context[0]) for i in range(1)]
                     image_ = batch.data[0].as_in_context(mx_context[0])
@@ -688,7 +691,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                         plt.close()
 
                 loss = 0
-                if test_mask == None or multi_graph:
+                if test_mask is None:
                     for element in lossList:
                         loss = loss + element
                     global_loss_test += loss.sum().asscalar()
@@ -701,8 +704,8 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                         predictions.append(mx.nd.argmax(output_name, axis=1))
                     else:
                         predictions.append(output_name)
-                if train_mask != None:
-                    metric.update(preds=predictions[0], labels=mx.nd.squeeze(labels[0][0]), mask=self.get_mask_array(predictions[0].shape[0], test_mask))
+                if test_mask is not None:
+                    metric.update(preds=predictions[0], labels=mx.nd.squeeze(labels[0][0]), mask=test_mask)
                 else:
                     metric.update(preds=predictions, labels=[labels[j] for j in range(len(labels))])
             global_loss_test /= (test_batches * single_pu_batch_size)
@@ -712,6 +715,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             metric_file = open(self._net_creator._model_dir_ + 'metric.txt', 'w')
             metric_file.write(test_metric_name + " " + str(test_metric_score))
             metric_file.close()
+
             logging.info("Epoch[%d] Train metric: %f, Test metric: %f, Train loss: %f, Test loss: %f" % (epoch, train_metric_score, test_metric_score, global_loss_train, global_loss_test))
 
             if (epoch+1) % checkpoint_period == 0:
@@ -726,6 +730,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                 input_shapes = [(1,) + d.shape[1:] for _, d in test_iter.data]
                 model_path = self.parameter_path(i) + '_newest'
                 onnx_mxnet.export_model(model_path+'-symbol.json', model_path+'-0000.params', input_shapes, np.float32, model_path+'.onnx')
+
             try:
                 loss_function.export(self.parameter_path(i) + '_newest_loss', epoch=0)
             except RuntimeError:
@@ -733,6 +738,8 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
 
 
     def get_mask_array(self, shape, mask):
+        if mask is None:
+            return None
         idx = range(mask[0], mask[1])
         mask_array = np.zeros(shape)
         mask_array[idx] = 1

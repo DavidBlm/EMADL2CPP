@@ -622,7 +622,6 @@ class Net_0(gluon.HybridBlock):
 
             pass
 
-
     def hybrid_forward(self, F, image_):
         image_ = self.input_normalization_image_(image_)
         conv1_padding = self.conv1_padding(image_)
