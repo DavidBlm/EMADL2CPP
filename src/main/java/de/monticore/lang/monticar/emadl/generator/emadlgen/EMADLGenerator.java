@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package de.monticore.lang.monticar.emadl.generator;
+package de.monticore.lang.monticar.emadl.generator.emadlgen;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;

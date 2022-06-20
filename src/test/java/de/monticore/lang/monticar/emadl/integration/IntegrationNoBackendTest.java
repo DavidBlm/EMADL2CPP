@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;

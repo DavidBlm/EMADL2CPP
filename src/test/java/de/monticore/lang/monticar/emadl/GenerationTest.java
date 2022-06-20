@@ -2,8 +2,8 @@
 package de.monticore.lang.monticar.emadl;
 
 import de.monticore.lang.monticar.emadl.generator.Backend;
-import de.monticore.lang.monticar.emadl.generator.EMADLGenerator;
-import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGenerator;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;

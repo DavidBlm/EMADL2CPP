@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package de.monticore.lang.monticar.emadl.generator;
+package de.monticore.lang.monticar.emadl.generator.emadlgen;
 
 import de.monticore.lang.monticar.cnnarch.generator.GenerationAbortedException;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
