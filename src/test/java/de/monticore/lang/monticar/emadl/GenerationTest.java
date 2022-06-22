@@ -1,7 +1,7 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl;
 
-import de.monticore.lang.monticar.emadl.generator.Backend;
+import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGenerator;
 import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Finding;
@@ -247,7 +247,7 @@ public class GenerationTest extends AbstractSymtabTest {
         EMADLGenerator tester = new EMADLGenerator(Backend.MXNET);
 
         try {
-            tester.getChecksumForFile("invalid Path!");
+            tester.getEmadlFileHandler().getChecksumForFile("invalid Path!");
             assertTrue("Hash method should throw IOException on invalid path", false);
         } catch (IOException e) {
         }

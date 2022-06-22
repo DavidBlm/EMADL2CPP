@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package de.monticore.lang.monticar.emadl.generator;
+package de.monticore.lang.monticar.emadl.generator.backend;
 
 import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.CNNTrainGenerator;
@@ -66,6 +66,7 @@ public enum Backend {
             return new CNNTrain2Tensorflow();
         }
     };
+
     public abstract CNNArchGenerator getCNNArchGenerator();
     public abstract CNNTrainGenerator getCNNTrainGenerator();
 

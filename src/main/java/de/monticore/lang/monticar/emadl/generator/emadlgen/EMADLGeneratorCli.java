@@ -2,6 +2,7 @@
 package de.monticore.lang.monticar.emadl.generator.emadlgen;
 
 import de.monticore.lang.monticar.cnnarch.generator.GenerationAbortedException;
+import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
@@ -197,7 +198,7 @@ public class EMADLGeneratorCli {
         GeneratorCPP emamGen = generator.getEmamGen();
         Path modelsDirPath = Paths.get(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()));
         if (cliArgs.hasOption(OPTION_CUSTOM_FILES_PATH.getOpt())) {
-            generator.setCustomFilesPath(cliArgs.getOptionValue(OPTION_CUSTOM_FILES_PATH.getOpt()));
+            generator.getEmadlFileHandler().setCustomFilesPath(cliArgs.getOptionValue(OPTION_CUSTOM_FILES_PATH.getOpt()));
         }
         if (cliArgs.hasOption(OPTION_USE_DGL.getOpt())) {
             generator.setUseDgl(cliArgs.getOptionValue(OPTION_USE_DGL.getOpt()).equals("y"));

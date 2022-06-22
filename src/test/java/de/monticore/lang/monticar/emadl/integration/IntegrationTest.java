@@ -2,10 +2,8 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.Backend;
 import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
-import freemarker.template.TemplateException;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
 
