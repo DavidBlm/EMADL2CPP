@@ -30,8 +30,6 @@ import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperFactory;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
-import de.monticore.lang.monticar.semantics.Constants;
-import de.monticore.lang.monticar.semantics.util.BasicLibrary;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
@@ -122,7 +120,7 @@ public class EMADLGenerator implements EMAMGenerator {
         emadlFileHandler.setModelsPath( modelPath );
         emadlFileHandler.setPythonPath(pythonPath);
         setUseDgl(useDgl.equals("y"));
-        TaggingResolver symtab = getSymTabAndTaggingResolver();
+        TaggingResolver symtab = emadlTaggingHandler.getSymTabAndTaggingResolver();
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
         try {
             // copy the AdaNet files to
@@ -141,11 +139,7 @@ public class EMADLGenerator implements EMAMGenerator {
         processedArchitecture = null;
     }
 
-    private TaggingResolver getSymTabAndTaggingResolver() {
-        BasicLibrary.extract();
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(emadlFileHandler.getCustomFilesPath(), emadlFileHandler.getPythonPath() ,this.backend, emadlFileHandler.getModelsPath(),
-                Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
-    }
+
 
     private EMAComponentInstanceSymbol resolveComponentInstanceSymbol(String qualifiedName, TaggingResolver symtab) {
         String simpleName = Names.getSimpleName(qualifiedName);
@@ -410,7 +404,7 @@ public class EMADLGenerator implements EMAMGenerator {
     public List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName) {
         boolean copied = emadlFileHandler.copySchemaFilesFromResource(ROOT_SCHEMA_MODEL_PATH);
         List<FileContent> fileContents = new ArrayList<>();
-        TaggingResolver symTabAndTaggingResolver = getSymTabAndTaggingResolver();
+        TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
             EMAComponentSymbol component = componentInstance.getComponentType().getReferencedSymbol();
             Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
@@ -481,7 +475,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullDiscriminatorName.substring(indexOfFirstNameCharacter + 1);
 
                     EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(
-                            fullDiscriminatorName, getSymTabAndTaggingResolver());
+                            fullDiscriminatorName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> discriminator = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     if (!discriminator.isPresent()) {
@@ -505,7 +499,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullQNetworkName.substring(indexOfFirstNameCharacter + 1);
 
                     EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(
-                            fullQNetworkName, getSymTabAndTaggingResolver());
+                            fullQNetworkName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> qNetwork = instanceSymbol.getSpannedScope().resolve("",
                             ArchitectureSymbol.KIND);
@@ -529,7 +523,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullEncoderName.substring(indexOfFirstNameCharacter + 1);
 
                     EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(
-                            fullEncoderName, getSymTabAndTaggingResolver());
+                            fullEncoderName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     Optional<ArchitectureSymbol> encoder = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     if (!encoder.isPresent()) {
@@ -558,7 +552,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullRewardFunctionName.substring(indexOfFirstNameCharacter + 1);
 
                     EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(
-                            fullRewardFunctionName, getSymTabAndTaggingResolver());
+                            fullRewardFunctionName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     trainingComponentsContainer.setRewardFunction(instanceSymbol);
                 }
@@ -572,7 +566,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullPolicyFunctionName.substring(indexOfFirstNameCharacter + 1);
 
                     EMAComponentInstanceSymbol instanceSymbol = resolveComponentInstanceSymbol(
-                            fullPolicyFunctionName, getSymTabAndTaggingResolver());
+                            fullPolicyFunctionName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     trainingComponentsContainer.addTrainingComponent("policy",
                             instanceSymbol.getComponentType().getReferencedSymbol());
@@ -588,7 +582,7 @@ public class EMADLGenerator implements EMAMGenerator {
                             + fullPreprocessorName.substring(indexOfFirstNameCharacter + 1);
                     String instanceName = componentInstance.getFullName().replaceAll("\\.", "_");
 
-                    TaggingResolver symtab = getSymTabAndTaggingResolver();
+                    TaggingResolver symtab = emadlTaggingHandler.getSymTabAndTaggingResolver();
                     EMAComponentInstanceSymbol processor_instance = resolveComponentInstanceSymbol(fullPreprocessorName, symtab);
                     processor_instance.setFullName("CNNPreprocessor_" + instanceName);
                     List<FileContent> processorContents = new ArrayList<>();
@@ -704,6 +698,5 @@ public class EMADLGenerator implements EMAMGenerator {
     @Override
     public void setMathCommandRegister(MathCommandRegister mathCommandRegister) {
         emamGen.setMathCommandRegister(mathCommandRegister);
-
     }
 }

@@ -8,6 +8,8 @@ import de.monticore.lang.monticar.emadl.tagging.dltag.LayerPathParameterSymbol;
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.se_rwth.commons.logging.Log;
+import de.monticore.lang.monticar.semantics.Constants;
+import de.monticore.lang.monticar.semantics.util.BasicLibrary;
 
 import java.io.File;
 import java.util.HashMap;
@@ -20,6 +22,13 @@ public class EMADLTagging {
 
     public EMADLTagging(EMADLGenerator emadlGen){
         this.emadlGen =  emadlGen;
+    }
+
+    public TaggingResolver getSymTabAndTaggingResolver() {
+        BasicLibrary.extract();
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(emadlGen.getEmadlFileHandler().getCustomFilesPath(), emadlGen.getEmadlFileHandler().getPythonPath() ,emadlGen.getBackend(), emadlGen.getEmadlFileHandler()
+                        .getModelsPath(),
+                Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
     }
 
     protected HashMap getLayerPathParameterTags(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
