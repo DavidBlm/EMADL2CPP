@@ -82,21 +82,21 @@ public class EMADLGenerator implements EMAMGenerator {
         return emadlFileHandler;
     }
 
-    public EMADLTagging getEmadlTaggingHandler() {
+    protected EMADLTagging getEmadlTaggingHandler() {
         return emadlTaggingHandler;
     }
 
-    public boolean getUseDgl() { return useDgl; }
+    protected boolean getUseDgl() { return useDgl; }
 
-    public void setUseDgl(boolean useDgl){
+    protected void setUseDgl(boolean useDgl){
         this.useDgl = useDgl;
     }
 
-    public Backend getBackend() {return this.backend;}
+    protected Backend getBackend() {return this.backend;}
 
 
 
-    public GeneratorCPP getEmamGen() {
+    protected GeneratorCPP getEmamGen() {
         return emamGen;
     }
 
@@ -166,7 +166,7 @@ public class EMADLGenerator implements EMAMGenerator {
         return c3;
     }
 
-    public void compile() throws IOException {
+    protected void compile() throws IOException {
         File tempScript = emadlFileHandler.createTempScript();
         try {
             ProcessBuilder pb;
@@ -200,7 +200,7 @@ public class EMADLGenerator implements EMAMGenerator {
         return stringBuffer.toString();
     }
 
-    public boolean isAlreadyTrained(String trainingHash, EMAComponentInstanceSymbol componentInstance) {
+    protected boolean isAlreadyTrained(String trainingHash, EMAComponentInstanceSymbol componentInstance) {
         try {
             EMAComponentSymbol component = componentInstance.getComponentType().getReferencedSymbol();
             String componentConfigFilename = component.getFullName().replaceAll("\\.", "/");
@@ -223,7 +223,7 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-    public List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Set<EMAComponentInstanceSymbol> allInstances, String forced) {
+    protected List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Set<EMAComponentInstanceSymbol> allInstances, String forced) {
         if (componentInstanceSymbol != null) {
             getCmakeConfig().getCMakeListsViewModel().setCompName(componentInstanceSymbol.getFullName().replace('.', '_').replace('[', '_').replace(']', '_'));
         }
@@ -315,7 +315,7 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-    public void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture) {
+    protected void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture) {
         List<FileContent> contents = cnnArchGenerator.generateStrings(taggingResolver, architecture);
         String fullName = instance.getFullName().replaceAll("\\.", "_");
 
@@ -377,13 +377,13 @@ public class EMADLGenerator implements EMAMGenerator {
         return component;
     }
 
-    public void generateMathComponent(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, MathStatementsSymbol mathStatementsSymbol) {
+    protected void generateMathComponent(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, MathStatementsSymbol mathStatementsSymbol) {
         fileContents.add(new FileContent(
                 emamGen.generateString(taggingResolver, EMAComponentSymbol, mathStatementsSymbol),
                 EMAComponentSymbol));
     }
 
-    public void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) {
+    protected void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) {
         fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol));
         String lastNameWithoutArrayPart = "";
         for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) {
@@ -401,7 +401,7 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-    public List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName) {
+    protected List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName) {
         boolean copied = emadlFileHandler.copySchemaFilesFromResource(ROOT_SCHEMA_MODEL_PATH);
         List<FileContent> fileContents = new ArrayList<>();
         TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
@@ -613,7 +613,7 @@ public class EMADLGenerator implements EMAMGenerator {
         return fileContents;
     }
 
-    public void stopGeneratorIfWarning() {
+    protected void stopGeneratorIfWarning() {
         for (int i = 0; i < Log.getFindings().size(); i++) {
             if (Log.getFindings().get(i).toString().matches("Filepath '(.)*' does not exist!")) {
                 throw new RuntimeException(Log.getFindings().get(i).toString());

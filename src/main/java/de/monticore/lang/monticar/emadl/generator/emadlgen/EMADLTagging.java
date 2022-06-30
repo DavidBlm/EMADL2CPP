@@ -24,7 +24,7 @@ public class EMADLTagging {
         this.emadlGen =  emadlGen;
     }
 
-    public TaggingResolver getSymTabAndTaggingResolver() {
+    protected TaggingResolver getSymTabAndTaggingResolver() {
         BasicLibrary.extract();
         return EMADLAbstractSymtab.createSymTabAndTaggingResolver(emadlGen.getEmadlFileHandler().getCustomFilesPath(), emadlGen.getEmadlFileHandler().getPythonPath() ,emadlGen.getBackend(), emadlGen.getEmadlFileHandler()
                         .getModelsPath(),

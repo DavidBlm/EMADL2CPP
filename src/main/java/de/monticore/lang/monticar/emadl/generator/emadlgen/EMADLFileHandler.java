@@ -43,19 +43,19 @@ public class EMADLFileHandler {
         this.emadlGen =  emadlGen;
     }
 
-    public String getAdaNetUtils() {
+    protected String getAdaNetUtils() {
         return adaNetUtils;
     }
 
-    public void setAdaNetUtils(String adaNetUtils) {
+    protected void setAdaNetUtils(String adaNetUtils) {
         this.adaNetUtils = adaNetUtils;
     }
 
-    public String getModelsPath() {
+    protected String getModelsPath() {
         return modelsPath;
     }
 
-    public void setModelsPath(String modelsPath) {
+    protected void setModelsPath(String modelsPath) {
         if (!(modelsPath.substring(modelsPath.length() - 1).equals("/"))) {
             this.modelsPath = modelsPath + "/";
         }
@@ -64,9 +64,9 @@ public class EMADLFileHandler {
         }
     }
 
-    public String getCustomFilesPath() { return  customFilesPath; }
+    protected String getCustomFilesPath() { return  customFilesPath; }
 
-    public void setCustomFilesPath(String customPythonFilesPath) {
+    protected void setCustomFilesPath(String customPythonFilesPath) {
         if (!(customPythonFilesPath.endsWith("/"))){
             this.customFilesPath = customPythonFilesPath + "/";
         }
@@ -78,7 +78,7 @@ public class EMADLFileHandler {
 
     public String getPythonPath() {return pythonPath;}
 
-    public void setPythonPath (String pythonPath){
+    protected void setPythonPath (String pythonPath){
         if(!pythonPath.startsWith("/")){
             pythonPath = "/" + pythonPath;
         }
@@ -89,7 +89,7 @@ public class EMADLFileHandler {
 
 
 
-    public void copyPythonFilesFromResource(String folder) throws URISyntaxException, IOException {
+    protected void copyPythonFilesFromResource(String folder) throws URISyntaxException, IOException {
         // this function copys the passed folder to the generation target
         // important for AdaNet
         String jarPath = getClass().getProtectionDomain()
@@ -212,7 +212,7 @@ public class EMADLFileHandler {
             return "No_Such_Algorithm_Exception";
         }
     }
-    public static String hex(byte[] bytes) {
+    protected static String hex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
         for (byte aByte : bytes) {
             result.append(String.format("%02X", aByte));
@@ -220,7 +220,7 @@ public class EMADLFileHandler {
         return result.toString();
     }
 
-    public String getArtifactDestination(String localRepo, String artifact, String jar) {
+    protected String getArtifactDestination(String localRepo, String artifact, String jar) {
         String destinationPath = localRepo + File.separator + artifact + File.separator + jar;
         try {
             unzipJar(destinationPath);
@@ -232,7 +232,7 @@ public class EMADLFileHandler {
     }
 
 
-    public String getChecksumForLargerFile(String filePath) throws IOException {
+    protected String getChecksumForLargerFile(String filePath) throws IOException {
         try {
             return (new File(filePath)).lastModified() + "";
         } catch (Exception e) {
@@ -241,7 +241,7 @@ public class EMADLFileHandler {
         }
     }
 
-    public List<File> generateCMakeFiles(EMAComponentInstanceSymbol componentInstanceSymbol) {
+    protected List<File> generateCMakeFiles(EMAComponentInstanceSymbol componentInstanceSymbol) {
         List<File> files = new ArrayList<>();
         if (componentInstanceSymbol != null) {
             emadlGen.getCmakeConfig().getCMakeListsViewModel().setCompName(componentInstanceSymbol.getFullName().replace('.', '_').replace('[', '_').replace(']', '_'));
@@ -256,7 +256,7 @@ public class EMADLFileHandler {
         return files;
     }
 
-    public File generateFile(FileContent fileContent) throws IOException {
+    protected File generateFile(FileContent fileContent) throws IOException {
         File f = new File(emadlGen.getGenerationTargetPath() + fileContent.getFileName());
         Log.info(f.getName(), "FileCreation:");
         boolean contentEqual = false;
@@ -282,7 +282,7 @@ public class EMADLFileHandler {
         return f;
     }
 
-    public List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, String pythonPath, String forced) throws IOException {
+    protected List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
 
         List<FileContent> fileContents = emadlGen.generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
