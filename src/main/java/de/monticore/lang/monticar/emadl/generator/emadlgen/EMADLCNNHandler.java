@@ -54,11 +54,11 @@ public class EMADLCNNHandler {
 
     }
 
-    public CNNArchGenerator getCnnArchGenerator() {
+    protected CNNArchGenerator getCnnArchGenerator() {
         return cnnArchGenerator;
     }
 
-    public void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture) {
+    protected void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture) {
         List<FileContent> contents = cnnArchGenerator.generateStrings(taggingResolver, architecture);
         String fullName = instance.getFullName().replaceAll("\\.", "_");
 
@@ -90,7 +90,7 @@ public class EMADLCNNHandler {
         fileContents.add(new FileContent(emadlFileHandler.readResource("CNNTranslator.h", Charsets.UTF_8), "CNNTranslator.h"));
     }
 
-    public List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName) {
+    protected List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName) {
         boolean copied = emadlFileHandler.copySchemaFilesFromResource(ROOT_SCHEMA_MODEL_PATH);
         List<FileContent> fileContents = new ArrayList<>();
         TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
