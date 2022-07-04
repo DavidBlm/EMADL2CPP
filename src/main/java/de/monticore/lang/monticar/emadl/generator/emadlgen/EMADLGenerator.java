@@ -115,13 +115,17 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-
+    //TODO: CNN parsing/generation
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws IOException, TemplateException {
         processedArchitecture = new HashMap<>();
         emadlFileHandler.setModelsPath( modelPath );
         emadlFileHandler.setPythonPath(pythonPath);
         setUseDgl(useDgl.equals("y"));
+
+        //TODO: Check Tagging
         TaggingResolver symtab = emadlTaggingHandler.getSymTabAndTaggingResolver();
+
+        //TODO: Check component resolving
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
         try {
             // copy the AdaNet files to
@@ -130,20 +134,23 @@ public class EMADLGenerator implements EMAMGenerator {
             e.printStackTrace();
         }
 
+        //TODO: Check file generation
         emadlFileHandler.generateFiles(symtab, instance, pythonPath, forced);
 
         if (doCompile) {
             if (!generateCMake) // do it either way
                 emadlFileHandler.generateCMakeFiles(instance);
+            //TODO: Check compilation
             compile();
         }
         processedArchitecture = null;
     }
 
 
-
+    //TODO: Check here how component resolution works
     public EMAComponentInstanceSymbol resolveComponentInstanceSymbol(String qualifiedName, TaggingResolver symtab) {
         String simpleName = Names.getSimpleName(qualifiedName);
+        Log.info("SimpleCompName:" + simpleName, "SEARCH");
         if (!Character.isUpperCase(simpleName.charAt(0))) {
             String packageName = qualifiedName.substring(0, qualifiedName.length() - simpleName.length() - 1);
             qualifiedName = Names.getQualifiedName(packageName, StringUtils.capitalize(simpleName));
