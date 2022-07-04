@@ -41,7 +41,6 @@ public class EMADLCNNHandler {
 
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
 
-    Map<String, ArchitectureSymbol> processedArchitecture;
 
     public EMADLCNNHandler (EMADLGenerator emadlGen,Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi ) {
         emadlGenerator = emadlGen;
@@ -49,7 +48,6 @@ public class EMADLCNNHandler {
         cnnTrainGenerator = emadlGenerator.getBackend().getCNNTrainGenerator();
         emadlFileHandler = emadlGenerator.getEmadlFileHandler();
         emadlTaggingHandler = emadlGenerator.getEmadlTaggingHandler();
-        processedArchitecture = processedArch;
         pythonWrapper = pythonWrapperApi;
 
     }
@@ -122,7 +120,7 @@ public class EMADLCNNHandler {
 
                 // Annotate train configuration with architecture
                 final String fullConfigName = String.join(".", names);
-                ArchitectureSymbol correspondingArchitecture = processedArchitecture.get(fullConfigName);
+                ArchitectureSymbol correspondingArchitecture = emadlGenerator.getProcessedArchitecture().get(fullConfigName);
                 assert correspondingArchitecture != null : "No architecture found for train " + fullConfigName + " configuration!";
 
                 TrainingComponentsContainer trainingComponentsContainer = new TrainingComponentsContainer();

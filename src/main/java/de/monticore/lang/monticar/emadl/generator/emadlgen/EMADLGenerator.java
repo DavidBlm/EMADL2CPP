@@ -72,11 +72,13 @@ public class EMADLGenerator implements EMAMGenerator {
         emamGen.setGenerationTargetPath("./target/generated-sources-emadl/");
         GeneratorPythonWrapperFactory pythonWrapperFactory = new GeneratorPythonWrapperFactory();
         pythonWrapper = new GeneratorPythonWrapperStandaloneApi();
-        //cnnArchGenerator = backend.getCNNArchGenerator();
-        //cnnTrainGenerator = backend.getCNNTrainGenerator();
         emadlFileHandler = new EMADLFileHandler(this);
         emadlTaggingHandler = new EMADLTagging(this);
         emadlCNNHandler = new EMADLCNNHandler(this, processedArchitecture, pythonWrapper);
+    }
+
+    protected Map<String, ArchitectureSymbol> getProcessedArchitecture() {
+        return this.processedArchitecture;
     }
 
     public EMADLFileHandler getEmadlFileHandler() {
@@ -94,8 +96,6 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     protected Backend getBackend() {return this.backend;}
-
-
 
     protected GeneratorCPP getEmamGen() {
         return emamGen;
@@ -117,6 +117,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     //TODO: CNN parsing/generation
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws IOException, TemplateException {
+        Log.info("Generator start", "GENERATION");
         processedArchitecture = new HashMap<>();
         emadlFileHandler.setModelsPath( modelPath );
         emadlFileHandler.setPythonPath(pythonPath);
@@ -144,13 +145,14 @@ public class EMADLGenerator implements EMAMGenerator {
             compile();
         }
         processedArchitecture = null;
+        Log.info("Geneator end", "GENERATION");
     }
 
 
     //TODO: Check here how component resolution works
     public EMAComponentInstanceSymbol resolveComponentInstanceSymbol(String qualifiedName, TaggingResolver symtab) {
         String simpleName = Names.getSimpleName(qualifiedName);
-        Log.info("SimpleCompName:" + simpleName, "SEARCH");
+        Log.info("ResolveSimpleName: " + simpleName, "RESOLVER");
         if (!Character.isUpperCase(simpleName.charAt(0))) {
             String packageName = qualifiedName.substring(0, qualifiedName.length() - simpleName.length() - 1);
             qualifiedName = Names.getQualifiedName(packageName, StringUtils.capitalize(simpleName));
