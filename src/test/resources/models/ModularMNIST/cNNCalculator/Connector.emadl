@@ -1,5 +1,5 @@
  /* (c) https://github.com/MontiCore/monticore */
-package cNNCalculator;
+package calculator;
 
 component Connector {
     ports in Z(0:255)^{1, 28, 28} image1,
@@ -10,12 +10,12 @@ component Connector {
           in Z(0:255)^{1, 28, 28} image6,
           out Z(0:1998) res;
 
-    instance Network<10> predictor1;
-    instance Network<10> predictor2;
-    instance Network<10> predictor3;
-    instance Network<10> predictor4;
-    instance Network<10> predictor5;
-    instance Network<10> predictor6;
+    instance Network predictor1;
+    instance Network predictor2;
+    instance Network predictor3;
+    instance Network predictor4;
+    instance Network predictor5;
+    instance Network predictor6;
     instance Calculator cal;
 
     connect image1 -> predictor1.data;

@@ -158,8 +158,10 @@ public class EMADLGenerator implements EMAMGenerator {
             qualifiedName = Names.getQualifiedName(packageName, StringUtils.capitalize(simpleName));
         }
 
+        //TODO: Update resolution point of Networks
         EMAComponentSymbol component = symtab.<EMAComponentSymbol>resolve(qualifiedName, EMAComponentSymbol.KIND).orElse(null);
 
+        //Resolution done here
         List<String> splitName = Splitters.DOT.splitToList(qualifiedName);
         String componentName = splitName.get(splitName.size() - 1);
         String instanceName = componentName.substring(0, 1).toLowerCase() + componentName.substring(1);
