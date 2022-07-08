@@ -20,10 +20,10 @@ public class SimpleTest extends AbstractSymtabTest {
     @Test
     public void testSimple() {
         Log.getFindings().clear();
-        String[] args = {"-m", "src/test/resources/models/", "-r", "ModularMNIST.cNNCalculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "cNNCalculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         try {
             EMADLGeneratorCli.main(args);
-            checkFindingsCount();
+            checkFindingsCount(6);
         }catch (Exception e) {
             e.printStackTrace();
         }
