@@ -93,7 +93,8 @@ public class EMADLCNNHandler {
         List<FileContent> fileContents = new ArrayList<>();
         TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
 
-       // emadlFileHandler.setRootConfigurationFile();
+        //TODO: provide root config file for subnets
+        // emadlFileHandler.setRootConfigurationFile();
 
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
             EMAComponentSymbol component = componentInstance.getComponentType().getReferencedSymbol();
