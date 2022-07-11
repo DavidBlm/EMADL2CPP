@@ -2,13 +2,10 @@ package de.monticore.lang.monticar.emadl;
 
 import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
-import freemarker.template.TemplateException;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
-public class SimpleTest extends AbstractSymtabTest {
+public class ModularTest extends AbstractSymtabTest {
 
     @Before
     public void setUp() {
@@ -18,7 +15,7 @@ public class SimpleTest extends AbstractSymtabTest {
     }
 
     @Test
-    public void testSimple() {
+    public void testModularMNIST() {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "cNNCalculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         try {
@@ -27,9 +24,6 @@ public class SimpleTest extends AbstractSymtabTest {
         }catch (Exception e) {
             e.printStackTrace();
         }
-
-
-
     }
 
 }

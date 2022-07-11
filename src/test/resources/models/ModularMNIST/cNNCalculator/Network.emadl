@@ -12,7 +12,10 @@ component Network{
     
     connect data -> net1.input;
     connect net1.output -> net2.input;
-    connect net2.softmaxOutput -> softmax;    
+    connect net2.softmaxOutput -> softmax;
+
+    implementation CNN {
+        }
 
     
 }
