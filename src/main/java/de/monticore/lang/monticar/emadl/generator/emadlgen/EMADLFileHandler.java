@@ -38,6 +38,7 @@ public class EMADLFileHandler {
     private String modelsPath;
     private String customFilesPath = "";
     private String pythonPath = "";
+    private String rootConfigFileName = "";
 
     public EMADLFileHandler(EMADLGenerator emadlGen){
         this.emadlGen =  emadlGen;
@@ -449,7 +450,56 @@ public class EMADLFileHandler {
                 .collect(Collectors.toList());
     }
 
+    public void setRootConfigurationFile() {
+        Log.info("RootConfFileValue: " + rootConfigFileName, "ROOT_CONFIG_FILE_SET");
+        if (!rootConfigFileName.equals("")) {
+            return;
+        }
+        Log.info("Trying to find root conf", "ROOT_CONFIG_FILE_SET");
+        try {
+            ArrayList<String> confFiles = new ArrayList<>();
+            Stream<Path> files  = Files.list(Paths.get(getModelsPath() + "modularNetworks/"));
+            //files.forEach(file -> Log.info("Available File: " + file.toString(),"ROOT_CONFIG_FILE_SET"));
+            files.filter(file -> file.toString().endsWith(".conf")).forEach(file -> confFiles.add(file.toString()));
+            if (confFiles.size() > 0){
+                for (String s: confFiles) {
+                    Log.info("Available Config File: " + s,"ROOT_CONFIG_FILE_SET");
+                }
+                Log.info("Setting RootConfFile File to: " + confFiles.get(0),"ROOT_CONFIG_FILE_SET");
+                rootConfigFileName = confFiles.get(0);
+            } else{
+                Log.info("No RootConfigFile found.","ROOT_CONFIG_FILE_SET");
+            }
+        } catch (IOException e){
+            Log.error("RootConfigFileError: " + e.getMessage());
+
+        }
+
+        /*
+        String trainConfigFilename = "";
+        if (Files.exists(Paths.get(getModelsPath() + instanceConfigFilename + ".conf"))) {
+            trainConfigFilename = instanceConfigFilename;
+        } else if (Files.exists(Paths.get(getModelsPath() + componentConfigFilename + ".conf"))) {
+            trainConfigFilename = componentConfigFilename;
+        } else if (Files.exists(Paths.get(getModelsPath() + mainComponentConfigFilename + ".conf"))) {
+            trainConfigFilename = mainComponentConfigFilename;
+        } else {
+            return;
+        }
+
+        Log.info("Setting RootConfFileValue to: " + trainConfigFilename, "ROOT_CONFIG_FILE_SET");
+        rootConfigFileName = trainConfigFilename;
+        */
+
+    }
+
     public String getConfigFilename(String mainComponentConfigFilename, String componentConfigFilename, String instanceConfigFilename) {
+        Log.info("CompNames(main|comp|inst): "+ mainComponentConfigFilename + " | " + componentConfigFilename + " | " + instanceConfigFilename ,"CONFIG_FILE_SEARCH");
+        Log.info("RootConfFileValue: " + rootConfigFileName, "CONFIG_FILE_SEARCH");
+        if (!rootConfigFileName.equals("")) {
+            return rootConfigFileName;
+        }
+
         String trainConfigFilename;
         if (Files.exists(Paths.get(getModelsPath() + instanceConfigFilename + ".conf"))) {
             trainConfigFilename = instanceConfigFilename;
@@ -460,6 +510,7 @@ public class EMADLFileHandler {
         } else {
             return null;
         }
+
         return trainConfigFilename;
     }
 

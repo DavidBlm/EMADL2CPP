@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package calculator;
+package modularNetworks;
 conforms to artifacttag.DatasetArtifactTagSchema;
 
 tags NeuronalNetwork {

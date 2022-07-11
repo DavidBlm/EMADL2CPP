@@ -17,7 +17,7 @@ public class ModularTest extends AbstractSymtabTest {
     @Test
     public void testModularMNIST() {
         Log.getFindings().clear();
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "cNNCalculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "modularNetworks.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         try {
             EMADLGeneratorCli.main(args);
             checkFindingsCount(6);

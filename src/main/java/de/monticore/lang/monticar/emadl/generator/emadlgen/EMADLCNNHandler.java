@@ -92,6 +92,9 @@ public class EMADLCNNHandler {
         boolean copied = emadlFileHandler.copySchemaFilesFromResource(ROOT_SCHEMA_MODEL_PATH);
         List<FileContent> fileContents = new ArrayList<>();
         TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
+
+       // emadlFileHandler.setRootConfigurationFile();
+
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
             EMAComponentSymbol component = componentInstance.getComponentType().getReferencedSymbol();
             Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
@@ -115,6 +118,9 @@ public class EMADLCNNHandler {
                 List<String> names = Splitter.on("/").splitToList(trainConfigFilename);
                 trainConfigFilename = names.get(names.size() - 1);
                 Path modelPath = Paths.get(emadlFileHandler.getModelsPath() + Joiner.on("/").join(names.subList(0, names.size() - 1)));
+
+                Log.info("Training comp: " + componentConfigFilename,"CONFIG_CNN_TRAIN");
+
                 TrainingConfiguration trainingConfiguration = cnnTrainGenerator.createTrainingConfiguration(modelPath,
                         trainConfigFilename, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null);
 
