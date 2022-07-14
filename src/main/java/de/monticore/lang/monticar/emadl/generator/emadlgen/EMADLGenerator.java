@@ -254,6 +254,7 @@ public class EMADLGenerator implements EMAMGenerator {
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
+        Log.info("Instance name: " + instanceName,"GENERATE_STRINGS");
         fileContents.addAll(emadlCNNHandler.generateCNNTrainer(allInstances, instanceName));
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
