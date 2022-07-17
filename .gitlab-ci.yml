@@ -191,7 +191,7 @@ buildDockerDGLQD:
     - shell
   script:
     - cd src/test/resources/docker/dglqd
-    - docker login registry.git.rwth-aachen.de -u someUserName -p glpat-TQxTy44LyNcsuSZJ-2Mt
+    - docker login registry.git.rwth-aachen.de -u $CI_DEPLOY_USER -p $CI_DEPLOY_PASSWORD
     - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/dgl-qd -f Dockerfile .
     - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/dgl-qd
   only:
