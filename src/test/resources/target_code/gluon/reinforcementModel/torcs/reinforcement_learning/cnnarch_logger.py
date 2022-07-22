@@ -2,7 +2,7 @@
 import logging
 import sys
 import os
-import util
+import reinforcement_learning.util as util
 
 
 class ArchLogger(object):
