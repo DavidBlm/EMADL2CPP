@@ -20,12 +20,15 @@ def resume_session(sessions_dir):
     if os.path.isdir(sessions_dir):
         regex = re.compile(r'\d\d\d\d-\d\d-\d\d-\d\d-\d\d')
         dir_content = os.listdir(sessions_dir)
-        session_files = filter(regex.search, dir_content)
+        session_files = list(filter(regex.search, dir_content))
         session_files.sort(reverse=True)
         for d in session_files:
             interrupted_session_dir = os.path.join(sessions_dir, d, '.interrupted_session')
             if os.path.isdir(interrupted_session_dir):
-                resume = raw_input('Interrupted session from {} found. Do you want to resume? (y/n) '.format(d))
+                if sys.version.strip().split(".")[0] > '2':
+                    resume = input('Interrupted session from {} found. Do you want to resume? (y/n) '.format(d))
+                else:
+                    resume = raw_input('Interrupted session from {} found. Do you want to resume? (y/n) '.format(d))
                 if resume == 'y':
                     resume_session = True
                     resume_directory = interrupted_session_dir
