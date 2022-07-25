@@ -8,7 +8,7 @@ import CNNSupervisedTrainer_mnist_mnistClassifier_net
 
 if __name__ == "__main__":
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
     handler = logging.FileHandler("train.log", "w", encoding=None, delay="true")
     logger.addHandler(handler)
 
