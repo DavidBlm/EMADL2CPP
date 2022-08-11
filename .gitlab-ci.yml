@@ -156,3 +156,16 @@ buildDockerMXNet170DGL:
   only:
     changes:
       - src/test/resources/docker/mxnet170/**/*
+
+buildDockerDGLQD:
+  stage: docker
+  tags:
+    - shell
+  script:
+    - cd src/test/resources/docker/dglqd
+    - docker login registry.git.rwth-aachen.de -u someUserName -p $DOCKER_TOKEN
+    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/dgl-qd -f Dockerfile .
+    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/dgl-qd
+  only:
+    changes:
+      - src/test/resources/docker/dglqd/**/*
