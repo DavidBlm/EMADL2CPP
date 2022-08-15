@@ -182,16 +182,3 @@ buildDockerNumCites:
   only:
     changes:
       - src/test/resources/docker/numcites/**/*
-
-buildDockerNumCites:
-  stage: docker
-  tags:
-    - shell
-  script:
-    - cd src/test/resources/docker/numcites
-    - docker login registry.git.rwth-aachen.de -u someUserName -p $DOCKER_TOKEN
-    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/numcites -f Dockerfile .
-    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/numcites
-  only:
-    changes:
-      - src/test/resources/docker/numcites/**/*
