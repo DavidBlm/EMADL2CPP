@@ -1,0 +1,4 @@
+bibtexparser
+numpy
+scholarly
+python-Levenshtein
