@@ -158,3 +158,10 @@ python3 example/CNNTrainer_<your_network_component>.py
 
 You can submit the job with `sbatch <your-bash-script>.sh` on a backend node. It is also possible to just run the script on the frontend node.
 If you did submit the job, you can access the status information with `sacct`.
+
+
+# Presentaions (Architecture & Hyperparameter Optimization)
+
+For improvement of EmbeddedMontiArcDL models optimization methods for the architectures and hyperparameters are considered.
+
+Different method for the hyperparameter optimization are presented here: [Hyperparameter_Optimization.pdf](./presentations/Hyperparameter_Optimization.pdf)
