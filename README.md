@@ -103,8 +103,8 @@ configuration VGG16{
     }
 }
 ```
-3. 
-### Not Using the Maven Plugin
+ 
+### 3. a) Not Using the Maven Plugin
 Generate C code which uses neural networks that were trained using the specified deep learning backend. The generator receives the following command line parameters:
     * `-m`    path to directory with EMADL models
     * `-r`    name of the root model
@@ -117,7 +117,7 @@ Generate C code which uses neural networks that were trained using the specified
     Assuming both the architecture definition `VGG16.emadl` and the corresponding training configuration `VGG16.conf` are located in a folder `models` and the target code should be generated in  a `target` folder using the `MXNet` backend, an example of a command is then:
     ```java -jar embedded-montiarc-emadl-generator-0.2.10-jar-with-dependencies.jar -m models -r VGG16 -o target -b MXNET```
 
-### Using the Maven Plugin
+### 3. b) Using the Maven Plugin
 Generate C code which uses neural networks that were trained using the specified deep learning backend. 
 The command line parameters are mapped to parameters that are specified in the POM.xml file:
     * `<backend>`  path to directory with EMADL models
