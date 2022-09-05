@@ -4,7 +4,8 @@
 
 # EMADL2CPP
 Generates CPP/Python code for EmbeddedMontiArcDL, an enlargement of EmbeddedMontiArc to support Deep-Learning Components developed with MontiAnna and MontiMath Components.
-See our Hello World example [MNIST-Calculator] (https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/applications/mnistcalculator/) for an exemplary application documented in [this paper](http://www.se-rwth.de/publications/Modeling-and-Training-of-Neural-Processing-Systems.pdf). Instead of calling the generation with the .jar file, we developed a [maven-plugin](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/utilities/emadl-maven-plugin), which can be seen in action in the subfolder `emadl-maven-plugin` of the MNIST-Calculator. For its invocation see the corresponding target in the .yml file.
+Thus, is the main project that processes models of EMADL components by parsing in help of the different DSLs (EMA, CNNArchLang, ConfLang, SchemaLang, TaggingLang) and generating training and execution code by delegating the tasks to the different backends. The EMADL2CPP projects main artifact is a jar that can be invoked by hand, but there is also a maven wrapper developed which we recommend to use. 
+See our Hello World example [MNIST-Calculator](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/applications/mnistcalculator/) for an exemplary application documented in [this paper](http://www.se-rwth.de/publications/Modeling-and-Training-of-Neural-Processing-Systems.pdf). Instead of calling the generation with the .jar file, we developed, as already mentioned, a [maven-plugin](https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/utilities/emadl-maven-plugin), which can be seen in action in the subfolder `emadl-maven-plugin` of the MNIST-Calculator. For its invocation see the corresponding target in the .yml file.
 
 
 
