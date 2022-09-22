@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package modularNetworks;
+package singleNetwork;
 
 component Add{
     ports

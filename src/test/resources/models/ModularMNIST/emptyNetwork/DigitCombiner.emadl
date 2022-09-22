@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package modularNetworks;
+package emptyNetwork;
 
 component DigitCombiner{
     ports

@@ -1,0 +1,13 @@
+package modularNetworkSimple;
+
+component Net2 {
+    ports in Q(0:1)^{10} dataInput,
+         out Q(0:1)^{10} dataOutput;
+
+     implementation CNN {
+            dataInput ->
+            FullyConnected(units=10) ->
+            Softmax() ->
+            dataOutput;
+        }
+}

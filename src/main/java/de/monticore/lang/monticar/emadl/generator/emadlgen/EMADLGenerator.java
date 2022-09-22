@@ -21,6 +21,7 @@ import de.monticore.lang.monticar.cnnarch.generator.validation.TrainedArchitectu
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkStructureScanner;
 import de.monticore.lang.monticar.generator.EMAMGenerator;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.MathCommandRegister;
@@ -286,31 +287,34 @@ public class EMADLGenerator implements EMAMGenerator {
         emamGen.addSemantics(taggingResolver, componentInstanceSymbol);
 
         allInstances.add(componentInstanceSymbol);
-        EMAComponentSymbol EMAComponentSymbol = componentInstanceSymbol.getComponentType().getReferencedSymbol();
+        EMAComponentSymbol emaComponentSymbol = componentInstanceSymbol.getComponentType().getReferencedSymbol();
 
         /* remove the following two lines if the component symbol full name bug with generic variables is fixed */
-        EMAComponentSymbol.setFullName(null);
-        EMAComponentSymbol.getFullName();
+        emaComponentSymbol.setFullName(null);
+        emaComponentSymbol.getFullName();
         /* */
 
         Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
 
         // set the path to AdaNet python files
         architecture.ifPresent(architectureSymbol -> {architectureSymbol.setAdaNetUtils(emadlFileHandler.getAdaNetUtils());});
-        Optional<MathStatementsSymbol> mathStatements = EMAComponentSymbol.getSpannedScope().resolve("MathStatements", MathStatementsSymbol.KIND);
+        Optional<MathStatementsSymbol> mathStatements = emaComponentSymbol.getSpannedScope().resolve("MathStatements", MathStatementsSymbol.KIND);
 
         EMADLCocos.checkAll(componentInstanceSymbol);
 
+        NetworkStructureScanner nss = new NetworkStructureScanner();
+
         if (architecture.isPresent()) {
+
             emadlCNNHandler.getCnnArchGenerator().check(architecture.get());
-            String dPath = emadlFileHandler.getDataPath(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
-            String wPath = emadlFileHandler.getWeightsPath(EMAComponentSymbol, componentInstanceSymbol);
-            HashMap layerPathParameterTags = emadlTaggingHandler.getLayerPathParameterTags(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
-            layerPathParameterTags.putAll(emadlTaggingHandler.getLayerArtifactParameterTags(taggingResolver, EMAComponentSymbol, componentInstanceSymbol));
+            String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+            String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
+            HashMap layerPathParameterTags = emadlTaggingHandler.getLayerPathParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+            layerPathParameterTags.putAll(emadlTaggingHandler.getLayerArtifactParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol));
             architecture.get().setDataPath(dPath);
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
-            architecture.get().setComponentName(EMAComponentSymbol.getFullName());
+            architecture.get().setComponentName(emaComponentSymbol.getFullName());
             architecture.get().setUseDgl(getUseDgl());
             if(!emadlFileHandler.getCustomFilesPath().equals("")) {
                 architecture.get().setCustomPyFilesPath(emadlFileHandler.getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
@@ -319,6 +323,13 @@ public class EMADLGenerator implements EMAMGenerator {
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
             }
+        } else if (nss.isComposedNet(emaComponentSymbol.getName())) {
+
+            String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+            String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
+            HashMap layerPathParameterTags = emadlTaggingHandler.getLayerPathParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+            layerPathParameterTags.putAll(emadlTaggingHandler.getLayerArtifactParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol));
+
         }
         else if (mathStatements.isPresent()){
             generateMathComponent(fileContents, taggingResolver, componentInstanceSymbol, mathStatements.get());

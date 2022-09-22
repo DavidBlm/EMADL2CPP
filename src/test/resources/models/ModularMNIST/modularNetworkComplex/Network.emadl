@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package modularNetworks;
+package modularNetworkComplex;
 
 
 component Network {
@@ -9,10 +9,10 @@ component Network {
     instance Net1 net1;
     instance Net2 net2;
 
-    
+
     connect data -> net1.dataInput;
     connect net1.dataOutput -> net2.dataInput;
     connect net2.dataOutput -> softmax;
 
-    
+
 }

@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package modularNetworks;
+package modularNetworkComplex;
 
 component ArgMax<Z(1:oo) n = 2>{
     ports in Q^{n} inputVector,
