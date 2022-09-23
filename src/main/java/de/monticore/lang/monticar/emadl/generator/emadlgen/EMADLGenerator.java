@@ -323,7 +323,7 @@ public class EMADLGenerator implements EMAMGenerator {
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
             }
-        } else if (nss.isComposedNet(emaComponentSymbol.getName())) {
+        } else if (nss.isComposedNet(emaComponentSymbol.getName(),"ComposedNetworks.txt")) {
 
             String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);

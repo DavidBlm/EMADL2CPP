@@ -7,6 +7,7 @@ import de.se_rwth.commons.logging.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,12 +19,17 @@ public class NetworkStructureScanner {
 
     }
 
-    public boolean isComposedNet(String searched) {
+    public boolean isComposedNet(String searched, String path) {
         ArrayList<String> networks = new ArrayList<>();
         BufferedReader reader;
 
+        File file = new File(path);
+        if (!file.exists()){
+            return false;
+        }
+
         try {
-            reader = new BufferedReader(new FileReader("ComposedNetworks.txt"));
+            reader = new BufferedReader(new FileReader(path));
             String line = reader.readLine();
             while (line != null) {
                 line = line.replaceAll("\n", "");

@@ -17,11 +17,11 @@ public class ModularTest extends AbstractSymtabTest {
         Log.enableFailQuick(false);
     }
 
-    public void runGenerator(String[] args, boolean exceptionAllowed){
+    public void runGenerator(String[] args, int expectedFindings, boolean exceptionAllowed){
 
         try {
             EMADLGeneratorCli.main(args);
-            checkFindingsCount(6);
+            checkFindingsCount(expectedFindings);
 
             Log.getFindings().stream().forEach(finding -> {
                 Log.info("FINDING: " +finding.toString(),"FINDINGS_LOG");
@@ -39,7 +39,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testEmtpyNetwork() {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "emptyNetwork.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args,true);
+        runGenerator(args,0,true);
 
     }
 
@@ -47,31 +47,31 @@ public class ModularTest extends AbstractSymtabTest {
     public void testModularNetworkComplex() {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "modularNetworkComplex.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        //runGenerator(args,false);
+        runGenerator(args,6,false);
     }
 
     @Test
     public void testModularNetworkSimple() {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "modularNetworkSimple.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        //runGenerator(args,false);
+        runGenerator(args,6,false);
     }
 
     @Test
     public void testSingleNetwork() {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "singleNetwork.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args,false);
+        runGenerator(args,6,false);
     }
 
-    /*
+
     @Test
     public void testCustomMNIST() {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args,true);
+        runGenerator(args,6,true);
     }
-    */
+
 
 
 }
