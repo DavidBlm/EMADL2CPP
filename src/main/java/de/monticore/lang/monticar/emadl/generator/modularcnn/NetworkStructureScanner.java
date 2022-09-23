@@ -1,18 +1,11 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.se_rwth.commons.logging.Log;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 public class NetworkStructureScanner {
     public NetworkStructureScanner() {
@@ -20,12 +13,24 @@ public class NetworkStructureScanner {
     }
 
     public boolean isComposedNet(String searched, String path) {
+
+        ArrayList<String> networks = readNetworkFile(path);
+        if (networks.contains(searched)) {
+            Log.info("COMPOSED NETWORK HIT","COMPOSED_NETWORK_HIT");
+            return true;
+        }
+
+        return false;
+
+    }
+
+    public ArrayList<String> readNetworkFile(String path){
         ArrayList<String> networks = new ArrayList<>();
         BufferedReader reader;
 
         File file = new File(path);
         if (!file.exists()){
-            return false;
+            return null;
         }
 
         try {
@@ -41,14 +46,7 @@ public class NetworkStructureScanner {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        if (networks.contains(searched)) {
-            Log.info("COMPOSED NETWORK HIT","COMPOSED_NETWORK_HIT");
-            return true;
-        }
-
-        return false;
-
+        return networks;
     }
 
 
