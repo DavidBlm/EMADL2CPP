@@ -545,7 +545,9 @@ public class EMADLGenerator implements EMAMGenerator {
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
-        fileContents.addAll(generateCNNTrainer(allInstances, instanceName));
+        if (!Backend.getBackendString(this.backend).equals("PYTORCH")) {
+            fileContents.addAll(generateCNNTrainer(allInstances, instanceName));
+        }
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
 

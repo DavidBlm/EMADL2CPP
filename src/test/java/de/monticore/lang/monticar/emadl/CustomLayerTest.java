@@ -22,4 +22,10 @@ public class CustomLayerTest {
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
     }
+
+    @Test(expected = NoSuchElementException.class)
+    public void NegativeCustomLayerPyTorchTest (){
+        String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "PYTORCH", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+    }
 }
