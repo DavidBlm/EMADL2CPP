@@ -23,9 +23,9 @@
         <cnnarch-gluon-generator.version>0.5.2-SNAPSHOT</cnnarch-gluon-generator.version>
 
         <!-- .. Libraries .................................................. -->
-        <guava.version>25.1-jre</guava.version>
-        <junit.version>4.13.1</junit.version>
-        <logback.version>1.1.2</logback.version>
+        <guava.version>31.1-jre</guava.version>
+        <junit.version>4.13.2</junit.version>
+        <logback.version>1.4.1</logback.version>
         <jscience.version>4.3.1</jscience.version>
 
         <!-- .. Plugins ....................................................... -->
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>4.7.1</version>
+            <version>4.11.1</version>
         </dependency>
 
         <dependency>
@@ -219,7 +219,7 @@
                 <version>2.19.1</version>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
-                    <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+                    <argLine>-Xmx2048m</argLine>
                 </configuration>
             </plugin>
             <plugin>
