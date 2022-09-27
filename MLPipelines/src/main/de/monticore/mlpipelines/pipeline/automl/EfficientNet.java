@@ -1,4 +1,4 @@
-package java.de.monticore.mlpipelines.pipeline.automl;
+package de.monticore.mlpipelines.pipeline.automl;
 
 public class EfficientNet extends AutoMLTrainAlgorithm {
 
