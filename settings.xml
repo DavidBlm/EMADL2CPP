@@ -66,6 +66,12 @@
           <releases><enabled /></releases>
           <snapshots><enabled /></snapshots>
         </repository>
+        <repository>
+          <id>gitlab-maven</id>
+          <url>https://git.rwth-aachen.de/api/v4/projects/57999/packages/maven</url>
+          <releases><enabled /></releases>
+          <snapshots><enabled /></snapshots>
+        </repository>
       </repositories>
       <pluginRepositories>
         <pluginRepository>
