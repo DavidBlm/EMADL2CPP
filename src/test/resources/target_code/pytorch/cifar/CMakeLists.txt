@@ -15,7 +15,11 @@ set(LIBS ${LIBS} ${Armadillo_LIBRARIES})
 # additional library linkage
 
 # additional commands
+find_package (OpenCV 4.0.0 REQUIRED)
+include_directories (${OpenCV_INCLUDE_DIRS})
 find_package(Torch REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+set(TORCH_INCLUDE_DIRS ${TORCH_INSTALL_PREFIX}/include ${TORCH_INSTALL_PREFIX}/include/torch/csrc/api/include)
 
 # create static library
 include_directories(${INCLUDE_DIRS})

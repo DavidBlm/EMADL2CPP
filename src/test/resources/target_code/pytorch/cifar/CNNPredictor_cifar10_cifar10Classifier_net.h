@@ -7,12 +7,12 @@
 #include <torch/script.h>
 #include <torch/torch.h>
 
-class CNNPredictor_cifar10_cifar10Classifier_net{
+class CNNPredictor_cifar10_cifar10Classifier_net_0{
     public:
-    const std::string pt_file = "model/cifar10.CifarNetwork/model_cpp.pt";
+    const std::string pt_file = "./model/cifar10.CifarNetwork/model_cpp.pt";
     torch::jit::script::Module module;
 
-    explicit CNNPredictor_cifar10_cifar10Classifier_net(){
+    explicit CNNPredictor_cifar10_cifar10Classifier_net_0(){
         init(pt_file);
     }
 

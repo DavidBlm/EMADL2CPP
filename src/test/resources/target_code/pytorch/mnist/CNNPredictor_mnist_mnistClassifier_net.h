@@ -7,12 +7,12 @@
 #include <torch/script.h>
 #include <torch/torch.h>
 
-class CNNPredictor_mnist_mnistClassifier_net{
+class CNNPredictor_mnist_mnistClassifier_net_0{
     public:
-    const std::string pt_file = "model/mnist.LeNetNetwork/model_cpp.pt";
+    const std::string pt_file = "./model/mnist.LeNetNetwork/model_cpp.pt";
     torch::jit::script::Module module;
 
-    explicit CNNPredictor_mnist_mnistClassifier_net(){
+    explicit CNNPredictor_mnist_mnistClassifier_net_0(){
         init(pt_file);
     }
 
