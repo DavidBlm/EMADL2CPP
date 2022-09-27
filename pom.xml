@@ -132,11 +132,19 @@
             <artifactId>embedded-montiarc-emadl-generator</artifactId>
             <version>0.5.6-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>de.monticore.lang.monticar</groupId>
+            <artifactId>executionSemantics</artifactId>
+            <version>0.4.5-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>de.monticore</groupId>
             <artifactId>monticore-grammar</artifactId>
             <version>5.0.0</version>
         </dependency>
+
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
             <artifactId>common-monticar</artifactId>
