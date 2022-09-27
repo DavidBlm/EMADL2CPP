@@ -38,6 +38,8 @@ import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperFactory;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
+import de.monticore.lang.monticar.semantics.Constants;
+import de.monticore.lang.monticar.semantics.util.BasicLibrary;
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Scope;
