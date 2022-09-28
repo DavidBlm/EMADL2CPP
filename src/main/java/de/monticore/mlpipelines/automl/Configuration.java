@@ -1,6 +1,6 @@
-package de.monticore.mlpipelines.pipeline.automl;
-
-import de.monticore.mlpipelines.pipeline.Pipeline;
+package de.monticore.mlpipelines.automl;
+import java.util.Hashtable;
+import de.monticore.mlpipelines.Pipeline;
 
 public class Configuration {
     Hashtable<String, String> preprocessing_config = new Hashtable<String, String>();
@@ -9,5 +9,5 @@ public class Configuration {
     Hashtable<String, String> network_config = new Hashtable<String, String>();
     Hashtable<String, String> initial_hyperparameters = new Hashtable<String, String>();
 
-    TrainAlgorithmConfig train_algorithm_config = new TrainAlgorithmConfig()
+    TrainAlgorithmConfig train_algorithm_config = new TrainAlgorithmConfig();
 }
