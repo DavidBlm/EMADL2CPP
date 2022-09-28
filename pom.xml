@@ -21,11 +21,12 @@
         <cnnarch-caffe2-generator.version>0.4.8-SNAPSHOT</cnnarch-caffe2-generator.version>
         <cnnarch-tensorflow-generator.version>0.4.9-SNAPSHOT</cnnarch-tensorflow-generator.version>
         <cnnarch-gluon-generator.version>0.5.2-SNAPSHOT</cnnarch-gluon-generator.version>
+        <cnnarch-pytorch-generator.version>0.0.1-SNAPSHOT</cnnarch-pytorch-generator.version>
 
         <!-- .. Libraries .................................................. -->
-        <guava.version>31.1-jre</guava.version>
-        <junit.version>4.13.2</junit.version>
-        <logback.version>1.4.1</logback.version>
+        <guava.version>25.1-jre</guava.version>
+        <junit.version>4.13.1</junit.version>
+        <logback.version>1.1.2</logback.version>
         <jscience.version>4.3.1</jscience.version>
 
         <!-- .. Plugins ....................................................... -->
@@ -47,16 +48,11 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.freemarker</groupId>
-            <artifactId>freemarker</artifactId>
-            <version>2.3.31</version>
-        </dependency><!-- .. SE-Libraries .................................................. -->
 
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
-            <version>4.11.1</version>
+            <version>4.7.1</version>
         </dependency>
 
         <dependency>
@@ -126,24 +122,6 @@
             <groupId>org.jscience</groupId>
             <artifactId>jscience</artifactId>
             <version>${jscience.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.monticore.lang.monticar</groupId>
-            <artifactId>executionSemantics</artifactId>
-            <version>0.4.6-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.monticore</groupId>
-            <artifactId>monticore-grammar</artifactId>
-            <version>5.0.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.monticore.lang.monticar</groupId>
-            <artifactId>common-monticar</artifactId>
-            <version>0.0.2</version>
         </dependency>
 
     </dependencies>
@@ -242,7 +220,7 @@
                 <version>2.19.1</version>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
-                    <argLine>-Xmx2048m</argLine>
+                    <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
                 </configuration>
             </plugin>
             <plugin>
