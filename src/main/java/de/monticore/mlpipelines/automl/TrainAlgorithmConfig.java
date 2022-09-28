@@ -1,11 +1,11 @@
-package de.monticore.mlpipelines.pipeline.automl;
+package de.monticore.mlpipelines.automl;
 
-import de.monticore.mlpipelines.pipeline.Pipeline;
+import de.monticore.mlpipelines.Pipeline;
 
-public class TrainAlgorithmConfig{
-    private class TrainAlgorithm;
+public class TrainAlgorithmConfig {
+    //private class TrainAlgorithm;
     int num_epochs = 1;
-    boolean save_trained_architechture = false;
+    boolean save_trained_architecture = false;
     String architecture_save_path = "";
 
 }
