@@ -1,4 +1,4 @@
-package de.monticore.mlpipelines.pipeline.python;
+package de.monticore.mlpipelines.python;
 
 import junit.framework.TestCase;
 

@@ -127,16 +127,11 @@
             <artifactId>jscience</artifactId>
             <version>${jscience.version}</version>
         </dependency>
-        <dependency>
-            <groupId>de.monticore.lang.monticar</groupId>
-            <artifactId>embedded-montiarc-emadl-generator</artifactId>
-            <version>0.5.6-SNAPSHOT</version>
-        </dependency>
 
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
             <artifactId>executionSemantics</artifactId>
-            <version>0.4.5-SNAPSHOT</version>
+            <version>0.4.6-SNAPSHOT</version>
         </dependency>
 
         <dependency>
