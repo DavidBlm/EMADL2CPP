@@ -8,6 +8,5 @@ public class Configuration {
     Hashtable<String, String> evaluation_config = new Hashtable<String, String>();
     Hashtable<String, String> network_config = new Hashtable<String, String>();
     Hashtable<String, String> initial_hyperparameters = new Hashtable<String, String>();
-    //need to add the correct configs later
     TrainAlgorithmConfig train_algorithm_config = new TrainAlgorithmConfig();
 }
