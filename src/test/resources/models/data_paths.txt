@@ -16,3 +16,5 @@ Invariant src/test/resources/training_data/Invariant
 rnnencdec.Network src/test/resources/training_data/newstest
 rnnsearch.Network src/test/resources/training_data/newstest
 showAttendTell.Show_attend_tell src/test/resources/training_data/Show_attend_tell
+CustomNetworkMnist data/CustomNetworkMnist
+LoadNetworkMnist data/LoadNetworkMnist
