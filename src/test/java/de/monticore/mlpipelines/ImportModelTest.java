@@ -16,16 +16,10 @@ public class ImportModelTest extends TestCase {
 
     @Test
     public void testLoadModelAsArchitectureSymbol() {
-        Log.getFindings().clear();
-        URL url = Resources.getResource("models/Add.emadl");
-        String s = url.toString();
         Scope symTab = createSymTab("src/test/resources/models");
-        EMAComponentInstanceSymbol c = symTab.<EMAComponentInstanceSymbol>resolve("vGG16", EMAComponentInstanceSymbol.KIND).orElse(null);
-
-        ArchitectureSymbol arch1 = c.getSpannedScope().<ArchitectureSymbol>
-                resolve("", ArchitectureSymbol.KIND).get();
-
+        EMAComponentInstanceSymbol c = symTab.<EMAComponentInstanceSymbol>resolve("vGG16",
+                EMAComponentInstanceSymbol.KIND).orElse(null);
+        ArchitectureSymbol arch1 = c.getSpannedScope().<ArchitectureSymbol>resolve("", ArchitectureSymbol.KIND).get();
         assertNotNull(arch1);
-
     }
 }
