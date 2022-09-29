@@ -1,6 +1,6 @@
 /* (c) https://github.com/MontiCore/monticore */
-#ifndef CNNPREDICTOR_CIFAR10_CIFAR10CLASSIFIER_NET
-#define CNNPREDICTOR_CIFAR10_CIFAR10CLASSIFIER_NET
+#ifndef CNNPREDICTOR_CIFAR10_CIFAR10CLASSIFIER_NET_0
+#define CNNPREDICTOR_CIFAR10_CIFAR10CLASSIFIER_NET_0
 #include <cassert>
 #include <string>
 #include <vector>
@@ -24,7 +24,6 @@ class CNNPredictor_cifar10_cifar10Classifier_net_0{
         }
         catch (const c10::Error& e) {
             throw std::runtime_error("Error loading the model\n");
-            return -1;
         }
         std::cout << "Model loaded\n";
     }

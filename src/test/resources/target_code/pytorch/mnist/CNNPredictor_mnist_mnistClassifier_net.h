@@ -1,6 +1,6 @@
 /* (c) https://github.com/MontiCore/monticore */
-#ifndef CNNPREDICTOR_MNIST_MNISTCLASSIFIER_NET
-#define CNNPREDICTOR_MNIST_MNISTCLASSIFIER_NET
+#ifndef CNNPREDICTOR_MNIST_MNISTCLASSIFIER_NET_0
+#define CNNPREDICTOR_MNIST_MNISTCLASSIFIER_NET_0
 #include <cassert>
 #include <string>
 #include <vector>
@@ -24,7 +24,6 @@ class CNNPredictor_mnist_mnistClassifier_net_0{
         }
         catch (const c10::Error& e) {
             throw std::runtime_error("Error loading the model\n");
-            return -1;
         }
         std::cout << "Model loaded\n";
     }
