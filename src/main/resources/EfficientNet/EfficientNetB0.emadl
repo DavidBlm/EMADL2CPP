@@ -1,0 +1,62 @@
+component EfficientNet{
+    ports in Z(0:255)^{1, 32, 32} image,
+             out Q(0:1)^{10} predictions;
+    implementation CNN {
+
+            def stem(i){
+                [i] ->
+                Convolution(kernel=(3,3), channels=1, stride=(2, 2), padding=(1, 1)) ->
+                BatchNorm() ->
+                Relu()
+            }
+
+            def squeeze_excite(i){
+                {
+                    [i] ->
+                    FullyConnected(units=8) ->
+                    FullyConnected(units=32) ->
+                    Relu() ->
+                    Sigmoid()
+                    |
+                    [i] ->
+                    Identity()
+                } ->
+                Mul()
+            }
+
+            def projection(i, channels, stride){
+                [i] ->
+                Convolution(kernel=(1,1), channels=channels, stride=stride, padding=(0, 0)) ->
+                BatchNorm()
+            }
+
+            def block0(i){
+                {
+                    [i] ->
+                    Convolution(kernel=(3,3), channels=32, stride=(1, 1), padding=(1, 1)) ->
+                    BatchNorm() ->
+                    Relu() ->
+                    squeeze_excite() ->
+                    projection(32, (1, 1))
+                } ->
+                Add()
+            }
+
+            def block1(i){
+                [i] ->
+            }
+
+            def block2(i){
+                [i] ->
+            }
+
+            def block3(i){
+                [i] ->
+            }
+
+            image ->
+            stem() ->
+            predictions;
+
+        }
+}
