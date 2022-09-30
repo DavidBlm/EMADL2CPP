@@ -4,18 +4,18 @@ import java.util.Hashtable;
 
 public class Configuration {
 
-    private Hashtable<String, String> preprocessingConfig;
-    private Hashtable<String, String> hyperparameterOptimizerConfig;
-    private Hashtable<String, String> evaluationConfig;
+    private Hashtable<String, Object> preprocessingConfig;
+    private String hyperparameterOptimizerConfig;
+    private Hashtable<String, Object> evaluationConfig;
     private Hashtable<String, String> networkConfig;
-    private Hashtable<String, String> initialHyperparameters;
+    private Hashtable<String, Object> initialHyperparameters;
     private TrainAlgorithmConfig trainAlgorithmConfig;
 
-    public Configuration(Hashtable<String, String> preprocessingConfig,
-                         Hashtable<String, String> hyperparameterOptimizerConfig,
-                         Hashtable<String, String> evaluationConfig,
+    public Configuration(Hashtable<String, Object> preprocessingConfig,
+                         String hyperparameterOptimizerConfig,
+                         Hashtable<String, Object> evaluationConfig,
                          Hashtable<String, String> networkConfig,
-                         Hashtable<String, String> initialHyperparameters,
+                         Hashtable<String, Object> initialHyperparameters,
                          TrainAlgorithmConfig trainAlgorithmConfig) {
         this.preprocessingConfig = preprocessingConfig;
         this.hyperparameterOptimizerConfig = hyperparameterOptimizerConfig;
@@ -25,15 +25,15 @@ public class Configuration {
         this.trainAlgorithmConfig = trainAlgorithmConfig;
     }
 
-    public Hashtable<String, String> getPreprocessingConfig() {
+    public Hashtable<String, Object> getPreprocessingConfig() {
         return preprocessingConfig;
     }
 
-    public Hashtable<String, String> getHyperparameterOptimizerConfig() {
+    public String getHyperparameterOptimizerConfig() {
         return hyperparameterOptimizerConfig;
     }
 
-    public Hashtable<String, String> getEvaluationConfig() {
+    public Hashtable<String, Object> getEvaluationConfig() {
         return evaluationConfig;
     }
 
@@ -41,7 +41,7 @@ public class Configuration {
         return networkConfig;
     }
 
-    public Hashtable<String, String> getInitialHyperparameters() {
+    public Hashtable<String, Object> getInitialHyperparameters() {
         return initialHyperparameters;
     }
 
