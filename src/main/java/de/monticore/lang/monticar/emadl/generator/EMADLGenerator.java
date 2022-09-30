@@ -70,7 +70,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private boolean generateCMake = false;
     private CMakeConfig cMakeConfig = new CMakeConfig("");
-    private GeneratorCPP emamGen;
+    private GeneratorCPP emamGen; // can be found in EMAM2Cpp repository
     private CNNArchGenerator cnnArchGenerator;
     private CNNTrainGenerator cnnTrainGenerator;
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
@@ -191,7 +191,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws IOException, TemplateException {
         processedArchitecture = new HashMap<>();
-        setModelsPath( modelPath );
+        setModelsPath(modelPath);
         setPythonPath(pythonPath);
         setUseDgl(useDgl.equals("y"));
         TaggingResolver symtab = getSymTabAndTaggingResolver();
@@ -208,7 +208,7 @@ public class EMADLGenerator implements EMAMGenerator {
         if (doCompile) {
             if (!generateCMake) // do it either way
                 generateCMakeFiles(instance);
-            compile();
+            compile(); // simply creates a build dir and calls cmake
         }
         processedArchitecture = null;
     }
@@ -346,13 +346,13 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
-
+        // main method receiving all generated file contents
         List<FileContent> fileContents = generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
 
         Log.info("Generating adapters ...", EMADLGenerator.class.getName());
         emamGen.generateAdapters(fileContents, EMAComponentSymbol);
-
+        // actually write files
         for (FileContent fileContent : fileContents) {
             generatedFiles.add(emamGen.generateFile(fileContent));
         }
@@ -787,7 +787,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         EMADLCocos.checkAll(componentInstanceSymbol);
 
-        if (architecture.isPresent()) {
+        if (architecture.isPresent()) { // does the component include a neural network
             cnnArchGenerator.check(architecture.get());
             String dPath = getDataPath(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
             String wPath = getWeightsPath(EMAComponentSymbol, componentInstanceSymbol);
@@ -804,14 +804,20 @@ public class EMADLGenerator implements EMAMGenerator {
             generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
-            }
+            }      
         }
-        else if (mathStatements.isPresent()){
+        else if (mathStatements.isPresent()){ // is the component implemented with MontiMath
             generateMathComponent(fileContents, taggingResolver, componentInstanceSymbol, mathStatements.get());
         }
-        else {
+        else { // does the component only have sub-components without an implementation for itself
             generateSubComponents(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
         }
+        for(FileContent f : fileContents){
+            if(f.getFileName().equals("calculator_connector.h")){
+                System.out.println(componentInstanceSymbol.getFullName());
+            }
+        }
+        //System.exit(1);
     }
 
     private void fixArmadilloImports(List<FileContent> fileContents) {
@@ -841,7 +847,7 @@ public class EMADLGenerator implements EMAMGenerator {
             applyBeamSearchMethod = applyBeamSearchMethods.get(0);
         }
 
-        String component = emamGen.generateString(taggingResolver, instance, (MathStatementsSymbol) null);
+        String component = emamGen.generateString(taggingResolver, instance, (MathStatementsSymbol) null); //execution code gen in c++
         FileContent componentFileContent = new FileContent(
                 transformComponent(component, "CNNPredictor_" + fullName,
                         applyBeamSearchMethod,
@@ -892,14 +898,16 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public void generateMathComponent(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, MathStatementsSymbol mathStatementsSymbol) {
         fileContents.add(new FileContent(
-                emamGen.generateString(taggingResolver, EMAComponentSymbol, mathStatementsSymbol),
+                emamGen.generateString(taggingResolver, EMAComponentSymbol, mathStatementsSymbol), //c++ execution code gen
                 EMAComponentSymbol));
     }
 
     public void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) {
-        fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol));
+        FileContent f = new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol); // generate the execution of the whole component in c++
+        fileContents.add(f);
+        
         String lastNameWithoutArrayPart = "";
-        for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) {
+        for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) { // if the component is just composed of other components, iterate over the components to generate them
             int arrayBracketIndex = instanceSymbol.getName().indexOf("[");
             boolean generateComponentInstance = true;
             if (arrayBracketIndex != -1) {

@@ -37,10 +37,6 @@ git masterJobLinux:
 #  - mvn package sonar:sonar -s settings.xml
   only:
   - master
-  except:
-    changes:
-    - .gitlab-ci.yml
-    - README.md
 
 
 
@@ -50,10 +46,6 @@ integrationMXNetJobLinux:
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationMXNetTest
   allow_failure: true
-  except:
-    changes:
-    - .gitlab-ci.yml
-    - README.md
 
 
 integrationCaffe2JobLinux:
@@ -61,10 +53,6 @@ integrationCaffe2JobLinux:
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/caffe2:v0.0.5
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationCaffe2Test
-  except:
-    changes:
-    - .gitlab-ci.yml
-    - README.md
 
 
 integrationGluonJobLinux:
@@ -72,10 +60,6 @@ integrationGluonJobLinux:
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=IntegrationGluonTest
-  except:
-    changes:
-    - .gitlab-ci.yml
-    - README.md
 
 
 integrationTensorflowJobLinux:
@@ -83,10 +67,6 @@ integrationTensorflowJobLinux:
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/tensorflow
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=IntegrationTensorflowTest
-  except:
-    changes:
-    - .gitlab-ci.yml
-    - README.md
 
 
 integrationPythonWrapperTest:
@@ -94,10 +74,6 @@ integrationPythonWrapperTest:
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2pythonwrapper/tests/mvn-swig:latest
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U  clean install --settings settings.xml -Dtest=IntegrationPythonWrapperTest
-  except:
-    changes:
-    - .gitlab-ci.yml
-    - README.md
 
 
 #masterJobWindows:
@@ -115,10 +91,6 @@ UnitTestJobLinux:
   script:
   - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest="GenerationTest,SymtabTest*"
 #  - cat target/site/jacoco/index.html
-  except:
-    changes:
-    - .gitlab-ci.yml
-    - README.md
 
 buildDockerMXNet150:
   stage: docker
@@ -184,3 +156,16 @@ buildDockerMXNet170DGL:
   only:
     changes:
       - src/test/resources/docker/mxnet170/**/*
+
+buildDockerDGLQD:
+  stage: docker
+  tags:
+    - shell
+  script:
+    - cd src/test/resources/docker/dglqd
+    - docker login registry.git.rwth-aachen.de -u someUserName -p $DOCKER_TOKEN
+    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/dgl-qd -f Dockerfile .
+    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/dgl-qd
+  only:
+    changes:
+      - src/test/resources/docker/dglqd/**/*
