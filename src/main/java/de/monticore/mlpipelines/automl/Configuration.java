@@ -4,11 +4,24 @@ import java.util.Hashtable;
 
 public class Configuration {
 
-    Hashtable<String, String> preprocessingConfig = new Hashtable<>();
-    Hashtable<String, String> hyperparameterOptimizerConfig = new Hashtable<>();
-    Hashtable<String, String> evaluationConfig = new Hashtable<>();
-    Hashtable<String, String> networkConfig = new Hashtable<>();
-    Hashtable<String, String> initialHyperparameters = new Hashtable<>();
-    TrainAlgorithmConfig trainAlgorithmConfig = new TrainAlgorithmConfig();
+    Hashtable<String, String> preprocessingConfig;
+    Hashtable<String, String> hyperparameterOptimizerConfig;
+    Hashtable<String, String> evaluationConfig;
+    Hashtable<String, String> networkConfig;
+    Hashtable<String, String> initialHyperparameters;
+    TrainAlgorithmConfig trainAlgorithmConfig;
 
+    public Configuration(Hashtable<String, String> preprocessingConfig,
+                         Hashtable<String, String> hyperparameterOptimizerConfig,
+                         Hashtable<String, String> evaluationConfig,
+                         Hashtable<String, String> networkConfig,
+                         Hashtable<String, String> initialHyperparameters,
+                         TrainAlgorithmConfig trainAlgorithmConfig) {
+        this.preprocessingConfig = preprocessingConfig;
+        this.hyperparameterOptimizerConfig = hyperparameterOptimizerConfig;
+        this.evaluationConfig = evaluationConfig;
+        this.networkConfig = networkConfig;
+        this.initialHyperparameters = initialHyperparameters;
+        this.trainAlgorithmConfig = trainAlgorithmConfig;
+    }
 }
