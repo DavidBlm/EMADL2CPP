@@ -24,4 +24,28 @@ public class Configuration {
         this.initialHyperparameters = initialHyperparameters;
         this.trainAlgorithmConfig = trainAlgorithmConfig;
     }
+
+    public Hashtable<String, String> getPreprocessingConfig() {
+        return preprocessingConfig;
+    }
+
+    public Hashtable<String, String> getHyperparameterOptimizerConfig() {
+        return hyperparameterOptimizerConfig;
+    }
+
+    public Hashtable<String, String> getEvaluationConfig() {
+        return evaluationConfig;
+    }
+
+    public Hashtable<String, String> getNetworkConfig() {
+        return networkConfig;
+    }
+
+    public Hashtable<String, String> getInitialHyperparameters() {
+        return initialHyperparameters;
+    }
+
+    public TrainAlgorithmConfig getTrainAlgorithmConfig() {
+        return trainAlgorithmConfig;
+    }
 }
