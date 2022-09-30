@@ -689,4 +689,22 @@ public class GenerationTest extends AbstractSymtabTest {
                         "execute_mnist_mnistClassifier_net",
                         "CNNPredictor_mnist_mnistClassifier_net.h"));
     }
+
+    @Test
+    public void testLoadNetworkMnistForPyTorch() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/", "-r", "LoadNetworkMnist", "-b", "PYTORCH", "-f", "n", "-c", "n"};
+        EMADLGeneratorCli.main(args);
+        checkFindingsCount();
+
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/pytorch/loadlayer"),
+                Arrays.asList(
+                        "loadNetworkMnist.h",
+                        "CNNNet_loadNetworkMnist.py",
+                        "CNNTranslator.h",
+                        "execute_loadNetworkMnist",
+                        "CNNPredictor_loadNetworkMnist.h"));
+    }
 }
