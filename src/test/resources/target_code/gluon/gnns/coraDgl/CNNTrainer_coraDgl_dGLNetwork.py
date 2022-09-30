@@ -4,17 +4,22 @@ import mxnet as mx
 
 import CNNCreator_coraDgl_dGLNetwork
 import CNNDataLoader_coraDgl_dGLNetwork
+import CNNDataCleaner_coraDgl_dGLNetwork
 import CNNSupervisedTrainer_coraDgl_dGLNetwork
 
 if __name__ == "__main__":
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
     handler = logging.FileHandler("train.log", "w", encoding=None, delay="true")
     logger.addHandler(handler)
 
     coraDgl_dGLNetwork_creator = CNNCreator_coraDgl_dGLNetwork.CNNCreator_coraDgl_dGLNetwork()
     coraDgl_dGLNetwork_creator.validate_parameters()
-    coraDgl_dGLNetwork_loader = CNNDataLoader_coraDgl_dGLNetwork.CNNDataLoader_coraDgl_dGLNetwork()
+    coraDgl_dGLNetwork_cleaner = CNNDataCleaner_coraDgl_dGLNetwork.CNNDataCleaner_coraDgl_dGLNetwork()
+    coraDgl_dGLNetwork_loader = CNNDataLoader_coraDgl_dGLNetwork.CNNDataLoader_coraDgl_dGLNetwork(
+        coraDgl_dGLNetwork_cleaner
+    )
+
     coraDgl_dGLNetwork_trainer = CNNSupervisedTrainer_coraDgl_dGLNetwork.CNNSupervisedTrainer_coraDgl_dGLNetwork(
         coraDgl_dGLNetwork_loader,
         coraDgl_dGLNetwork_creator
@@ -37,7 +42,8 @@ if __name__ == "__main__":
         optimizer='adam',
         optimizer_params={
             'weight_decay': 0.0,
-                    'learning_rate': 0.05,
-                    'learning_rate_decay': 1.0,
-                    'step_size': 1},
-    )
+            'learning_rate': 0.05,
+            'learning_rate_decay': 1.0,
+            'step_size': 1        },
+    )    
+

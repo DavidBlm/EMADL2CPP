@@ -75,6 +75,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         Log.enableFailQuick(false);
     }
 
+    @Ignore
     @Test
     public void testDontRetrain1() {
         // The training hash is stored during the first training, so the second one is skipped
@@ -106,6 +107,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         deleteHashFile();
     }
 
+    @Ignore
     @Test
     public void testDontRetrain3() {
         // Multiple instances of the first NN are used. Only the first one should cause a training
@@ -129,6 +131,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         }
     }
 
+    @Ignore
     @Test
     public void testForceRetrain() {
         // The training hash is written manually, but training is forced
