@@ -1,0 +1,18 @@
+component EfficientNetB0<classes=10>{
+    ports in Z(0:255)^{1, 32, 32} image,
+          out Q(0:1)^{classes} predictions;
+    implementation CNN {
+        def stem(){
+            Convolution(kernel=(3,3), channels=1, stride=(2, 2), padding="same") ->
+            BatchNorm() ->
+            LeakyRelu()
+        }
+
+        image ->
+        Convolution(kernel=(3,3), channels=1, stride=(2, 2), padding="same") ->
+        BatchNorm() ->
+        LeakyRelu() ->
+        FullyConnected(units=classes) ->
+        predictions;
+    }
+}

@@ -13,7 +13,7 @@ public class LoadModelTest extends TestCase {
     @Test
     public void testLoadModelAsArchitectureSymbol() {
         Scope symTab = createSymTab("src/test/resources/models");
-        EMAComponentInstanceSymbol c = symTab.<EMAComponentInstanceSymbol>resolve("vGG16",
+        EMAComponentInstanceSymbol c = symTab.<EMAComponentInstanceSymbol>resolve("efficientNetB0",
                 EMAComponentInstanceSymbol.KIND).orElse(null);
         ArchitectureSymbol arch1 = c.getSpannedScope().<ArchitectureSymbol>resolve("", ArchitectureSymbol.KIND).get();
         assertNotNull(arch1);
