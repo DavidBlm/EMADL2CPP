@@ -84,6 +84,10 @@ public class EMADLGenerator implements EMAMGenerator {
 
     protected Backend getBackend() {return this.backend;}
 
+    protected String getComposedNetworkFilePath(){
+        return this.composedNetworkFilePath;
+    }
+
     protected GeneratorCPP getEmamGen() {
         return emamGen;
     }

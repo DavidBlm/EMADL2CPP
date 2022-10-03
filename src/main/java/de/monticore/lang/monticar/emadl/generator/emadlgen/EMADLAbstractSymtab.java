@@ -35,8 +35,8 @@ public class EMADLAbstractSymtab {
     public EMADLAbstractSymtab() {
     }
 
-    public static TaggingResolver createSymTabAndTaggingResolver(String customFilesPath, String pythonPath, Backend backend, String... modelPath) {
-        Scope scope = createSymTab(customFilesPath, pythonPath, backend, modelPath);
+    public static TaggingResolver createSymTabAndTaggingResolver(String customFilesPath, String pythonPath, Backend backend, String composedNetworksFilePath, String... modelPath) {
+        Scope scope = createSymTab(customFilesPath, pythonPath, backend, composedNetworksFilePath, modelPath);
         TaggingResolver tagging = new TaggingResolver(scope, Arrays.asList(modelPath));
         TagMinMaxTagSchema.registerTagTypes(tagging);
         TagTableTagSchema.registerTagTypes(tagging);
@@ -69,13 +69,13 @@ public class EMADLAbstractSymtab {
         return tagging;
     }
 
-    public static Scope createSymTab(String customFilesPath, String pythonPath, Backend backend,String... modelPath) {
+    public static Scope createSymTab(String customFilesPath, String pythonPath, Backend backend, String composedNetworksFilePath, String... modelPath) {
         ConstantPortHelper.resetLastID();
         MathConverter.resetIDs();
         ThreadingOptimizer.resetID();
         ModelingLanguageFamily fam = new ModelingLanguageFamily();
 
-        EMADLLanguage montiArcLanguage = new EMADLLanguage(customFilesPath, pythonPath, backend.getBackendString(backend).toLowerCase(),"target/CompNets");
+        EMADLLanguage montiArcLanguage = new EMADLLanguage(customFilesPath, pythonPath, backend.getBackendString(backend).toLowerCase(), composedNetworksFilePath);
 
 
         fam.addModelingLanguage(montiArcLanguage);

@@ -24,7 +24,7 @@ public class AbstractSymtabTest {
     }
 
     protected static TaggingResolver createSymTab(String customFilesPath, String pythonPath, Backend backend, String composedNetworkFilePath, String... modelPath){
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(customFilesPath, pythonPath, backend, modelPath);
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(customFilesPath, pythonPath, backend, composedNetworkFilePath, modelPath);
     }
 
     public static void checkFilesAreEqual(Path generationPath, Path resultsPath, List<String> fileNames) {
