@@ -75,6 +75,12 @@ public class EMADLGeneratorCli {
             .required(false)
             .build();
 
+    public static final Option OPTION_COMPOSED_NETWORK_FILE = Option.builder("cnf")
+            .longOpt("composed-network-file")
+            .desc("Specify composed network file name")
+            .hasArg(true)
+            .required(false).build();
+
 
     private EMADLGeneratorCli() {
     }
@@ -105,6 +111,7 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_CUSTOM_FILES_PATH);
         options.addOption(OPTION_USE_DGL);
         options.addOption(OPTION_HELP);
+        options.addOption(OPTION_COMPOSED_NETWORK_FILE);
     }
 
     private static void printHelp(){
@@ -141,12 +148,17 @@ public class EMADLGeneratorCli {
         String pythonPath = cliArgs.getOptionValue(OPTION_TRAINING_PYTHON_PATH.getOpt());
         String compile = cliArgs.getOptionValue(OPTION_COMPILE.getOpt());
         String useDgl = cliArgs.getOptionValue(OPTION_USE_DGL.getOpt());
+        String composedNetworksFileName = cliArgs.getOptionValue(OPTION_COMPOSED_NETWORK_FILE.getOpt());
         final String DEFAULT_BACKEND = "MXNET";
         final String DEFAULT_FORCED = "UNSET";
         final String DEFAULT_COMPILE = "y";
         final String DEFAULT_USE_DGL = "n";
+        final String DEFAULT_COMPOSED_NETWORKS_FILE = "ComposedNetworks";
 
-        final String DEFAULT_COMPOSED_NETWORKS_FILE = "";
+        if (composedNetworksFileName == null){
+            Log.warn("Composed networks file name not specified, using default value " + DEFAULT_COMPOSED_NETWORKS_FILE);
+            composedNetworksFileName =  outputPath + "/" + DEFAULT_COMPOSED_NETWORKS_FILE;
+        }
 
         if (backendString == null) {
             Log.warn("Backend not specified. Backend set to default value " + DEFAULT_BACKEND);
@@ -171,7 +183,7 @@ public class EMADLGeneratorCli {
             forced = DEFAULT_FORCED;
         }
 
-        EMADLGenerator generator = new EMADLGenerator(backend.get(), DEFAULT_COMPOSED_NETWORKS_FILE);
+        EMADLGenerator generator = new EMADLGenerator(backend.get(), composedNetworksFileName);
 
         if (compile == null) {
             compile = DEFAULT_COMPILE;
