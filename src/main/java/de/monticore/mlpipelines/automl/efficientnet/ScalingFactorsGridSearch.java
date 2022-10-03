@@ -7,11 +7,10 @@ import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 public class ScalingFactorsGridSearch{
 
     private double bestAccuracy = 0;
-    private double alpha, beta, gamma = 0;
     private ScalingFactors bestScalingFactors = null;
-    private ArchitectureSymbol architecture = null;
-    private AutoMLTrainAlgorithm networkTrainer = null;
-    private EfficientNetConfig trainConfig = null;
+    private ArchitectureSymbol architecture;
+    private AutoMLTrainAlgorithm networkTrainer;
+    private EfficientNetConfig trainConfig;
 
     public ScalingFactorsGridSearch(ArchitectureSymbol architecture,
                                     EfficientNetConfig trainConfig,
@@ -25,32 +24,36 @@ public class ScalingFactorsGridSearch{
     }
 
     private double alphaFromFlopsCondition(double beta, double gamma){
-        double foundAlpha = 0;
-        foundAlpha = trainConfig.FLOPS_CONDITION_VALUE / Math.pow(beta*gamma,2);
+        double foundAlpha;
+        foundAlpha = EfficientNetConfig.FLOPS_CONDITION_VALUE / Math.pow(beta*gamma,2);
         return foundAlpha;
     }
 
     public ScalingFactors findScalingFactors(){
-        ScalingFactors bestScalingFactors = null;
+        ScalingFactors bestScalingFactors = new ScalingFactors(1,1,1);
         double locBestAccuracy = 0;
-        double locAlpha = 1, locBeta = 1, locGamma = 1;
+        double locAlpha = 1;
+        double locBeta = 1;
+        double locGamma;
         EfficientNetConfig locTrainConfig = trainConfig;
 
-        for(locGamma = trainConfig.MIN_GAMMA; locGamma <= trainConfig.MAX_GAMMA; locGamma +=trainConfig.GAMMA_STEP_SIZE){
-            for(locBeta = trainConfig.MIN_BETA; locBeta <= trainConfig.MAX_BETA; locBeta += trainConfig.BETA_STEP_SIZE){
-                locAlpha = alphaFromFlopsCondition(beta, gamma);
+        for(locGamma = EfficientNetConfig.MIN_GAMMA; locGamma <= EfficientNetConfig.MAX_GAMMA; locGamma +=EfficientNetConfig.GAMMA_STEP_SIZE){
+            for(locBeta = EfficientNetConfig.MIN_BETA; locBeta <= EfficientNetConfig.MAX_BETA; locBeta += EfficientNetConfig.BETA_STEP_SIZE){
+                locAlpha = alphaFromFlopsCondition(locBeta, locGamma);
 
-                if(locAlpha < trainConfig.MIN_ALPHA){
+                if(locAlpha < EfficientNetConfig.MIN_ALPHA){
                     break;
                 }
-                else{
+                else
+                {
                     //scaleNetwork()
                     locTrainConfig.alpha = locAlpha;
                     locTrainConfig.beta = locBeta;
                     locTrainConfig.gamma = locGamma;
                     networkTrainer.train(architecture, locTrainConfig);
-                    if(networkTrainer.trainedAccuracy > bestAccuracy);
-                    locBestAccuracy = networkTrainer.trainedAccuracy;
+                    if(networkTrainer.trainedAccuracy > locBestAccuracy){
+                        locBestAccuracy = networkTrainer.trainedAccuracy;
+                    }
                 }
             }
         }
