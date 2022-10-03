@@ -44,7 +44,9 @@ component EfficientNetB0<classes=10>{
         image ->
         stem() ->
         residualBlock() ->
+        residualBlock() ->
         reductionBlock() ->
+        residualBlock() ->
         residualBlock() ->
         reductionBlock() ->
         FullyConnected(units=classes) ->
