@@ -8,10 +8,45 @@ component EfficientNetB0<classes=10>{
             LeakyRelu()
         }
 
+        def conv(){
+            Convolution(kernel=(3,3), channels=1, stride=(1, 1), padding="same") ->
+            BatchNorm() ->
+            LeakyRelu()
+        }
+
+        def reductionConv(){
+            Convolution(kernel=(3,3), channels=1, stride=(2, 2), padding="same") ->
+            BatchNorm() ->
+            LeakyRelu()
+        }
+
+        def residualBlock(){
+            (
+                conv() ->
+                conv()
+            |
+                LeakyRelu()
+            ) ->
+            Add()
+        }
+
+        def reductionBlock(){
+            (
+                conv() ->
+                conv() ->
+                reductionConv()
+            |
+                reductionConv()
+            ) ->
+            Add()
+        }
+
         image ->
-        Convolution(kernel=(3,3), channels=1, stride=(2, 2), padding="same") ->
-        BatchNorm() ->
-        LeakyRelu() ->
+        stem() ->
+        residualBlock() ->
+        reductionBlock() ->
+        residualBlock() ->
+        reductionBlock() ->
         FullyConnected(units=classes) ->
         predictions;
     }
