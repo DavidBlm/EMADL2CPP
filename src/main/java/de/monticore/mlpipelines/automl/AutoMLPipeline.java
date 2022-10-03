@@ -16,9 +16,9 @@ public class AutoMLPipeline extends Pipeline {
     private Pipeline trainPipeline;
     private ArchitectureSymbol architecture;
 
-    public void train(){
+    public void train() {
         loadConfig();
-        loadModel();
+        loadArchitecture();
     }
 
     private void loadConfig() {
@@ -28,11 +28,12 @@ public class AutoMLPipeline extends Pipeline {
         ConfFile2ConfigurationParser parser = new ConfFile2ConfigurationParser(modelPath, modelName);
         this.configuration = parser.getConfiguration();
     }
-    
-    private void loadModel(){
+
+    private void loadArchitecture() {
         Scope symTab = createSymTab("src/test/resources/models");
         EMAComponentInstanceSymbol c = symTab.<EMAComponentInstanceSymbol>resolve("efficientNetB0",
                 EMAComponentInstanceSymbol.KIND).orElse(null);
-        ArchitectureSymbol arch1 = c.getSpannedScope().<ArchitectureSymbol>resolve("", ArchitectureSymbol.KIND).get();
+        ArchitectureSymbol resolvedArchitecture = c.getSpannedScope().<ArchitectureSymbol>resolve("", ArchitectureSymbol.KIND).get();
+        this.architecture = resolvedArchitecture;
     }
 }
