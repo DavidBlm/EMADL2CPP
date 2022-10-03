@@ -1,4 +1,0 @@
-modularNetworkSimple.Network src/test/resources/models/ModularMNIST/resources/training_data
-modularNetworkComplex.Network src/test/resources/models/ModularMNIST/resources/training_data
-singleNetwork.Network src/test/resources/models/ModularMNIST/resources/training_data
-emptyNetwork.Network src/test/resources/models/ModularMNIST/resources/training_data

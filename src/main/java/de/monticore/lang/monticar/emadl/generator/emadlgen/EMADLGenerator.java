@@ -8,7 +8,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkHandler;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.ComposedNetworkHandler;
 import de.monticore.lang.monticar.generator.EMAMGenerator;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.MathCommandRegister;
@@ -292,7 +292,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         EMADLCocos.checkAll(componentInstanceSymbol);
 
-        NetworkHandler networkHandler = new NetworkHandler(this.composedNetworkFilePath);
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
 
         if (architecture.isPresent()) {
 
@@ -313,7 +313,7 @@ public class EMADLGenerator implements EMAMGenerator {
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
             }
-        } else if (networkHandler.isComposedNet(emaComponentSymbol.getName())) {
+        } else if (composedNetworkHandler.isComposedNet(emaComponentSymbol.getName())) {
 
             String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);

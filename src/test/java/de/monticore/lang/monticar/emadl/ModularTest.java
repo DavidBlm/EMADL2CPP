@@ -52,7 +52,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testEmtpyNetwork() throws IOException {
         Log.getFindings().clear();
         removeTrainingHash("target/emptyNetwork");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "emptyNetwork.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/emptyNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args,0,true);
 
     }
@@ -61,7 +61,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testModularNetworkComplex() throws IOException {
         Log.getFindings().clear();
         removeTrainingHash("target/modularNetworkComplex");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "modularNetworkComplex.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkComplex", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args,6,false);
     }
 
@@ -69,7 +69,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testModularNetworkSimple() throws IOException {
         Log.getFindings().clear();
         removeTrainingHash("target/modularNetworkSimple");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "modularNetworkSimple.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkSimple", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args,6,false);
     }
 
@@ -77,7 +77,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testSingleNetwork() throws IOException {
         Log.getFindings().clear();
         removeTrainingHash("target/singleNetwork");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST", "-r", "singleNetwork.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/singleNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args,12,false);
     }
 

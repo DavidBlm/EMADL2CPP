@@ -1,0 +1,14 @@
+package calculator;
+
+component Net2 {
+    ports in Q(0:1)^{10} dataInput,
+         out Q(0:1)^{10} dataOutput;
+
+    instance Net3 net3;
+    instance Net4 net4;
+
+
+    connect dataInput -> net3.dataInput;
+    connect net3.dataOutput -> net4.dataInput;
+    connect net4.dataOutput -> dataOutput;
+}

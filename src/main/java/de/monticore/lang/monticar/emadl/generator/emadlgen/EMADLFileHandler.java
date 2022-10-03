@@ -9,7 +9,7 @@ import de.monticore.lang.monticar.cnnarch.generator.DataPathConfigParser;
 import de.monticore.lang.monticar.cnnarch.generator.WeightsPathConfigParser;
 import de.monticore.lang.monticar.emadl._cocos.DataPathCocos;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkHandler;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.ComposedNetworkHandler;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactSymbol;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
 import de.monticore.lang.monticar.generator.FileContent;
@@ -314,7 +314,7 @@ public class EMADLFileHandler {
         List<FileContent> fileContentsTrainingHashes = new ArrayList<>();
         List<String> newHashes = new ArrayList<>();
 
-        NetworkHandler networkHandler = new NetworkHandler(this.composedNetworksFilePath);
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworksFilePath);
 
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
             Optional<ArchitectureSymbol> architecture = componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);

@@ -4,13 +4,10 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import de.monticore.ast.ASTNode;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.math._symboltable.MathStatementsSymbol;
-import de.monticore.lang.monticar.cnnarch._ast.ASTCNNArchCompilationUnit;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.CNNArchCompilationUnitKind;
 import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.CNNTrainGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.annotations.ArchitectureAdapter;
@@ -21,12 +18,11 @@ import de.monticore.lang.monticar.cnnarch.generator.training.TrainingConfigurati
 import de.monticore.lang.monticar.cnnarch.generator.validation.TrainedArchitectureChecker;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkHandler;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.ComposedNetworkHandler;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
-import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 
 import java.io.IOException;
@@ -100,89 +96,14 @@ public class EMADLCNNHandler {
         List<FileContent> fileContents = new ArrayList<>();
         TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
 
-        // TODO: provide root config file for subnets
-        // emadlFileHandler.setRootConfigurationFile();
+
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
 
         for (EMAComponentInstanceSymbol componentInstance : allInstances){
-
-            if (componentInstance.getKind() instanceof CNNArchCompilationUnitKind) {
-                Log.info("SYMBOL KIND: True" ,"SYMBOL_KIND_TRUE_1");
-            } else {
-                Log.info("SYMBOL KIND: False" ,"SYMBOL_KIND_FALSE_1");
-            }
-
-            Collection<EMAComponentInstanceSymbol> subComps = componentInstance.getSubComponents();
-            for (EMAComponentInstanceSymbol c: subComps){
-
-            }
-
-            Log.info("FOUND: " +  componentInstance.getPackageName(),"COMP_TYPE_SEARCH_X");
-
-            Optional<ASTNode> ast = componentInstance.getComponentType().getReferencedSymbol().getAstNode();
-            if (ast.isPresent()) {
-                ast.get().getClass().getName();
-                Log.info("FOUND: " + ast.get().getClass().getName(),"COMP_TYPE_SEARCH");
-                Log.info("FOUND: " + ast.get().getClass().getSimpleName(),"COMP_TYPE_SEARCH");
-                Log.info("FOUND: " + ast.get().getClass().getCanonicalName(),"COMP_TYPE_SEARCH_Y");
-                //ast.get().getSymbol().getKind();
-
-                //Log.info("FOUND: " + ast.get().getSymbol().,"COMP_TYPE_SEARCH_F");
-                Log.info("FOUND: " + ast.get().getSymbol().getName(),"COMP_TYPE_SEARCH_F");
-                Log.info("FOUND: " + ast.get().getSymbol().getFullName(),"COMP_TYPE_SEARCH_F");
-                Log.info("FOUND: " + ast.get().getSymbol().getKind(),"COMP_TYPE_SEARCH_F");
-                Log.info("FOUND: " + ast.get().getSymbol().getPackageName(),"COMP_TYPE_SEARCH_F");
-
-                Symbol symbol =  ast.get().getSymbol();
-                if (symbol instanceof ASTCNNArchCompilationUnit){
-                    Log.info("SYMBOL KIND: True" ,"SYMBOL_KIND_TRUE_2");
-                } else  {
-                    Log.info("SYMBOL KIND: False" ,"SYMBOL_KIND_FALSE_2");
-                }
-                Log.info("FOUND:" + symbol.getKind(),"COMP_TYPE_SEARCH_H");
-                Optional<ASTNode> on = symbol.getAstNode();
-                symbol.getClass().getName();
-                //ASTCNNArchCompilationUnit n = (ASTCNNArchCompilationUnit) on.get();
-
-                //Log.info("FOUND:" + n.getClass().getName(),"COMP_TYPE_SEARCH_H");
-
-
-                Log.info("FOUND: " + ast.get().getSymbol().getAstNode().get().getSymbol().getFullName(),"COMP_TYPE_SEARCH_G");
-                Log.info("FOUND: " + ast.get().getSymbol().getAstNode().get().getSymbol().getName(),"COMP_TYPE_SEARCH_G");
-                Log.info("FOUND: " + ast.get().getSymbol().getAstNode().get().getSymbol().getKind(),"COMP_TYPE_SEARCH_G");
-                Log.info("FOUND: " + ast.get().getSymbol().getAstNode().get().getSymbol().getPackageName(),"COMP_TYPE_SEARCH_G");
-
-
-
-
-                //if ()
-                // Log.info("FOUND: " + ast.get().getClass().getTypeName(),"COMP_TYPE_SEARCH");
-                //ast.get().getClass().
-                //Class<?> classes[]  = ast.get().getClass().getClasses();
-                //for (Class c : classes) {
-                //     Log.info("FOUND CLASS: " + c.getName() ,"COMP_TYPE_SEARCH");
-                //}
-            }
-
-            Log.info("FOUND: " + componentInstance.getComponentType().getReferencedSymbol().getKind().getName(),"COMP_TYPE_SEARCH");
-
-            Log.info("Component Kind: " + componentInstance.getComponentType().getKind().getName(),"COMP_TYPE_KIND");
-            Log.info("Component Type:" + componentInstance.getComponentType().getFullName(), "COMP_TYPE");
-            Optional<EMAComponentInstanceSymbol> opt = componentInstance.getEnclosingComponent();
-            if (opt.isPresent()){
-                Log.info("Parent Component Type: " + opt.get().getFullName(), "COMP_TYPE_PARENT");
-                opt.get().getFullName();
-            } else {
-                Log.info("NONE" , "COMP_TYPE_PARENT");
-            }
+            Log.info("instance: " + componentInstance.toString(),"CNN_COMPOSITION");
 
 
         }
-
-        NetworkHandler networkHandler = new NetworkHandler(this.composedNetworkFilePath);
-
-        //EMAComponentInstanceSymbol rootComponent =
-        //networkHandler.transformNetwork(allInstances);
-
 
 
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
