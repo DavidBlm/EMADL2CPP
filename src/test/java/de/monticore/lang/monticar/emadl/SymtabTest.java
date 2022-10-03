@@ -39,7 +39,7 @@ public class SymtabTest extends AbstractSymtabTest {
 
     @Test
     public void testCustomMNISTCalculator(){
-        Scope symTab = createSymTab("src/test/resources/custom_files", "", Backend.GLUON, "src/test/resources/models/customMNISTCalculator");
+        Scope symTab = createSymTab("src/test/resources/custom_files", "", Backend.GLUON,"./target/ComposedNetworks", "src/test/resources/models/customMNISTCalculator");
         EMAComponentSymbol a = symTab.<EMAComponentSymbol>resolve("cNNCalculator.Connector", EMAComponentSymbol.KIND).orElse(null);
         assertNotNull(a);
     }

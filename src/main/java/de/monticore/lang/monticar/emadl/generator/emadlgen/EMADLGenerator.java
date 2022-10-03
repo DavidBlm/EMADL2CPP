@@ -1,27 +1,14 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl.generator.emadlgen;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.math._symboltable.MathStatementsSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
-import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
-import de.monticore.lang.monticar.cnnarch.generator.CNNTrainGenerator;
-import de.monticore.lang.monticar.cnnarch.generator.annotations.ArchitectureAdapter;
-import de.monticore.lang.monticar.cnnarch.generator.preprocessing.PreprocessingComponentParameterAdapter;
-import de.monticore.lang.monticar.cnnarch.generator.preprocessing.PreprocessingPortChecker;
-import de.monticore.lang.monticar.cnnarch.generator.training.TrainingComponentsContainer;
-import de.monticore.lang.monticar.cnnarch.generator.training.TrainingConfiguration;
-import de.monticore.lang.monticar.cnnarch.generator.validation.TrainedArchitectureChecker;
-import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkStructureScanner;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkHandler;
 import de.monticore.lang.monticar.generator.EMAMGenerator;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.MathCommandRegister;
@@ -30,7 +17,6 @@ import de.monticore.lang.monticar.generator.cpp.*;
 import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperFactory;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
-import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
@@ -45,8 +31,6 @@ import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
 
-import static de.monticore.lang.monticar.cnnarch.generator.validation.Constants.ROOT_SCHEMA_MODEL_PATH;
-
 public class EMADLGenerator implements EMAMGenerator {
 
     private boolean generateCMake = false;
@@ -59,6 +43,7 @@ public class EMADLGenerator implements EMAMGenerator {
     private EMADLTagging emadlTaggingHandler;
     private EMADLCNNHandler emadlCNNHandler;
 
+    private String composedNetworkFilePath = "";
 
 
 
@@ -66,8 +51,9 @@ public class EMADLGenerator implements EMAMGenerator {
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
 
-    public EMADLGenerator(Backend backend) {
+    public EMADLGenerator(Backend backend, String composedNetworkFilePath) {
         this.backend = backend;
+        this.composedNetworkFilePath = composedNetworkFilePath;
         emamGen = new GeneratorCPP();
         emamGen.useArmadilloBackend();
         emamGen.setGenerationTargetPath("./target/generated-sources-emadl/");
@@ -75,7 +61,7 @@ public class EMADLGenerator implements EMAMGenerator {
         pythonWrapper = new GeneratorPythonWrapperStandaloneApi();
         emadlFileHandler = new EMADLFileHandler(this);
         emadlTaggingHandler = new EMADLTagging(this);
-        emadlCNNHandler = new EMADLCNNHandler(this, processedArchitecture, pythonWrapper);
+        emadlCNNHandler = new EMADLCNNHandler(this, processedArchitecture, pythonWrapper, this.composedNetworkFilePath);
     }
 
     protected Map<String, ArchitectureSymbol> getProcessedArchitecture() {
@@ -302,7 +288,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         EMADLCocos.checkAll(componentInstanceSymbol);
 
-        NetworkStructureScanner nss = new NetworkStructureScanner();
+        NetworkHandler networkHandler = new NetworkHandler(this.composedNetworkFilePath);
 
         if (architecture.isPresent()) {
 
@@ -323,7 +309,7 @@ public class EMADLGenerator implements EMAMGenerator {
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
             }
-        } else if (nss.isComposedNet(emaComponentSymbol.getName(),"ComposedNetworks.txt")) {
+        } else if (networkHandler.isComposedNet(emaComponentSymbol.getName())) {
 
             String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);

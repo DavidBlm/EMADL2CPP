@@ -5,16 +5,12 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import de.monticore.ast.ASTNode;
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._ast.ASTComponent;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.math._symboltable.MathStatementsSymbol;
-import de.monticore.lang.monticar.cnnarch._ast.ASTArchExpression;
 import de.monticore.lang.monticar.cnnarch._ast.ASTCNNArchCompilationUnit;
-import de.monticore.lang.monticar.cnnarch._ast.ASTCNNArchNode;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.CNNArchCompilationUnitKind;
-import de.monticore.lang.monticar.cnnarch._symboltable.CNNArchLanguage;
 import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.CNNTrainGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.annotations.ArchitectureAdapter;
@@ -25,7 +21,7 @@ import de.monticore.lang.monticar.cnnarch.generator.training.TrainingConfigurati
 import de.monticore.lang.monticar.cnnarch.generator.validation.TrainedArchitectureChecker;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkStructureScanner;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkHandler;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
@@ -49,15 +45,17 @@ public class EMADLCNNHandler {
     private EMADLTagging emadlTaggingHandler;
 
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
+    private String composedNetworkFilePath;
 
 
-    public EMADLCNNHandler (EMADLGenerator emadlGen,Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi ) {
+    public EMADLCNNHandler (EMADLGenerator emadlGen,Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi, String composedNetworkFilePath ) {
         emadlGenerator = emadlGen;
         cnnArchGenerator = emadlGenerator.getBackend().getCNNArchGenerator();
         cnnTrainGenerator = emadlGenerator.getBackend().getCNNTrainGenerator();
         emadlFileHandler = emadlGenerator.getEmadlFileHandler();
         emadlTaggingHandler = emadlGenerator.getEmadlTaggingHandler();
         pythonWrapper = pythonWrapperApi;
+        this.composedNetworkFilePath = composedNetworkFilePath;
 
     }
 
@@ -180,10 +178,10 @@ public class EMADLCNNHandler {
 
         }
 
-        NetworkStructureScanner nss = new NetworkStructureScanner();
+        NetworkHandler networkHandler = new NetworkHandler(this.composedNetworkFilePath);
 
         //EMAComponentInstanceSymbol rootComponent =
-        //nss.transformNetwork(allInstances);
+        //networkHandler.transformNetwork(allInstances);
 
 
 
@@ -194,7 +192,7 @@ public class EMADLCNNHandler {
 
 
 
-            if (architecture.isPresent() /* || nss.isComposedNet(componentInstance.getName()) */) {
+            if (architecture.isPresent() /* || networkHandler.isComposedNet(componentInstance.getName()) */) {
                 Log.info("scope: " + component.getFullName(),"SCOPE_SEARCH");
                 String mainComponentConfigFilename = mainComponentName.replaceAll("\\.", "/");
                 String componentConfigFilename = component.getFullName().replaceAll("\\.", "/");

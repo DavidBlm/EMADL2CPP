@@ -23,8 +23,8 @@ public class AbstractSymtabTest {
         return EMADLAbstractSymtab.createSymTabAndTaggingResolver(modelPath);
     }
 
-    protected static TaggingResolver createSymTab(String customFilesPath, String pythonPath, Backend backend, String... modelPath){
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(customFilesPath, pythonPath, backend, modelPath);
+    protected static TaggingResolver createSymTab(String customFilesPath, String pythonPath, Backend backend, String composedNetworkFilePath, String... modelPath){
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(customFilesPath, pythonPath, backend, composedNetworkFilePath, modelPath);
     }
 
     public static void checkFilesAreEqual(Path generationPath, Path resultsPath, List<String> fileNames) {

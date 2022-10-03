@@ -244,7 +244,7 @@ public class GenerationTest extends AbstractSymtabTest {
 
     @Test
     public void testHashFunction() {
-        EMADLGenerator tester = new EMADLGenerator(Backend.MXNET);
+        EMADLGenerator tester = new EMADLGenerator(Backend.MXNET, "./target/ComposedNetworks");
 
         try {
             tester.getEmadlFileHandler().getChecksumForFile("invalid Path!");

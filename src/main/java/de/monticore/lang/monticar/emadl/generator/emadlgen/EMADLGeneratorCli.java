@@ -146,6 +146,8 @@ public class EMADLGeneratorCli {
         final String DEFAULT_COMPILE = "y";
         final String DEFAULT_USE_DGL = "n";
 
+        final String DEFAULT_COMPOSED_NETWORKS_FILE = "";
+
         if (backendString == null) {
             Log.warn("Backend not specified. Backend set to default value " + DEFAULT_BACKEND);
             backendString = DEFAULT_BACKEND;
@@ -169,7 +171,7 @@ public class EMADLGeneratorCli {
             forced = DEFAULT_FORCED;
         }
 
-        EMADLGenerator generator = new EMADLGenerator(backend.get());
+        EMADLGenerator generator = new EMADLGenerator(backend.get(), DEFAULT_COMPOSED_NETWORKS_FILE);
 
         if (compile == null) {
             compile = DEFAULT_COMPILE;
