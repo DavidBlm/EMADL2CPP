@@ -3,6 +3,7 @@ package de.monticore.mlpipelines.automl;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
+import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.parser.ConfFile2ConfigurationParser;
 import de.monticore.symboltable.Scope;
 

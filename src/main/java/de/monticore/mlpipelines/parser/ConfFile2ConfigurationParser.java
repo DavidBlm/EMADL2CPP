@@ -5,8 +5,8 @@ import conflang._symboltable.ConfigurationEntry;
 import conflang._symboltable.ConfigurationEntrySymbol;
 import conflang._symboltable.ConfigurationScope;
 import conflang._symboltable.NestedConfigurationEntrySymbol;
-import de.monticore.mlpipelines.automl.Configuration;
-import de.monticore.mlpipelines.automl.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.automl.configuration.Configuration;
+import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.symboltable.Symbol;
 
 import java.nio.file.Path;

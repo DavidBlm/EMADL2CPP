@@ -1,7 +1,7 @@
 package de.monticore.mlpipelines.parser;
 
-import de.monticore.mlpipelines.automl.Configuration;
-import de.monticore.mlpipelines.automl.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.automl.configuration.Configuration;
+import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import junit.framework.TestCase;
 
 import java.nio.file.Path;

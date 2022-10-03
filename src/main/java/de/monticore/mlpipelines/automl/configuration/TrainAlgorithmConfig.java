@@ -1,4 +1,4 @@
-package de.monticore.mlpipelines.automl;
+package de.monticore.mlpipelines.automl.configuration;
 
 public class TrainAlgorithmConfig {
     //private class TrainAlgorithm;
