@@ -34,7 +34,7 @@ public class ConfFile2ConfigurationParser {
         Hashtable<String, Object> initialHyperparameters = getConfigByEntries(initialHyperparametersEntries);
         try {
             TrainAlgorithmConfig trainAlgorithmConfig = getTrainAlgorithmConfigByEntries(trainAlgorithmEntries);
-            this.configuration = new Configuration(preprocessingConfig,hyperparameterOptimizerConfig, evaluationConfig, networkConfig, initialHyperparameters, trainAlgorithmConfig);
+            this.configuration = new Configuration(preprocessingConfig, hyperparameterOptimizerConfig, evaluationConfig, networkConfig, initialHyperparameters, trainAlgorithmConfig);
         } catch (KeyException e) {
             throw new RuntimeException(e);
         }
@@ -52,7 +52,7 @@ public class ConfFile2ConfigurationParser {
 
     private List<ConfigurationEntry> getConfEntriesByKey(Map<String, Collection<Symbol>> symbols, String key) {
         ArrayList<Symbol> keyList = new ArrayList<>(symbols.get(key));
-        return  ((NestedConfigurationEntrySymbol) keyList.get(0)).getAllConfigurationEntries();
+        return ((NestedConfigurationEntrySymbol) keyList.get(0)).getAllConfigurationEntries();
     }
 
     private Hashtable<String, Object> getConfigByEntries(List<ConfigurationEntry> entries) {
@@ -76,10 +76,19 @@ public class ConfFile2ConfigurationParser {
     }
 
     private TrainAlgorithmConfig getTrainAlgorithmConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
+        TrainAlgorithmConfig config = new TrainAlgorithmConfig();
+
         int numEpochs = (int) getConfigurationEntryValue(entries, "num_epochs");
         boolean saveTrainedArchitecture = (boolean) getConfigurationEntryValue(entries, "save_trained_architecture");
-        String architectureSavePath = getConfigurationEntryValue(entries, "architecture_save_path").toString();
-        return new TrainAlgorithmConfig(numEpochs, saveTrainedArchitecture, architectureSavePath);
+        String architectureSavePath = (String) getConfigurationEntryValue(entries, "save_trained_architecture_path");
+        String trainAlgorithmName = (String) getConfigurationEntryValue(entries, "train_algorithm_name");
+
+        config.setNumEpochs(numEpochs);
+        config.setSaveTrainedArchitecture(saveTrainedArchitecture);
+        config.setArchitectureSavePath(architectureSavePath);
+        config.setTrainAlgorithmName(trainAlgorithmName);
+
+        return config;
     }
 
     private Object getConfigurationEntryValue(List<ConfigurationEntry> entries, String key) throws KeyException {

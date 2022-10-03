@@ -17,12 +17,6 @@ public class LoadModelTest extends TestCase {
         Scope symTab = createSymTab("src/test/resources/models");
         EMAComponentInstanceSymbol c = symTab.<EMAComponentInstanceSymbol>resolve("efficientNetB0",
                 EMAComponentInstanceSymbol.KIND).orElse(null);
-        List<? extends Scope> subScopes = c.getEnclosingScope().getSubScopes();
-        for (Scope s : subScopes) {
-            int symbolsSize = s.getSubScopes().get(0).getSymbolsSize();
-            System.out.println("Symbols size: " + symbolsSize);
-        }
-
         ArchitectureSymbol arch1 = c.getSpannedScope().<ArchitectureSymbol>resolve("", ArchitectureSymbol.KIND).get();
         assertNotNull(arch1);
     }

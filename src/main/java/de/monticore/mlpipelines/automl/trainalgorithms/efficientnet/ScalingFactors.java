@@ -1,4 +1,4 @@
-package de.monticore.mlpipelines.automl.efficientnet;
+package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 public class ScalingFactors {
     public double alpha;

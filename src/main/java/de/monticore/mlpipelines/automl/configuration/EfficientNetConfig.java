@@ -14,8 +14,4 @@ public class EfficientNetConfig extends TrainAlgorithmConfig{
     public double alpha;
     public double beta;
     public double gamma;
-
-    public EfficientNetConfig(int numEpochs, boolean saveTrainedArchitecture, String architectureSavePath) {
-        super(numEpochs, saveTrainedArchitecture, architectureSavePath);
-    }
 }

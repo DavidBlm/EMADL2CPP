@@ -1,7 +1,7 @@
-package de.monticore.mlpipelines.automl.efficientnet;
+package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.mlpipelines.automl.AutoMLTrainAlgorithm;
+import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 
 public class ScalingFactorsGridSearch{
@@ -9,12 +9,12 @@ public class ScalingFactorsGridSearch{
     private double bestAccuracy = 0;
     private ScalingFactors bestScalingFactors = null;
     private ArchitectureSymbol architecture;
-    private AutoMLTrainAlgorithm networkTrainer;
+    private TrainAlgorithm networkTrainer;
     private EfficientNetConfig trainConfig;
 
     public ScalingFactorsGridSearch(ArchitectureSymbol architecture,
                                     EfficientNetConfig trainConfig,
-                                    AutoMLTrainAlgorithm networkTrainer
+                                    TrainAlgorithm networkTrainer
                                     //NetworkScaler,
     )
     {

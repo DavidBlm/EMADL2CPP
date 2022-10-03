@@ -4,6 +4,8 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instance
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
+import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
+import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
 import de.monticore.mlpipelines.parser.ConfFile2ConfigurationParser;
 import de.monticore.symboltable.Scope;
 
@@ -16,10 +18,34 @@ public class AutoMLPipeline extends Pipeline {
     private Configuration configuration;
     private Pipeline trainPipeline;
     private ArchitectureSymbol architecture;
+    private TrainAlgorithm trainAlgorithm;
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public Pipeline getTrainPipeline() {
+        return trainPipeline;
+    }
+
+    public TrainAlgorithm getTrainAlgorithm() {
+        return trainAlgorithm;
+    }
+
+    public ArchitectureSymbol getArchitecture() {
+        return architecture;
+    }
 
     public void train() {
         loadConfig();
         loadArchitecture();
+        loadTrainAlgorithm();
+    }
+
+    public void loadTrainAlgorithm() {
+        TrainAlgorithmBuilder builder = new TrainAlgorithmBuilder();
+        builder.setConfig(configuration.getTrainAlgorithmConfig());
+        this.trainAlgorithm = builder.build();
     }
 
     private void loadConfig() {
