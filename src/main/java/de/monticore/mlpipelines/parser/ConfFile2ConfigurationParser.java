@@ -28,7 +28,7 @@ public class ConfFile2ConfigurationParser {
         List<ConfigurationEntry> trainAlgorithmEntries = getConfEntriesByKey(confSymbols, "train_algorithm");
 
         Hashtable<String, Object> preprocessingConfig = getConfigByEntries(preprocessingEntries);
-        String hyperparameterOptimizerConfig = getHyperparameterOpmizer(confSymbols);
+        String hyperparameterOptimizerConfig = getHyperparameterOptimizer(confSymbols);
         Hashtable<String, Object> evaluationConfig = getConfigByEntries(evaluationEntries);
         Hashtable<String, Object> networkConfig = getConfigByEntries(networkEntries);
         Hashtable<String, Object> initialHyperparameters = getConfigByEntries(initialHyperparametersEntries);
@@ -44,7 +44,7 @@ public class ConfFile2ConfigurationParser {
         return this.configuration;
     }
 
-    private String getHyperparameterOpmizer(Map<String, Collection<Symbol>> symbols) {
+    private String getHyperparameterOptimizer(Map<String, Collection<Symbol>> symbols) {
         ArrayList<Symbol> hyperparameterOptimizerList = new ArrayList<>(symbols.get("hyperparameter_optimizer"));
         ConfigurationEntrySymbol entrySymbol = (ConfigurationEntrySymbol) hyperparameterOptimizerList.get(0);
         return entrySymbol.getValue().toString();
