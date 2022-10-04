@@ -9,5 +9,4 @@ public class EfficientNetConfig extends TrainAlgorithmConfig{
     public static final ScalingFactors SCALING_FACTORS_STEP_SIZE = new ScalingFactors(0.1f, 0.1f, 0.1f);
     public static final double maximum_image_width_and_height = 32;
     public static final int phi = 1;
-    public ScalingFactors scalingFactors;
 }
