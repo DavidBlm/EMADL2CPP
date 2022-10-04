@@ -44,6 +44,7 @@ public class AutoMLPipeline extends Pipeline {
         loadConfig();
         loadArchitecture();
         loadTrainAlgorithm();
+        trainAlgorithm.train(architecture, configuration.getTrainAlgorithmConfig());
     }
 
     public void loadTrainAlgorithm() {

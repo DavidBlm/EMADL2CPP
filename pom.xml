@@ -227,6 +227,8 @@
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <argLine></argLine>
+                    <parallel>all</parallel>
+                    <useUnlimitedThreads>true</useUnlimitedThreads>
                 </configuration>
             </plugin>
             <plugin>
