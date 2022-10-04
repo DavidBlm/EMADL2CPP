@@ -9,20 +9,41 @@ import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 public class ScalingFactorsGridSearch{
 
     private double bestAccuracy = 0;
-    private ScalingFactors bestScalingFactors = null;
+    private NetworkScaler networkScaler;
     private ArchitectureSymbol architecture;
     private Pipeline trainPipeline;
     private Configuration trainConfig;
+    private ScalingFactors bestScalingFactors;
+    private ScalingFactors currentScalingFactors;
+    private double locBestAccuracy;
 
     public ScalingFactorsGridSearch(ArchitectureSymbol architecture,
                                     Configuration trainConfig,
-                                    Pipeline networkTrainer
-                                    //NetworkScaler,
-    )
-    {
+                                    Pipeline networkTrainer,
+                                    NetworkScaler networkScaler){
         this.architecture = architecture;
         this.trainConfig = trainConfig;
         this.trainPipeline = networkTrainer;
+        this.networkScaler = networkScaler;
+    }
+
+    public ScalingFactors findScalingFactors(){
+        initVariables();
+
+        for(float gamma = EfficientNetConfig.MIN_SCALING_FACTORS.gamma;
+            gamma <= EfficientNetConfig.MAX_SCALING_FACTORS.gamma;
+            gamma +=EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.gamma){
+
+            for(float beta = EfficientNetConfig.MIN_SCALING_FACTORS.beta;
+                beta <= EfficientNetConfig.MAX_SCALING_FACTORS.beta;
+                beta += EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.beta){
+
+                float alpha = alphaFromFlopsCondition(beta, gamma);
+                this.checkScalingFactors(new ScalingFactors(alpha, beta, gamma));
+            }
+        }
+
+        return bestScalingFactors;
     }
 
     private float alphaFromFlopsCondition(double beta, double gamma){
@@ -30,36 +51,28 @@ public class ScalingFactorsGridSearch{
         return foundAlpha;
     }
 
-    public ScalingFactors findScalingFactors(){
-        ScalingFactors bestScalingFactors = new ScalingFactors(1,1,1);
-        ScalingFactors currentScalingFactors = new ScalingFactors(1,1,1);
-        double locBestAccuracy = 0;
-
-        for(float locGamma = EfficientNetConfig.MIN_SCALING_FACTORS.gamma;
-            locGamma <= EfficientNetConfig.MAX_SCALING_FACTORS.gamma;
-            locGamma +=EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.gamma){
-            for(float locBeta = EfficientNetConfig.MIN_SCALING_FACTORS.beta;
-                locBeta <= EfficientNetConfig.MAX_SCALING_FACTORS.beta;
-                locBeta += EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.beta){
-                float locAlpha = alphaFromFlopsCondition(locBeta, locGamma);
-
-                if(currentScalingFactors.alpha < EfficientNetConfig.MIN_SCALING_FACTORS.alpha){
-                    break;
-                }
-                else
-                {
-                    //scaleNetwork()
-                    currentScalingFactors = new ScalingFactors(locAlpha, locBeta, locGamma);
-                    trainPipeline.train(architecture, this.trainConfig);
-                    if(trainPipeline.getTrainedAccuracy() > locBestAccuracy){
-                        locBestAccuracy = trainPipeline.getTrainedAccuracy();
-                        bestScalingFactors = currentScalingFactors;
-                    }
-                }
-            }
+    private void checkScalingFactors(ScalingFactors scalingFactors){
+        if(scalingFactors.alpha < EfficientNetConfig.MIN_SCALING_FACTORS.alpha){
+            return;
         }
 
-        return bestScalingFactors;
+        currentScalingFactors = scalingFactors;
+        ArchitectureSymbol scaledArchitecture = this.networkScaler.scale(this.architecture, currentScalingFactors);
+        trainPipeline.train(scaledArchitecture, this.trainConfig);
+        findNewBestScalingFactorsAndAccuracy();
+    }
+
+    private void findNewBestScalingFactorsAndAccuracy() {
+        if(trainPipeline.getTrainedAccuracy() > locBestAccuracy){
+            locBestAccuracy = trainPipeline.getTrainedAccuracy();
+            bestScalingFactors = currentScalingFactors;
+        }
+    }
+
+    private void initVariables() {
+        this.bestScalingFactors = new ScalingFactors(1,1,1);
+        this.currentScalingFactors = new ScalingFactors(1,1,1);
+        this.locBestAccuracy = 0;
     }
 
 }

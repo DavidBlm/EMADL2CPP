@@ -25,7 +25,8 @@ public class ScalingFactorsGridSearchTest extends TestCase {
         architecture = new ArchitectureSymbol();
         configuration = new Configuration();
         pythonPipeline = mock(PythonPipeline.class);
-        scalingFactorsGridSearch = new ScalingFactorsGridSearch(architecture, configuration, pythonPipeline);
+        NetworkScaler networkScaler = mock(NetworkScaler.class);
+        scalingFactorsGridSearch = new ScalingFactorsGridSearch(architecture, configuration, pythonPipeline, networkScaler);
     }
 
 
