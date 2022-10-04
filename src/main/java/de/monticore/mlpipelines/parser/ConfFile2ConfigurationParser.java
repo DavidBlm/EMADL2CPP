@@ -80,7 +80,7 @@ public class ConfFile2ConfigurationParser {
 
         int numEpochs = (int) getConfigurationEntryValue(entries, "num_epochs");
         boolean saveTrainedArchitecture = (boolean) getConfigurationEntryValue(entries, "save_trained_architecture");
-        String architectureSavePath = (String) getConfigurationEntryValue(entries, "save_trained_architecture_path");
+        String architectureSavePath = (String) getConfigurationEntryValue(entries, "architecture_save_path");
         String trainAlgorithmName = (String) getConfigurationEntryValue(entries, "train_algorithm_name");
 
         config.setNumEpochs(numEpochs);
