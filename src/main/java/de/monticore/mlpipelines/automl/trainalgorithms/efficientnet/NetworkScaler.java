@@ -5,37 +5,34 @@ import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 
 public class NetworkScaler {
 
-    private float depth;
-    private float width;
-    private float resolution;
+    private float depth = 0;
+    private float width = 0;
+    private float resolution = 0;
+
+    private ArchitectureSymbol locArchitectureSymbol = null;
 
     public ArchitectureSymbol scale(ArchitectureSymbol originalArchitectureSymbol, ScalingFactors scalingFactors) {
-        ArchitectureSymbol locArchitecture = originalArchitectureSymbol;
+        setLocArchitectureSymbol(originalArchitectureSymbol);
         setDepth(scalingFactors.alpha);
         setWidth(scalingFactors.beta);
         setResolution(scalingFactors.gamma);
 
+        scaleDepth();
+        scaleWidth();
+        scaleResolution();
 
-        locArchitecture = scaleDepth(locArchitecture);
-        locArchitecture = scaleWidth(locArchitecture);
-        locArchitecture = scaleResolution(locArchitecture);
-
-        return locArchitecture;
+        return getLocArchitectureSymbol();
     }
 
 
-    private ArchitectureSymbol scaleDepth(ArchitectureSymbol architectureSymbol) {
-
-        return architectureSymbol;
+    private void scaleDepth() {
     }
 
-    private ArchitectureSymbol scaleWidth(ArchitectureSymbol architectureSymbol) {
-
-        return architectureSymbol;
+    private void scaleResolution() {
     }
 
-    private ArchitectureSymbol scaleResolution(ArchitectureSymbol architectureSymbol) {
-        return architectureSymbol;
+    private void scaleWidth() {
+
     }
 
     public float getDepth() {
@@ -43,7 +40,7 @@ public class NetworkScaler {
     }
 
     public void setDepth(float alpha) {
-        this.depth = (float) Math.pow(alpha, EfficientNetConfig.phi);
+        this.depth = (float)Math.pow(alpha, EfficientNetConfig.phi);
     }
 
     public float getWidth() {
@@ -51,7 +48,7 @@ public class NetworkScaler {
     }
 
     public void setWidth(float beta) {
-        this.width = (float) Math.pow(beta, EfficientNetConfig.phi);
+        this.width = (float)Math.pow(beta, EfficientNetConfig.phi);
     }
 
     public float getResolution() {
@@ -59,6 +56,14 @@ public class NetworkScaler {
     }
 
     public void setResolution(float gamma) {
-        this.resolution = (float) Math.pow(gamma, EfficientNetConfig.phi);
+        this.resolution = (float)Math.pow(gamma, EfficientNetConfig.phi);
+    }
+
+    public ArchitectureSymbol getLocArchitectureSymbol() {
+        return locArchitectureSymbol;
+    }
+
+    public void setLocArchitectureSymbol(ArchitectureSymbol architectureSymbol) {
+        this.locArchitectureSymbol = architectureSymbol;
     }
 }
