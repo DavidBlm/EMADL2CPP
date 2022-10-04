@@ -4,6 +4,7 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instance
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
+import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
 import de.monticore.mlpipelines.parser.ConfFile2ConfigurationParser;
@@ -36,7 +37,10 @@ public class AutoMLPipeline extends Pipeline {
         return architecture;
     }
 
-    public void train() {
+    public void train(ArchitectureSymbol architecture, Configuration configuration) {
+        this.configuration = configuration;
+        this.architecture = architecture;
+
         loadConfig();
         loadArchitecture();
         loadTrainAlgorithm();

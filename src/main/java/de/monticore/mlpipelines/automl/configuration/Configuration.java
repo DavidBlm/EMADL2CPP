@@ -11,6 +11,14 @@ public class Configuration {
     private Hashtable<String, Object> initialHyperparameters;
     private TrainAlgorithmConfig trainAlgorithmConfig;
 
+    public Configuration(){
+        this.preprocessingConfig = new Hashtable<>();
+        this.evaluationConfig = new Hashtable<>();
+        this.networkConfig = new Hashtable<>();
+        this.initialHyperparameters = new Hashtable<>();
+        this.trainAlgorithmConfig = new TrainAlgorithmConfig();
+    }
+
     public Configuration(Hashtable<String, Object> preprocessingConfig,
                          String hyperparameterOptimizerConfig,
                          Hashtable<String, Object> evaluationConfig,

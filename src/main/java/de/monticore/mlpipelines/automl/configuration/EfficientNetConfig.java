@@ -1,17 +1,13 @@
 package de.monticore.mlpipelines.automl.configuration;
 
+import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.ScalingFactors;
+
 public class EfficientNetConfig extends TrainAlgorithmConfig{
     public static final double FLOPS_CONDITION_VALUE = 2;
-    public static final double MIN_ALPHA = 1;
-    public static final double MIN_BETA = 1;
-    public static final double MIN_GAMMA = 1;
-    public static final double MAX_BETA = 1.4;
-    public static final double MAX_GAMMA = 1.4;
-    public static final double BETA_STEP_SIZE = 0.1;
-    public static final double GAMMA_STEP_SIZE = 0.1;
+    public static final ScalingFactors MIN_SCALING_FACTORS = new ScalingFactors(1, 1, 1);
+    public static final ScalingFactors MAX_SCALING_FACTORS = new ScalingFactors(2, 1.4f, 1.4f);
+    public static final ScalingFactors SCALING_FACTORS_STEP_SIZE = new ScalingFactors(0.1f, 0.1f, 0.1f);
     public static final double maximum_image_width_and_height = 32;
     public static final int phi = 1;
-    public double alpha;
-    public double beta;
-    public double gamma;
+    public ScalingFactors scalingFactors;
 }
