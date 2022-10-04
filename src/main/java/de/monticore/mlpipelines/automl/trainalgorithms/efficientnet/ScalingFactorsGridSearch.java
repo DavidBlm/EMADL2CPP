@@ -7,11 +7,11 @@ import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 
 public class ScalingFactorsGridSearch {
 
-    private double bestAccuracy = 0;
-    private NetworkScaler networkScaler;
-    private ArchitectureSymbol architecture;
-    private Pipeline trainPipeline;
-    private Configuration trainConfig;
+    private final double bestAccuracy = 0;
+    private final NetworkScaler networkScaler;
+    private final ArchitectureSymbol architecture;
+    private final Pipeline trainPipeline;
+    private final Configuration trainConfig;
     private ScalingFactors bestScalingFactors;
     private double locBestAccuracy;
 

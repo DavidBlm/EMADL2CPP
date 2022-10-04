@@ -227,11 +227,11 @@ public class EMADLGeneratorCli {
         try {
             generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl);
         } catch (IOException e){
-            String errMsg ="io error during generation"+ e.toString();
+            String errMsg ="io error during generation"+ e;
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
         } catch (TemplateException e){
-            String errMsg = "template error during generation: "+ e.toString();
+            String errMsg = "template error during generation: "+ e;
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
         } catch (GenerationAbortedException e) {

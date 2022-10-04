@@ -4,12 +4,12 @@ import java.util.Hashtable;
 
 public class Configuration {
 
-    private Hashtable<String, Object> preprocessingConfig;
+    private final Hashtable<String, Object> preprocessingConfig;
     private String hyperparameterOptimizerConfig;
-    private Hashtable<String, Object> evaluationConfig;
-    private Hashtable<String, Object> networkConfig;
-    private Hashtable<String, Object> initialHyperparameters;
-    private TrainAlgorithmConfig trainAlgorithmConfig;
+    private final Hashtable<String, Object> evaluationConfig;
+    private final Hashtable<String, Object> networkConfig;
+    private final Hashtable<String, Object> initialHyperparameters;
+    private final TrainAlgorithmConfig trainAlgorithmConfig;
 
     public Configuration(){
         this.preprocessingConfig = new Hashtable<>();

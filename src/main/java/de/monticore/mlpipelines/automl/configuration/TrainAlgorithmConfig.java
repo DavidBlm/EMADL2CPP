@@ -6,6 +6,7 @@ public class TrainAlgorithmConfig {
     public boolean saveTrainedArchitecture;
     public String architectureSavePath;
     public String trainAlgorithmName;
+    private String trainPipelineName;
 
     public TrainAlgorithmConfig() {
 
@@ -41,5 +42,13 @@ public class TrainAlgorithmConfig {
 
     public void setTrainAlgorithmName(String trainAlgorithmName) {
         this.trainAlgorithmName = trainAlgorithmName;
+    }
+
+    public String getTrainPipelineName() {
+        return trainPipelineName;
+    }
+
+    public void setTrainPipelineName(String pipelineName) {
+        this.trainPipelineName = pipelineName;
     }
 }

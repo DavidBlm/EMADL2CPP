@@ -69,12 +69,12 @@ import static de.monticore.lang.monticar.cnnarch.generator.validation.Constants.
 public class EMADLGenerator implements EMAMGenerator {
 
     private boolean generateCMake = false;
-    private CMakeConfig cMakeConfig = new CMakeConfig("");
-    private GeneratorCPP emamGen;
-    private CNNArchGenerator cnnArchGenerator;
-    private CNNTrainGenerator cnnTrainGenerator;
-    private GeneratorPythonWrapperStandaloneApi pythonWrapper;
-    private Backend backend;
+    private final CMakeConfig cMakeConfig = new CMakeConfig("");
+    private final GeneratorCPP emamGen;
+    private final CNNArchGenerator cnnArchGenerator;
+    private final CNNTrainGenerator cnnTrainGenerator;
+    private final GeneratorPythonWrapperStandaloneApi pythonWrapper;
+    private final Backend backend;
 
     private String modelsPath;
     private String customFilesPath = "";
@@ -107,7 +107,7 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     public void setModelsPath(String modelsPath) {
-        if (!(modelsPath.substring(modelsPath.length() - 1).equals("/"))) {
+        if (!(modelsPath.endsWith("/"))) {
             this.modelsPath = modelsPath + "/";
         }
         else {
@@ -143,7 +143,7 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     public void setGenerationTargetPath(String generationTargetPath){
-        if (!(generationTargetPath.substring(generationTargetPath.length() - 1).equals("/"))){
+        if (!(generationTargetPath.endsWith("/"))){
             getEmamGen().setGenerationTargetPath(generationTargetPath + "/");
         }
         else {
@@ -239,7 +239,7 @@ public class EMADLGenerator implements EMAMGenerator {
         }
 
         Scope c1 = component.getEnclosingScope();
-        Optional<EMAComponentInstanceSymbol> c2 = c1.<EMAComponentInstanceSymbol>resolve(instanceName, EMAComponentInstanceSymbol.KIND);
+        Optional<EMAComponentInstanceSymbol> c2 = c1.resolve(instanceName, EMAComponentInstanceSymbol.KIND);
         EMAComponentInstanceSymbol c3 = c2.get();
         return c3;
     }
@@ -261,7 +261,7 @@ public class EMADLGenerator implements EMAMGenerator {
                 throw new RuntimeException(errMsg);
             }
         }catch(Exception e){
-            String errMsg ="During compilation, the following error occured: '" + e.toString() + "'";
+            String errMsg ="During compilation, the following error occured: '" + e + "'";
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
         } finally {
@@ -422,14 +422,14 @@ public class EMADLGenerator implements EMAMGenerator {
                         exitCode = p.waitFor();
                     }
                     catch(InterruptedException e) {
-                        String errMsg = "Training aborted: exit code " + Integer.toString(exitCode);
+                        String errMsg = "Training aborted: exit code " + exitCode;
 
                         Log.error(errMsg);
                         throw new RuntimeException(errMsg);
                     }
 
                     if(exitCode != 0) {
-                        String errMsg = "Training failed: exit code " + Integer.toString(exitCode);
+                        String errMsg = "Training failed: exit code " + exitCode;
 
                         Log.error(errMsg);
                         throw new RuntimeException(errMsg);
@@ -748,7 +748,7 @@ public class EMADLGenerator implements EMAMGenerator {
             else {
                 BufferedInputStream is = new BufferedInputStream(zipFile.getInputStream(jarEntry));
                 int currentByte;
-                byte data[] = new byte[1024];
+                byte[] data = new byte[1024];
 
                 FileOutputStream fos = new FileOutputStream(outputFile);
                 BufferedOutputStream dest = new BufferedOutputStream(fos, 1024);
@@ -841,7 +841,7 @@ public class EMADLGenerator implements EMAMGenerator {
             applyBeamSearchMethod = applyBeamSearchMethods.get(0);
         }
 
-        String component = emamGen.generateString(taggingResolver, instance, (MathStatementsSymbol) null);
+        String component = emamGen.generateString(taggingResolver, instance, null);
         FileContent componentFileContent = new FileContent(
                 transformComponent(component, "CNNPredictor_" + fullName,
                         applyBeamSearchMethod,
@@ -897,7 +897,7 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     public void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) {
-        fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol));
+        fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, null), componentInstanceSymbol));
         String lastNameWithoutArrayPart = "";
         for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) {
             int arrayBracketIndex = instanceSymbol.getName().indexOf("[");
@@ -1156,7 +1156,7 @@ public class EMADLGenerator implements EMAMGenerator {
             try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
                 for (Path path : Files.walk(fs.getPath(rootSchemaModelPath)).filter(Files::isRegularFile).collect(Collectors.toList())) {
                     if (path.toString().endsWith(".scm") || path.toString().endsWith(".ema")) {
-                        Path destination = Paths.get(target_path + path.toString());
+                        Path destination = Paths.get(target_path + path);
                         Files.createDirectories(destination.getParent());
                         Files.copy(path, destination, StandardCopyOption.REPLACE_EXISTING);
                     }

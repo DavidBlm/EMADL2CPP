@@ -29,12 +29,12 @@ public class NetworkScaler {
         return architectureSymbol;
     }
 
-    private ArchitectureSymbol scaleResolution(ArchitectureSymbol architectureSymbol) {
+    private ArchitectureSymbol scaleWidth(ArchitectureSymbol architectureSymbol) {
+
         return architectureSymbol;
     }
 
-    private ArchitectureSymbol scaleWidth(ArchitectureSymbol architectureSymbol) {
-
+    private ArchitectureSymbol scaleResolution(ArchitectureSymbol architectureSymbol) {
         return architectureSymbol;
     }
 
@@ -43,7 +43,7 @@ public class NetworkScaler {
     }
 
     public void setDepth(float alpha) {
-        this.depth = (float)Math.pow(alpha, EfficientNetConfig.phi);
+        this.depth = (float) Math.pow(alpha, EfficientNetConfig.phi);
     }
 
     public float getWidth() {
@@ -51,7 +51,7 @@ public class NetworkScaler {
     }
 
     public void setWidth(float beta) {
-        this.width = (float)Math.pow(beta, EfficientNetConfig.phi);
+        this.width = (float) Math.pow(beta, EfficientNetConfig.phi);
     }
 
     public float getResolution() {
@@ -59,6 +59,6 @@ public class NetworkScaler {
     }
 
     public void setResolution(float gamma) {
-        this.resolution = (float)Math.pow(gamma, EfficientNetConfig.phi);
+        this.resolution = (float) Math.pow(gamma, EfficientNetConfig.phi);
     }
 }

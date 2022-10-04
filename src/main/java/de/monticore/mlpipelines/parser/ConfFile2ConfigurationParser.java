@@ -15,7 +15,7 @@ import java.util.*;
 
 public class ConfFile2ConfigurationParser {
 
-    private Configuration configuration;
+    private final Configuration configuration;
 
     public ConfFile2ConfigurationParser(Path modelPath, String modelName) {
         ConfigurationScope artifactScope = ConfLangFacade.create(modelPath, modelName).getArtifactScope();
@@ -82,11 +82,13 @@ public class ConfFile2ConfigurationParser {
         boolean saveTrainedArchitecture = (boolean) getConfigurationEntryValue(entries, "save_trained_architecture");
         String architectureSavePath = (String) getConfigurationEntryValue(entries, "architecture_save_path");
         String trainAlgorithmName = (String) getConfigurationEntryValue(entries, "train_algorithm_name");
+        String trainPipelineName = (String) getConfigurationEntryValue(entries, "train_pipeline_name");
 
         config.setNumEpochs(numEpochs);
         config.setSaveTrainedArchitecture(saveTrainedArchitecture);
         config.setArchitectureSavePath(architectureSavePath);
         config.setTrainAlgorithmName(trainAlgorithmName);
+        config.setTrainPipelineName(trainPipelineName);
 
         return config;
     }
