@@ -3,10 +3,9 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 
-public class ScalingFactorsGridSearch{
+public class ScalingFactorsGridSearch {
 
     private double bestAccuracy = 0;
     private NetworkScaler networkScaler;
@@ -20,23 +19,23 @@ public class ScalingFactorsGridSearch{
     public ScalingFactorsGridSearch(ArchitectureSymbol architecture,
                                     Configuration trainConfig,
                                     Pipeline networkTrainer,
-                                    NetworkScaler networkScaler){
+                                    NetworkScaler networkScaler) {
         this.architecture = architecture;
         this.trainConfig = trainConfig;
         this.trainPipeline = networkTrainer;
         this.networkScaler = networkScaler;
     }
 
-    public ScalingFactors findScalingFactors(){
+    public ScalingFactors findScalingFactors() {
         initVariables();
 
-        for(float gamma = EfficientNetConfig.MIN_SCALING_FACTORS.gamma;
-            gamma <= EfficientNetConfig.MAX_SCALING_FACTORS.gamma;
-            gamma +=EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.gamma){
+        for (float gamma = EfficientNetConfig.MIN_SCALING_FACTORS.gamma;
+             gamma <= EfficientNetConfig.MAX_SCALING_FACTORS.gamma;
+             gamma += EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.gamma) {
 
-            for(float beta = EfficientNetConfig.MIN_SCALING_FACTORS.beta;
-                beta <= EfficientNetConfig.MAX_SCALING_FACTORS.beta;
-                beta += EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.beta){
+            for (float beta = EfficientNetConfig.MIN_SCALING_FACTORS.beta;
+                 beta <= EfficientNetConfig.MAX_SCALING_FACTORS.beta;
+                 beta += EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.beta) {
 
                 float alpha = alphaFromFlopsCondition(beta, gamma);
                 this.checkScalingFactors(new ScalingFactors(alpha, beta, gamma));
@@ -46,13 +45,13 @@ public class ScalingFactorsGridSearch{
         return bestScalingFactors;
     }
 
-    private float alphaFromFlopsCondition(double beta, double gamma){
-        float foundAlpha = (float)(EfficientNetConfig.FLOPS_CONDITION_VALUE / Math.pow(beta*gamma,2));
+    private float alphaFromFlopsCondition(double beta, double gamma) {
+        float foundAlpha = (float) (EfficientNetConfig.FLOPS_CONDITION_VALUE / Math.pow(beta * gamma, 2));
         return foundAlpha;
     }
 
-    private void checkScalingFactors(ScalingFactors scalingFactors){
-        if(scalingFactors.alpha < EfficientNetConfig.MIN_SCALING_FACTORS.alpha){
+    private void checkScalingFactors(ScalingFactors scalingFactors) {
+        if (scalingFactors.alpha < EfficientNetConfig.MIN_SCALING_FACTORS.alpha) {
             return;
         }
 
@@ -63,15 +62,15 @@ public class ScalingFactorsGridSearch{
     }
 
     private void findNewBestScalingFactorsAndAccuracy() {
-        if(trainPipeline.getTrainedAccuracy() > locBestAccuracy){
+        if (trainPipeline.getTrainedAccuracy() > locBestAccuracy) {
             locBestAccuracy = trainPipeline.getTrainedAccuracy();
             bestScalingFactors = currentScalingFactors;
         }
     }
 
     private void initVariables() {
-        this.bestScalingFactors = new ScalingFactors(1,1,1);
-        this.currentScalingFactors = new ScalingFactors(1,1,1);
+        this.bestScalingFactors = new ScalingFactors(1, 1, 1);
+        this.currentScalingFactors = new ScalingFactors(1, 1, 1);
         this.locBestAccuracy = 0;
     }
 
