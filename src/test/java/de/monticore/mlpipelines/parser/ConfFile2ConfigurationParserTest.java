@@ -25,19 +25,19 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
 
     @Before
     public void setUp() throws Exception {
-        Path modelPath = Paths.get("src/test/resources/models/automl");
-        String modelName = "AutoMLExample.conf";
+        modelPath = Paths.get("src/test/resources/models/automl");
+        modelName = "AutoMLExample.conf";
 
-        ConfFile2ConfigurationParser parser = new ConfFile2ConfigurationParser(modelPath, modelName);
-        Configuration configuration = parser.getConfiguration();
+        parser = new ConfFile2ConfigurationParser(modelPath, modelName);
+        configuration = parser.getConfiguration();
 
-        Hashtable<String, Object> preprocessingConfig =  configuration.getPreprocessingConfig();
-        String hyperparameterOptimizerConfig = configuration.getHyperparameterOptimizerConfig();
-        Hashtable<String, Object> evaluationConfig = configuration.getEvaluationConfig();
-        Hashtable<String, Object> networkConfig = configuration.getNetworkConfig();
-        Hashtable<String, Object> initialHyperparameters = configuration.getInitialHyperparameters();
-        Hashtable<String, Object> optimizerConfig  = (Hashtable<String, Object>) initialHyperparameters.get("optimizer");
-        TrainAlgorithmConfig trainAlgorithmConfig = configuration.getTrainAlgorithmConfig();
+        preprocessingConfig =  configuration.getPreprocessingConfig();
+        hyperparameterOptimizerConfig = configuration.getHyperparameterOptimizerConfig();
+        evaluationConfig = configuration.getEvaluationConfig();
+        networkConfig = configuration.getNetworkConfig();
+        initialHyperparameters = configuration.getInitialHyperparameters();
+        optimizerConfig  = (Hashtable<String, Object>) initialHyperparameters.get("optimizer");
+        trainAlgorithmConfig = configuration.getTrainAlgorithmConfig();
     }
 
     @Test
