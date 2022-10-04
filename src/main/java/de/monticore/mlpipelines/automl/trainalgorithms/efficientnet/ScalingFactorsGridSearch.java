@@ -13,7 +13,6 @@ public class ScalingFactorsGridSearch {
     private Pipeline trainPipeline;
     private Configuration trainConfig;
     private ScalingFactors bestScalingFactors;
-    private ScalingFactors currentScalingFactors;
     private double locBestAccuracy;
 
     public ScalingFactorsGridSearch(ArchitectureSymbol architecture,
@@ -55,22 +54,20 @@ public class ScalingFactorsGridSearch {
             return;
         }
 
-        currentScalingFactors = scalingFactors;
-        ArchitectureSymbol scaledArchitecture = this.networkScaler.scale(this.architecture, currentScalingFactors);
+        ArchitectureSymbol scaledArchitecture = this.networkScaler.scale(this.architecture, scalingFactors);
         trainPipeline.train(scaledArchitecture, this.trainConfig);
-        findNewBestScalingFactorsAndAccuracy();
+        checkIfScalingFactorsAreBetterThanBest(scalingFactors);
     }
 
-    private void findNewBestScalingFactorsAndAccuracy() {
+    private void checkIfScalingFactorsAreBetterThanBest(ScalingFactors scalingFactors) {
         if (trainPipeline.getTrainedAccuracy() > locBestAccuracy) {
             locBestAccuracy = trainPipeline.getTrainedAccuracy();
-            bestScalingFactors = currentScalingFactors;
+            bestScalingFactors = scalingFactors;
         }
     }
 
     private void initVariables() {
         this.bestScalingFactors = new ScalingFactors(1, 1, 1);
-        this.currentScalingFactors = new ScalingFactors(1, 1, 1);
         this.locBestAccuracy = 0;
     }
 
