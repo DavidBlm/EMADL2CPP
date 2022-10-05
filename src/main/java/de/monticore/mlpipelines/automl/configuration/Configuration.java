@@ -4,7 +4,7 @@ import java.util.Hashtable;
 
 public class Configuration {
 
-    private final Hashtable<String, Object> preprocessingConfig;
+    private PreprocessingConfig preprocessingConfig;
     private String hyperparameterOptimizerConfig;
     private final Hashtable<String, Object> evaluationConfig;
     private final Hashtable<String, Object> networkConfig;
@@ -12,14 +12,14 @@ public class Configuration {
     private TrainAlgorithmConfig trainAlgorithmConfig;
 
     public Configuration(){
-        this.preprocessingConfig = new Hashtable<>();
+        this.preprocessingConfig = new PreprocessingConfig();
         this.evaluationConfig = new Hashtable<>();
         this.networkConfig = new Hashtable<>();
         this.initialHyperparameters = new Hashtable<>();
         this.trainAlgorithmConfig = new TrainAlgorithmConfig();
     }
 
-    public Configuration(Hashtable<String, Object> preprocessingConfig,
+    public Configuration(PreprocessingConfig preprocessingConfig,
                          String hyperparameterOptimizerConfig,
                          Hashtable<String, Object> evaluationConfig,
                          Hashtable<String, Object> networkConfig,
@@ -33,7 +33,7 @@ public class Configuration {
         this.trainAlgorithmConfig = trainAlgorithmConfig;
     }
 
-    public Hashtable<String, Object> getPreprocessingConfig() {
+    public PreprocessingConfig getPreprocessingConfig() {
         return preprocessingConfig;
     }
 
