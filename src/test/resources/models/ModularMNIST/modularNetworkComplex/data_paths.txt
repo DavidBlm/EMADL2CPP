@@ -1,0 +1,1 @@
+calculator.Network src/test/resources/models/ModularMNIST/modularNetworkComplex/resources/training_data

@@ -295,6 +295,7 @@ public class EMADLFileHandler {
     protected List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
 
+        //TODO: Filter instances
         List<FileContent> fileContents = emadlGen.generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
 
@@ -353,7 +354,9 @@ public class EMADLFileHandler {
                     testDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/test.h5");
                 }
             }
+            String dp = architecture.get().getDataPath();
             String trainingHash = emadlHash + "#" + cnntHash + "#" + trainingDataHash + "#" + testDataHash;
+
 
             boolean alreadyTrained = newHashes.contains(trainingHash) || emadlGen.isAlreadyTrained(trainingHash, componentInstance);
             if (alreadyTrained && !forced.equals("y")) {

@@ -39,12 +39,11 @@ public class EMADLCNNHandler {
     private EMADLGenerator emadlGenerator;
     private EMADLFileHandler emadlFileHandler;
     private EMADLTagging emadlTaggingHandler;
-
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
     private String composedNetworkFilePath;
 
 
-    public EMADLCNNHandler (EMADLGenerator emadlGen,Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi, String composedNetworkFilePath ) {
+    public EMADLCNNHandler (EMADLGenerator emadlGen, Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi, String composedNetworkFilePath ) {
         emadlGenerator = emadlGen;
         cnnArchGenerator = emadlGenerator.getBackend().getCNNArchGenerator();
         cnnTrainGenerator = emadlGenerator.getBackend().getCNNTrainGenerator();
@@ -52,7 +51,6 @@ public class EMADLCNNHandler {
         emadlTaggingHandler = emadlGenerator.getEmadlTaggingHandler();
         pythonWrapper = pythonWrapperApi;
         this.composedNetworkFilePath = composedNetworkFilePath;
-
     }
 
     protected CNNArchGenerator getCnnArchGenerator() {
@@ -99,12 +97,19 @@ public class EMADLCNNHandler {
 
         ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
 
+        ArrayList<ArchitectureSymbol> architectureSymbols = new ArrayList<>();
+
         for (EMAComponentInstanceSymbol componentInstance : allInstances){
             Log.info("instance: " + componentInstance.toString(),"CNN_COMPOSITION");
 
+            EMAComponentSymbol component = componentInstance.getComponentType().getReferencedSymbol();
+            Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+
+            if (architecture.isPresent()) architectureSymbols.add(architecture.get());
 
         }
 
+        Log.info("instance: " + architectureSymbols.toString(),"CNN_COMPOSITION");
 
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
 
@@ -112,9 +117,7 @@ public class EMADLCNNHandler {
             Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
 
 
-
             if (architecture.isPresent() /* || networkHandler.isComposedNet(componentInstance.getName()) */) {
-                Log.info("scope: " + component.getFullName(),"SCOPE_SEARCH");
                 String mainComponentConfigFilename = mainComponentName.replaceAll("\\.", "/");
                 String componentConfigFilename = component.getFullName().replaceAll("\\.", "/");
                 String instanceConfigFilename = component.getFullName().replaceAll("\\.", "/") + "_" + component.getName();
