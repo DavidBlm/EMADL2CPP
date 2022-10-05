@@ -5,10 +5,7 @@ import conflang._symboltable.ConfigurationEntry;
 import conflang._symboltable.ConfigurationEntrySymbol;
 import conflang._symboltable.ConfigurationScope;
 import conflang._symboltable.NestedConfigurationEntrySymbol;
-import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.configuration.EvaluationConfig;
-import de.monticore.mlpipelines.automl.configuration.PreprocessingConfig;
-import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.automl.configuration.*;
 import de.monticore.symboltable.Symbol;
 
 import java.nio.file.Path;
@@ -30,12 +27,13 @@ public class ConfFile2ConfigurationParser {
         List<ConfigurationEntry> trainAlgorithmEntries = getConfEntriesByKey(confSymbols, "train_algorithm");
 
         String hyperparameterOptimizerConfig = getHyperparameterOptimizer(confSymbols);
-        Hashtable<String, Object> networkConfig = getConfigByEntries(networkEntries);
         Hashtable<String, Object> initialHyperparameters = getConfigByEntries(initialHyperparametersEntries);
         try {
-            TrainAlgorithmConfig trainAlgorithmConfig = getTrainAlgorithmConfigByEntries(trainAlgorithmEntries);
-            EvaluationConfig evaluationConfig = getEvaluationConfigByEntries(evaluationEntries);
             PreprocessingConfig preprocessingConfig = getPreprocessingConfigByEntries(preprocessingEntries);
+            EvaluationConfig evaluationConfig = getEvaluationConfigByEntries(evaluationEntries);
+            NetworkConfig networkConfig = getNetworkConfigByEntries(networkEntries);
+            TrainAlgorithmConfig trainAlgorithmConfig = getTrainAlgorithmConfigByEntries(trainAlgorithmEntries);
+
             this.configuration = new Configuration(preprocessingConfig, hyperparameterOptimizerConfig, evaluationConfig, networkConfig, initialHyperparameters, trainAlgorithmConfig);
         } catch (KeyException e) {
             throw new RuntimeException(e);
@@ -77,13 +75,6 @@ public class ConfFile2ConfigurationParser {
         return configTable;
     }
 
-    private EvaluationConfig getEvaluationConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
-        String metric = (String) getConfigurationEntryValue(entries, "metric");
-        double acceptanceRate = (double) getConfigurationEntryValue(entries, "acceptance_rate");
-
-        return new EvaluationConfig(metric, acceptanceRate);
-    }
-
     private PreprocessingConfig getPreprocessingConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
         double trainSplit = (double) getConfigurationEntryValue(entries, "train_split");
         String normMethod = (String) getConfigurationEntryValue(entries, "norm_method");
@@ -91,6 +82,19 @@ public class ConfFile2ConfigurationParser {
         boolean dataAugmentation = (boolean) getConfigurationEntryValue(entries, "data_augmentation");
 
         return new PreprocessingConfig(trainSplit, normMethod, grayscale, dataAugmentation);
+    }
+
+    private EvaluationConfig getEvaluationConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
+        String metric = (String) getConfigurationEntryValue(entries, "metric");
+        double acceptanceRate = (double) getConfigurationEntryValue(entries, "acceptance_rate");
+
+        return new EvaluationConfig(metric, acceptanceRate);
+    }
+
+    private NetworkConfig getNetworkConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
+        String networkPath = (String) getConfigurationEntryValue(entries, "network_path");
+
+        return new NetworkConfig(networkPath);
     }
 
     private TrainAlgorithmConfig getTrainAlgorithmConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
