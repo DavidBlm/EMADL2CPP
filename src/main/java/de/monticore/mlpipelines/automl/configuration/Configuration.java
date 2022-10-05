@@ -7,14 +7,14 @@ public class Configuration {
     private PreprocessingConfig preprocessingConfig;
     private String hyperparameterOptimizerConfig;
     private EvaluationConfig evaluationConfig;
-    private final Hashtable<String, Object> networkConfig;
+    private NetworkConfig networkConfig;
     private final Hashtable<String, Object> initialHyperparameters;
     private TrainAlgorithmConfig trainAlgorithmConfig;
 
     public Configuration(){
         this.preprocessingConfig = new PreprocessingConfig();
         this.evaluationConfig = new EvaluationConfig();
-        this.networkConfig = new Hashtable<>();
+        this.networkConfig = new NetworkConfig();
         this.initialHyperparameters = new Hashtable<>();
         this.trainAlgorithmConfig = new TrainAlgorithmConfig();
     }
@@ -22,7 +22,7 @@ public class Configuration {
     public Configuration(PreprocessingConfig preprocessingConfig,
                          String hyperparameterOptimizerConfig,
                          EvaluationConfig evaluationConfig,
-                         Hashtable<String, Object> networkConfig,
+                         NetworkConfig networkConfig,
                          Hashtable<String, Object> initialHyperparameters,
                          TrainAlgorithmConfig trainAlgorithmConfig) {
         this.preprocessingConfig = preprocessingConfig;
@@ -45,7 +45,7 @@ public class Configuration {
         return evaluationConfig;
     }
 
-    public Hashtable<String, Object> getNetworkConfig() {
+    public NetworkConfig getNetworkConfig() {
         return networkConfig;
     }
 
