@@ -27,11 +27,12 @@ public class ConfFile2ConfigurationParser {
         List<ConfigurationEntry> trainAlgorithmEntries = getConfEntriesByKey(confSymbols, "train_algorithm");
 
         String hyperparameterOptimizerConfig = getHyperparameterOptimizer(confSymbols);
-        Hashtable<String, Object> initialHyperparameters = getConfigByEntries(initialHyperparametersEntries);
+
         try {
             PreprocessingConfig preprocessingConfig = getPreprocessingConfigByEntries(preprocessingEntries);
             EvaluationConfig evaluationConfig = getEvaluationConfigByEntries(evaluationEntries);
             NetworkConfig networkConfig = getNetworkConfigByEntries(networkEntries);
+            InitialHyperparameters initialHyperparameters = getInitialHyperparametersByEntries(initialHyperparametersEntries);
             TrainAlgorithmConfig trainAlgorithmConfig = getTrainAlgorithmConfigByEntries(trainAlgorithmEntries);
 
             this.configuration = new Configuration(preprocessingConfig, hyperparameterOptimizerConfig, evaluationConfig, networkConfig, initialHyperparameters, trainAlgorithmConfig);
@@ -55,26 +56,6 @@ public class ConfFile2ConfigurationParser {
         return ((NestedConfigurationEntrySymbol) keyList.get(0)).getAllConfigurationEntries();
     }
 
-    private Hashtable<String, Object> getConfigByEntries(List<ConfigurationEntry> entries) {
-        Hashtable<String, Object> configTable = new Hashtable<>();
-        for (ConfigurationEntry entry : entries) {
-            if (entry.getName().equals("optimizer")) {
-                Hashtable<String, Object> optimizerConfig = new Hashtable<>();
-                optimizerConfig.put(entry.getName(), entry.getValue());
-                Map<String, Collection<Symbol>> optimizerSymbols = ((NestedConfigurationEntrySymbol) entry).getSpannedScope().getLocalSymbols();
-                for (Map.Entry<String, Collection<Symbol>> optSymbol : optimizerSymbols.entrySet()) {
-                    ConfigurationEntrySymbol symbolPair;
-                    symbolPair = (ConfigurationEntrySymbol) ((ArrayList<?>) optSymbol.getValue()).get(0);
-                    optimizerConfig.put(symbolPair.getName(), symbolPair.getValue());
-                }
-                configTable.put("optimizer", optimizerConfig);
-            } else {
-                configTable.put(entry.getName(), entry.getValue());
-            }
-        }
-        return configTable;
-    }
-
     private PreprocessingConfig getPreprocessingConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
         double trainSplit = (double) getConfigurationEntryValue(entries, "train_split");
         String normMethod = (String) getConfigurationEntryValue(entries, "norm_method");
@@ -95,6 +76,33 @@ public class ConfFile2ConfigurationParser {
         String networkPath = (String) getConfigurationEntryValue(entries, "network_path");
 
         return new NetworkConfig(networkPath);
+    }
+
+    private InitialHyperparameters getInitialHyperparametersByEntries(List<ConfigurationEntry> entries) throws KeyException {
+        int numEpoch = (int) getConfigurationEntryValue(entries, "num_epoch");
+        int batchSize = (int) getConfigurationEntryValue(entries, "batch_size");
+        boolean normalize = (boolean) getConfigurationEntryValue(entries, "normalize");
+        String context = (String) getConfigurationEntryValue(entries, "context");
+        boolean loadCheckpoint = (boolean) getConfigurationEntryValue(entries, "load_checkpoint");
+
+        ConfigurationEntry optimizerEntry = (ConfigurationEntry) getConfigurationEntryValue(entries, "optimizer");
+        Hashtable<String, Object> optimizer = createOptimizerTable(optimizerEntry);
+
+        return new InitialHyperparameters(numEpoch, batchSize, normalize, context, loadCheckpoint, optimizer);
+    }
+
+    private Hashtable<String, Object> createOptimizerTable(ConfigurationEntry optimizerEntry) {
+        Hashtable<String, Object> optimizerTable = new Hashtable<>();
+        optimizerTable.put(optimizerEntry.getName(), optimizerEntry.getValue());
+
+        Map<String, Collection<Symbol>> optimizerSymbols = ((NestedConfigurationEntrySymbol) optimizerEntry).getSpannedScope().getLocalSymbols();
+        for (Map.Entry<String, Collection<Symbol>> optSymbol : optimizerSymbols.entrySet()) {
+            ConfigurationEntrySymbol symbolPair;
+            symbolPair = (ConfigurationEntrySymbol) ((ArrayList<?>) optSymbol.getValue()).get(0);
+            optimizerTable.put(symbolPair.getName(), symbolPair.getValue());
+        }
+
+        return optimizerTable;
     }
 
     private TrainAlgorithmConfig getTrainAlgorithmConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
