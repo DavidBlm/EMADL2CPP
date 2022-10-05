@@ -77,7 +77,7 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
 
     @Test
     public void testNetworkConfig() {
-        assertEquals(networkConfig.get("some_key"), "Some Value");
+        assertEquals(networkConfig.get("network_path"), "");
     }
 
     @Test
