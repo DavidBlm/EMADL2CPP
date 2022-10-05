@@ -85,7 +85,8 @@ public class ConfFile2ConfigurationParser {
         String context = (String) getConfigurationEntryValue(entries, "context");
         boolean loadCheckpoint = (boolean) getConfigurationEntryValue(entries, "load_checkpoint");
 
-        ConfigurationEntry optimizerEntry = (ConfigurationEntry) getConfigurationEntryValue(entries, "optimizer");
+        ConfigurationEntry optimizerEntry = entries.stream().filter(entry -> "optimizer".equals(entry.getName())).findFirst().orElse(null);
+
         Hashtable<String, Object> optimizer = createOptimizerTable(optimizerEntry);
 
         return new InitialHyperparameters(numEpoch, batchSize, normalize, context, loadCheckpoint, optimizer);
