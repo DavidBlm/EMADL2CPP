@@ -10,6 +10,13 @@ public class PreprocessingConfig {
 
     private Boolean dataAugmentation;
 
+    public PreprocessingConfig(double trainSplit, String normMethod, Boolean grayscale, Boolean dataAugmentation) {
+        this.trainSplit = trainSplit;
+        this.normMethod = normMethod;
+        this.grayscale = grayscale;
+        this.dataAugmentation = dataAugmentation;
+    }
+
     public double getTrainSplit() {
         return trainSplit;
     }
