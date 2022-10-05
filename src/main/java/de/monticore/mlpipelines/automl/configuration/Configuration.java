@@ -1,21 +1,19 @@
 package de.monticore.mlpipelines.automl.configuration;
 
-import java.util.Hashtable;
-
 public class Configuration {
 
     private PreprocessingConfig preprocessingConfig;
     private String hyperparameterOptimizerConfig;
     private EvaluationConfig evaluationConfig;
     private NetworkConfig networkConfig;
-    private final Hashtable<String, Object> initialHyperparameters;
+    private InitialHyperparameters initialHyperparameters;
     private TrainAlgorithmConfig trainAlgorithmConfig;
 
     public Configuration(){
         this.preprocessingConfig = new PreprocessingConfig();
         this.evaluationConfig = new EvaluationConfig();
         this.networkConfig = new NetworkConfig();
-        this.initialHyperparameters = new Hashtable<>();
+        this.initialHyperparameters = new InitialHyperparameters();
         this.trainAlgorithmConfig = new TrainAlgorithmConfig();
     }
 
@@ -23,7 +21,7 @@ public class Configuration {
                          String hyperparameterOptimizerConfig,
                          EvaluationConfig evaluationConfig,
                          NetworkConfig networkConfig,
-                         Hashtable<String, Object> initialHyperparameters,
+                         InitialHyperparameters initialHyperparameters,
                          TrainAlgorithmConfig trainAlgorithmConfig) {
         this.preprocessingConfig = preprocessingConfig;
         this.hyperparameterOptimizerConfig = hyperparameterOptimizerConfig;
@@ -49,7 +47,7 @@ public class Configuration {
         return networkConfig;
     }
 
-    public Hashtable<String, Object> getInitialHyperparameters() {
+    public InitialHyperparameters getInitialHyperparameters() {
         return initialHyperparameters;
     }
 
