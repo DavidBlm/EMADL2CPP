@@ -6,6 +6,7 @@ import conflang._symboltable.ConfigurationEntrySymbol;
 import conflang._symboltable.ConfigurationScope;
 import conflang._symboltable.NestedConfigurationEntrySymbol;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
+import de.monticore.mlpipelines.automl.configuration.EvaluationConfig;
 import de.monticore.mlpipelines.automl.configuration.PreprocessingConfig;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.symboltable.Symbol;
@@ -29,11 +30,11 @@ public class ConfFile2ConfigurationParser {
         List<ConfigurationEntry> trainAlgorithmEntries = getConfEntriesByKey(confSymbols, "train_algorithm");
 
         String hyperparameterOptimizerConfig = getHyperparameterOptimizer(confSymbols);
-        Hashtable<String, Object> evaluationConfig = getConfigByEntries(evaluationEntries);
         Hashtable<String, Object> networkConfig = getConfigByEntries(networkEntries);
         Hashtable<String, Object> initialHyperparameters = getConfigByEntries(initialHyperparametersEntries);
         try {
             TrainAlgorithmConfig trainAlgorithmConfig = getTrainAlgorithmConfigByEntries(trainAlgorithmEntries);
+            EvaluationConfig evaluationConfig = getEvaluationConfigByEntries(evaluationEntries);
             PreprocessingConfig preprocessingConfig = getPreprocessingConfigByEntries(preprocessingEntries);
             this.configuration = new Configuration(preprocessingConfig, hyperparameterOptimizerConfig, evaluationConfig, networkConfig, initialHyperparameters, trainAlgorithmConfig);
         } catch (KeyException e) {
@@ -74,6 +75,13 @@ public class ConfFile2ConfigurationParser {
             }
         }
         return configTable;
+    }
+
+    private EvaluationConfig getEvaluationConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
+        String metric = (String) getConfigurationEntryValue(entries, "metric");
+        double acceptanceRate = (double) getConfigurationEntryValue(entries, "acceptance_rate");
+
+        return new EvaluationConfig(metric, acceptanceRate);
     }
 
     private PreprocessingConfig getPreprocessingConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
