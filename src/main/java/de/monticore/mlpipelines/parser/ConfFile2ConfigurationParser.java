@@ -6,6 +6,7 @@ import conflang._symboltable.ConfigurationEntrySymbol;
 import conflang._symboltable.ConfigurationScope;
 import conflang._symboltable.NestedConfigurationEntrySymbol;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
+import de.monticore.mlpipelines.automl.configuration.PreprocessingConfig;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.symboltable.Symbol;
 
@@ -27,13 +28,13 @@ public class ConfFile2ConfigurationParser {
         List<ConfigurationEntry> initialHyperparametersEntries = getConfEntriesByKey(confSymbols, "initial_hyperparameters");
         List<ConfigurationEntry> trainAlgorithmEntries = getConfEntriesByKey(confSymbols, "train_algorithm");
 
-        Hashtable<String, Object> preprocessingConfig = getConfigByEntries(preprocessingEntries);
         String hyperparameterOptimizerConfig = getHyperparameterOptimizer(confSymbols);
         Hashtable<String, Object> evaluationConfig = getConfigByEntries(evaluationEntries);
         Hashtable<String, Object> networkConfig = getConfigByEntries(networkEntries);
         Hashtable<String, Object> initialHyperparameters = getConfigByEntries(initialHyperparametersEntries);
         try {
             TrainAlgorithmConfig trainAlgorithmConfig = getTrainAlgorithmConfigByEntries(trainAlgorithmEntries);
+            PreprocessingConfig preprocessingConfig = getPreprocessingConfigByEntries(preprocessingEntries);
             this.configuration = new Configuration(preprocessingConfig, hyperparameterOptimizerConfig, evaluationConfig, networkConfig, initialHyperparameters, trainAlgorithmConfig);
         } catch (KeyException e) {
             throw new RuntimeException(e);
@@ -73,6 +74,15 @@ public class ConfFile2ConfigurationParser {
             }
         }
         return configTable;
+    }
+
+    private PreprocessingConfig getPreprocessingConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
+        double trainSplit = (double) getConfigurationEntryValue(entries, "train_split");
+        String normMethod = (String) getConfigurationEntryValue(entries, "norm_method");
+        boolean grayscale = (boolean) getConfigurationEntryValue(entries, "grayscale");
+        boolean dataAugmentation = (boolean) getConfigurationEntryValue(entries, "data_augmentation");
+
+        return new PreprocessingConfig(trainSplit, normMethod, grayscale, dataAugmentation);
     }
 
     private TrainAlgorithmConfig getTrainAlgorithmConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
