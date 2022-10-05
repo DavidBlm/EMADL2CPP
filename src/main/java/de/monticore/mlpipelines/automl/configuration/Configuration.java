@@ -9,7 +9,7 @@ public class Configuration {
     private final Hashtable<String, Object> evaluationConfig;
     private final Hashtable<String, Object> networkConfig;
     private final Hashtable<String, Object> initialHyperparameters;
-    private final TrainAlgorithmConfig trainAlgorithmConfig;
+    private TrainAlgorithmConfig trainAlgorithmConfig;
 
     public Configuration(){
         this.preprocessingConfig = new Hashtable<>();
@@ -55,5 +55,8 @@ public class Configuration {
 
     public TrainAlgorithmConfig getTrainAlgorithmConfig() {
         return trainAlgorithmConfig;
+    }
+    public void setTrainAlgorithmConfig(TrainAlgorithmConfig trainAlgorithmConfig) {
+        this.trainAlgorithmConfig = trainAlgorithmConfig;
     }
 }

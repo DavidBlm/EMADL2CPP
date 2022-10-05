@@ -16,20 +16,41 @@ import static org.mockito.Mockito.mock;
 public class EfficientNetTest extends TestCase {
     @Test
     public void testConstructor() {
-        Pipeline pipeline = mock(Pipeline.class);
-        EfficientNetConfig config = new EfficientNetConfig();
-        EfficientNet efficientNet = new EfficientNet();
+        EfficientNet efficientNet = createEfficientNet();
         assertNotNull(efficientNet);
     }
 
     @Test
     public void testTrainSets() {
-        Pipeline pipeline = mock(Pipeline.class);
-        EfficientNetConfig config = new EfficientNetConfig();
-        EfficientNet efficientNet = new EfficientNet();
+        EfficientNet efficientNet = createEfficientNet();
         ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
         efficientNet.train(startNetwork);
         assertEquals(0.0, efficientNet.trainedAccuracy);
         assertNotNull(efficientNet.getStartNetwork());
+    }
+
+    @Test
+    public void testTrainCreatesNetworkScaler(){
+        EfficientNet efficientNet = createEfficientNet();
+        ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
+        efficientNet.train(startNetwork);
+        assertNotNull(efficientNet.getNetworkScaler());
+    }
+
+    @Test
+    public void testTrainCreatesGridSearch(){
+        EfficientNet efficientNet = createEfficientNet();
+        ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
+        efficientNet.train(startNetwork);
+        assertNotNull(efficientNet.getGridSearch());
+    }
+
+    private EfficientNet createEfficientNet(){
+        Pipeline pipeline = mock(Pipeline.class);
+        EfficientNetConfig config = new EfficientNetConfig();
+        EfficientNet efficientNet = new EfficientNet();
+        efficientNet.setTrainPipeline(pipeline);
+        efficientNet.setTrainConfiguration(config);
+        return efficientNet;
     }
 }

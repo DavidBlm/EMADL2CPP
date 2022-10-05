@@ -4,6 +4,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
+import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 
 public class ScalingFactorsGridSearch {
 
@@ -11,12 +12,12 @@ public class ScalingFactorsGridSearch {
     private final NetworkScaler networkScaler;
     private final ArchitectureSymbol architecture;
     private final Pipeline trainPipeline;
-    private final Configuration trainConfig;
+    private final EfficientNetConfig trainConfig;
     private ScalingFactors bestScalingFactors;
     private double locBestAccuracy;
 
     public ScalingFactorsGridSearch(ArchitectureSymbol architecture,
-                                    Configuration trainConfig,
+                                    EfficientNetConfig trainConfig,
                                     Pipeline networkTrainer,
                                     NetworkScaler networkScaler) {
         this.architecture = architecture;
@@ -55,7 +56,8 @@ public class ScalingFactorsGridSearch {
         }
 
         ArchitectureSymbol scaledArchitecture = this.networkScaler.scale(this.architecture, scalingFactors);
-        trainPipeline.train(scaledArchitecture, this.trainConfig);
+        Configuration pipelineConfig = getConfigurationFromTrainConfig(this.trainConfig);
+        trainPipeline.train(scaledArchitecture, pipelineConfig);
         checkIfScalingFactorsAreBetterThanBest(scalingFactors);
     }
 
@@ -69,6 +71,12 @@ public class ScalingFactorsGridSearch {
     private void initVariables() {
         this.bestScalingFactors = new ScalingFactors(1, 1, 1);
         this.locBestAccuracy = 0;
+    }
+
+    private Configuration getConfigurationFromTrainConfig(TrainAlgorithmConfig trainConfig) {
+        Configuration config = new Configuration();
+        config.setTrainAlgorithmConfig(trainConfig);
+        return config;
     }
 
 }

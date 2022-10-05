@@ -2,6 +2,7 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
+import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.python.PythonPipeline;
 import junit.framework.TestCase;
 import org.junit.Before;
@@ -16,14 +17,14 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ScalingFactorsGridSearchTest extends TestCase {
     private ArchitectureSymbol architecture;
-    private Configuration configuration;
+    private EfficientNetConfig configuration;
     private ScalingFactorsGridSearch scalingFactorsGridSearch;
     private PythonPipeline pythonPipeline;
 
     @Before
     public void setUp() {
         architecture = new ArchitectureSymbol();
-        configuration = new Configuration();
+        configuration = new EfficientNetConfig();
         pythonPipeline = mock(PythonPipeline.class);
         NetworkScaler networkScaler = mock(NetworkScaler.class);
         scalingFactorsGridSearch = new ScalingFactorsGridSearch(architecture, configuration, pythonPipeline, networkScaler);

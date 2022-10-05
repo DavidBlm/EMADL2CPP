@@ -13,6 +13,10 @@ public abstract class TrainAlgorithm {
 
     public abstract void train(ArchitectureSymbol startNetwork);
 
+    public <T extends TrainAlgorithmConfig> T getTrainConfiguration() {
+        return (T) trainConfiguration;
+    }
+
     public void setTrainConfiguration(TrainAlgorithmConfig trainConfiguration) {
         this.trainConfiguration = trainConfiguration;
     }
@@ -31,9 +35,5 @@ public abstract class TrainAlgorithm {
 
     public ArchitectureSymbol getStartNetwork() {
         return startNetwork;
-    }
-
-    public TrainAlgorithmConfig getTrainConfiguration() {
-        return trainConfiguration;
     }
 }
