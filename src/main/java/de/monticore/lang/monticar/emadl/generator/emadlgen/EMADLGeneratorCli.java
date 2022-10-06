@@ -156,10 +156,9 @@ public class EMADLGeneratorCli {
         final String DEFAULT_COMPOSED_NETWORKS_FILE = "ComposedNetworks";
 
         if (composedNetworksFileName == null){
-            //Log.warn("Composed networks file name not specified, using default value " + DEFAULT_COMPOSED_NETWORKS_FILE);
-            composedNetworksFileName =  outputPath + "/" + DEFAULT_COMPOSED_NETWORKS_FILE + "_" + rootModelName + "_" + System.currentTimeMillis();
+            composedNetworksFileName =  outputPath + "/" + DEFAULT_COMPOSED_NETWORKS_FILE + "_" + rootModelName;
         } else {
-            composedNetworksFileName = composedNetworksFileName + "_" + rootModelName + "_" + System.currentTimeMillis();
+            composedNetworksFileName = composedNetworksFileName + "_" + rootModelName;
         }
 
         if (backendString == null) {
