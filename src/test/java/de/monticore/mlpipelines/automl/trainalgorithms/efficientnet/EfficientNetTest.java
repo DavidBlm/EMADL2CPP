@@ -45,6 +45,14 @@ public class EfficientNetTest extends TestCase {
         assertNotNull(efficientNet.getGridSearch());
     }
 
+    @Test
+    public void trainFindsScalingFactors(){
+        EfficientNet efficientNet = createEfficientNet();
+        ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
+        efficientNet.train(startNetwork);
+        assertNotNull(efficientNet.getScalingFactors());
+    }
+
     private EfficientNet createEfficientNet(){
         Pipeline pipeline = mock(Pipeline.class);
         EfficientNetConfig config = new EfficientNetConfig();
