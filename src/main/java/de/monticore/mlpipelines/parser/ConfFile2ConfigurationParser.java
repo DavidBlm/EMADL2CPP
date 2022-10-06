@@ -107,13 +107,13 @@ public class ConfFile2ConfigurationParser {
     }
 
     private TrainAlgorithmConfig getTrainAlgorithmConfigByEntries(List<ConfigurationEntry> entries) throws KeyException {
-        TrainAlgorithmConfig config = new TrainAlgorithmConfig();
-
         int numEpochs = (int) getConfigurationEntryValue(entries, "num_epochs");
         boolean saveTrainedArchitecture = (boolean) getConfigurationEntryValue(entries, "save_trained_architecture");
         String architectureSavePath = (String) getConfigurationEntryValue(entries, "architecture_save_path");
         String trainAlgorithmName = (String) getConfigurationEntryValue(entries, "train_algorithm_name");
         String trainPipelineName = (String) getConfigurationEntryValue(entries, "train_pipeline_name");
+
+        TrainAlgorithmConfig config = getTrainAlgorithmConfigByName(trainAlgorithmName);
 
         config.setNumEpochs(numEpochs);
         config.setSaveTrainedArchitecture(saveTrainedArchitecture);
@@ -122,6 +122,16 @@ public class ConfFile2ConfigurationParser {
         config.setTrainPipelineName(trainPipelineName);
 
         return config;
+    }
+
+    private TrainAlgorithmConfig getTrainAlgorithmConfigByName(String trainAlgorithmName) {
+        if (trainAlgorithmName.equals("EfficientNet")) {
+            return new EfficientNetConfig();
+        }
+        //TODO: Extend later the method with different TrainAlgorithmConfigs (AdaNet etc.)
+        else {
+            return null;
+        }
     }
 
     private Object getConfigurationEntryValue(List<ConfigurationEntry> entries, String key) throws KeyException {
