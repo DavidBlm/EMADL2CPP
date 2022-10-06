@@ -11,7 +11,7 @@ public class NetworkScaler {
 
     private ArchitectureSymbol locArchitectureSymbol = null;
 
-    public ArchitectureSymbol scale(ArchitectureSymbol originalArchitectureSymbol, ScalingFactors scalingFactors) {
+    public ArchitectureSymbol scale(ArchitectureSymbol originalArchitectureSymbol, ScalingFactors scalingFactors, int phi) {
         setLocArchitectureSymbol(originalArchitectureSymbol);
         setDepth(scalingFactors.alpha);
         setWidth(scalingFactors.beta);

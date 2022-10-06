@@ -9,6 +9,7 @@ public class EfficientNet extends TrainAlgorithm {
     private NetworkScaler networkScaler;
 
     private ScalingFactors scalingFactors;
+    private ArchitectureSymbol scaledArchitecture;
 
 
     public EfficientNet() {
@@ -29,27 +30,41 @@ public class EfficientNet extends TrainAlgorithm {
         return this.networkScaler;
     }
 
+    public ScalingFactors getScalingFactors() {
+        return scalingFactors;
+    }
+
+    public ArchitectureSymbol getScaledArchitecture() {
+        return scaledArchitecture;
+    }
+
+    public void setNetworkScaler(NetworkScaler networkScaler) {
+        this.networkScaler = networkScaler;
+    }
 
     @Override
     public void train(ArchitectureSymbol startNetwork) {
         createMissingObjects();
         setStartNetwork(startNetwork);
         findBestScalingFactors();
+        scaleNetwork();
     }
 
     private void createMissingObjects() {
         this.networkScaler = this.networkScaler == null ? new NetworkScaler() : this.networkScaler;
-        this.gridSearch = this.gridSearch == null
-                ? new ScalingFactorsGridSearch(
-                getStartNetwork(), getTrainConfiguration(), getTrainPipeline(), this.networkScaler)
-                : this.gridSearch;
+        this.gridSearch =
+                this.gridSearch == null
+                        ? new ScalingFactorsGridSearch(getStartNetwork(), getTrainConfiguration(), getTrainPipeline(),
+                        this.networkScaler)
+                        : this.gridSearch;
     }
 
     private void findBestScalingFactors() {
         this.scalingFactors = this.gridSearch.findScalingFactors();
     }
 
-    public ScalingFactors getScalingFactors() {
-        return scalingFactors;
+    private void scaleNetwork() {
+        EfficientNetConfig config = getTrainConfiguration();
+        this.scaledArchitecture = this.networkScaler.scale(getStartNetwork(), this.scalingFactors, config.phi);
     }
 }
