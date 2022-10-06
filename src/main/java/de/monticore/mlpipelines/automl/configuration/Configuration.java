@@ -14,7 +14,7 @@ public class Configuration {
         this.evaluationConfig = new EvaluationConfig();
         this.networkConfig = new NetworkConfig();
         this.initialHyperparameters = new InitialHyperparameters();
-        this.trainAlgorithmConfig = new TrainAlgorithmConfig();
+        this.trainAlgorithmConfig = new EfficientNetConfig();
     }
 
     public Configuration(PreprocessingConfig preprocessingConfig,
