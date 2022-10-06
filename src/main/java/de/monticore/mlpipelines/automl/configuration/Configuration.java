@@ -1,29 +1,27 @@
 package de.monticore.mlpipelines.automl.configuration;
 
-import java.util.Hashtable;
-
 public class Configuration {
 
-    private final Hashtable<String, Object> preprocessingConfig;
+    private PreprocessingConfig preprocessingConfig;
     private String hyperparameterOptimizerConfig;
-    private final Hashtable<String, Object> evaluationConfig;
-    private final Hashtable<String, Object> networkConfig;
-    private final Hashtable<String, Object> initialHyperparameters;
+    private EvaluationConfig evaluationConfig;
+    private NetworkConfig networkConfig;
+    private InitialHyperparameters initialHyperparameters;
     private TrainAlgorithmConfig trainAlgorithmConfig;
 
     public Configuration(){
-        this.preprocessingConfig = new Hashtable<>();
-        this.evaluationConfig = new Hashtable<>();
-        this.networkConfig = new Hashtable<>();
-        this.initialHyperparameters = new Hashtable<>();
-        this.trainAlgorithmConfig = new TrainAlgorithmConfig();
+        this.preprocessingConfig = new PreprocessingConfig();
+        this.evaluationConfig = new EvaluationConfig();
+        this.networkConfig = new NetworkConfig();
+        this.initialHyperparameters = new InitialHyperparameters();
+        this.trainAlgorithmConfig = new EfficientNetConfig();
     }
 
-    public Configuration(Hashtable<String, Object> preprocessingConfig,
+    public Configuration(PreprocessingConfig preprocessingConfig,
                          String hyperparameterOptimizerConfig,
-                         Hashtable<String, Object> evaluationConfig,
-                         Hashtable<String, Object> networkConfig,
-                         Hashtable<String, Object> initialHyperparameters,
+                         EvaluationConfig evaluationConfig,
+                         NetworkConfig networkConfig,
+                         InitialHyperparameters initialHyperparameters,
                          TrainAlgorithmConfig trainAlgorithmConfig) {
         this.preprocessingConfig = preprocessingConfig;
         this.hyperparameterOptimizerConfig = hyperparameterOptimizerConfig;
@@ -33,7 +31,7 @@ public class Configuration {
         this.trainAlgorithmConfig = trainAlgorithmConfig;
     }
 
-    public Hashtable<String, Object> getPreprocessingConfig() {
+    public PreprocessingConfig getPreprocessingConfig() {
         return preprocessingConfig;
     }
 
@@ -41,15 +39,15 @@ public class Configuration {
         return hyperparameterOptimizerConfig;
     }
 
-    public Hashtable<String, Object> getEvaluationConfig() {
+    public EvaluationConfig getEvaluationConfig() {
         return evaluationConfig;
     }
 
-    public Hashtable<String, Object> getNetworkConfig() {
+    public NetworkConfig getNetworkConfig() {
         return networkConfig;
     }
 
-    public Hashtable<String, Object> getInitialHyperparameters() {
+    public InitialHyperparameters getInitialHyperparameters() {
         return initialHyperparameters;
     }
 

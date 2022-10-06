@@ -4,7 +4,6 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instance
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
 import de.monticore.mlpipelines.parser.ConfFile2ConfigurationParser;
@@ -20,6 +19,12 @@ public class AutoMLPipeline extends Pipeline {
     private Pipeline trainPipeline;
     private ArchitectureSymbol architecture;
     private TrainAlgorithm trainAlgorithm;
+    private String resourcePath = "src/main/resources/";
+    private TrainAlgorithmBuilder trainAlgorithmBuilder;
+
+    public AutoMLPipeline() {
+        trainAlgorithmBuilder = new TrainAlgorithmBuilder();
+    }
 
     public Configuration getConfiguration() {
         return configuration;
@@ -37,28 +42,42 @@ public class AutoMLPipeline extends Pipeline {
         return architecture;
     }
 
-    public void train(ArchitectureSymbol architecture, Configuration configuration) {
-        this.configuration = configuration;
-        this.architecture = architecture;
+    public void setResourcePath(String resourcePath) {
+        this.resourcePath = resourcePath;
+    }
 
-        loadConfig();
-        loadArchitecture();
+    public TrainAlgorithmBuilder getTrainAlgorithmBuilder() {
+        return trainAlgorithmBuilder;
+    }
+
+    public void setTrainAlgorithmBuilder(TrainAlgorithmBuilder trainAlgorithmBuilder) {
+        this.trainAlgorithmBuilder = trainAlgorithmBuilder;
+    }
+
+    public void train(ArchitectureSymbol architecture, String modelName) {
+        Configuration config = loadConfig(modelName);
+        this.train(architecture, config);
+    }
+
+    @Override
+    public void train(ArchitectureSymbol architecture, Configuration configuration) {
+        this.architecture = architecture;
+        this.configuration = configuration;
+
         loadTrainAlgorithm();
         trainAlgorithm.train(architecture);
     }
 
-    public void loadTrainAlgorithm() {
-        TrainAlgorithmBuilder builder = new TrainAlgorithmBuilder();
-        builder.setConfig(configuration.getTrainAlgorithmConfig());
-        this.trainAlgorithm = builder.build();
+    private Configuration loadConfig(String modelName) {
+        // Get model path and model name from configurationPath
+        Path resourcesPath = Paths.get(this.resourcePath);
+        ConfFile2ConfigurationParser parser = new ConfFile2ConfigurationParser();
+        return parser.getConfiguration(resourcesPath, modelName);
     }
 
-    private void loadConfig() {
-        // Example usage of ConfFile2ConfigurationParser to get a Configuration object
-        String modelName = "AutoMLExample.conf";
-        Path modelPath = Paths.get("src/main/resources");
-        ConfFile2ConfigurationParser parser = new ConfFile2ConfigurationParser(modelPath, modelName);
-        this.configuration = parser.getConfiguration();
+    public void loadTrainAlgorithm() {
+        trainAlgorithmBuilder.setConfig(configuration.getTrainAlgorithmConfig());
+        this.trainAlgorithm = trainAlgorithmBuilder.build();
     }
 
     private void loadArchitecture() {

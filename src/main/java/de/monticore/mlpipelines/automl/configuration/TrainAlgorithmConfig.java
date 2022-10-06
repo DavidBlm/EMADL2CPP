@@ -9,7 +9,11 @@ public class TrainAlgorithmConfig {
     private String trainPipelineName;
 
     public TrainAlgorithmConfig() {
-
+        trainAlgorithmName = "EfficientNet";
+        trainPipelineName = "Pytorch";
+        numEpochs = 10;
+        saveTrainedArchitecture = false;
+        architectureSavePath = "";
     }
 
     public int getNumEpochs() {

@@ -1,7 +1,6 @@
 package de.monticore.mlpipelines.parser;
 
-import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.automl.configuration.*;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,10 +15,10 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
     private ConfFile2ConfigurationParser parser;
     private Configuration configuration;
     private String hyperparameterOptimizerConfig;
-    private Hashtable<String, Object> preprocessingConfig;
-    private Hashtable<String, Object> evaluationConfig;
-    private Hashtable<String, Object> networkConfig;
-    private Hashtable<String, Object> initialHyperparameters;
+    private PreprocessingConfig preprocessingConfig;
+    private EvaluationConfig evaluationConfig;
+    private NetworkConfig networkConfig;
+    private InitialHyperparameters initialHyperparameters;
     private Hashtable<String, Object> optimizerConfig;
     private TrainAlgorithmConfig trainAlgorithmConfig;
 
@@ -28,36 +27,36 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
         modelPath = Paths.get("src/test/resources/models/automl");
         modelName = "AutoMLExample.conf";
 
-        parser = new ConfFile2ConfigurationParser(modelPath, modelName);
-        configuration = parser.getConfiguration();
+        parser = new ConfFile2ConfigurationParser();
+        configuration = parser.getConfiguration(modelPath, modelName);
 
         preprocessingConfig =  configuration.getPreprocessingConfig();
         hyperparameterOptimizerConfig = configuration.getHyperparameterOptimizerConfig();
         evaluationConfig = configuration.getEvaluationConfig();
         networkConfig = configuration.getNetworkConfig();
         initialHyperparameters = configuration.getInitialHyperparameters();
-        optimizerConfig  = (Hashtable<String, Object>) initialHyperparameters.get("optimizer");
+        optimizerConfig  = initialHyperparameters.getOptimizer();
         trainAlgorithmConfig = configuration.getTrainAlgorithmConfig();
     }
 
     @Test
     public void testTrainSplit() {
-        assertEquals(preprocessingConfig.get("train_split"), 0.8);
+        assertEquals(preprocessingConfig.getTrainSplit(), 0.8);
     }
 
     @Test
     public void testNormMethod() {
-        assertEquals(preprocessingConfig.get("norm_method"), "normalization");
+        assertEquals(preprocessingConfig.getNormMethod(), "normalization");
     }
 
     @Test
     public void testGrayscale() {
-        assertTrue((Boolean) preprocessingConfig.get("grayscale"));
+        assertTrue(preprocessingConfig.getGrayscale());
     }
 
     @Test
     public void testDataAugmentation() {
-        assertTrue((Boolean) preprocessingConfig.get("data_augmentation"));
+        assertTrue(preprocessingConfig.getDataAugmentation());
     }
 
     @Test
@@ -67,42 +66,42 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
 
     @Test
     public void testEvaluationMetric() {
-        assertEquals(evaluationConfig.get("metric"), "accuracy");
+        assertEquals(evaluationConfig.getMetric(), "accuracy");
     }
 
     @Test
     public void testAcceptanceRate() {
-        assertEquals(evaluationConfig.get("acceptance_rate"), 0.9);
+        assertEquals(evaluationConfig.getAcceptanceRate(), 0.9);
     }
 
     @Test
     public void testNetworkConfig() {
-        assertEquals(networkConfig.get("some_key"), "Some Value");
+        assertEquals(networkConfig.getNetworkPath(), "");
     }
 
     @Test
     public void testInitialHyperparametersNumEpochIs8() {
-        assertEquals(initialHyperparameters.get("num_epoch"), 8);
+        assertEquals(initialHyperparameters.getNumEpochs(), 8);
     }
 
     @Test
     public void testInitialHyperparametersBatchSize(){
-        assertEquals(initialHyperparameters.get("batch_size"), 10);
+        assertEquals(initialHyperparameters.getBatchSize(), 10);
     }
 
     @Test
     public void testInitialHyperparametersNotNormalize(){
-        assertFalse((Boolean) initialHyperparameters.get("normalize"));
+        assertFalse(initialHyperparameters.isNormalize());
     }
 
     @Test
     public void testInitialHyperparametersContextIsCPU(){
-        assertEquals(initialHyperparameters.get("context"), "cpu");
+        assertEquals(initialHyperparameters.getContext(), "cpu");
     }
 
     @Test
     public void testInitialHyperparametersNotLoadCheckpoint(){
-        assertFalse((Boolean) initialHyperparameters.get("load_checkpoint"));
+        assertFalse(initialHyperparameters.isLoadCheckpoint());
     }
 
     @Test

@@ -19,7 +19,7 @@ public class NetworkScalerTest extends TestCase {
 
     @Test
     public void testScale() {
-        ArchitectureSymbol archSymbol = networkScaler.scale(this.architecture, this.scalingFactors);
+        ArchitectureSymbol archSymbol = networkScaler.scale(this.architecture, this.scalingFactors, 1);
         assertNotNull(archSymbol);
     }
 
