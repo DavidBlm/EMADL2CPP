@@ -13,10 +13,10 @@ import java.security.KeyException;
 import java.util.*;
 
 public class ConfFile2ConfigurationParser {
+    public ConfFile2ConfigurationParser() {
+    }
 
-    private final Configuration configuration;
-
-    public ConfFile2ConfigurationParser(Path modelPath, String modelName) {
+    public Configuration getConfiguration(Path modelPath, String modelName) {
         ConfigurationScope artifactScope = ConfLangFacade.create(modelPath, modelName).getArtifactScope();
         Map<String, Collection<Symbol>> confSymbols = artifactScope.getLocalSymbols();
 
@@ -35,14 +35,10 @@ public class ConfFile2ConfigurationParser {
             InitialHyperparameters initialHyperparameters = getInitialHyperparametersByEntries(initialHyperparametersEntries);
             TrainAlgorithmConfig trainAlgorithmConfig = getTrainAlgorithmConfigByEntries(trainAlgorithmEntries);
 
-            this.configuration = new Configuration(preprocessingConfig, hyperparameterOptimizerConfig, evaluationConfig, networkConfig, initialHyperparameters, trainAlgorithmConfig);
+            return new Configuration(preprocessingConfig, hyperparameterOptimizerConfig, evaluationConfig, networkConfig, initialHyperparameters, trainAlgorithmConfig);
         } catch (KeyException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public Configuration getConfiguration() {
-        return this.configuration;
     }
 
     private String getHyperparameterOptimizer(Map<String, Collection<Symbol>> symbols) {

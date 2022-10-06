@@ -27,8 +27,8 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
         modelPath = Paths.get("src/test/resources/models/automl");
         modelName = "AutoMLExample.conf";
 
-        parser = new ConfFile2ConfigurationParser(modelPath, modelName);
-        configuration = parser.getConfiguration();
+        parser = new ConfFile2ConfigurationParser();
+        configuration = parser.getConfiguration(modelPath, modelName);
 
         preprocessingConfig =  configuration.getPreprocessingConfig();
         hyperparameterOptimizerConfig = configuration.getHyperparameterOptimizerConfig();

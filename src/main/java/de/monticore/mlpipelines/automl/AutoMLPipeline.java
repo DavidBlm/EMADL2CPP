@@ -4,7 +4,6 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instance
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
 import de.monticore.mlpipelines.parser.ConfFile2ConfigurationParser;
@@ -72,8 +71,8 @@ public class AutoMLPipeline extends Pipeline {
     private Configuration loadConfig(String modelName) {
         // Get model path and model name from configurationPath
         Path resourcesPath = Paths.get(this.resourcePath);
-        ConfFile2ConfigurationParser parser = new ConfFile2ConfigurationParser(resourcesPath, modelName);
-        return parser.getConfiguration();
+        ConfFile2ConfigurationParser parser = new ConfFile2ConfigurationParser();
+        return parser.getConfiguration(resourcesPath, modelName);
     }
 
     public void loadTrainAlgorithm() {
