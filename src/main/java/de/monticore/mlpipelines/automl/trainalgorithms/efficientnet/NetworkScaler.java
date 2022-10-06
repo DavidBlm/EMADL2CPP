@@ -5,9 +5,9 @@ import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 
 public class NetworkScaler {
 
-    private float depth = 0;
-    private float width = 0;
-    private float resolution = 0;
+    private float depthFactor = 0;
+    private float widthFactor = 0;
+    private float resolutionFactor = 0;
 
     private ArchitectureSymbol locArchitectureSymbol = null;
 
@@ -26,37 +26,45 @@ public class NetworkScaler {
 
 
     private void scaleDepth() {
-    }
+        //for stem
+        //repeat layers depthFactor times
 
-    private void scaleResolution() {
+        //for other blocks
+        //repeat layers depthFactor times
     }
 
     private void scaleWidth() {
+        //for only stem
+        //kernel = (widthFactor * filter, widthFactor * filter);
+    }
+
+
+    private void scaleResolution() {
 
     }
 
     public float getDepth() {
-        return depth;
+        return depthFactor;
     }
 
     public void setDepth(float alpha) {
-        this.depth = (float)Math.pow(alpha, EfficientNetConfig.phi);
+        this.depthFactor = (float)Math.pow(alpha, EfficientNetConfig.phi);
     }
 
     public float getWidth() {
-        return width;
+        return widthFactor;
     }
 
     public void setWidth(float beta) {
-        this.width = (float)Math.pow(beta, EfficientNetConfig.phi);
+        this.widthFactor = (float)Math.pow(beta, EfficientNetConfig.phi);
     }
 
     public float getResolution() {
-        return resolution;
+        return resolutionFactor;
     }
 
     public void setResolution(float gamma) {
-        this.resolution = (float)Math.pow(gamma, EfficientNetConfig.phi);
+        this.resolutionFactor = (float)Math.pow(gamma, EfficientNetConfig.phi);
     }
 
     public ArchitectureSymbol getLocArchitectureSymbol() {
