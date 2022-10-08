@@ -1,10 +1,13 @@
 # (c) https://github.com/MontiCore/monticore
 import logging
+import pathlib
+
 import mxnet as mx
 
 import CNNCreator_mnist_mnistClassifier_net
 import CNNDataLoader_mnist_mnistClassifier_net
 import CNNSupervisedTrainer_mnist_mnistClassifier_net
+from CNNDataLoader_mnist_mnistClassifier_net import RetrainingConf
 
 if __name__ == "__main__":
     logger = logging.getLogger()
@@ -20,20 +23,44 @@ if __name__ == "__main__":
         mnist_mnistClassifier_net_creator
     )
 
-    mnist_mnistClassifier_net_trainer.train(
-        batch_size=64,
-        num_epoch=11,
-        context='gpu',
-        preprocessing=False,
-        eval_metric='accuracy',
-        eval_metric_params={
-        },
-        optimizer='adam',
-        optimizer_params={
-            'epsilon': 1.0E-8,
-                    'weight_decay': 0.001,
-                    'beta1': 0.9,
-                    'beta2': 0.999,
-                    'learning_rate_policy': 'fixed',
-                    'learning_rate': 0.001},
-    )
+    prev_dataset = None
+    retraining_conf = mnist_mnistClassifier_net_loader.load_retraining_conf()
+    for dataset in retraining_conf.changes:
+        mnist_mnistClassifier_net_creator.dataset = dataset
+        if(dataset.retraining):
+            if prev_dataset: 
+                logger.info("Retrain dataset %s on top of dataset %s.", dataset.id, prev_dataset.id)
+            else: 
+                logger.info("Dataset %s needs to be trained. Hash was different during the last EMADL2CPP run.", dataset.id)
+
+            optimizer = 'adam'
+            optimizer_params = {
+                'epsilon': 1.0E-8,
+                            'weight_decay': 0.001,
+                            'beta1': 0.9,
+                            'beta2': 0.999,
+                            'learning_rate_policy': 'fixed',
+                            'learning_rate': 0.001}
+
+
+
+            mnist_mnistClassifier_net_trainer.train(
+                dataset=dataset,
+                test_dataset=retraining_conf.testing,
+                batch_size=64,
+                num_epoch=11,
+                load_pretrained=bool(prev_dataset),
+                load_pretrained_dataset=prev_dataset,
+                context='gpu',
+                preprocessing=False,
+                eval_metric='accuracy',
+                eval_metric_params={
+                },
+            optimizer=optimizer,
+            optimizer_params=optimizer_params,
+            )
+        else: 
+            logger.info("Skipped training of dataset %s. Training is not necessary", dataset.id)
+        
+        prev_dataset = dataset
+

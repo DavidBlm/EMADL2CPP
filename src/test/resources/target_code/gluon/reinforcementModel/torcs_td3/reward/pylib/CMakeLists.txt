@@ -4,7 +4,7 @@ set (CMAKE_CXX_STANDARD 14)
 
 find_package(SWIG REQUIRED)
 find_package(Armadillo REQUIRED)
-FIND_PACKAGE(PythonLibs 2.7 REQUIRED)
+FIND_PACKAGE(PythonLibs 3 REQUIRED)
 
 include(${SWIG_USE_FILE})
 
