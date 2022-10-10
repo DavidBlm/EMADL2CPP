@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 import logging
 import mxnet as mx
 import CNNCreator_cifar10_cifar10Classifier_net
@@ -18,8 +18,8 @@ if __name__ == "__main__":
         normalize=True,
         optimizer='adam',
         optimizer_params={
-            'weight_decay': 1.0E-4,
-            'learning_rate': 0.01,
-            'learning_rate_decay': 0.8,
-            'step_size': 1000}
+        'weight_decay': 1.0E-4,
+        'learning_rate': 0.01,
+        'learning_rate_decay': 0.8,
+        'step_size': 1000}
     )

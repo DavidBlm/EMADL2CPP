@@ -1,80 +1,89 @@
 # (c) https://github.com/MontiCore/monticore
 
 stages:
-#- windows
-- docker
-- linux
-- deploy
+  #- windows
+  - docker
+  - linux
+  - deploy
 
 githubjob:
   image: maven:3-jdk-8
   stage: deploy
   before_script:
-  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-  - eval $(ssh-agent -s)
-  - ssh-add <(echo "$GITHUB_SSH_PRIV_KEY")
-  - echo "$GITHUB_SSH_PRIV_KEY" | tr -d '\r' | ssh-add -
-  - git config --global user.email "kusmenko@se-rwth.de"
-  - git config --global user.name "EMA CI Robot"
-  - mkdir -p ~/.ssh
-#  - cat gitlab-known-hosts >> ~/.ssh/known_hosts
-  - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
+    - eval $(ssh-agent -s)
+    - ssh-add <(echo "$GITHUB_SSH_PRIV_KEY")
+    - echo "$GITHUB_SSH_PRIV_KEY" | tr -d '\r' | ssh-add -
+    - git config --global user.email "kusmenko@se-rwth.de"
+    - git config --global user.name "EMA CI Robot"
+    - mkdir -p ~/.ssh
+    #  - cat gitlab-known-hosts >> ~/.ssh/known_hosts
+    - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   script:
-  - git clone git@github.com:MontiCore/EmbeddedMontiArc.git
-  - cd EmbeddedMontiArc
-  - git subtree pull --prefix $PRJ_NAME https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/${PRJ_NAME}.git master --squash
-  - git push --force
+    - git clone git@github.com:MontiCore/EmbeddedMontiArc.git
+    - cd EmbeddedMontiArc
+    - git subtree pull --prefix $PRJ_NAME https://git.rwth-aachen.de/monticore/EmbeddedMontiArc/${PRJ_NAME}.git master --squash
+    - git push --force
   only:
-  - master
-
+    - master
 
 git masterJobLinux:
   stage: deploy
   image: maven:3-jdk-8
   script:
-  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean deploy --settings settings.xml -DskipTests
-#  - cat target/site/jacoco/index.html
-#  - mvn package sonar:sonar -s settings.xml
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean deploy --settings settings.xml -DskipTests
+  #  - cat target/site/jacoco/index.html
+  #  - mvn package sonar:sonar -s settings.xml
   only:
-  - master
-
-
+    - master
 
 integrationMXNetJobLinux:
   stage: linux
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5
   script:
-  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationMXNetTest
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationMXNetTest
   allow_failure: true
-
 
 integrationCaffe2JobLinux:
   stage: linux
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/caffe2:v0.0.5
   script:
-  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationCaffe2Test
-
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B  -U clean install --settings settings.xml -Dtest=IntegrationCaffe2Test
 
 integrationGluonJobLinux:
   stage: linux
-  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5
+  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1
   script:
-  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=IntegrationGluonTest
-
+    - ln /usr/bin/python3 /usr/bin/python -f
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=IntegrationGluonTest
+  except:
+    changes:
+      - .gitlab-ci.yml
+      - README.md
+  artifacts:
+    when: always
+    paths:
+      - target
 
 integrationTensorflowJobLinux:
   stage: linux
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/integrationtests/tensorflow
   script:
-  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=IntegrationTensorflowTest
-
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=IntegrationTensorflowTest
 
 integrationPythonWrapperTest:
   stage: linux
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2pythonwrapper/tests/mvn-swig:latest
   script:
-  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U  clean install --settings settings.xml -Dtest=IntegrationPythonWrapperTest
-
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U  clean install --settings settings.xml -Dtest=IntegrationPythonWrapperTest
+  except:
+    changes:
+      - .gitlab-ci.yml
+      - README.md
+  artifacts:
+    when: always
+    paths:
+      - target
 
 #masterJobWindows:
 #  stage: windows
@@ -83,14 +92,21 @@ integrationPythonWrapperTest:
 #  tags:
 #  - Windows10
 
-
 UnitTestJobLinux:
   stage: linux
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/applications/gans/mnist-infogan/gans_mxnet:latest
-#  image: maven:3-jdk-8
+  #  image: maven:3-jdk-8
   script:
-  - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest="GenerationTest,SymtabTest*"
-#  - cat target/site/jacoco/index.html
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest="GenerationTest,SymtabTest*"
+  #  - cat target/site/jacoco/index.html
+  except:
+    changes:
+      - .gitlab-ci.yml
+      - README.md
+  artifacts:
+    when: always
+    paths:
+      - target
 
 buildDockerMXNet150:
   stage: docker
@@ -103,7 +119,7 @@ buildDockerMXNet150:
     #- docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5
   only:
     changes:
-    - src/test/resources/docker/mxnet150/**/*
+      - src/test/resources/docker/mxnet150/**/*
 
 buildDockerMXNet170:
   stage: docker
@@ -116,7 +132,7 @@ buildDockerMXNet170:
     # - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170:v0.0.1
   only:
     changes:
-    - src/test/resources/docker/mxnet170/**/*
+      - src/test/resources/docker/mxnet170/**/*
 
 buildDockerMXNet170onnx:
   stage: docker
@@ -129,7 +145,7 @@ buildDockerMXNet170onnx:
     # - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-onnx:v0.0.1
   only:
     changes:
-    - src/test/resources/docker/mxnet170/**/*
+      - src/test/resources/docker/mxnet170/**/*
 
 buildDockerTensorflowONNX:
   stage: docker
@@ -142,7 +158,7 @@ buildDockerTensorflowONNX:
     - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/tensorflow-onnx
   only:
     changes:
-    - src/test/resources/docker/tensorflow/**/*
+      - src/test/resources/docker/tensorflow/**/*
 
 buildDockerMXNet170DGL:
   stage: docker

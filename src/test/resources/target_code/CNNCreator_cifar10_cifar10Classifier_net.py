@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 import mxnet as mx
 import logging
 import os
@@ -747,7 +747,7 @@ class CNNCreator_cifar10_cifar10Classifier_net:
             name="softmax32_")
         softmax_ = mx.symbol.SoftmaxOutput(data=softmax32_,
             name="softmax_")
-
+        
 
         self.module = mx.mod.Module(symbol=mx.symbol.Group([softmax_]),
                                          data_names=self._input_names_,
