@@ -61,7 +61,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
 
     private void deleteHashFile() {
         try {
-            Files.delete(netTrainingHashFile);
+            Files.delete(Paths.get("./target/generated-sources-emadl/hashes/hashes.json"));
         }
         catch(Exception e) {
             assertFalse("Could not delete hash file", true);
@@ -119,10 +119,8 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
 
 
     private void deleteInstanceTestCifarHashFile() {
-        final Path instanceTestCifarHasFile
-                = Paths.get("./target/generated-sources-emadl/instanceTestCifar/CifarNetwork.training_hash");
         try {
-            Files.delete(instanceTestCifarHasFile);
+            Files.delete(Paths.get("./target/generated-sources-emadl/hashes/hashes.json"));
         }
         catch(Exception e) {
             assertFalse("Could not delete hash file", true);

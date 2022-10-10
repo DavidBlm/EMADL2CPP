@@ -50,7 +50,7 @@ public class IntegrationTensorflowTest extends IntegrationTest {
     public void testMultipleStreams() {
         Log.getFindings().clear();
 
-        deleteHashFile(multipleStreamsHashFile);
+        deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "TENSORFLOW"};
         EMADLGeneratorCli.main(args);
@@ -58,9 +58,9 @@ public class IntegrationTensorflowTest extends IntegrationTest {
         checkFindingsCount();
     }
 
-    private void deleteHashFile(Path hashFile) {
+    private void deleteHashFile() {
         try {
-            Files.delete(hashFile);
+            Files.delete(Paths.get("./target/generated-sources-emadl/hashes/hashes.json"));
         }
         catch (NoSuchFileException e) {
 
