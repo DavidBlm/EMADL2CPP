@@ -173,3 +173,16 @@ buildDockerDGLQD:
   only:
     changes:
       - src/test/resources/docker/dglqd/**/*
+
+buildDockerPyTorch:
+  stage: docker
+  tags:
+    - shell
+  script:
+    - cd src/test/resources/docker/pytorch
+    - docker login registry.git.rwth-aachen.de -u someUserName -p $DOCKER_TOKEN
+    - docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/pytorch -f Dockerfile .
+    - docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/pytorch
+  only:
+    changes:
+      - src/test/resources/docker/pytorch/**/*
