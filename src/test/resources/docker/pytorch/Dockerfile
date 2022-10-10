@@ -1,4 +1,5 @@
 FROM maven:3-jdk-8
+FROM pytorch/pytorch:latest
 
 RUN apt-get update
 RUN apt-get install -y build-essential git ninja-build ccache 
