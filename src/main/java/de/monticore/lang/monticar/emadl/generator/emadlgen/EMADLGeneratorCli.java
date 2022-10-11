@@ -3,6 +3,7 @@ package de.monticore.lang.monticar.emadl.generator.emadlgen;
 
 import de.monticore.lang.monticar.cnnarch.generator.GenerationAbortedException;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
+import de.monticore.lang.monticar.emadl.modularcnn.tools.Randomizer;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
@@ -156,9 +157,9 @@ public class EMADLGeneratorCli {
         final String DEFAULT_COMPOSED_NETWORKS_FILE = "ComposedNetworks";
 
         if (composedNetworksFileName == null){
-            composedNetworksFileName =  DEFAULT_COMPOSED_NETWORKS_FILE + "_" + rootModelName;
+            composedNetworksFileName =  DEFAULT_COMPOSED_NETWORKS_FILE + "_" + rootModelName + Randomizer.timeStamp();
         } else {
-            composedNetworksFileName = composedNetworksFileName + "_" + rootModelName;
+            composedNetworksFileName = composedNetworksFileName + "_" + rootModelName + Randomizer.timeStamp();
         }
 
         if (backendString == null) {
