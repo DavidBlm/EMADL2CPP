@@ -96,7 +96,9 @@ public class EMADLCNNHandler {
 
 
         ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
+        composedNetworkHandler.processComponentInstances(allInstances);
 
+        /*
         ArrayList<ArchitectureSymbol> architectureSymbols = new ArrayList<>();
 
         for (EMAComponentInstanceSymbol componentInstance : allInstances){
@@ -106,10 +108,11 @@ public class EMADLCNNHandler {
             Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
 
             if (architecture.isPresent()) architectureSymbols.add(architecture.get());
-
         }
 
         Log.info("instance: " + architectureSymbols.toString(),"CNN_COMPOSITION");
+        */
+
 
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
 

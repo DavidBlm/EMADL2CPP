@@ -156,7 +156,7 @@ public class EMADLGeneratorCli {
         final String DEFAULT_COMPOSED_NETWORKS_FILE = "ComposedNetworks";
 
         if (composedNetworksFileName == null){
-            composedNetworksFileName =  outputPath + "/" + DEFAULT_COMPOSED_NETWORKS_FILE + "_" + rootModelName;
+            composedNetworksFileName =  DEFAULT_COMPOSED_NETWORKS_FILE + "_" + rootModelName;
         } else {
             composedNetworksFileName = composedNetworksFileName + "_" + rootModelName;
         }
