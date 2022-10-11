@@ -1,7 +1,6 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.python.PythonPipeline;
 import junit.framework.TestCase;

@@ -26,6 +26,20 @@ public class AutoMLPipeline extends Pipeline {
         trainAlgorithmBuilder = new TrainAlgorithmBuilder();
     }
 
+    @Override
+    public void train(ArchitectureSymbol architecture, Configuration configuration) {
+        this.architecture = architecture;
+        this.configuration = configuration;
+
+        loadTrainAlgorithm();
+        trainAlgorithm.train(architecture);
+    }
+
+    public void train(ArchitectureSymbol architecture, String modelName) {
+        Configuration config = loadConfig(modelName);
+        this.train(architecture, config);
+    }
+
     public Configuration getConfiguration() {
         return configuration;
     }
@@ -52,20 +66,6 @@ public class AutoMLPipeline extends Pipeline {
 
     public void setTrainAlgorithmBuilder(TrainAlgorithmBuilder trainAlgorithmBuilder) {
         this.trainAlgorithmBuilder = trainAlgorithmBuilder;
-    }
-
-    public void train(ArchitectureSymbol architecture, String modelName) {
-        Configuration config = loadConfig(modelName);
-        this.train(architecture, config);
-    }
-
-    @Override
-    public void train(ArchitectureSymbol architecture, Configuration configuration) {
-        this.architecture = architecture;
-        this.configuration = configuration;
-
-        loadTrainAlgorithm();
-        trainAlgorithm.train(architecture);
     }
 
     private Configuration loadConfig(String modelName) {
