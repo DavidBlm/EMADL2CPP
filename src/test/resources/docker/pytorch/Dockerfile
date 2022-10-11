@@ -7,14 +7,14 @@ RUN apt-get install -y liblapack-dev libopencv-dev
 RUN apt-get install -y libarmadillo-dev cmake 
 RUN apt-get install -y libboost-all-dev
 
-RUN apt-get install -y python3.10 python-dev python-tk
+RUN apt-get install -y python3.9 python-dev python-tk
 RUN apt-get install -y python3-pip
 
 ADD armadillo-9.600.6.zip /root/armadillo.zip
 RUN unzip /root/armadillo.zip -d /root/armadillo
 RUN cd /root/armadillo/armadillo-9.600.6 && cmake . && make && make install
 
-RUN pip3 install torch==1.9.0+cpu torchvision==0.10.0+cpu torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
+RUN pip3 install torch==1.12.0+cpu torchvision==0.13.0+cpu torchaudio==0.12.0 -f https://download.pytorch.org/whl/torch_stable.html
 RUN pip3 install opencv-python h5py numpy matplotlib scipy Pillow
 RUN pip3 install dgl==0.6.1
 
