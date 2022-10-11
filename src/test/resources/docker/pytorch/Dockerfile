@@ -14,11 +14,6 @@ ADD armadillo-9.600.6.zip /root/armadillo.zip
 RUN unzip /root/armadillo.zip -d /root/armadillo
 RUN cd /root/armadillo/armadillo-9.600.6 && cmake . && make && make install
 
-ENV PYTHONPATH="/usr/local"
-ENV PYTHONPATH="${PYTHONPATH}:/pytorch/build"
-ENV PYTHONPATH="${PYTHONPATH}:/usr/bin/python"
-ENV LD_LIBRARY_PATH="/usr/local/lib"
-
 RUN pip3 install torch==1.9.0+cpu torchvision==0.10.0+cpu torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 RUN pip3 install opencv-python h5py numpy matplotlib scipy Pillow
 RUN pip3 install dgl==0.6.1
