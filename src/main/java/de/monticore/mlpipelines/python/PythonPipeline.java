@@ -10,11 +10,6 @@ public class PythonPipeline extends Pipeline {
     }
 
     @Override
-    public void train(ArchitectureSymbol architecture, String configurationPath) {
-
-    }
-
-    @Override
     public void train(ArchitectureSymbol architecture, Configuration configuration) {
 
     }

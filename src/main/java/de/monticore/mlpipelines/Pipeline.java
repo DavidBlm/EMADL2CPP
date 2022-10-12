@@ -15,6 +15,5 @@ public abstract class Pipeline {
         this.trainedAccuracy = trainedAccuracy;
     }
 
-    public abstract void train(ArchitectureSymbol architecture, String configurationPath);
     public abstract void train(ArchitectureSymbol architecture, Configuration configuration);
 }
