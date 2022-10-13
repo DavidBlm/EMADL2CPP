@@ -19,19 +19,37 @@ public class ComposedNetworkHandler {
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
     }
 
-    public boolean isComposedNet(String className) {
+    public String findConfigFileName(EMAComponentInstanceSymbol instanceSymbol){
+        if (this.composedNetworks == null) return null;
 
+        for (NetworkStructureInformation networkStructureInformation: composedNetworks){
+            if (networkStructureInformation.isInstancePartOfNetwork(instanceSymbol)) {
+                return networkStructureInformation.getNetworkName();
+            }
+        }
+        return null;
+    }
 
+    //TODO: Finish detection if comp net here
+    public boolean isComposedNet(EMAComponentInstanceSymbol instanceSymbol){
+        for (NetworkStructureInformation networkStructureInformation : composedNetworks){
+            //networkStructureInformation.getR
+        }
         return false;
     }
 
-    public void processComponentInstances(Set<EMAComponentInstanceSymbol> componentInstances){
-        ArrayList<NetworkStructureInformation> nets = this.composedNetworks;
-        if (nets.size() == 0) loadNetworksFromFile(this.composedNetworkFilePath);
+
+    public ArrayList<EMAComponentInstanceSymbol> processComponentInstances(Set<EMAComponentInstanceSymbol> componentInstances){
+        ArrayList<EMAComponentInstanceSymbol> networks = new ArrayList<>();
+
+        if (this.composedNetworks.size() == 0) loadNetworksFromFile(this.composedNetworkFilePath);
 
         for (EMAComponentInstanceSymbol instanceSymbol: componentInstances){
             EMAComponentSymbol component = instanceSymbol.getComponentType().getReferencedSymbol();
             Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+            if (architecture.isPresent()){
+                networks.add(instanceSymbol);
+            }
         }
 
 
@@ -41,12 +59,14 @@ public class ComposedNetworkHandler {
                 String instanceSymbolName = instanceSymbol.getComponentType().getReferencedSymbol().getName();
                 if (instanceSymbolName.equals(networkStructureInformation.getNetworkName())){
                     networkStructureInformation.addInstance(instanceSymbol);
+                    networks.add(instanceSymbol);
                 }
             }
         }
 
         Log.info("Processing instances:" + composedNetworks.toString(),"INSTANCE_PROCESSING");
 
+        return networks;
     }
 
     private ArrayList<NetworkStructureInformation> loadNetworksFromFile(String composedNetworkFilePath){

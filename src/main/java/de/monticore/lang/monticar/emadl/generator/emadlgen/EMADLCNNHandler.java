@@ -96,7 +96,7 @@ public class EMADLCNNHandler {
 
 
         ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
-        composedNetworkHandler.processComponentInstances(allInstances);
+        ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);
 
         /*
         ArrayList<ArchitectureSymbol> architectureSymbols = new ArrayList<>();
@@ -114,7 +114,7 @@ public class EMADLCNNHandler {
         */
 
 
-        for (EMAComponentInstanceSymbol componentInstance : allInstances) {
+        for (EMAComponentInstanceSymbol componentInstance : networks) {
 
             EMAComponentSymbol component = componentInstance.getComponentType().getReferencedSymbol();
             Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
@@ -122,8 +122,30 @@ public class EMADLCNNHandler {
 
             if (architecture.isPresent() /* || networkHandler.isComposedNet(componentInstance.getName()) */) {
                 String mainComponentConfigFilename = mainComponentName.replaceAll("\\.", "/");
-                String componentConfigFilename = component.getFullName().replaceAll("\\.", "/");
-                String instanceConfigFilename = component.getFullName().replaceAll("\\.", "/") + "_" + component.getName();
+
+                String componentConfigFilename = null;
+                String instanceConfigFilename = null;
+
+                if (composedNetworkHandler.isComposedNet(componentInstance)){
+                    String rootNetworkName = composedNetworkHandler.findConfigFileName(componentInstance);
+                    if (Strings.isNullOrEmpty(rootNetworkName)) {
+                        String message = String.format("(Root) network config not found");
+                        Log.error(message);
+                        throw new RuntimeException(String.format("Missing training configuration for network '%s'", mainComponentName));
+                    }
+                    String packagePath = component.getFullName().replaceAll("\\." ,"/");
+                    int lastIndex = packagePath.lastIndexOf("/");
+                    packagePath = packagePath.substring(0,lastIndex+1) ;
+
+
+                    componentConfigFilename = packagePath + rootNetworkName;
+                    instanceConfigFilename = packagePath + rootNetworkName + "_" + rootNetworkName;
+
+                } else {
+                    componentConfigFilename = component.getFullName().replaceAll("\\.", "/");
+                    instanceConfigFilename = component.getFullName().replaceAll("\\.", "/") + "_" + component.getName();
+                }
+
                 String trainConfigFilename = emadlFileHandler.getConfigFilename(mainComponentConfigFilename, componentConfigFilename, instanceConfigFilename);
                 if (Strings.isNullOrEmpty(trainConfigFilename)) {
                     String message = String.format("Missing training configuration. Could not find a file with any of the following names (only one needed): '%s.conf', '%s.conf', '%s.conf'. These files denote respectively the configuration for the single instance, the component or the whole system.",

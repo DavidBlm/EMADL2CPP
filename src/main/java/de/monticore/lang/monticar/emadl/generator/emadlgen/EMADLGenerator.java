@@ -313,14 +313,14 @@ public class EMADLGenerator implements EMAMGenerator {
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
             }
-        } else if (composedNetworkHandler.isComposedNet(emaComponentSymbol.getName())) {
+        } /*else if (composedNetworkHandler.isComposedNet(emaComponentSymbol.getName())) {
 
             String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
             HashMap layerPathParameterTags = emadlTaggingHandler.getLayerPathParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             layerPathParameterTags.putAll(emadlTaggingHandler.getLayerArtifactParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol));
 
-        }
+        }*/
         else if (mathStatements.isPresent()){
             generateMathComponent(fileContents, taggingResolver, componentInstanceSymbol, mathStatements.get());
         }
