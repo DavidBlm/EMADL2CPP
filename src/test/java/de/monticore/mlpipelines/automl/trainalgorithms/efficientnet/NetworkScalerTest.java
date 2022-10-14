@@ -110,12 +110,12 @@ public class NetworkScalerTest extends TestCase {
         List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
         ArchitectureElementSymbol element1 = architectureElements.get(2);
         ArchitectureElementSymbol element2 = architectureElements.get(4);
-        int value1 = getValueFromElement(element1);
-        int value2 = getValueFromElement(element2);
-        int expectedValue = 8;
+        double value1 = getValueFromElement(element1);
+        double value2 = getValueFromElement(element2);
+        double expectedValue = 8;
 
-        assertEquals(expectedValue, value1);
-        assertEquals(expectedValue, value2);
+        assertEquals(expectedValue, value1, 0.0001);
+        assertEquals(expectedValue, value2, 0.0001);
     }
 
     private List<ArchitectureElementSymbol> getElementsFromArchitecture(ArchitectureSymbol arch){
@@ -125,11 +125,12 @@ public class NetworkScalerTest extends TestCase {
         return architectureElements;
     }
 
-    private int getValueFromElement(ArchitectureElementSymbol element){
+    private double getValueFromElement(ArchitectureElementSymbol element){
         ArchitectureElementScope spannedScope  =  element.getSpannedScope();
         ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols().get("");
         MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(3);
-        int value = expression.getValue().getRealNumber().getDividend().intValue();
-        return value;
+        double dividend = expression.getValue().getRealNumber().getDividend().longValue();
+        double divisor = expression.getValue().getRealNumber().getDivisor().longValue();
+        return dividend / divisor;
     }
 }

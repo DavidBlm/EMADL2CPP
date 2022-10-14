@@ -3,50 +3,50 @@ component EfficientNetB0<classes=10>{
           out Q(0:1)^{classes} predictions;
     implementation CNN {
         def stem(){
-            Convolution(kernel=(3,3), channels=1, stride=(2, 2), padding="same") ->
+            Convolution(kernel=(3,3), channels=2, stride=(2, 2), padding="same") ->
             BatchNorm() ->
             LeakyRelu()
         }
 
-        def conv(){
-            Convolution(kernel=(3,3), channels=1, stride=(1, 1), padding="same") ->
+        def conv(channels){
+            Convolution(kernel=(3,3), channels=channels, stride=(1, 1), padding="same") ->
             BatchNorm() ->
             LeakyRelu()
         }
 
-        def reductionConv(){
-            Convolution(kernel=(3,3), channels=1, stride=(2, 2), padding="same") ->
+        def reductionConv(channels){
+            Convolution(kernel=(3,3), channels=channels, stride=(2, 2), padding="same") ->
             BatchNorm() ->
             LeakyRelu()
         }
 
-        def residualBlock(){
+        def residualBlock(channels){
             (
-                conv() ->
-                conv()
+                conv(channels=channels) ->
+                conv(channels=channels)
             |
                 LeakyRelu()
             ) ->
             Add()
         }
 
-        def reductionBlock(){
+        def reductionBlock(channels){
             (
-                conv() ->
-                conv() ->
-                reductionConv()
+                conv(channels=channels) ->
+                conv(channels=channels) ->
+                reductionConv(channels=channels)
             |
-                reductionConv()
+                reductionConv(channels=channels)
             ) ->
             Add()
         }
 
         image ->
         stem() ->
-        residualBlock(-> = 4) ->
-        reductionBlock() ->
-        residualBlock(-> = 4) ->
-        reductionBlock() ->
+        residualBlock(-> = 4, channels=48) ->
+        reductionBlock(channels=48) ->
+        residualBlock(-> = 4, channels=96) ->
+        reductionBlock(channels=96) ->
         FullyConnected(units=classes) ->
         predictions;
     }

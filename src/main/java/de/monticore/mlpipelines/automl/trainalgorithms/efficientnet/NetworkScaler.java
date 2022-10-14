@@ -2,7 +2,6 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
-import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import org.jscience.mathematics.number.Rational;
 
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class NetworkScaler {
         for (ArchitectureElementSymbol architectureElement : architectureElements) {
             if (!architectureElement.getName().equals("residualBlock"))
                 continue;
-            scaleNetworkElement(architectureElement);
+            scaleNetworkElementDepth(architectureElement);
         }
     }
 
@@ -56,9 +55,8 @@ public class NetworkScaler {
             if (!architectureElement.getName().equals("residualBlock"))
                 continue;
 
-            ArchitectureElementScope spannedScope = architectureElement.getSpannedScope();
-            ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols()
-                    .get(""); //the MathNumberExpressionSymbol is in the key ""
+            ArrayList expressions = getExpressions(architectureElement);
+            System.out.println(expressions);
         }
     }
 
@@ -73,16 +71,26 @@ public class NetworkScaler {
         return architectureElements;
     }
 
-    private void scaleNetworkElement(ArchitectureElementSymbol architectureElement) {
+    private void scaleNetworkElementDepth(ArchitectureElementSymbol architectureElement) {
+        ArrayList expressions = getExpressions(architectureElement);
+        int depthIndex = 3;
+        setValueInExpressions(expressions, depthIndex, this.depthFactor);
+    }
+
+    private void setValueInExpressions(ArrayList expressions, int index, float scalingFactor) {
+        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(index); //directly fetching the residualBlock
+        long oldDividend = expression.getValue().getRealNumber().getDividend().longValue();
+        long newDivisor = 20; // Because a minimal step size of 0.05
+        long newDividend = oldDividend * (long)(scalingFactor * newDivisor);
+        Rational newValue = Rational.valueOf(newDividend, newDivisor);
+        expression.getValue().setRealNumber(newValue);
+    }
+
+    private static ArrayList getExpressions(ArchitectureElementSymbol architectureElement) {
         ArchitectureElementScope spannedScope = architectureElement.getSpannedScope();
         ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols()
                 .get(""); //the MathNumberExpressionSymbol is in the key ""
-
-        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(
-                3); //directly fetching the residualBlock
-        Rational oldValue = expression.getValue().getRealNumber();
-        Rational newValue = oldValue.times((long) this.depthFactor);
-        expression.getValue().setRealNumber(newValue);
+        return expressions;
     }
 
     public ArchitectureSymbol getArchitectureSymbol() {
