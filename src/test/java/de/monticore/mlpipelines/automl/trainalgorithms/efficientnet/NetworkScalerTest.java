@@ -44,6 +44,14 @@ public class NetworkScalerTest extends TestCase {
     }
 
     @Test
+    public void testReturnsOriginalArchitectureIfNoNetworkInstructions() {
+        ArchitectureSymbol archSymbol = networkScaler.scale(
+                this.architecture,
+                new ScalingFactors(1.4f, 1.4f, 1.4f), 1);
+        assertEquals(this.architecture, archSymbol);
+    }
+
+    @Test
     public void testScaleSetsArchitecture() {
         ScalingFactors scalingFactors = new ScalingFactors(1.4f, 1.4f, 1.4f);
         networkScaler.scale(this.architecture, scalingFactors, 1);
