@@ -40,7 +40,7 @@ public class NetworkScaler {
     }
 
     private void scaleDepth() {
-        List<ArchitectureElementSymbol> architectureElements = getArchitectureElements();
+        List<ArchitectureElementSymbol> architectureElements = findArchitectureElements();
 
         for (ArchitectureElementSymbol architectureElement : architectureElements) {
             if (!architectureElement.getName().equals("residualBlock"))
@@ -50,9 +50,7 @@ public class NetworkScaler {
     }
 
     private void scaleWidth() {
-        NetworkInstructionSymbol networkInstruction = this.architecture.getNetworkInstructions().get(0);
-        SerialCompositeElementSymbol networkInstructionBody = networkInstruction.getBody();
-        List<ArchitectureElementSymbol> architectureElements = networkInstructionBody.getElements();
+        List<ArchitectureElementSymbol> architectureElements = findArchitectureElements();
 
         //for residualBlock width scaling
         for (ArchitectureElementSymbol architectureElement : architectureElements) {
@@ -69,11 +67,7 @@ public class NetworkScaler {
 
     }
 
-    public ArchitectureSymbol getArchitectureSymbol() {
-        return architecture;
-    }
-
-    private List<ArchitectureElementSymbol> getArchitectureElements() {
+    private List<ArchitectureElementSymbol> findArchitectureElements() {
         NetworkInstructionSymbol networkInstruction = this.architecture.getNetworkInstructions().get(0);
         SerialCompositeElementSymbol networkInstructionBody = networkInstruction.getBody();
         List<ArchitectureElementSymbol> architectureElements = networkInstructionBody.getElements();
@@ -90,6 +84,10 @@ public class NetworkScaler {
         Rational oldValue = expression.getValue().getRealNumber();
         Rational newValue = oldValue.times((long) this.depthFactor);
         expression.getValue().setRealNumber(newValue);
+    }
+
+    public ArchitectureSymbol getArchitectureSymbol() {
+        return architecture;
     }
 
     private void setArchitectureSymbol(ArchitectureSymbol architectureSymbol) {
