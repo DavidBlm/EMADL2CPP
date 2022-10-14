@@ -35,7 +35,8 @@ public class WorkflowTest extends TestCase {
     public void testExecuteSetsConfiguration() {
         Workflow workflow = createWorkflow();
         String configurationName = "configuration";
-        workflow.execute(null, configurationName);
+        ArchitectureSymbol architecture = mock(ArchitectureSymbol.class);
+        workflow.execute(architecture, configurationName);
         assertNotNull(workflow.getConfiguration());
     }
 
