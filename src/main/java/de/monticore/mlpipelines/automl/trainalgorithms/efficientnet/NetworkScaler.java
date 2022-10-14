@@ -13,27 +13,26 @@ public class NetworkScaler {
     private float depthFactor = 0;
     private float widthFactor = 0;
     private float resolutionFactor = 0;
-
     private ArchitectureSymbol architecture = null;
 
     public ArchitectureSymbol scale(ArchitectureSymbol originalArchitecture, ScalingFactors scalingFactors, int phi) {
-        setProperties(originalArchitecture, scalingFactors);
+        this.architecture = originalArchitecture;
+        calculateFactors(scalingFactors, phi);
 
         if (this.architecture.getNetworkInstructions().isEmpty())
             return originalArchitecture;
 
-        scaleThreeDimensions();
+        scaleUsingFactors();
         return getArchitectureSymbol();
     }
 
-    private void setProperties(ArchitectureSymbol originalArchitecture, ScalingFactors scalingFactors) {
-        setArchitectureSymbol(originalArchitecture);
-        setDepth(scalingFactors.alpha);
-        setWidth(scalingFactors.beta);
-        setResolution(scalingFactors.gamma);
+    private void calculateFactors(ScalingFactors scalingFactors, int phi) {
+        this.depthFactor = (float) Math.pow(scalingFactors.alpha, phi);
+        this.widthFactor = (float) Math.pow(scalingFactors.beta, phi);
+        this.resolutionFactor = (float) Math.pow(scalingFactors.gamma, phi);
     }
 
-    private void scaleThreeDimensions() {
+    private void scaleUsingFactors() {
         scaleDepth();
         scaleWidth();
         scaleResolution();
@@ -90,31 +89,16 @@ public class NetworkScaler {
         return architecture;
     }
 
-    private void setArchitectureSymbol(ArchitectureSymbol architectureSymbol) {
-        this.architecture = architectureSymbol;
-    }
-
-    public float getDepth() {
+    public float getDepthFactor() {
         return depthFactor;
     }
 
-    private void setDepth(float alpha) {
-        this.depthFactor = (float) Math.pow(alpha, EfficientNetConfig.phi);
-    }
-
-    public float getWidth() {
+    public float getWidthFactor() {
         return widthFactor;
     }
 
-    private void setWidth(float beta) {
-        this.widthFactor = (float) Math.pow(beta, EfficientNetConfig.phi);
-    }
-
-    public float getResolution() {
+    public float getResolutionFactor() {
         return resolutionFactor;
     }
 
-    private void setResolution(float gamma) {
-        this.resolutionFactor = (float) Math.pow(gamma, EfficientNetConfig.phi);
-    }
 }

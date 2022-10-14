@@ -44,6 +44,55 @@ public class NetworkScalerTest extends TestCase {
     }
 
     @Test
+    public void testScaleSetsArchitecture() {
+        ScalingFactors scalingFactors = new ScalingFactors(1.4f, 1.4f, 1.4f);
+        networkScaler.scale(this.architecture, scalingFactors, 1);
+        assertNotNull(networkScaler.getArchitectureSymbol());
+    }
+
+    @Test
+    public void testScaleSetsDepthFactorWithPhi1(){
+        ScalingFactors scalingFactors = new ScalingFactors(1.4f, 1.4f, 1.4f);
+        networkScaler.scale(this.architecture, scalingFactors, 1);
+        assertEquals(1.4f, networkScaler.getDepthFactor());
+    }
+
+    @Test
+    public void testScaleSetsWidthFactorWithPhi1(){
+        ScalingFactors scalingFactors = new ScalingFactors(1.4f, 1.4f, 1.4f);
+        networkScaler.scale(this.architecture, scalingFactors, 1);
+        assertEquals(1.4f, networkScaler.getWidthFactor());
+    }
+
+    @Test
+    public void testScaleSetsImageResolutionFactorWithPhi1(){
+        ScalingFactors scalingFactors = new ScalingFactors(1.4f, 1.4f, 1.4f);
+        networkScaler.scale(this.architecture, scalingFactors, 1);
+        assertEquals(1.4f, networkScaler.getResolutionFactor());
+    }
+
+    @Test
+    public void testScaleSetsDepthFactorWithPhi2(){
+        ScalingFactors scalingFactors = new ScalingFactors(1.4f, 1.4f, 1.4f);
+        networkScaler.scale(this.architecture, scalingFactors, 2);
+        assertEquals(1.96f, networkScaler.getDepthFactor(), 0.001);
+    }
+
+    @Test
+    public void testScaleSetsWidthFactorWithPhi2(){
+        ScalingFactors scalingFactors = new ScalingFactors(1.4f, 1.4f, 1.4f);
+        networkScaler.scale(this.architecture, scalingFactors, 2);
+        assertEquals(1.96f, networkScaler.getWidthFactor(), 0.001);
+    }
+
+    @Test
+    public void testScaleSetsImageResolutionFactorWithPhi2(){
+        ScalingFactors scalingFactors = new ScalingFactors(1.4f, 1.4f, 1.4f);
+        networkScaler.scale(this.architecture, scalingFactors, 2);
+        assertEquals(1.96f, networkScaler.getResolutionFactor(), 0.001);
+    }
+
+    @Test
     public void testScaleDepth() {
         ScalingFactors scalingFactors = new ScalingFactors(2, 1, 1);
         int phi = 1;
