@@ -44,8 +44,8 @@ public class EfficientNet extends TrainAlgorithm {
 
     @Override
     public void train(ArchitectureSymbol startNetwork) {
-        createMissingObjects();
         setStartNetwork(startNetwork);
+        createMissingObjects();
         findBestScalingFactors();
         scaleNetwork();
     }

@@ -1,49 +1,78 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
+import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.*;
+import de.monticore.mlpipelines.ModelLoader;
+import de.monticore.symboltable.Scope;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+@RunWith(MockitoJUnitRunner.class)
 public class NetworkScalerTest extends TestCase {
 
     private ArchitectureSymbol architecture;
     private NetworkScaler networkScaler;
-    private ScalingFactors scalingFactors;
 
     @Before
     public void setUp(){
-        this.architecture = new ArchitectureSymbol();
+        String modelFolderPath = "src/test/resources/models";
+        String modelName = "efficientNetB0";
+
+        this.architecture = ModelLoader.load(modelFolderPath, modelName);
         this.networkScaler = new NetworkScaler();
-        this.scalingFactors = new ScalingFactors(1,1,1);
+    }
+
+    @Test
+    public void testConstructor(){
+        NetworkScaler scaler = new NetworkScaler();
+        assertNotNull(scaler);
     }
 
     @Test
     public void testScale() {
-        ArchitectureSymbol archSymbol = networkScaler.scale(this.architecture, this.scalingFactors, 1);
+        ScalingFactors scalingFactors = new ScalingFactors(1.4f, 1.4f, 1.4f);
+        ArchitectureSymbol archSymbol = networkScaler.scale(this.architecture, scalingFactors, 1);
         assertNotNull(archSymbol);
     }
 
-    public void testGetDepth() {
+    @Test
+    public void testScaleDepth() {
+        ScalingFactors scalingFactors = new ScalingFactors(2, 1, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol element1 = architectureElements.get(2);
+        ArchitectureElementSymbol element2 = architectureElements.get(4);
+        int value1 = getValueFromElement(element1);
+        int value2 = getValueFromElement(element2);
+        int expectedValue = 8;
+
+        assertEquals(expectedValue, value1);
+        assertEquals(expectedValue, value2);
     }
 
-    public void testSetDepth() {
+    private List<ArchitectureElementSymbol> getElementsFromArchitecture(ArchitectureSymbol arch){
+        NetworkInstructionSymbol networkInstruction = arch.getNetworkInstructions().get(0);
+        SerialCompositeElementSymbol networkInstructionBody = networkInstruction.getBody();
+        List<ArchitectureElementSymbol> architectureElements = networkInstructionBody.getElements();
+        return architectureElements;
     }
 
-    public void testGetWidth() {
-    }
-
-    public void testSetWidth() {
-    }
-
-    public void testGetResolution() {
-    }
-
-    public void testSetResolution() {
-    }
-
-    public void testGetLocArchitectureSymbol() {
-    }
-
-    public void testSetLocArchitectureSymbol() {
+    private int getValueFromElement(ArchitectureElementSymbol element){
+        ArchitectureElementScope spannedScope  =  element.getSpannedScope();
+        ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols().get("");
+        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(3);
+        int value = expression.getValue().getRealNumber().getDividend().intValue();
+        return value;
     }
 }
