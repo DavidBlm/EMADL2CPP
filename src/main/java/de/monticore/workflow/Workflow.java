@@ -38,16 +38,6 @@ public class Workflow {
         return configuration;
     }
 
-    private ArchitectureSymbol loadArchitecture() {
-        Scope symTab = createSymTab(this.resourcePath);
-        EMAComponentInstanceSymbol c = symTab.<EMAComponentInstanceSymbol>resolve(EFFICIENT_NET_B0,
-                EMAComponentInstanceSymbol.KIND).orElse(null);
-        ArchitectureSymbol resolvedArchitecture = c.getSpannedScope()
-                .<ArchitectureSymbol>resolve("", ArchitectureSymbol.KIND)
-                .get();
-        return resolvedArchitecture;
-    }
-
     public void setResourcePath(String resourcePath) {
         this.resourcePath = resourcePath;
     }
