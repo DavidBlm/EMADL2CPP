@@ -36,10 +36,9 @@ public class LoadModelTest extends TestCase {
 
                 Rational num = oldValue.getValue().getRealNumber();
 
-                if(element.getName().equals("residualBlock")) {
-                    oldValue.getValue().setRealNumber(num.times(2));
-                }
+                oldValue.getValue().setRealNumber(num.times(2));
 
+                int a = 0;
                  /*if(astLayer.getName().equals("residualBlock")){
                     ASTArchExpression expr_rhs = astLayer.getArguments(0).getRhs();
                     ArchSimpleExpressionSymbol rhs_symbol = (ArchSimpleExpressionSymbol) expr_rhs.getSymbol();
