@@ -56,6 +56,8 @@ public class NetworkScaler {
                 continue;
 
             ArrayList expressions = getExpressions(architectureElement);
+            int channelsIndex = 5;
+            setValueInExpressions(expressions, channelsIndex, widthFactor);
             System.out.println(expressions);
         }
     }
