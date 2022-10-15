@@ -56,11 +56,11 @@ public class NetworkScaler {
             if (!architectureElement.getName().equals("residualBlock"))
                 continue;
 
-            scaleArchitectureElement(architectureElement);
+            scaleArchitectureElementWidth(architectureElement);
         }
     }
 
-    private void scaleArchitectureElement(ArchitectureElementSymbol architectureElement) {
+    private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
         ArrayList expressions = getExpressions(architectureElement);
         int channelsIndex = getChannelsIndex(architectureElement.getName());
         setValueInExpressions(expressions, channelsIndex, widthFactor);
@@ -75,6 +75,7 @@ public class NetworkScaler {
         }
         throw new IllegalArgumentException("Block type not supported");
     }
+
 
     private void scaleResolution() {
 

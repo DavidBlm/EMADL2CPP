@@ -3,7 +3,7 @@ component EfficientNetB0<classes=10>{
           out Q(0:1)^{classes} predictions;
     implementation CNN {
         def stem(){
-            Convolution(kernel=(3,3), channels=2, stride=(2, 2), padding="same") ->
+            Convolution(kernel=(3,3), channels=4, stride=(2, 2), padding="same") ->
             BatchNorm() ->
             LeakyRelu()
         }
