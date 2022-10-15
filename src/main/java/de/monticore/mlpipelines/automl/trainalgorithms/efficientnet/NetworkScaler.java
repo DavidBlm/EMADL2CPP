@@ -5,6 +5,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import org.jscience.mathematics.number.Rational;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class NetworkScaler {
@@ -47,19 +48,32 @@ public class NetworkScaler {
         }
     }
 
+    // TODO: add channels parameter to stem and scale it
     private void scaleWidth() {
         List<ArchitectureElementSymbol> architectureElements = findArchitectureElements();
 
-        //for residualBlock width scaling
         for (ArchitectureElementSymbol architectureElement : architectureElements) {
             if (!architectureElement.getName().equals("residualBlock"))
                 continue;
 
-            ArrayList expressions = getExpressions(architectureElement);
-            int channelsIndex = 5;
-            setValueInExpressions(expressions, channelsIndex, widthFactor);
-            System.out.println(expressions);
+            scaleArchitectureElement(architectureElement);
         }
+    }
+
+    private void scaleArchitectureElement(ArchitectureElementSymbol architectureElement) {
+        ArrayList expressions = getExpressions(architectureElement);
+        int channelsIndex = getChannelsIndex(architectureElement.getName());
+        setValueInExpressions(expressions, channelsIndex, widthFactor);
+    }
+
+    private static int getChannelsIndex(String architectureElementName) {
+        switch (architectureElementName) {
+            case "residualBlock":
+                return 5;
+            case "reductionBlock":
+                return 1;
+        }
+        throw new IllegalArgumentException("Block type not supported");
     }
 
     private void scaleResolution() {

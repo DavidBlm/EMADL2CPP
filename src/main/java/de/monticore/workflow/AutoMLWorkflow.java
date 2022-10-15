@@ -1,20 +1,17 @@
 package de.monticore.workflow;
 
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.AutoMLPipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
 import de.monticore.mlpipelines.parser.ConfFile2ConfigurationParser;
-import de.monticore.symboltable.Scope;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab.createSymTab;
 
-public class Workflow {
-    private final String EFFICIENT_NET_B0 = "efficientNetB0";
+public class AutoMLWorkflow {
     private String resourcePath = "src/main/resources/";
     private ArchitectureSymbol architecture;
     private Configuration configuration;

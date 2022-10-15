@@ -1,9 +1,7 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.mlpipelines.ModelLoader;
-import de.monticore.symboltable.Scope;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -108,14 +106,53 @@ public class NetworkScalerTest extends TestCase {
         ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
 
         List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
-        ArchitectureElementSymbol element1 = architectureElements.get(2);
-        ArchitectureElementSymbol element2 = architectureElements.get(4);
-        double value1 = getValueFromElement(element1);
-        double value2 = getValueFromElement(element2);
-        double expectedValue = 8;
+        ArchitectureElementSymbol residualBlock1 = architectureElements.get(2);
+        ArchitectureElementSymbol residualBlock2 = architectureElements.get(4);
+        double residualBlock1Depth = getValueFromElement(residualBlock1, 3);
+        double residualBlock2Depth = getValueFromElement(residualBlock2, 3);
+        double expectedDepth = 8;
 
-        assertEquals(expectedValue, value1, 0.0001);
-        assertEquals(expectedValue, value2, 0.0001);
+        assertEquals(expectedDepth, residualBlock1Depth, 0.0001);
+        assertEquals(expectedDepth, residualBlock2Depth, 0.0001);
+    }
+
+    @Test
+    public void testScaleWidthResidualBlocks() {
+        ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol residualBlock1 = architectureElements.get(2);
+        ArchitectureElementSymbol residualBlock2 = architectureElements.get(4);
+        double residualBlock1Width = getValueFromElement(residualBlock1, 5);
+        double residualBlock2Width = getValueFromElement(residualBlock2, 5);
+
+        double expectedResidualWidth1 = 96;
+        double expectedResidualWidth2 = 192;
+
+        assertEquals(expectedResidualWidth1, residualBlock1Width, 0.0001);
+        assertEquals(expectedResidualWidth2, residualBlock2Width, 0.0001);
+    }
+
+    @Test
+    public void testScaleWidthReductionBlocks(){
+        ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol reductionBlock1 = architectureElements.get(3);
+        ArchitectureElementSymbol reductionBlock2 = architectureElements.get(5);
+        double reductionBlock1Width = getValueFromElement(reductionBlock1, 1);
+        double reductionBlock2Width = getValueFromElement(reductionBlock2, 1);
+        double expectedReductionWidth1 = 96;
+        double expectedReductionWidth2 = 192;
+
+        assertEquals(expectedReductionWidth1, reductionBlock1Width, 0.0001);
+        assertEquals(expectedReductionWidth2, reductionBlock2Width, 0.0001);
     }
 
     private List<ArchitectureElementSymbol> getElementsFromArchitecture(ArchitectureSymbol arch){
@@ -125,10 +162,10 @@ public class NetworkScalerTest extends TestCase {
         return architectureElements;
     }
 
-    private double getValueFromElement(ArchitectureElementSymbol element){
+    private double getValueFromElement(ArchitectureElementSymbol element, int numberExpressionIndex){
         ArchitectureElementScope spannedScope  =  element.getSpannedScope();
         ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols().get("");
-        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(3);
+        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(numberExpressionIndex);
         double dividend = expression.getValue().getRealNumber().getDividend().longValue();
         double divisor = expression.getValue().getRealNumber().getDivisor().longValue();
         return dividend / divisor;
