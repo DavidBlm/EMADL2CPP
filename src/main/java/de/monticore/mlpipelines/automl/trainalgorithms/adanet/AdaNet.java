@@ -3,8 +3,18 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
+import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.NetworkScaler;
+import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.ScalingFactorsGridSearch;
 
 public class AdaNet extends TrainAlgorithm {
+    private ArchitectureSymbol scaledArchitecture;
+    private CandidateSearch candidateSearch;
+
+    public AdaNet(ScalingFactorsGridSearch gridSearch, NetworkScaler networkScaler) {
+        super();
+        this.canditateSearch = canditateSearch;
+    }
+
 
     @Override
     public void train(ArchitectureSymbol startNetwork) {
@@ -19,7 +29,7 @@ public class AdaNet extends TrainAlgorithm {
         //    add best component to network in parallel
         //    if network with best component is not better than network without best component:
         //        stop adaNet and return network without best component
-        for (int i = 0; i < AdaNetConfig.NUM_ITERATIONS; i++) {
+        for (int i = 0; i < AdaNetConfig.MAX_ITERATIONS; i++) {
 
         }
     }
