@@ -11,7 +11,7 @@ public class AdaNet extends TrainAlgorithm {
 
     public AdaNet(ScalingFactorsGridSearch gridSearch, NetworkScaler networkScaler) {
         super();
-        this.canditateSearch = canditateSearch;
+        this.candidateSearch = canditateSearch;
     }
 
 
