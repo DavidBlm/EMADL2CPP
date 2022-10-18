@@ -37,7 +37,7 @@ public class NetworkScaler {
     private void scaleDimensions() {
         scaleDepth();
         scaleWidth();
-        scaleResolution();
+        scaleImageResolution();
     }
 
     private void scaleDepth() {
@@ -82,7 +82,7 @@ public class NetworkScaler {
     }
 
 
-    private void scaleResolution() {
+    private void scaleImageResolution() {
         Map<String, Collection<Symbol>> enclosedSymbols = this.architecture.getSpannedScope().getEnclosingScope().get().getLocalSymbols();
         ArrayList image = (ArrayList) enclosedSymbols.get("image");
         EMAPortInstanceSymbol instanceSymbols = (EMAPortInstanceSymbol) image.get(0);

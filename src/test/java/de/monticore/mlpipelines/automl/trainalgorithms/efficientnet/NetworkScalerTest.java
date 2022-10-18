@@ -1,7 +1,13 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
+import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
+import de.monticore.lang.monticar.ts.references.MCASTTypeSymbolReference;
+import de.monticore.lang.monticar.types2._ast.ASTDimension;
 import de.monticore.mlpipelines.ModelLoader;
+import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,7 +16,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -153,6 +161,38 @@ public class NetworkScalerTest extends TestCase {
 
         assertEquals(expectedReductionWidth1, reductionBlock1Width, 0.0001);
         assertEquals(expectedReductionWidth2, reductionBlock2Width, 0.0001);
+    }
+
+    @Test
+    public void testScaleImageResolution(){
+        ScalingFactors scalingFactors = new ScalingFactors(1, 1, 2);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+        ASTDimension dimensions = getAstDimension(scaledArch);
+        MathNumberExpressionSymbol heightDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(1).getSymbol();
+        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(2).getSymbol();
+
+        MathNumberExpressionWrapper imageHeight = new MathNumberExpressionWrapper(heightDim);
+        MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
+
+        float expectedHeight = 32;
+        float expectedWidth = 32;
+        assertEquals(expectedHeight, imageHeight.getFloatValue(), 0.0001);
+        assertEquals(expectedWidth, imageWidth.getFloatValue(), 0.0001);
+    }
+
+    private static ASTDimension getAstDimension(ArchitectureSymbol scaledArch) {
+        Scope spannedScope = scaledArch.getSpannedScope();
+        Scope enclosingScope = spannedScope.getEnclosingScope().get();
+
+        Map<String, Collection<Symbol>> enclosedSymbols = enclosingScope.getLocalSymbols();
+        ArrayList image = (ArrayList) enclosedSymbols.get("image");
+        EMAPortInstanceSymbol instanceSymbols = (EMAPortInstanceSymbol) image.get(0);
+        MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) instanceSymbols.getTypeReference();
+        ASTCommonMatrixType astType = (ASTCommonMatrixType)typeReference.getAstType();
+        ASTDimension dimensions = astType.getDimension();
+        return dimensions;
     }
 
     private List<ArchitectureElementSymbol> getElementsFromArchitecture(ArchitectureSymbol arch){
