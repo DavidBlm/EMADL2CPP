@@ -55,7 +55,8 @@ public class NetworkScaler {
         List<ArchitectureElementSymbol> architectureElements = findArchitectureElements();
 
         for (ArchitectureElementSymbol architectureElement : architectureElements) {
-            if (!architectureElement.getName().equals("residualBlock"))
+            List<String> allowedLayers = Arrays.asList("residualBlock", "reductionBlock");
+            if (!allowedLayers.contains(architectureElement.getName()))
                 continue;
 
             scaleArchitectureElementWidth(architectureElement);
