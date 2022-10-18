@@ -76,4 +76,5 @@ public class EfficientNetConfig extends TrainAlgorithmConfig{
     public void setPhi(int phi) {
         this.phi = phi;
     }
+
 }

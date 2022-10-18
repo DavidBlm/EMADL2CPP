@@ -1,12 +1,14 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
-import org.jscience.mathematics.number.Rational;
+import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
+import de.monticore.lang.monticar.ts.references.MCASTTypeSymbolReference;
+import de.monticore.lang.monticar.types2._ast.ASTDimension;
+import de.monticore.symboltable.Symbol;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class NetworkScaler {
 
@@ -22,7 +24,7 @@ public class NetworkScaler {
         if (this.architecture.getNetworkInstructions().isEmpty())
             return originalArchitecture;
 
-        scaleUsingFactors();
+        scaleDimensions();
         return getArchitectureSymbol();
     }
 
@@ -32,10 +34,10 @@ public class NetworkScaler {
         this.resolutionFactor = (float) Math.pow(scalingFactors.gamma, phi);
     }
 
-    private void scaleUsingFactors() {
+    private void scaleDimensions() {
         scaleDepth();
         scaleWidth();
-        scaleResolution();
+        scaleImageResolution();
     }
 
     private void scaleDepth() {
@@ -53,7 +55,8 @@ public class NetworkScaler {
         List<ArchitectureElementSymbol> architectureElements = findArchitectureElements();
 
         for (ArchitectureElementSymbol architectureElement : architectureElements) {
-            if (!architectureElement.getName().equals("residualBlock"))
+            List<String> allowedLayers = Arrays.asList("residualBlock", "reductionBlock");
+            if (!allowedLayers.contains(architectureElement.getName()))
                 continue;
 
             scaleArchitectureElementWidth(architectureElement);
@@ -63,7 +66,9 @@ public class NetworkScaler {
     private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
         ArrayList expressions = getExpressions(architectureElement);
         int channelsIndex = getChannelsIndex(architectureElement.getName());
-        setValueInExpressions(expressions, channelsIndex, widthFactor);
+        MathNumberExpressionSymbol expressionSymbol = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(expressionSymbol);
+        expression.scale(this.widthFactor);
     }
 
     private static int getChannelsIndex(String architectureElementName) {
@@ -77,8 +82,34 @@ public class NetworkScaler {
     }
 
 
-    private void scaleResolution() {
+    private void scaleImageResolution() {
+        Map<String, Collection<Symbol>> enclosedSymbols = this.architecture.getSpannedScope().getEnclosingScope().get().getLocalSymbols();
+        ArrayList image = (ArrayList) enclosedSymbols.get("image");
+        EMAPortInstanceSymbol instanceSymbols = (EMAPortInstanceSymbol) image.get(0);
+        MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) instanceSymbols.getTypeReference();
+        ASTCommonMatrixType astType = (ASTCommonMatrixType)typeReference.getAstType();
+        ASTDimension dimensions = astType.getDimension();
+        changeImageDimension(dimensions);
+    }
 
+    private void changeImageDimension(ASTDimension dimensions){
+        //ASTNumberExpression channelDim = (ASTNumberExpression)dimensions.getMatrixDim(0)
+        MathNumberExpressionSymbol heightDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(1).getSymbol();
+        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(2).getSymbol();
+
+        MathNumberExpressionWrapper imageHeight = new MathNumberExpressionWrapper(heightDim);
+        MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
+
+        int newDimension = calculateNewImageDimension(imageHeight);
+
+        imageHeight.setValue(newDimension);
+        imageWidth.setValue(newDimension);
+    }
+
+    private int calculateNewImageDimension(MathNumberExpressionWrapper imageDim) {
+        float oldDimension = imageDim.getFloatValue();
+        int newDimension = Math.round(this.resolutionFactor*oldDimension);
+        return newDimension;
     }
 
     private List<ArchitectureElementSymbol> findArchitectureElements() {
@@ -91,16 +122,9 @@ public class NetworkScaler {
     private void scaleNetworkElementDepth(ArchitectureElementSymbol architectureElement) {
         ArrayList expressions = getExpressions(architectureElement);
         int depthIndex = 3;
-        setValueInExpressions(expressions, depthIndex, this.depthFactor);
-    }
-
-    private void setValueInExpressions(ArrayList expressions, int index, float scalingFactor) {
-        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(index); //directly fetching the residualBlock
-        long oldDividend = expression.getValue().getRealNumber().getDividend().longValue();
-        long newDivisor = 20; // Because a minimal step size of 0.05
-        long newDividend = oldDividend * (long)(scalingFactor * newDivisor);
-        Rational newValue = Rational.valueOf(newDividend, newDivisor);
-        expression.getValue().setRealNumber(newValue);
+        MathNumberExpressionSymbol expressionSymbol = (MathNumberExpressionSymbol) expressions.get(depthIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(expressionSymbol);
+        expression.scale(this.depthFactor);
     }
 
     private static ArrayList getExpressions(ArchitectureElementSymbol architectureElement) {
