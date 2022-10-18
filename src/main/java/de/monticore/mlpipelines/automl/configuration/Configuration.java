@@ -3,30 +3,26 @@ package de.monticore.mlpipelines.automl.configuration;
 public class Configuration {
 
     private PreprocessingConfig preprocessingConfig;
-    private String hyperparameterOptimizerConfig;
+    private HyperparameterOptConfig hyperparameterOptConfig;
     private EvaluationConfig evaluationConfig;
-    private NetworkConfig networkConfig;
     private InitialHyperparameters initialHyperparameters;
     private TrainAlgorithmConfig trainAlgorithmConfig;
 
     public Configuration(){
         this.preprocessingConfig = new PreprocessingConfig();
         this.evaluationConfig = new EvaluationConfig();
-        this.networkConfig = new NetworkConfig();
         this.initialHyperparameters = new InitialHyperparameters();
         this.trainAlgorithmConfig = new EfficientNetConfig();
     }
 
     public Configuration(PreprocessingConfig preprocessingConfig,
-                         String hyperparameterOptimizerConfig,
+                         HyperparameterOptConfig hyperparameterOptConfig,
                          EvaluationConfig evaluationConfig,
-                         NetworkConfig networkConfig,
                          InitialHyperparameters initialHyperparameters,
                          TrainAlgorithmConfig trainAlgorithmConfig) {
         this.preprocessingConfig = preprocessingConfig;
-        this.hyperparameterOptimizerConfig = hyperparameterOptimizerConfig;
+        this.hyperparameterOptConfig = hyperparameterOptConfig;
         this.evaluationConfig = evaluationConfig;
-        this.networkConfig = networkConfig;
         this.initialHyperparameters = initialHyperparameters;
         this.trainAlgorithmConfig = trainAlgorithmConfig;
     }
@@ -35,16 +31,12 @@ public class Configuration {
         return preprocessingConfig;
     }
 
-    public String getHyperparameterOptimizerConfig() {
-        return hyperparameterOptimizerConfig;
+    public HyperparameterOptConfig getHyperparameterOptConfig() {
+        return hyperparameterOptConfig;
     }
 
     public EvaluationConfig getEvaluationConfig() {
         return evaluationConfig;
-    }
-
-    public NetworkConfig getNetworkConfig() {
-        return networkConfig;
     }
 
     public InitialHyperparameters getInitialHyperparameters() {

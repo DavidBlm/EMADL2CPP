@@ -3,11 +3,77 @@ package de.monticore.mlpipelines.automl.configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.ScalingFactors;
 
 public class EfficientNetConfig extends TrainAlgorithmConfig{
-    public static final double FLOPS_CONDITION_VALUE = 2;
-    public static final ScalingFactors MIN_SCALING_FACTORS = new ScalingFactors(1, 1, 1);
-    public static final ScalingFactors MAX_SCALING_FACTORS = new ScalingFactors(2, 1.4f, 1.4f);
-    public static final ScalingFactors SCALING_FACTORS_STEP_SIZE = new ScalingFactors(0.1f, 0.1f, 0.1f);
-    public static final double maximum_image_width_and_height = 32;
-    public static final int minimum_image_width_and_height = 8;
-    public static final int phi = 1;
+    private double flopsConditionValue;
+
+    private ScalingFactors minScalingFactors;
+
+    private ScalingFactors maxScalingFactors;
+
+    private ScalingFactors scalingFactorsStepSize;
+
+    private int maximumImageWidthAndHeight;
+
+    private int minimumImageWidthAndHeight;
+
+    private int phi;
+
+    public EfficientNetConfig() {
+
+    }
+
+    public double getFlopsConditionValue() {
+        return flopsConditionValue;
+    }
+
+    public void setFlopsConditionValue(double flopsConditionValue) {
+        this.flopsConditionValue = flopsConditionValue;
+    }
+
+    public ScalingFactors getMinScalingFactors() {
+        return minScalingFactors;
+    }
+
+    public void setMinScalingFactors(ScalingFactors minScalingFactors) {
+        this.minScalingFactors = minScalingFactors;
+    }
+
+    public ScalingFactors getMaxScalingFactors() {
+        return maxScalingFactors;
+    }
+
+    public void setMaxScalingFactors(ScalingFactors maxScalingFactors) {
+        this.maxScalingFactors = maxScalingFactors;
+    }
+
+    public ScalingFactors getScalingFactorsStepSize() {
+        return scalingFactorsStepSize;
+    }
+
+    public void setScalingFactorsStepSize(ScalingFactors scalingFactorsStepSize) {
+        this.scalingFactorsStepSize = scalingFactorsStepSize;
+    }
+
+    public int getMaximumImageWidthAndHeight() {
+        return maximumImageWidthAndHeight;
+    }
+
+    public void setMaximumImageWidthAndHeight(int maximumImageWidthAndHeight) {
+        this.maximumImageWidthAndHeight = maximumImageWidthAndHeight;
+    }
+
+    public int getMinimumImageWidthAndHeight() {
+        return minimumImageWidthAndHeight;
+    }
+
+    public void setMinimumImageWidthAndHeight(int minimumImageWidthAndHeight) {
+        this.minimumImageWidthAndHeight = minimumImageWidthAndHeight;
+    }
+
+    public int getPhi() {
+        return phi;
+    }
+
+    public void setPhi(int phi) {
+        this.phi = phi;
+    }
 }
