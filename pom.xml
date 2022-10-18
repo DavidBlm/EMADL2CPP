@@ -16,7 +16,7 @@
         <!-- .. SE-Libraries .................................................. -->
         <emadl.version>0.4.6-SNAPSHOT</emadl.version>
         <CNNArch.version>0.4.10-SNAPSHOT</CNNArch.version>
-        <cnnarch-generator.version>0.4.11-SNAPSHOT</cnnarch-generator.version>
+        <cnnarch-generator.version>0.4.14-SNAPSHOT</cnnarch-generator.version>
         <cnnarch-mxnet-generator.version>0.4.8-SNAPSHOT</cnnarch-mxnet-generator.version>
         <cnnarch-caffe2-generator.version>0.4.8-SNAPSHOT</cnnarch-caffe2-generator.version>
         <cnnarch-tensorflow-generator.version>0.4.9-SNAPSHOT</cnnarch-tensorflow-generator.version>
