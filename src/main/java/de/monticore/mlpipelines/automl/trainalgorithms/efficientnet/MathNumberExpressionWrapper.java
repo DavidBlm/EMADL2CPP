@@ -7,7 +7,7 @@ public class MathNumberExpressionWrapper {
     private MathNumberExpressionSymbol number;
 
     public MathNumberExpressionWrapper(MathNumberExpressionSymbol numberSymbol) {
-        this.number = numberSymbol;
+        this.number = numberSymbol; 
     }
 
     public void setValue(int value){
