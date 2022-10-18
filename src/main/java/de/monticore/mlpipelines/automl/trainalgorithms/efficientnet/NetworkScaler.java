@@ -7,7 +7,6 @@ import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
 import de.monticore.lang.monticar.ts.references.MCASTTypeSymbolReference;
 import de.monticore.lang.monticar.types2._ast.ASTDimension;
 import de.monticore.symboltable.Symbol;
-import org.jscience.mathematics.number.Rational;
 
 import java.util.*;
 
@@ -25,7 +24,7 @@ public class NetworkScaler {
         if (this.architecture.getNetworkInstructions().isEmpty())
             return originalArchitecture;
 
-        scaleUsingFactors();
+        scaleDimensions();
         return getArchitectureSymbol();
     }
 
@@ -35,7 +34,7 @@ public class NetworkScaler {
         this.resolutionFactor = (float) Math.pow(scalingFactors.gamma, phi);
     }
 
-    private void scaleUsingFactors() {
+    private void scaleDimensions() {
         scaleDepth();
         scaleWidth();
         scaleResolution();
@@ -66,7 +65,7 @@ public class NetworkScaler {
     private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
         ArrayList expressions = getExpressions(architectureElement);
         int channelsIndex = getChannelsIndex(architectureElement.getName());
-        setValueInExpressions(expressions, channelsIndex, widthFactor);
+        scaleValueInExpressions(expressions, channelsIndex, widthFactor);
     }
 
     private static int getChannelsIndex(String architectureElementName) {
@@ -120,10 +119,10 @@ public class NetworkScaler {
     private void scaleNetworkElementDepth(ArchitectureElementSymbol architectureElement) {
         ArrayList expressions = getExpressions(architectureElement);
         int depthIndex = 3;
-        setValueInExpressions(expressions, depthIndex, this.depthFactor);
+        scaleValueInExpressions(expressions, depthIndex, this.depthFactor);
     }
 
-    private void setValueInExpressions(ArrayList expressions, int index, float scalingFactor) {
+    private void scaleValueInExpressions(ArrayList expressions, int index, float scalingFactor) {
         MathNumberExpressionSymbol expressionSymbol = (MathNumberExpressionSymbol) expressions.get(index);
         MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(expressionSymbol);
         float oldValue = expression.getFloatValue();
