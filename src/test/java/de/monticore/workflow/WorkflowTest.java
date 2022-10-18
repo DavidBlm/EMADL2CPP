@@ -8,6 +8,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -33,8 +36,11 @@ public class WorkflowTest extends TestCase {
     public void testExecuteSetsConfiguration() {
         AutoMLWorkflow workflow = createWorkflow();
         String configurationName = "configuration";
+
+        Map<String, String> confScmConfigMap = createConfScmMap();
+
         ArchitectureSymbol architecture = mock(ArchitectureSymbol.class);
-        workflow.execute(architecture, configurationName);
+        workflow.execute(architecture, confScmConfigMap);
         assertNotNull(workflow.getConfiguration());
     }
 
@@ -54,5 +60,18 @@ public class WorkflowTest extends TestCase {
         workflow.setConfFile2ConfigurationParser(parser);
 
         return workflow;
+    }
+
+    private Map<String, String> createConfScmMap() {
+        HashMap<String, String> confScmConfigMap = new HashMap<>();
+        confScmConfigMap.put("HyperparameterOptConf", "HyperparameterOpt");
+        confScmConfigMap.put("HyperparameterOptScm", "HyperparameterOpt");
+        confScmConfigMap.put("EvaluationCriteriaConf", "EvaluationCriteria");
+        confScmConfigMap.put("EvaluationCriteriaScm", "EvaluationCriteria");
+        confScmConfigMap.put("NetworkConf", "Network");
+        confScmConfigMap.put("NetworkScm", "Supervised");
+        confScmConfigMap.put("TrainAlgorithmConf", "EfficientNet");
+        confScmConfigMap.put("TrainAlgorithmScm", "EfficientNet");
+        return confScmConfigMap;
     }
 }
