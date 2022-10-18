@@ -39,6 +39,14 @@ public class MathNumberExpressionWrapperTest extends TestCase {
         assertEquals(1.0f, wrapper.getFloatValue(), 0.0001);
     }
 
+    public void testScale(){
+        MathNumberExpressionSymbol mathNumberExpressionSymbol = getMathNumberExpressionSymbol(2, 1);
+        MathNumberExpressionWrapper wrapper = new MathNumberExpressionWrapper(mathNumberExpressionSymbol);
+        float scalingFactor = 2;
+        wrapper.scale(scalingFactor);
+        assertEquals(4.0f, wrapper.getFloatValue(), 0.0001);
+    }
+
     private static MathNumberExpressionSymbol getMathNumberExpressionSymbol(int dividend, int divisor){
         Rational rational = Rational.valueOf(dividend, divisor);
         MathNumberExpressionSymbol mathNumberExpressionSymbol = new MathNumberExpressionSymbol(rational);

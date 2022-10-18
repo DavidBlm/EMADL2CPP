@@ -7,7 +7,7 @@ public class MathNumberExpressionWrapper {
     private MathNumberExpressionSymbol number;
 
     public MathNumberExpressionWrapper(MathNumberExpressionSymbol numberSymbol) {
-        this.number = numberSymbol; 
+        this.number = numberSymbol;
     }
 
     public void setValue(int value){
@@ -24,6 +24,12 @@ public class MathNumberExpressionWrapper {
         int dividend = Math.round(value * precision);
         Rational newValue = Rational.valueOf(dividend, precision);
         number.getValue().setRealNumber(newValue);
+    }
+
+    public void scale(float scalingFactor){
+        float oldValue = getFloatValue();
+        float newValue = oldValue * scalingFactor;
+        setValue(newValue);
     }
 
     public float getFloatValue(){
