@@ -1,18 +1,47 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
+import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import junit.framework.TestCase;
+import org.jscience.mathematics.number.Rational;
 
 public class MathNumberExpressionWrapperTest extends TestCase {
 
-    public void testSetValue() {
+    public void testConstructor(){
+        MathNumberExpressionSymbol mathNumberExpressionSymbol = getMathNumberExpressionSymbol(1, 1);
+        MathNumberExpressionWrapper wrapper = new MathNumberExpressionWrapper(mathNumberExpressionSymbol);
+        assertNotNull(wrapper);
     }
 
-    public void testTestSetValue() {
+    public void testSetValueInt() {
+        MathNumberExpressionSymbol mathNumberExpressionSymbol = getMathNumberExpressionSymbol(1, 1);
+        MathNumberExpressionWrapper wrapper = new MathNumberExpressionWrapper(mathNumberExpressionSymbol);
+        wrapper.setValue(2);
+        assertEquals(2, wrapper.getFloatValue(), 0.0001);
     }
 
-    public void testTestSetValue1() {
+    public void testTestSetValueFloat() {
+        MathNumberExpressionSymbol mathNumberExpressionSymbol = getMathNumberExpressionSymbol(1, 1);
+        MathNumberExpressionWrapper wrapper = new MathNumberExpressionWrapper(mathNumberExpressionSymbol);
+        wrapper.setValue(2.0f);
+        assertEquals(2.0f, wrapper.getFloatValue(), 0.0001);
+    }
+
+    public void testTestSetValueFloatWithPrecision() {
+        MathNumberExpressionSymbol mathNumberExpressionSymbol = getMathNumberExpressionSymbol(1, 1);
+        MathNumberExpressionWrapper wrapper = new MathNumberExpressionWrapper(mathNumberExpressionSymbol);
+        wrapper.setValue(2.0f, 100000);
+        assertEquals(2.0f, wrapper.getFloatValue(), 0.0001);
     }
 
     public void testGetFloatValue() {
+        MathNumberExpressionSymbol mathNumberExpressionSymbol = getMathNumberExpressionSymbol(1, 1);
+        MathNumberExpressionWrapper wrapper = new MathNumberExpressionWrapper(mathNumberExpressionSymbol);
+        assertEquals(1.0f, wrapper.getFloatValue(), 0.0001);
+    }
+
+    private static MathNumberExpressionSymbol getMathNumberExpressionSymbol(int dividend, int divisor){
+        Rational rational = Rational.valueOf(dividend, divisor);
+        MathNumberExpressionSymbol mathNumberExpressionSymbol = new MathNumberExpressionSymbol(rational);
+        return mathNumberExpressionSymbol;
     }
 }
