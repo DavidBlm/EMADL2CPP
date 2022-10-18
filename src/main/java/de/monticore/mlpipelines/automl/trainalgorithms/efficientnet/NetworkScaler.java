@@ -124,12 +124,11 @@ public class NetworkScaler {
     }
 
     private void setValueInExpressions(ArrayList expressions, int index, float scalingFactor) {
-        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(index); //directly fetching the residualBlock
-        long oldDividend = expression.getValue().getRealNumber().getDividend().longValue();
-        long newDivisor = 20; // Because a minimal step size of 0.05
-        long newDividend = oldDividend * (long)(scalingFactor * newDivisor);
-        Rational newValue = Rational.valueOf(newDividend, newDivisor);
-        expression.getValue().setRealNumber(newValue);
+        MathNumberExpressionSymbol expressionSymbol = (MathNumberExpressionSymbol) expressions.get(index);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(expressionSymbol);
+        float oldValue = expression.getFloatValue();
+        float newValue = oldValue * scalingFactor;
+        expression.setValue(newValue);
     }
 
     private static ArrayList getExpressions(ArchitectureElementSymbol architectureElement) {
