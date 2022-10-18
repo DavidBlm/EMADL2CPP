@@ -1,12 +1,15 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
+import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
+import de.monticore.lang.monticar.ts.references.MCASTTypeSymbolReference;
+import de.monticore.lang.monticar.types2._ast.ASTDimension;
+import de.monticore.symboltable.Symbol;
 import org.jscience.mathematics.number.Rational;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class NetworkScaler {
 
@@ -78,7 +81,33 @@ public class NetworkScaler {
 
 
     private void scaleResolution() {
+        Map<String, Collection<Symbol>> enclosedSymbols = this.architecture.getSpannedScope().getEnclosingScope().get().getLocalSymbols();
+        ArrayList image = (ArrayList) enclosedSymbols.get("image");
+        EMAPortInstanceSymbol instanceSymbols = (EMAPortInstanceSymbol) image.get(0);
+        MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) instanceSymbols.getTypeReference();
+        ASTCommonMatrixType astType = (ASTCommonMatrixType)typeReference.getAstType();
+        ASTDimension dimensions = astType.getDimension();
+        changeImageDimension(dimensions);
+    }
 
+    private void changeImageDimension(ASTDimension dimensions){
+        //ASTNumberExpression channelDim = (ASTNumberExpression)dimensions.getMatrixDim(0)
+        MathNumberExpressionSymbol heightDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(1).getSymbol();
+        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(2).getSymbol();
+
+        MathNumberExpressionWrapper imageHeight = new MathNumberExpressionWrapper(heightDim);
+        MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
+
+        int newDimension = calculateNewImageDimension(imageHeight);
+
+        imageHeight.setValue(newDimension);
+        imageWidth.setValue(newDimension);
+    }
+
+    private int calculateNewImageDimension(MathNumberExpressionWrapper imageDim) {
+        float oldDimension = imageDim.getFloatValue();
+        int newDimension = Math.round(this.resolutionFactor*oldDimension);
+        return newDimension;
     }
 
     private List<ArchitectureElementSymbol> findArchitectureElements() {
