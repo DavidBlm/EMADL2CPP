@@ -51,14 +51,33 @@ public abstract class AbstractConfigurationParser {
     private ModelPath getSchemaModelPath() {
         URL schemasResource = this.getClass().getClassLoader().getResource("schemas/");
         try {
-            FileSystem fileSystem = this.initFileSystem(schemasResource.toURI());
-            Path path = fileSystem.getPath(schemasResource.getPath());
+            Path path = getSchemaPath(schemasResource);
+
             ModelPath modelPath = new ModelPath(new Path[]{path});
             return modelPath;
-        } catch (URISyntaxException | IOException e) {
+        } catch (RuntimeException e) {
             Log.error(e.getMessage(), e);
             throw new GenerationAbortedException("Generation aborted due to errors in the configuration.");
         }
+    }
+
+    private Path getSchemaPath(URL schemasResource) {
+        try {
+            FileSystem fileSystem = this.initFileSystem(schemasResource.toURI());
+            String pathString = schemasResource.getPath();
+            if (isWindows())
+                pathString = pathString.substring(1);
+            Path path = fileSystem.getPath(pathString);
+            return path;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private boolean isWindows() {
+        return System.getProperty("os.name").toLowerCase().contains("win");
     }
 
     private SchemaDefinitionSymbol resolveSchemaDefinition(String modelName) {
@@ -69,7 +88,8 @@ public abstract class AbstractConfigurationParser {
         GlobalScope globalScope = new GlobalScope(modelPath, family);
         Optional<SchemaDefinitionSymbol> compilationUnit = globalScope.resolve(modelName, SchemaDefinitionSymbol.KIND);
         if (!compilationUnit.isPresent()) {
-            String message = String.format("Could not resolve schema definition for model '%s' in model path '%s'.", modelName, modelPath);
+            String message = String.format("Could not resolve schema definition for model '%s' in model path '%s'.",
+                    modelName, modelPath);
             Log.error(message);
             throw new RuntimeException(message);
         } else {
