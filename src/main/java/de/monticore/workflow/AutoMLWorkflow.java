@@ -8,8 +8,7 @@ import de.monticore.mlpipelines.parser.ConfFile2ConfigurationParser;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import static de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab.createSymTab;
+import java.util.Map;
 
 public class AutoMLWorkflow {
     private String resourcePath = "src/main/resources/";
@@ -17,21 +16,18 @@ public class AutoMLWorkflow {
     private Configuration configuration;
     private ConfFile2ConfigurationParser confFile2ConfigurationParser;
 
-    public void execute(ArchitectureSymbol architecture, String configFileName) {
+    public void execute(ArchitectureSymbol architecture, Map<String,String> confScmMap) {
         this.architecture = architecture;
-        this.configuration = loadConfig(configFileName);
+        this.configuration = loadConfig(confScmMap);
         TrainAlgorithmBuilder trainAlgorithmBuilder = new TrainAlgorithmBuilder();
         AutoMLPipeline pipeline = new AutoMLPipeline();
         pipeline.setTrainAlgorithmBuilder(trainAlgorithmBuilder);
         pipeline.train(architecture, configuration);
     }
 
-    private Configuration loadConfig(String modelName) {
-        Path resourcesPath = Paths.get(this.resourcePath);
-        if(this.confFile2ConfigurationParser == null) {
-            throw new RuntimeException("confFile2ConfigurationParser is null");
-        }
-        Configuration configuration = this.confFile2ConfigurationParser.getConfiguration(resourcesPath, modelName);
+    private Configuration loadConfig(Map<String,String> modelNames) {
+        Path resourcesPath = Paths.get(this.resourcePath + "Configuration");
+        Configuration configuration = this.confFile2ConfigurationParser.getConfiguration(resourcesPath, modelNames);
         return configuration;
     }
 
