@@ -4,7 +4,6 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
 
-import java.util.ArrayList;
 import java.util.List;
 
 // For at most n iterations:
@@ -22,15 +21,18 @@ import java.util.List;
 public class AdaNet extends TrainAlgorithm {
     int lastStepBestComponentsDepth = 1;
     private ArchitectureSymbol scaledArchitecture;
-    private CandidateSearch candidateSearch;
+    private CandidateFinder candidateFinder;
+    private ArchitectureSymbol currentArchitecture;
 
     public AdaNet() {
-        this.candidateSearch = new CandidateSearch();
+        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
+        this.candidateFinder = new CandidateFinder(candidateBuilder, componentFinder);
     }
 
-    public AdaNet(CandidateSearch candidateSearch) {
+    public AdaNet(CandidateFinder candidateFinder) {
         super();
-        this.candidateSearch = candidateSearch;
+        this.candidateFinder = candidateFinder;
     }
 
 
@@ -38,33 +40,33 @@ public class AdaNet extends TrainAlgorithm {
     public void train(ArchitectureSymbol startNetwork) {
         setStartNetwork(startNetwork);
         for (int i = 1; i < AdaNetConfig.MAX_ITERATIONS; i++) {
-            AdaNetComponent bestComponent = null;
-            List<AdaNetComponent> adanetComponents = generatePossibleComponents(startNetwork);
-            //call train for all components
-            bestComponent = selectBestComponent(startNetwork, adanetComponents);
-            addComponentToNetwork(bestComponent);
+            List<ArchitectureSymbol> candidates = candidateFinder.findCandidates(startNetwork,
+                    lastStepBestComponentsDepth);
+            ArchitectureSymbol bestCandidate = selectBestCandidate(startNetwork, candidates);
+            if (bestCandidate == null) {
+                break;
+            }
+            currentArchitecture = bestCandidate;
         }
     }
 
-    private List<AdaNetComponent> generatePossibleComponents(ArchitectureSymbol startNetwork) {
-        List<AdaNetComponent> generatedPossibleComponents = new ArrayList<>();
-        int minDepth = lastStepBestComponentsDepth;
-        int maxDepth = minDepth + 1;
-        for (int i = minDepth; i < maxDepth + 1; i++) {
-            AdaNetComponent component = new AdaNetComponent(i);
-            generatedPossibleComponents.add(component);
-        }
-
-        return generatedPossibleComponents;
+    @Override
+    public void setStartNetwork(ArchitectureSymbol startNetwork) {
+        super.setStartNetwork(startNetwork);
+        this.currentArchitecture = startNetwork;
     }
 
-    private AdaNetComponent selectBestComponent(
+    /*
+     * TODO: call train for all components
+     */
+    private ArchitectureSymbol selectBestCandidate(
             ArchitectureSymbol startNetwork,
-            List<AdaNetComponent> adanetComponents) {
-        AdaNetComponent bestComponent = adanetComponents.get(0);
+            List<ArchitectureSymbol> candidates) {
+        return candidates.get(0);
+    }
 
-        //check the best component
-        return bestComponent;
+    private void addComponentToNetwork(AdaNetComponent component) {
+
     }
 
     private void trainAndEvaluateNetwork(ArchitectureSymbol startNetwork) {
@@ -72,10 +74,6 @@ public class AdaNet extends TrainAlgorithm {
     }
 
     private void removeComponentFromNetwork(ArchitectureSymbol startNetwork) {
-
-    }
-
-    private void addComponentToNetwork(AdaNetComponent component) {
 
     }
 }
