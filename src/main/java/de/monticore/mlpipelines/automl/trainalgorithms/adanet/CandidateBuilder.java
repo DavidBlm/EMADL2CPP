@@ -13,7 +13,7 @@ public class CandidateBuilder {
         deepObjectCloner = new DeepObjectCloner();
     }
 
-    public ArchitectureSymbol createCandidate(ArchitectureSymbol architecture, AdaNetComponent component) {
+    public ArchitectureSymbol createCandidate(AdaNetComponent component) {
         this.architecture = deepObjectCloner.clone(architecture);
         this.component = component;
 

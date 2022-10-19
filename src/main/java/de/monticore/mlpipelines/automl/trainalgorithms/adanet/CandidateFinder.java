@@ -32,15 +32,5 @@ public class CandidateFinder {
         return candidates;
     }
 
-    public int getMinDepth() {
-        return this.minDepth;
-    }
 
-    public CandidateBuilder getCandidateBuilder() {
-        return this.candidateBuilder;
-    }
-
-    public AdaNetComponentFinder getComponentFinder() {
-        return this.componentFinder;
-    }
 }
