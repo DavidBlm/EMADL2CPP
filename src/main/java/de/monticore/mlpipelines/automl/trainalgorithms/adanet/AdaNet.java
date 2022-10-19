@@ -24,6 +24,10 @@ public class AdaNet extends TrainAlgorithm {
     private ArchitectureSymbol scaledArchitecture;
     private CandidateSearch candidateSearch;
 
+    public AdaNet() {
+        this.candidateSearch = new CandidateSearch();
+    }
+
     public AdaNet(CandidateSearch candidateSearch) {
         super();
         this.candidateSearch = candidateSearch;
@@ -36,9 +40,8 @@ public class AdaNet extends TrainAlgorithm {
         for (int i = 1; i < AdaNetConfig.MAX_ITERATIONS; i++) {
             AdaNetComponent bestComponent = null;
             List<AdaNetComponent> adanetComponents = generatePossibleComponents(startNetwork);
-            bestComponent = selectBestComponent(startNetwork, adanetComponents);
             //call train for all components
-
+            bestComponent = selectBestComponent(startNetwork, adanetComponents);
             addComponentToNetwork(bestComponent);
         }
     }
