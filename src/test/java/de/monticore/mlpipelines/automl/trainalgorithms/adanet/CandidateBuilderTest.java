@@ -17,6 +17,4 @@ public class CandidateBuilderTest extends TestCase {
         ArchitectureSymbol candidate = candidateBuilder.createCandidate(architecture, component);
         assertNotNull(candidate);
     }
-
-
 }
