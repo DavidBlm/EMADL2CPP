@@ -19,6 +19,10 @@ public class AdaNetComponent {
         return this.numberLayers;
     }
 
+    public void setNumberLayers(int numberLayers) {
+        this.numberLayers = numberLayers;
+    }
+
     public List<AdaNetComponent> getPreviousComponents() {
         return this.previousComponents;
     }

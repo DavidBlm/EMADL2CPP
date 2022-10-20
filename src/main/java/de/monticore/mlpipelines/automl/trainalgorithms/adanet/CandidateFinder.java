@@ -32,5 +32,11 @@ public class CandidateFinder {
         return candidates;
     }
 
+    public CandidateBuilder getCandidateBuilder() {
+        return candidateBuilder;
+    }
 
+    public AdaNetComponentFinder getComponentFinder() {
+        return componentFinder;
+    }
 }
