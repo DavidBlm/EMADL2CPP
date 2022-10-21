@@ -1,27 +1,20 @@
 package de.monticore.mlpipelines.automl.configuration;
 
-public class TrainAlgorithmConfig {
+public abstract class TrainAlgorithmConfig {
     //private class TrainAlgorithm;
-    public int numEpochs;
     public boolean saveTrainedArchitecture;
     public String architectureSavePath;
     public String trainAlgorithmName;
     private String trainPipelineName;
 
     public TrainAlgorithmConfig() {
-        trainAlgorithmName = "EfficientNet";
-        trainPipelineName = "Pytorch";
-        numEpochs = 10;
-        saveTrainedArchitecture = false;
-        architectureSavePath = "";
     }
 
-    public int getNumEpochs() {
-        return numEpochs;
-    }
-
-    public void setNumEpochs(int numEpochs) {
-        this.numEpochs = numEpochs;
+    public TrainAlgorithmConfig(boolean saveTrainedArchitecture, String architectureSavePath, String trainAlgorithmName, String trainPipelineName) {
+        this.saveTrainedArchitecture = saveTrainedArchitecture;
+        this.architectureSavePath = architectureSavePath;
+        this.trainAlgorithmName = trainAlgorithmName;
+        this.trainPipelineName = trainPipelineName;
     }
 
     public boolean isSaveTrainedArchitecture() {

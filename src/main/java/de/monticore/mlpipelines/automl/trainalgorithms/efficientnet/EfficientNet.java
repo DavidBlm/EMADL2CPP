@@ -65,6 +65,6 @@ public class EfficientNet extends TrainAlgorithm {
 
     private void scaleNetwork() {
         EfficientNetConfig config = getTrainConfiguration();
-        this.scaledArchitecture = this.networkScaler.scale(getStartNetwork(), this.scalingFactors, config.phi);
+        this.scaledArchitecture = this.networkScaler.scale(getStartNetwork(), this.scalingFactors, config.getPhi());
     }
 }

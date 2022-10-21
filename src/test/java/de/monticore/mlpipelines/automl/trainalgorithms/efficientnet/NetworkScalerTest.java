@@ -1,4 +1,5 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
+
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
@@ -13,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -125,6 +125,24 @@ public class NetworkScalerTest extends TestCase {
     }
 
     @Test
+    public void testScaleDepthRound() {
+        ScalingFactors scalingFactors = new ScalingFactors(1.2, 1, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol residualBlock1 = architectureElements.get(2);
+        ArchitectureElementSymbol residualBlock2 = architectureElements.get(4);
+        double residualBlock1Depth = getValueFromElement(residualBlock1, 3);
+        double residualBlock2Depth = getValueFromElement(residualBlock2, 3);
+        double expectedDepth = 5;
+
+        assertEquals(expectedDepth, residualBlock1Depth, 0.0001);
+        assertEquals(expectedDepth, residualBlock2Depth, 0.0001);
+    }
+
+    @Test
     public void testScaleWidthResidualBlocks() {
         ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
         int phi = 1;
@@ -145,7 +163,27 @@ public class NetworkScalerTest extends TestCase {
     }
 
     @Test
-    public void testScaleWidthReductionBlocks(){
+    public void testScaleWidthResidualBlocksRound() {
+        ScalingFactors scalingFactors = new ScalingFactors(1, 1.1, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol residualBlock1 = architectureElements.get(2);
+        ArchitectureElementSymbol residualBlock2 = architectureElements.get(4);
+        double residualBlock1Width = getValueFromElement(residualBlock1, 5);
+        double residualBlock2Width = getValueFromElement(residualBlock2, 5);
+
+        double expectedResidualWidth1 = 53;
+        double expectedResidualWidth2 = 106;
+
+        assertEquals(expectedResidualWidth1, residualBlock1Width, 0.0001);
+        assertEquals(expectedResidualWidth2, residualBlock2Width, 0.0001);
+    }
+
+    @Test
+    public void testScaleWidthReductionBlocks() {
         ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
         int phi = 1;
 
@@ -171,13 +209,32 @@ public class NetworkScalerTest extends TestCase {
         ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
         ASTDimension dimensions = getAstDimension(scaledArch);
         MathNumberExpressionSymbol heightDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(1).getSymbol();
-        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(2).getSymbol();
+        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol) dimensions.getMatrixDim(2).getSymbol();
 
         MathNumberExpressionWrapper imageHeight = new MathNumberExpressionWrapper(heightDim);
         MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
 
         float expectedHeight = 32;
         float expectedWidth = 32;
+        assertEquals(expectedHeight, imageHeight.getFloatValue(), 0.0001);
+        assertEquals(expectedWidth, imageWidth.getFloatValue(), 0.0001);
+    }
+
+    @Test
+    public void testScaleImageResolutionRound() {
+        ScalingFactors scalingFactors = new ScalingFactors(1, 1, 1.1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+        ASTDimension dimensions = getAstDimension(scaledArch);
+        MathNumberExpressionSymbol heightDim = (MathNumberExpressionSymbol) dimensions.getMatrixDim(1).getSymbol();
+        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol) dimensions.getMatrixDim(2).getSymbol();
+
+        MathNumberExpressionWrapper imageHeight = new MathNumberExpressionWrapper(heightDim);
+        MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
+
+        float expectedHeight = 18;
+        float expectedWidth = 18;
         assertEquals(expectedHeight, imageHeight.getFloatValue(), 0.0001);
         assertEquals(expectedWidth, imageWidth.getFloatValue(), 0.0001);
     }
@@ -190,7 +247,7 @@ public class NetworkScalerTest extends TestCase {
         ArrayList image = (ArrayList) enclosedSymbols.get("image");
         EMAPortInstanceSymbol instanceSymbols = (EMAPortInstanceSymbol) image.get(0);
         MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) instanceSymbols.getTypeReference();
-        ASTCommonMatrixType astType = (ASTCommonMatrixType)typeReference.getAstType();
+        ASTCommonMatrixType astType = (ASTCommonMatrixType) typeReference.getAstType();
         ASTDimension dimensions = astType.getDimension();
         return dimensions;
     }

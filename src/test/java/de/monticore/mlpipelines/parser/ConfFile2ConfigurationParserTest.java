@@ -7,17 +7,17 @@ import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 public class ConfFile2ConfigurationParserTest extends TestCase {
     private Path modelPath;
-    private String modelName;
     private ConfFile2ConfigurationParser parser;
     private Configuration configuration;
-    private String hyperparameterOptimizerConfig;
+    private HyperparameterOptConfig hyperparameterOptConfig;
     private PreprocessingConfig preprocessingConfig;
     private EvaluationConfig evaluationConfig;
-    private NetworkConfig networkConfig;
     private InitialHyperparameters initialHyperparameters;
     private Hashtable<String, Object> optimizerConfig;
     private TrainAlgorithmConfig trainAlgorithmConfig;
@@ -25,15 +25,14 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
     @Before
     public void setUp() throws Exception {
         modelPath = Paths.get("src/test/resources/models/automl");
-        modelName = "AutoMLExample.conf";
+        Map<String, String> confScmConfigMap = createConfScmMap();
 
         parser = new ConfFile2ConfigurationParser();
-        configuration = parser.getConfiguration(modelPath, modelName);
+        configuration = parser.getConfiguration(modelPath, confScmConfigMap);
 
         preprocessingConfig =  configuration.getPreprocessingConfig();
-        hyperparameterOptimizerConfig = configuration.getHyperparameterOptimizerConfig();
+        hyperparameterOptConfig = configuration.getHyperparameterOptConfig();
         evaluationConfig = configuration.getEvaluationConfig();
-        networkConfig = configuration.getNetworkConfig();
         initialHyperparameters = configuration.getInitialHyperparameters();
         optimizerConfig  = initialHyperparameters.getOptimizer();
         trainAlgorithmConfig = configuration.getTrainAlgorithmConfig();
@@ -56,12 +55,12 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
 
     @Test
     public void testDataAugmentation() {
-        assertTrue(preprocessingConfig.getDataAugmentation());
+        assertFalse(preprocessingConfig.getDataAugmentation());
     }
 
     @Test
-    public void testHyperparameterOptimizerConfig() {
-        assertEquals(hyperparameterOptimizerConfig, "SA");
+    public void testHyperparameterOptConfig() {
+        assertEquals(hyperparameterOptConfig.getOptimizer(), "SA");
     }
 
     @Test
@@ -72,11 +71,6 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
     @Test
     public void testAcceptanceRate() {
         assertEquals(evaluationConfig.getAcceptanceRate(), 0.9);
-    }
-
-    @Test
-    public void testNetworkConfig() {
-        assertEquals(networkConfig.getNetworkPath(), "");
     }
 
     @Test
@@ -130,11 +124,6 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
     }
 
     @Test
-    public void testTrainAlgorithmConfigNumEpochsIs1(){
-        assertEquals(trainAlgorithmConfig.getNumEpochs(), 1);
-    }
-
-    @Test
     public void testTrainAlgorithmConfigNotSaveTrainedArchitecture(){
         assertFalse(trainAlgorithmConfig.isSaveTrainedArchitecture());
     }
@@ -142,5 +131,18 @@ public class ConfFile2ConfigurationParserTest extends TestCase {
     @Test
     public void testTrainAlgorithmConfigArchitectureSavePathIsEmpty(){
         assertEquals(trainAlgorithmConfig.getArchitectureSavePath(), "");
+    }
+
+    private Map<String, String> createConfScmMap() {
+        HashMap<String, String> confScmConfigMap = new HashMap<>();
+        confScmConfigMap.put("HyperparameterOptConf", "HyperparameterOpt");
+        confScmConfigMap.put("HyperparameterOptScm", "HyperparameterOpt");
+        confScmConfigMap.put("EvaluationCriteriaConf", "EvaluationCriteria");
+        confScmConfigMap.put("EvaluationCriteriaScm", "EvaluationCriteria");
+        confScmConfigMap.put("NetworkConf", "Network");
+        confScmConfigMap.put("NetworkScm", "Supervised");
+        confScmConfigMap.put("TrainAlgorithmConf", "EfficientNet");
+        confScmConfigMap.put("TrainAlgorithmScm", "EfficientNet");
+        return confScmConfigMap;
     }
 }
