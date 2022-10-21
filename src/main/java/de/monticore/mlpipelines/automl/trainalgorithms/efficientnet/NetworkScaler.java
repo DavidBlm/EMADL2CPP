@@ -66,8 +66,8 @@ public class NetworkScaler {
     private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
         ArrayList expressions = getExpressions(architectureElement);
         int channelsIndex = getChannelsIndex(architectureElement.getName());
-        MathNumberExpressionSymbol expressionSymbol = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
-        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(expressionSymbol);
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
         expression.scaleRound(this.widthFactor);
     }
 
@@ -120,10 +120,10 @@ public class NetworkScaler {
     }
 
     private void scaleNetworkElementDepth(ArchitectureElementSymbol architectureElement) {
-        ArrayList expressions = getExpressions(architectureElement);
-        int depthIndex = 3;
-        MathNumberExpressionSymbol expressionSymbol = (MathNumberExpressionSymbol) expressions.get(depthIndex);
-        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(expressionSymbol);
+        ArrayList symbolExpressions = getExpressions(architectureElement);
+        int depthIndex = 3; //MathNumberExpressionSymbol at index 3 needs to be changed
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(depthIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
         expression.scaleRound(this.depthFactor);
     }
 
