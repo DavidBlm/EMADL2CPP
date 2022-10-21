@@ -66,7 +66,7 @@ public abstract class AbstractConfigurationParser {
             FileSystem fileSystem = this.initFileSystem(schemasResource.toURI());
             String pathString = schemasResource.getPath();
             if (isWindows())
-                pathString = pathString.substring(1);
+                pathString = pathString.substring(6);
             Path path = fileSystem.getPath(pathString);
             return path;
         } catch (IOException e) {

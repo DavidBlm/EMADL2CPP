@@ -26,13 +26,19 @@ public class MathNumberExpressionWrapper {
         number.getValue().setRealNumber(newValue);
     }
 
-    public void scale(float scalingFactor){
+    public void scale(float scalingFactor) {
         float oldValue = getFloatValue();
         float newValue = oldValue * scalingFactor;
         setValue(newValue);
     }
 
-    public float getFloatValue(){
+    public void scaleRound(float scalingFactor) {
+        float oldValue = getFloatValue();
+        int newValue = Math.round(oldValue * scalingFactor);
+        setValue(newValue);
+    }
+
+    public float getFloatValue() {
         float dividend = number.getValue().getRealNumber().getDividend().floatValue();
         float divisor = number.getValue().getRealNumber().getDivisor().floatValue();
         return dividend / divisor;
