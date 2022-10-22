@@ -1,5 +1,7 @@
 package de.monticore.mlpipelines.automl;
 
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.AdaNet;
 import junit.framework.TestCase;
 
@@ -11,5 +13,8 @@ public class AdaNetTest extends TestCase {
     }
 
     public void testTrain() {
+        AdaNet adanet = new AdaNet();
+        ArchitectureSymbol architectureSymbol = ModelLoader.loadAdaNet();
+        adanet.execute(architectureSymbol);
     }
 }

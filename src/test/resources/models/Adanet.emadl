@@ -4,6 +4,11 @@ component Adanet<classes=10, imageSize=32>{
 
     implementation CNN {
         image ->
+        (
+            FullyConnected(units=classes)
+        |
+            FullyConnected(units=classes)
+        ) ->
         FullyConnected(units=classes) ->
         predictions;
     }

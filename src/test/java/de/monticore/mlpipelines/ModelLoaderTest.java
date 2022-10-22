@@ -1,12 +1,8 @@
 package de.monticore.mlpipelines;
 
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.*;
-import de.monticore.symboltable.Scope;
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import junit.framework.TestCase;
 import org.junit.Test;
-
-import static de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab.createSymTab;
 
 public class ModelLoaderTest extends TestCase {
 
@@ -19,8 +15,13 @@ public class ModelLoaderTest extends TestCase {
         assertNotNull(arch);
     }
 
-    public void testLoadEfficientnetB0(){
+    public void testLoadEfficientnetB0() {
         ArchitectureSymbol arch = ModelLoader.loadEfficientnetB0();
+        assertNotNull(arch);
+    }
+
+    public void testLoadAdaNet() {
+        ArchitectureSymbol arch = ModelLoader.loadAdaNet();
         assertNotNull(arch);
     }
 }

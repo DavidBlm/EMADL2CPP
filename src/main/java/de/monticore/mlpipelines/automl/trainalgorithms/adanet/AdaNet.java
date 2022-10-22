@@ -23,6 +23,7 @@ public class AdaNet extends TrainAlgorithm {
     private ArchitectureSymbol scaledArchitecture;
     private CandidateFinder candidateFinder;
     private ArchitectureSymbol currentArchitecture;
+    private boolean stopAlgorithm = false;
 
     public AdaNet() {
         CandidateBuilder candidateBuilder = new CandidateBuilder();
@@ -37,43 +38,37 @@ public class AdaNet extends TrainAlgorithm {
 
 
     @Override
-    public void train(ArchitectureSymbol startNetwork) {
+    public void execute(ArchitectureSymbol startNetwork) {
         setStartNetwork(startNetwork);
         for (int i = 1; i < AdaNetConfig.MAX_ITERATIONS; i++) {
-            List<ArchitectureSymbol> candidates = candidateFinder.findCandidates(startNetwork,
-                    lastStepBestComponentsDepth);
-            ArchitectureSymbol bestCandidate = selectBestCandidate(startNetwork, candidates);
-            if (bestCandidate == null) {
+            executeIteration();
+            if (stopAlgorithm) {
                 break;
             }
-            currentArchitecture = bestCandidate;
         }
+    }
+
+    private void executeIteration() {
+        List<ArchitectureSymbol> candidates = candidateFinder.findCandidates(currentArchitecture,
+                lastStepBestComponentsDepth);
+        ArchitectureSymbol bestCandidate = selectBestCandidate(candidates);
+        if (bestCandidate == null) {
+            return;
+        }
+        currentArchitecture = bestCandidate;
+    }
+
+    private ArchitectureSymbol selectBestCandidate(List<ArchitectureSymbol> candidates) {
+        // train all candidates
+        // evaluate all candidates
+        // select best candidate
+        // return best candidate
+        return candidates.get(0);
     }
 
     @Override
     public void setStartNetwork(ArchitectureSymbol startNetwork) {
         super.setStartNetwork(startNetwork);
         this.currentArchitecture = startNetwork;
-    }
-
-    /*
-     * TODO: call train for all components
-     */
-    private ArchitectureSymbol selectBestCandidate(
-            ArchitectureSymbol startNetwork,
-            List<ArchitectureSymbol> candidates) {
-        return candidates.get(0);
-    }
-
-    private void addComponentToNetwork(AdaNetComponent component) {
-
-    }
-
-    private void trainAndEvaluateNetwork(ArchitectureSymbol startNetwork) {
-        // Call train pipeline
-    }
-
-    private void removeComponentFromNetwork(ArchitectureSymbol startNetwork) {
-
     }
 }

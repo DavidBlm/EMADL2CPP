@@ -1,14 +1,10 @@
 package de.monticore.mlpipelines.automl;
 
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
-import de.monticore.symboltable.Scope;
-
-import static de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab.createSymTab;
 
 public class AutoMLPipeline extends Pipeline {
     private Configuration configuration;
@@ -22,12 +18,12 @@ public class AutoMLPipeline extends Pipeline {
     }
 
     @Override
-    public void train(ArchitectureSymbol architecture, Configuration configuration) {
+    public void execute(ArchitectureSymbol architecture, Configuration configuration) {
         this.architecture = architecture;
         this.configuration = configuration;
 
         loadTrainAlgorithm();
-        trainAlgorithm.train(architecture);
+        trainAlgorithm.execute(architecture);
     }
 
     public void loadTrainAlgorithm() {

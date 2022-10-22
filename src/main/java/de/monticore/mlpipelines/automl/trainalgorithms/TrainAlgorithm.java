@@ -2,7 +2,6 @@ package de.monticore.mlpipelines.automl.trainalgorithms;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
-import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 
 public abstract class TrainAlgorithm {
@@ -11,7 +10,7 @@ public abstract class TrainAlgorithm {
     private Pipeline trainPipeline;
     private ArchitectureSymbol startNetwork;
 
-    public abstract void train(ArchitectureSymbol startNetwork);
+    public abstract void execute(ArchitectureSymbol startNetwork);
 
     public <T extends TrainAlgorithmConfig> T getTrainConfiguration() {
         return (T) trainConfiguration;

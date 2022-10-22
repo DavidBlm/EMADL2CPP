@@ -16,9 +16,16 @@ public class ModelLoader {
         return arch;
     }
 
-    public static ArchitectureSymbol loadEfficientnetB0(){
+    public static ArchitectureSymbol loadEfficientnetB0() {
         String modelFolderPath = "src/test/resources/models";
         String modelName = "efficientNetB0";
+
+        return load(modelFolderPath, modelName);
+    }
+
+    public static ArchitectureSymbol loadAdaNet() {
+        String modelFolderPath = "src/test/resources/models";
+        String modelName = "adanet";
 
         return load(modelFolderPath, modelName);
     }
