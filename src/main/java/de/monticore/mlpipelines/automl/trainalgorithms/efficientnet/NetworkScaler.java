@@ -66,9 +66,9 @@ public class NetworkScaler {
     private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
         ArrayList expressions = getExpressions(architectureElement);
         int channelsIndex = getChannelsIndex(architectureElement.getName());
-        MathNumberExpressionSymbol expressionSymbol = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
-        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(expressionSymbol);
-        expression.scale(this.widthFactor);
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
+        expression.scaleRound(this.widthFactor);
     }
 
     private static int getChannelsIndex(String architectureElementName) {
@@ -100,15 +100,15 @@ public class NetworkScaler {
         MathNumberExpressionWrapper imageHeight = new MathNumberExpressionWrapper(heightDim);
         MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
 
-        int newDimension = calculateNewImageDimension(imageHeight);
+        int newDimension = roundMathNumberExpressionToInt(imageHeight);
 
         imageHeight.setValue(newDimension);
         imageWidth.setValue(newDimension);
     }
 
-    private int calculateNewImageDimension(MathNumberExpressionWrapper imageDim) {
+    private int roundMathNumberExpressionToInt(MathNumberExpressionWrapper imageDim) {
         float oldDimension = imageDim.getFloatValue();
-        int newDimension = Math.round(this.resolutionFactor*oldDimension);
+        int newDimension = Math.round(this.resolutionFactor * oldDimension);
         return newDimension;
     }
 
@@ -120,11 +120,11 @@ public class NetworkScaler {
     }
 
     private void scaleNetworkElementDepth(ArchitectureElementSymbol architectureElement) {
-        ArrayList expressions = getExpressions(architectureElement);
-        int depthIndex = 3;
-        MathNumberExpressionSymbol expressionSymbol = (MathNumberExpressionSymbol) expressions.get(depthIndex);
-        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(expressionSymbol);
-        expression.scale(this.depthFactor);
+        ArrayList symbolExpressions = getExpressions(architectureElement);
+        int depthIndex = 3; //MathNumberExpressionSymbol at index 3 needs to be changed
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(depthIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
+        expression.scaleRound(this.depthFactor);
     }
 
     private static ArrayList getExpressions(ArchitectureElementSymbol architectureElement) {

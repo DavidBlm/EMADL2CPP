@@ -23,7 +23,7 @@ public class ScalingFactorsGridSearchTest extends TestCase {
     @Before
     public void setUp() {
         architecture = new ArchitectureSymbol();
-        configuration = new EfficientNetConfig();
+        configuration = createEfficientNetConfig();
         pythonPipeline = mock(PythonPipeline.class);
         NetworkScaler networkScaler = mock(NetworkScaler.class);
         scalingFactorsGridSearch = new ScalingFactorsGridSearch(architecture, configuration, pythonPipeline, networkScaler);
@@ -48,5 +48,23 @@ public class ScalingFactorsGridSearchTest extends TestCase {
         assertEquals(1.0, result.alpha, 0.001);
         assertEquals(1.0, result.beta, 0.001);
         assertEquals(1.0, result.gamma, 0.001);
+    }
+
+    private EfficientNetConfig createEfficientNetConfig() {
+        EfficientNetConfig config = new EfficientNetConfig();
+        config.setSaveTrainedArchitecture(false);
+        config.setArchitectureSavePath("");
+        config.setTrainAlgorithmName("EfficientNet");
+        config.setTrainPipelineName("Pytorch");
+
+        config.setFlopsConditionValue(2.0);
+        config.setMinScalingFactors(new ScalingFactors(1.0, 1.0, 1.0));
+        config.setMaxScalingFactors(new ScalingFactors(2.0, 1.4, 1.4));
+        config.setScalingFactorsStepSize(new ScalingFactors(0.1, 0.1, 0.1));
+        config.setMaximumImageWidthAndHeight(32);
+        config.setMinimumImageWidthAndHeight(8);
+        config.setPhi(1);
+
+        return config;
     }
 }

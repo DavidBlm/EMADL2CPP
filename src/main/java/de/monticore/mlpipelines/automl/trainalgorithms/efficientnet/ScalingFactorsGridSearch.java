@@ -29,13 +29,13 @@ public class ScalingFactorsGridSearch {
     public ScalingFactors findScalingFactors() {
         initVariables();
 
-        for (float gamma = EfficientNetConfig.MIN_SCALING_FACTORS.gamma;
-             gamma <= EfficientNetConfig.MAX_SCALING_FACTORS.gamma;
-             gamma += EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.gamma) {
+        for (double gamma = trainConfig.getMinScalingFactors().gamma;
+             gamma <= trainConfig.getMaxScalingFactors().gamma;
+             gamma += trainConfig.getScalingFactorsStepSize().gamma) {
 
-            for (float beta = EfficientNetConfig.MIN_SCALING_FACTORS.beta;
-                 beta <= EfficientNetConfig.MAX_SCALING_FACTORS.beta;
-                 beta += EfficientNetConfig.SCALING_FACTORS_STEP_SIZE.beta) {
+            for (double beta = trainConfig.getMinScalingFactors().beta;
+                 beta <= trainConfig.getMaxScalingFactors().beta;
+                 beta += trainConfig.getScalingFactorsStepSize().beta) {
 
                 float alpha = alphaFromFlopsCondition(beta, gamma);
                 this.checkScalingFactors(new ScalingFactors(alpha, beta, gamma));
@@ -46,17 +46,16 @@ public class ScalingFactorsGridSearch {
     }
 
     private float alphaFromFlopsCondition(double beta, double gamma) {
-        float foundAlpha = (float) (EfficientNetConfig.FLOPS_CONDITION_VALUE / Math.pow(beta * gamma, 2));
+        float foundAlpha = (float) (trainConfig.getFlopsConditionValue() / Math.pow(beta * gamma, 2));
         return foundAlpha;
     }
 
     private void checkScalingFactors(ScalingFactors scalingFactors) {
-        if (scalingFactors.alpha < EfficientNetConfig.MIN_SCALING_FACTORS.alpha) {
+        if (scalingFactors.alpha < trainConfig.getMinScalingFactors().alpha) {
             return;
         }
 
-        int phi = 1;
-        ArchitectureSymbol scaledArchitecture = this.networkScaler.scale(this.architecture, scalingFactors, phi);
+        ArchitectureSymbol scaledArchitecture = this.networkScaler.scale(this.architecture, scalingFactors, this.trainConfig.getPhi());
         Configuration pipelineConfig = getConfigurationFromTrainConfig(this.trainConfig);
         trainPipeline.train(scaledArchitecture, pipelineConfig);
         checkIfScalingFactorsAreBetterThanBest(scalingFactors);
