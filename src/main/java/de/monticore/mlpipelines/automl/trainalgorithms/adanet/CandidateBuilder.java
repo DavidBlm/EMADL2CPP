@@ -14,7 +14,7 @@ public class CandidateBuilder {
     }
 
     public ArchitectureSymbol createCandidate(ArchitectureSymbol architecture, AdaNetComponent component) {
-        this.architecture = cloner.shallowClone(architecture);
+        this.architecture = cloner.deepClone(architecture);
         this.component = component;
 
         return architecture;
