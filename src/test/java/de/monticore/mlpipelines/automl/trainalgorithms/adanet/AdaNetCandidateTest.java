@@ -18,6 +18,13 @@ public class AdaNetCandidateTest extends TestCase {
         assertNotNull(adanetCandidate);
     }
 
+    public void testConstructorCreatesEmptyPreviousComponents() {
+        AdaNetComponent component = new AdaNetComponent(1);
+        AdaNetCandidate adanetCandidate = new AdaNetCandidate(component, null);
+        assertNotNull(adanetCandidate.getPreviousComponents());
+        assertEquals(0, adanetCandidate.getPreviousComponents().size());
+    }
+
     public void testGetComponent() {
         AdaNetComponent component = new AdaNetComponent(1);
         AdaNetCandidate adanetCandidate = new AdaNetCandidate(component, null);

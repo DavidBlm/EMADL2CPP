@@ -1,40 +1,48 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class CandidateFinder {
-    private final CandidateBuilder candidateBuilder;
     private final AdaNetComponentFinder componentFinder;
     private int minDepth;
 
     public CandidateFinder() {
-        this.candidateBuilder = new CandidateBuilder();
         this.componentFinder = new AdaNetComponentFinder();
         this.minDepth = 1;
     }
 
-    public CandidateFinder(CandidateBuilder candidateBuilder, AdaNetComponentFinder componentFinder) {
-        this.candidateBuilder = candidateBuilder;
+    public CandidateFinder(AdaNetComponentFinder componentFinder) {
         this.componentFinder = componentFinder;
     }
 
-    public List<ArchitectureSymbol> findCandidates(ArchitectureSymbol architecture, int minComponentDepth) {
-        this.minDepth = minComponentDepth;
+    public List<AdaNetCandidate> findCandidates(AdaNetCandidate currentCandidate) {
+        this.minDepth = currentCandidate.getComponent().getNumberLayers();
+        List<AdaNetComponent> adanetComponents = componentFinder.findComponents(minDepth);
+        List<AdaNetCandidate> candidates = createCandidatesFromComponents(adanetComponents, currentCandidate);
 
-        List<AdaNetComponent> adanetComponents = componentFinder.findComponents(architecture, minDepth);
-        List<ArchitectureSymbol> candidates = new ArrayList<>();
+        return candidates;
+    }
+
+    private List<AdaNetCandidate> createCandidatesFromComponents(
+            List<AdaNetComponent> adanetComponents,
+            AdaNetCandidate currentCandidate) {
+        List<AdaNetCandidate> candidates = new ArrayList<>();
         for (AdaNetComponent component : adanetComponents) {
-            candidates.add(candidateBuilder.createCandidate(architecture, component));
+            AdaNetCandidate candidate = new AdaNetCandidate(component, currentCandidate.getPreviousComponents());
+            candidates.add(candidate);
         }
         return candidates;
     }
 
-    public CandidateBuilder getCandidateBuilder() {
-        return candidateBuilder;
+    private AdaNetCandidate createNewCandidate(AdaNetCandidate currentCandidate, AdaNetComponent component) {
+        List<AdaNetComponent> previousComponents = new ArrayList<>();
+        previousComponents.addAll(currentCandidate.getPreviousComponents());
+        previousComponents.add(currentCandidate.getComponent());
+        AdaNetCandidate newCandidate = new AdaNetCandidate(component, previousComponents);
+        return newCandidate;
     }
+
 
     public AdaNetComponentFinder getComponentFinder() {
         return componentFinder;

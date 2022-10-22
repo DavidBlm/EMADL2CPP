@@ -16,7 +16,7 @@ public class AdaNetComponentFinderTest extends TestCase {
         ArchitectureSymbol startNetwork = new ArchitectureSymbol();
         int minDepth = 1;
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
-        List<AdaNetComponent> components = componentFinder.findComponents(startNetwork, minDepth);
+        List<AdaNetComponent> components = componentFinder.findComponents(minDepth);
 
         int firstComponentDepth = components.get(0).getNumberLayers();
         int secondComponentDepth = components.get(1).getNumberLayers();

@@ -22,13 +22,13 @@ public class AdaNet extends TrainAlgorithm {
     int lastStepBestComponentsDepth = 1;
     private ArchitectureSymbol scaledArchitecture;
     private CandidateFinder candidateFinder;
-    private ArchitectureSymbol currentArchitecture;
+    private AdaNetCandidate currentCandidate;
     private boolean stopAlgorithm = false;
 
     public AdaNet() {
         CandidateBuilder candidateBuilder = new CandidateBuilder();
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
-        this.candidateFinder = new CandidateFinder(candidateBuilder, componentFinder);
+        this.candidateFinder = new CandidateFinder(componentFinder);
     }
 
     public AdaNet(CandidateFinder candidateFinder) {
@@ -40,6 +40,7 @@ public class AdaNet extends TrainAlgorithm {
     @Override
     public void execute(ArchitectureSymbol startNetwork) {
         setStartNetwork(startNetwork);
+        createFirstCandidate();
         for (int i = 1; i < AdaNetConfig.MAX_ITERATIONS; i++) {
             executeIteration();
             if (stopAlgorithm) {
@@ -48,27 +49,25 @@ public class AdaNet extends TrainAlgorithm {
         }
     }
 
+    private void createFirstCandidate() {
+        AdaNetComponent component = new AdaNetComponent(1);
+        currentCandidate = new AdaNetCandidate(component, null);
+    }
+
     private void executeIteration() {
-        List<ArchitectureSymbol> candidates = candidateFinder.findCandidates(currentArchitecture,
-                lastStepBestComponentsDepth);
-        ArchitectureSymbol bestCandidate = selectBestCandidate(candidates);
+        List<AdaNetCandidate> candidates = candidateFinder.findCandidates(currentCandidate);
+        AdaNetCandidate bestCandidate = selectBestCandidate(candidates);
         if (bestCandidate == null) {
             return;
         }
-        currentArchitecture = bestCandidate;
+        currentCandidate = bestCandidate;
     }
 
-    private ArchitectureSymbol selectBestCandidate(List<ArchitectureSymbol> candidates) {
+    private AdaNetCandidate selectBestCandidate(List<AdaNetCandidate> candidates) {
         // train all candidates
         // evaluate all candidates
         // select best candidate
         // return best candidate
         return candidates.get(0);
-    }
-
-    @Override
-    public void setStartNetwork(ArchitectureSymbol startNetwork) {
-        super.setStartNetwork(startNetwork);
-        this.currentArchitecture = startNetwork;
     }
 }

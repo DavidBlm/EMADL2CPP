@@ -1,5 +1,6 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdaNetCandidate {
@@ -12,6 +13,10 @@ public class AdaNetCandidate {
     public AdaNetCandidate(AdaNetComponent component, List<AdaNetComponent> previousComponents) {
         this.component = component;
         this.previousComponents = previousComponents;
+
+        if (previousComponents == null) {
+            this.previousComponents = new ArrayList<>();
+        }
     }
 
     public AdaNetComponent getComponent() {
