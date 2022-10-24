@@ -1,22 +1,40 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
-import com.rits.cloning.Cloner;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.ModelLoader;
 
+import java.util.List;
+
 public class CandidateBuilder {
-    private ArchitectureSymbol startArchitecture;
-    private AdaNetComponent component;
-    private Cloner cloner;
+    private ArchitectureSymbol architecture;
 
 
     public CandidateBuilder() {
     }
 
-    public ArchitectureSymbol createCandidate(AdaNetComponent component) {
-        this.component = component;
-        this.startArchitecture = ModelLoader.loadAdaNet();
+    public ArchitectureSymbol createCandidate(List<AdaNetComponent> components) {
+        this.architecture = getStartArchitecture();
+        addComponentsToArchitecture(components);
 
-        return startArchitecture;
+        return architecture;
+    }
+
+    private ArchitectureSymbol getStartArchitecture() {
+        ArchitectureSymbol architecture = ModelLoader.loadAdaNet();
+        addParallelBlockToArchitecture();
+        return architecture;
+    }
+
+    private void addComponentsToArchitecture(List<AdaNetComponent> components) {
+        for (AdaNetComponent component : components) {
+            addComponentToArchitecture(component);
+        }
+    }
+
+    private void addParallelBlockToArchitecture() {
+    }
+
+    private void addComponentToArchitecture(AdaNetComponent component) {
+
     }
 }
