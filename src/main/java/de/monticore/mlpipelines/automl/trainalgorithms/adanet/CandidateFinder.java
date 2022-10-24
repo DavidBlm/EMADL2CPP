@@ -16,31 +16,23 @@ public class CandidateFinder {
         this.componentFinder = componentFinder;
     }
 
-    public List<AdaNetCandidate> findCandidates(AdaNetCandidate currentCandidate) {
-        this.minDepth = currentCandidate.getComponent().getNumberLayers();
+    public List<AdaNetCandidate> findCandidates(AdaNetCandidate lastIterationBestCandidate) {
+        this.minDepth = lastIterationBestCandidate.getComponent().getNumberLayers();
         List<AdaNetComponent> adanetComponents = componentFinder.findComponents(minDepth);
-        List<AdaNetCandidate> candidates = createCandidatesFromComponents(adanetComponents, currentCandidate);
+        List<AdaNetCandidate> candidates = createCandidatesFromComponents(adanetComponents, lastIterationBestCandidate);
 
         return candidates;
     }
 
     private List<AdaNetCandidate> createCandidatesFromComponents(
             List<AdaNetComponent> adanetComponents,
-            AdaNetCandidate currentCandidate) {
+            AdaNetCandidate lastIterationBestCandidate) {
         List<AdaNetCandidate> candidates = new ArrayList<>();
         for (AdaNetComponent component : adanetComponents) {
-            AdaNetCandidate candidate = new AdaNetCandidate(component, currentCandidate.getPreviousComponents());
+            AdaNetCandidate candidate = new AdaNetCandidate(component, lastIterationBestCandidate.getAllComponents());
             candidates.add(candidate);
         }
         return candidates;
-    }
-
-    private AdaNetCandidate createNewCandidate(AdaNetCandidate currentCandidate, AdaNetComponent component) {
-        List<AdaNetComponent> previousComponents = new ArrayList<>();
-        previousComponents.addAll(currentCandidate.getPreviousComponents());
-        previousComponents.add(currentCandidate.getComponent());
-        AdaNetCandidate newCandidate = new AdaNetCandidate(component, previousComponents);
-        return newCandidate;
     }
 
 

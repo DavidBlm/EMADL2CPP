@@ -34,4 +34,11 @@ public class AdaNetCandidate {
     public void setPreviousComponents(List<AdaNetComponent> previousComponents) {
         this.previousComponents = previousComponents;
     }
+
+    public List<AdaNetComponent> getAllComponents() {
+        List<AdaNetComponent> allComponents = new ArrayList<>();
+        allComponents.addAll(this.previousComponents);
+        allComponents.add(this.component);
+        return allComponents;
+    }
 }

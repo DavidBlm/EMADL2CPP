@@ -11,10 +11,9 @@ public class CandidateBuilderTest extends TestCase {
     }
 
     public void testCreateCandidate() {
-        ArchitectureSymbol architecture = new ArchitectureSymbol();
         AdaNetComponent component = new AdaNetComponent(1);
         CandidateBuilder candidateBuilder = new CandidateBuilder();
-        ArchitectureSymbol candidate = candidateBuilder.createCandidate(architecture, component);
+        ArchitectureSymbol candidate = candidateBuilder.createCandidate(component);
         assertNotNull(candidate);
     }
 }

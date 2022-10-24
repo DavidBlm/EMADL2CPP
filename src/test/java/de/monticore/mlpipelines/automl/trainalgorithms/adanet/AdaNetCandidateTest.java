@@ -52,4 +52,26 @@ public class AdaNetCandidateTest extends TestCase {
         adanetCandidate.setPreviousComponents(previousComponents);
         assertEquals(previousComponents, adanetCandidate.getPreviousComponents());
     }
+
+    public void testGetAllComponentsWithEmptyPreviousComponents() {
+        AdaNetComponent component = new AdaNetComponent(1);
+        AdaNetCandidate adanetCandidate = new AdaNetCandidate(component, null);
+        List<AdaNetComponent> allComponents = adanetCandidate.getAllComponents();
+        assertEquals(1, allComponents.size());
+        assertEquals(component, allComponents.get(0));
+    }
+
+    public void testGetAllComponentsWithNonEmptyPreviousComponents() {
+        AdaNetComponent component = new AdaNetComponent(1);
+        List<AdaNetComponent> previousComponents = new ArrayList<>();
+        AdaNetComponent previousComponent = new AdaNetComponent(2);
+        previousComponents.add(previousComponent);
+        AdaNetCandidate adanetCandidate = new AdaNetCandidate(component, previousComponents);
+
+        List<AdaNetComponent> allComponents = adanetCandidate.getAllComponents();
+
+        assertEquals(2, allComponents.size());
+        assertEquals(previousComponent, allComponents.get(0));
+        assertEquals(component, allComponents.get(1));
+    }
 }
