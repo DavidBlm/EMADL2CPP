@@ -1,9 +1,6 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.mlpipelines.ModelLoader;
 
 import java.util.ArrayList;
@@ -49,7 +46,17 @@ public class CandidateBuilder {
         for (int i = 0; i < component.getNumberLayers(); i++) {
             String layerName = "layer" + i;
 
-//            LayerSymbol layer = new LayerSymbol(layerName);
+            List<ArgumentSymbol> arguments = getArguments(component);
+            LayerSymbol layer = new LayerSymbol.Builder().arguments(arguments).build();
         }
+    }
+
+    private static ArrayList<ArgumentSymbol> getArguments(AdaNetComponent component) {
+        int units = component.getLayerWidth();
+        ArrayList<ArgumentSymbol> arguments = new ArrayList<>();
+//        MathNumberExpressionSymbol unitsSymbol = new MathNumberExpressionSymbol(units);
+
+//        ArgumentSymbol unitsArgument = new ArgumentSymbol
+        return new ArrayList<>();
     }
 }

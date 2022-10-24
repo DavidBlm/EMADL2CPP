@@ -6,6 +6,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
 import de.monticore.lang.monticar.ts.references.MCASTTypeSymbolReference;
 import de.monticore.lang.monticar.types2._ast.ASTDimension;
+import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
 import de.monticore.symboltable.Symbol;
 
 import java.util.*;

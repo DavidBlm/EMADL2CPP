@@ -1,17 +1,17 @@
-package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
+package de.monticore.mlpipelines.automl.helper;
 
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import org.jscience.mathematics.number.Rational;
 
 public class MathNumberExpressionWrapper {
-    private MathNumberExpressionSymbol number;
+    private final MathNumberExpressionSymbol number;
 
     public MathNumberExpressionWrapper(MathNumberExpressionSymbol numberSymbol) {
         this.number = numberSymbol;
     }
 
     public void setValue(int value){
-        Rational newValue = Rational.valueOf(value, 1);
+        Rational newValue = RationalMath.of(value);
         number.getValue().setRealNumber(newValue);
     }
 
@@ -21,8 +21,7 @@ public class MathNumberExpressionWrapper {
     }
 
     public void setValue(float value, int precision){
-        int dividend = Math.round(value * precision);
-        Rational newValue = Rational.valueOf(dividend, precision);
+        Rational newValue = RationalMath.of(value, precision);
         number.getValue().setRealNumber(newValue);
     }
 
@@ -39,8 +38,7 @@ public class MathNumberExpressionWrapper {
     }
 
     public float getFloatValue() {
-        float dividend = number.getValue().getRealNumber().getDividend().floatValue();
-        float divisor = number.getValue().getRealNumber().getDivisor().floatValue();
-        return dividend / divisor;
+        Rational rational = number.getValue().getRealNumber();
+        return RationalMath.getFloatValue(rational);
     }
 }
