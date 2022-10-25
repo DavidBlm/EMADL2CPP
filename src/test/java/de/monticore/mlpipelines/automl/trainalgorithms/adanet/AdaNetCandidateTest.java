@@ -74,4 +74,19 @@ public class AdaNetCandidateTest extends TestCase {
         assertEquals(previousComponent, allComponents.get(0));
         assertEquals(component, allComponents.get(1));
     }
+
+    public void testGetEmadl() {
+        AdaNetComponent component = new AdaNetComponent(2);
+        List<AdaNetComponent> previousComponents = new ArrayList<>();
+        AdaNetComponent previousComponent = new AdaNetComponent(1);
+        previousComponents.add(previousComponent);
+        AdaNetCandidate adanetCandidate = new AdaNetCandidate(component, previousComponents);
+
+        List<String> emadl = adanetCandidate.getEmadl();
+
+        assertEquals(3, emadl.size());
+        assertEquals("FullyConnected(| = 2, units=layerWidth)->", emadl.get(0));
+        assertEquals("Concatenate()->", emadl.get(1));
+        assertEquals("FullyConnected(units=layerWidth)->", emadl.get(2));
+    }
 }

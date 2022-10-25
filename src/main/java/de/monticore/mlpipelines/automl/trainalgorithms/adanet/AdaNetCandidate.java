@@ -46,12 +46,12 @@ public class AdaNetCandidate implements EmadlAble {
 
     private void addLayerToCandidateContent(List<String> candidateContent, int layerIndex) {
         int numberComponentsInLayer = componentsInLayer(layerIndex);
-        if (numberComponentsInLayer > 0) {
+        if (numberComponentsInLayer == 1) {
             candidateContent.add("FullyConnected(units=layerWidth)->");
         } else {
             candidateContent.add(
                     String.format("FullyConnected(| = %d, units=layerWidth)->", componentsInLayer(layerIndex)));
-            candidateContent.add("Concatenate() ->");
+            candidateContent.add("Concatenate()->");
         }
     }
 
