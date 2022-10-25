@@ -8,6 +8,8 @@ component Adanet<classes=10, imageSize=32>{
             FullyConnected(units=classes)
         |
             FullyConnected(units=classes)
+        |
+            FullyConnected(units=classes)
         ) ->
         FullyConnected(units=classes) ->
         predictions;

@@ -1,13 +1,14 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.ast.ASTNode;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
-import de.monticore.mlpipelines.ModelLoader;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CandidateBuilder {
     private ArchitectureSymbol architecture;
+    private ASTNode astNode;
 
 
     public CandidateBuilder() {
@@ -20,11 +21,10 @@ public class CandidateBuilder {
         return architecture;
     }
 
-    private ArchitectureSymbol loadStartArchitecture() {
-        architecture = ModelLoader.loadAdaNet();
-        clearParallelLayersList();
-        return architecture;
+    private void loadStartArchitecture() {
+
     }
+
 
     private void addComponentsToArchitecture(List<AdaNetComponent> components) {
         for (AdaNetComponent component : components) {
@@ -36,7 +36,8 @@ public class CandidateBuilder {
         NetworkInstructionSymbol networkInstruction = architecture.getNetworkInstructions().get(0);
         ArrayList elements = (ArrayList) networkInstruction.getBody().getElements();
         ParallelCompositeElementSymbol parallelBlock = (ParallelCompositeElementSymbol) elements.get(1);
-        List parallelLayers = parallelBlock.getElements();
+        List<ArchitectureElementSymbol> parallelLayers = parallelBlock.getElements();
+
         parallelLayers.clear();
     }
 
@@ -46,17 +47,8 @@ public class CandidateBuilder {
         for (int i = 0; i < component.getNumberLayers(); i++) {
             String layerName = "layer" + i;
 
-            List<ArgumentSymbol> arguments = getArguments(component);
-            LayerSymbol layer = new LayerSymbol.Builder().arguments(arguments).build();
+//            List<ArgumentSymbol> arguments = getArguments(component);
+//            LayerSymbol layer = new LayerSymbol.Builder().arguments(arguments).build();
         }
-    }
-
-    private static ArrayList<ArgumentSymbol> getArguments(AdaNetComponent component) {
-        int units = component.getLayerWidth();
-        ArrayList<ArgumentSymbol> arguments = new ArrayList<>();
-//        MathNumberExpressionSymbol unitsSymbol = new MathNumberExpressionSymbol(units);
-
-//        ArgumentSymbol unitsArgument = new ArgumentSymbol
-        return new ArrayList<>();
     }
 }
