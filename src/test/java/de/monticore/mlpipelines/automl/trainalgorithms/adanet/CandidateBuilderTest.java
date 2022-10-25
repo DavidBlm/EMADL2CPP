@@ -58,6 +58,8 @@ public class CandidateBuilderTest extends TestCase {
         assertEquals(1, parallelElements.size());
     }
 
+
+
     private static ArchitectureElementSymbol getParallelBlock(ArchitectureSymbol candidate) {
         List<ArchitectureElementSymbol> elements = getArchitectureElementSymbols(candidate);
         ArchitectureElementSymbol parallelBlock = elements.get(1);

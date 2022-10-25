@@ -11,18 +11,21 @@ public class CandidateBuilder {
     private ArchitectureSymbol architecture;
     private final String modelName;
     private final String modelDirPath;
+    private final String modelFileEnding;
 
 
     public CandidateBuilder() {
-        modelDirPath = System.getProperty("java.io.tmpdir");
-        modelName = "model.emadl";
+        modelDirPath = "src/test/resources/models/adanet/";
+        modelName = "model";
+        modelFileEnding = ".emadl";
     }
 
     public ArchitectureSymbol candidateToArchitectureSymbol(AdaNetCandidate candidate) {
         List<String> emadl = createEmadlFileContent(candidate);
         FileLoader fileLoader = new FileLoader();
-        String pathString = modelDirPath + modelName;
+        String pathString = modelDirPath + modelName + modelFileEnding;
         fileLoader.writeToFile(emadl, pathString);
+
         ArchitectureSymbol architecture = ModelLoader.load(modelDirPath, modelName);
 
         return architecture;
