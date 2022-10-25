@@ -16,13 +16,13 @@ public class AdaNetComponentTest extends TestCase {
 
     public void testGetNumberLayers() {
         AdaNetComponent adaNetComponent = new AdaNetComponent(10);
-        assertEquals(10, adaNetComponent.getNumberLayers());
+        assertEquals(10, adaNetComponent.getDepth());
     }
 
     public void testSetNumberLayers() {
         AdaNetComponent adaNetComponent = new AdaNetComponent(10);
-        adaNetComponent.setNumberLayers(20);
-        assertEquals(20, adaNetComponent.getNumberLayers());
+        adaNetComponent.setDepth(20);
+        assertEquals(20, adaNetComponent.getDepth());
     }
 
     public void testGetLayerWidth() {
@@ -34,5 +34,20 @@ public class AdaNetComponentTest extends TestCase {
         AdaNetComponent adaNetComponent = new AdaNetComponent(10, 20);
         adaNetComponent.setLayerWidth(30);
         assertEquals(30, adaNetComponent.getLayerWidth());
+    }
+
+    public void testGetEmadlDepth() {
+        AdaNetComponent adaNetComponent = new AdaNetComponent(10, 20);
+        assertEquals(10, adaNetComponent.getEmadl().size());
+    }
+
+    public void testGetEmadlLastLayer() {
+        AdaNetComponent adaNetComponent = new AdaNetComponent(3, 20);
+        assertEquals("FullyConnected(units=20)", adaNetComponent.getEmadl().get(2));
+    }
+
+    public void testGetEmadlFirstLayer() {
+        AdaNetComponent adaNetComponent = new AdaNetComponent(3, 20);
+        assertEquals("FullyConnected(units=20) ->", adaNetComponent.getEmadl().get(0));
     }
 }

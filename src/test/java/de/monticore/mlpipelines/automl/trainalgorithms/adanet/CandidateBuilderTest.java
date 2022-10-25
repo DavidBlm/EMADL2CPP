@@ -17,10 +17,10 @@ public class CandidateBuilderTest extends TestCase {
     }
 
     public void testCreateCandidate() {
-        List<AdaNetComponent> components = getAdaNetComponentsWithOneElement();
+        AdaNetCandidate candidate = getAdaNetCandidate();
         CandidateBuilder candidateBuilder = new CandidateBuilder();
-        ArchitectureSymbol candidate = candidateBuilder.createCandidate(components);
-        assertNotNull(candidate);
+        ArchitectureSymbol architecture = candidateBuilder.candidateToArchitectureSymbol(candidate);
+        assertNotNull(architecture);
     }
 
     private static List<AdaNetComponent> getAdaNetComponentsWithOneElement() {
@@ -30,14 +30,32 @@ public class CandidateBuilderTest extends TestCase {
         return components;
     }
 
+    private static AdaNetCandidate getAdaNetCandidate() {
+        List<AdaNetComponent> previousComponents = getAdaNetComponentsWithOneElement();
+        AdaNetComponent component = new AdaNetComponent(1);
+        AdaNetCandidate candidate = new AdaNetCandidate(component, previousComponents);
+        return candidate;
+    }
+
     public void testCreateCandidateReturnsArchitectureWithParallelBlock() {
-        List<AdaNetComponent> components = getAdaNetComponentsWithOneElement();
+        AdaNetCandidate candidate = getAdaNetCandidate();
         CandidateBuilder candidateBuilder = new CandidateBuilder();
 
-        ArchitectureSymbol candidate = candidateBuilder.createCandidate(components);
+        ArchitectureSymbol architecture = candidateBuilder.candidateToArchitectureSymbol(candidate);
 
-        ArchitectureElementSymbol parallelBlock = getParallelBlock(candidate);
+        ArchitectureElementSymbol parallelBlock = getParallelBlock(architecture);
         assertTrue(parallelBlock instanceof ParallelCompositeElementSymbol);
+    }
+
+    public void testCreateCandidateReturnsArchitectureWithParallelBlockWithOneComponent() {
+        AdaNetCandidate candidate = getAdaNetCandidate();
+        CandidateBuilder candidateBuilder = new CandidateBuilder();
+
+        ArchitectureSymbol architecture = candidateBuilder.candidateToArchitectureSymbol(candidate);
+
+        ParallelCompositeElementSymbol parallelBlock = (ParallelCompositeElementSymbol) getParallelBlock(architecture);
+        List<ArchitectureElementSymbol> parallelElements = parallelBlock.getElements();
+        assertEquals(1, parallelElements.size());
     }
 
     private static ArchitectureElementSymbol getParallelBlock(ArchitectureSymbol candidate) {
@@ -50,16 +68,5 @@ public class CandidateBuilderTest extends TestCase {
         NetworkInstructionSymbol networkInstruction = candidate.getNetworkInstructions().get(0);
         List<ArchitectureElementSymbol> elements = networkInstruction.getBody().getElements();
         return elements;
-    }
-
-    public void testCreateCandidateReturnsArchitectureWithParallelBlockWithOneComponent() {
-        List<AdaNetComponent> components = getAdaNetComponentsWithOneElement();
-        CandidateBuilder candidateBuilder = new CandidateBuilder();
-
-        ArchitectureSymbol candidate = candidateBuilder.createCandidate(components);
-
-        ParallelCompositeElementSymbol parallelBlock = (ParallelCompositeElementSymbol) getParallelBlock(candidate);
-        List<ArchitectureElementSymbol> parallelElements = parallelBlock.getElements();
-        assertEquals(1, parallelElements.size());
     }
 }

@@ -1,7 +1,8 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
-import de.monticore.ast.ASTNode;
-import de.monticore.lang.monticar.cnnarch._symboltable.*;
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.mlpipelines.ModelLoader;
+import de.monticore.mlpipelines.automl.helper.FileLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,43 +13,49 @@ public class CandidateBuilder {
 
 
     public CandidateBuilder() {
+        modelDirPath = System.getProperty("java.io.tmpdir");
+        modelName = "model.emadl";
     }
 
-    public ArchitectureSymbol createCandidate(List<AdaNetComponent> components) {
-        loadStartArchitecture();
-        addComponentsToArchitecture(components);
+    public ArchitectureSymbol candidateToArchitectureSymbol(AdaNetCandidate candidate) {
+        List<String> emadl = createEmadlFileContent(candidate);
+        FileLoader fileLoader = new FileLoader();
+        String pathString = modelDirPath + modelName;
+        fileLoader.writeToFile(emadl, pathString);
+        ArchitectureSymbol architecture = ModelLoader.load(modelDirPath, modelName);
 
         return architecture;
     }
 
-    private void loadStartArchitecture() {
+    private List<String> createEmadlFileContent(AdaNetCandidate candidate) {
+        List<String> emadlFileContent = new ArrayList<>();
+        int layerWidth = candidate.getComponent().getLayerWidth();
+        int classes = 10;
+        int imageSize = 32;
+        String header = String.format("component Adanet<classes=%s, layerWidth=%s, imageSize=%s>{"
+                , classes, layerWidth, imageSize);
 
+        emadlFileContent.add(header);
+        emadlFileContent.add("   ports in Z(0:255)^{1, imageSize, imageSize} image,");
+        emadlFileContent.add("         out Q(0:1)^{classes} predictions;");
+        emadlFileContent.add("");
+        emadlFileContent.add("   implementation CNN {");
+        emadlFileContent.add("       image ->");
+        emadlFileContent.addAll(getFormattedCandidateEmadl(candidate));
+        emadlFileContent.add("       FullyConnected(units=classes) ->");
+        emadlFileContent.add("       predictions;");
+        emadlFileContent.add("   }");
+        emadlFileContent.add("}");
+
+        return emadlFileContent;
     }
 
-
-    private void addComponentsToArchitecture(List<AdaNetComponent> components) {
-        for (AdaNetComponent component : components) {
-            addComponentToArchitecture(component);
+    private List<String> getFormattedCandidateEmadl(AdaNetCandidate candidate) {
+        List<String> emadlFileContent = candidate.getEmadl();
+        List<String> formattedEmadlFileContent = new ArrayList<>();
+        for (String line : emadlFileContent) {
+            formattedEmadlFileContent.add("       " + line);
         }
-    }
-
-    private void clearParallelLayersList() {
-        NetworkInstructionSymbol networkInstruction = architecture.getNetworkInstructions().get(0);
-        ArrayList elements = (ArrayList) networkInstruction.getBody().getElements();
-        ParallelCompositeElementSymbol parallelBlock = (ParallelCompositeElementSymbol) elements.get(1);
-        List<ArchitectureElementSymbol> parallelLayers = parallelBlock.getElements();
-
-        parallelLayers.clear();
-    }
-
-    private void addComponentToArchitecture(AdaNetComponent component) {
-        SerialCompositeElementSymbol serialBlock = new SerialCompositeElementSymbol();
-        ArrayList elements = (ArrayList) serialBlock.getElements();
-        for (int i = 0; i < component.getNumberLayers(); i++) {
-            String layerName = "layer" + i;
-
-//            List<ArgumentSymbol> arguments = getArguments(component);
-//            LayerSymbol layer = new LayerSymbol.Builder().arguments(arguments).build();
-        }
+        return formattedEmadlFileContent;
     }
 }

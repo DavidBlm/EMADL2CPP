@@ -29,7 +29,7 @@ public class CandidateFinderTest extends TestCase {
         AdaNetCandidate startCandidate = new AdaNetCandidate(startComponent, null);
         CandidateFinder candidateFinder = new CandidateFinder();
         List<AdaNetCandidate> candidates = candidateFinder.findCandidates(startCandidate);
-        assertEquals(1, candidates.get(0).getComponent().getNumberLayers());
-        assertEquals(2, candidates.get(1).getComponent().getNumberLayers());
+        assertEquals(1, candidates.get(0).getComponent().getDepth());
+        assertEquals(2, candidates.get(1).getComponent().getDepth());
     }
 }

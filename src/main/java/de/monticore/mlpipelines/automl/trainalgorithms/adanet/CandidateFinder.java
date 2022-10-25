@@ -17,7 +17,7 @@ public class CandidateFinder {
     }
 
     public List<AdaNetCandidate> findCandidates(AdaNetCandidate lastIterationBestCandidate) {
-        this.minDepth = lastIterationBestCandidate.getComponent().getNumberLayers();
+        this.minDepth = lastIterationBestCandidate.getComponent().getDepth();
         List<AdaNetComponent> adanetComponents = componentFinder.findComponents(minDepth);
         List<AdaNetCandidate> candidates = createCandidatesFromComponents(adanetComponents, lastIterationBestCandidate);
 

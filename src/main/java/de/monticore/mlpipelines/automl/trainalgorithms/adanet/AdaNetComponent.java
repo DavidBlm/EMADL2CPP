@@ -2,26 +2,41 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 
-public class AdaNetComponent {
-    private int numberLayers;
+import java.util.ArrayList;
+import java.util.List;
+
+public class AdaNetComponent implements EmadlAble {
+    private int depth;
     private int layerWidth;
 
-    public AdaNetComponent(int numberLayers) {
-        this.numberLayers = numberLayers;
+    public AdaNetComponent(int depth) {
+        this.depth = depth;
         this.layerWidth = AdaNetConfig.UNITS_PER_LAYER;
     }
 
-    public AdaNetComponent(int numberLayers, int layerWidth) {
-        this.numberLayers = numberLayers;
+    public AdaNetComponent(int depth, int layerWidth) {
+        this.depth = depth;
         this.layerWidth = layerWidth;
     }
 
-    public int getNumberLayers() {
-        return this.numberLayers;
+    @Override
+    public List<String> getEmadl() {
+        List<String> lines = new ArrayList<>();
+        int layerWidth = getLayerWidth();
+
+        for (int i = 0; i < getDepth() - 1; i++) {
+            String line = String.format("FullyConnected(units=%s) ->", layerWidth);
+            lines.add(line);
+        }
+
+        String line = String.format("FullyConnected(units=%s)", layerWidth);
+        lines.add(line);
+
+        return lines;
     }
 
-    public void setNumberLayers(int numberLayers) {
-        this.numberLayers = numberLayers;
+    public int getDepth() {
+        return this.depth;
     }
 
     public int getLayerWidth() {
@@ -30,5 +45,9 @@ public class AdaNetComponent {
 
     public int setLayerWidth(int layerWidth) {
         return this.layerWidth = layerWidth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
     }
 }

@@ -3,7 +3,7 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdaNetCandidate {
+public class AdaNetCandidate implements EmadlAble {
     private AdaNetComponent component;
     private List<AdaNetComponent> previousComponents;
 
@@ -40,5 +40,24 @@ public class AdaNetCandidate {
         allComponents.addAll(this.previousComponents);
         allComponents.add(this.component);
         return allComponents;
+    }
+
+    @Override
+    public List<String> getEmadl() {
+        List<String> emadl = new ArrayList<>();
+        return emadl;
+    }
+
+    public List<String> createCanditateContent(int maxDepth) {
+        List<String> candidateContent = new ArrayList<>();
+        for (int i = 0; i < maxDepth; i++) {
+            candidateContent.add(String.format("        FullyConnected(| = %d, units=layerWidth)->", i + 1));
+            candidateContent.add("        Concatenate() ->");
+        }
+        return candidateContent;
+    }
+
+    private int getMaxDepth() {
+        return component.getDepth();
     }
 }

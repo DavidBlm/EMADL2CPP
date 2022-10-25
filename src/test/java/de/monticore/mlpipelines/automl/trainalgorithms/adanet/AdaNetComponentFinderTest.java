@@ -18,8 +18,8 @@ public class AdaNetComponentFinderTest extends TestCase {
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
         List<AdaNetComponent> components = componentFinder.findComponents(minDepth);
 
-        int firstComponentDepth = components.get(0).getNumberLayers();
-        int secondComponentDepth = components.get(1).getNumberLayers();
+        int firstComponentDepth = components.get(0).getDepth();
+        int secondComponentDepth = components.get(1).getDepth();
         int expectedFirstComponentDepth = 1;
         int expectedSecondComponentDepth = 2;
 
