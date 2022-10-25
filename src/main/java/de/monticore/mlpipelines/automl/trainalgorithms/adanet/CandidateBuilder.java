@@ -9,7 +9,8 @@ import java.util.List;
 
 public class CandidateBuilder {
     private ArchitectureSymbol architecture;
-    private ASTNode astNode;
+    private final String modelName;
+    private final String modelDirPath;
 
 
     public CandidateBuilder() {

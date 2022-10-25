@@ -37,8 +37,11 @@ public class AdaNetCandidate implements EmadlAble {
 
     @Override
     public List<String> getEmadl() {
-        List<String> emadl = new ArrayList<>();
-        return emadl;
+        List<String> candidateContent = new ArrayList<>();
+        for (int layerIndex = 0; layerIndex < getMaxDepth(); layerIndex++) {
+            addLayerToCandidateContent(candidateContent, layerIndex);
+        }
+        return candidateContent;
     }
 
     private void addLayerToCandidateContent(List<String> candidateContent, int layerIndex) {
