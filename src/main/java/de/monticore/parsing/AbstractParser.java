@@ -1,11 +1,17 @@
 package de.monticore.parsing;
 
 import de.monticore.ast.ASTCNode;
-import de.monticore.io.paths.ModelPath;
 
 import java.io.IOException;
+import java.util.Optional;
 
+//TODO check compliance with  MC 7
 public abstract class AbstractParser {
-    //TODO switch to modelpath from MC 7
-    abstract public ASTCNode parseModel(final ModelPath pathToModel) throws IOException;
+
+    public ASTCNode parseModelOrThrowException(final String pathToModel) throws IOException {
+
+        return parseModel(pathToModel).orElseThrow(IllegalStateException::new);
+    }
+
+    abstract public Optional<? extends ASTCNode> parseModel(final String pathToModel) throws IOException;
 }
