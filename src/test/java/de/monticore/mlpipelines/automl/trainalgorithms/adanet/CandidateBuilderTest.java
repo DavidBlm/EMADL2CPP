@@ -23,26 +23,11 @@ public class CandidateBuilderTest extends TestCase {
         assertNotNull(architecture);
     }
 
-    private static List<AdaNetComponent> getAdaNetComponentsWithOneElement() {
-        AdaNetComponent component = new AdaNetComponent(1);
-        List<AdaNetComponent> components = new ArrayList<>();
-        components.add(component);
-        return components;
-    }
-
-    private static AdaNetCandidate getAdaNetCandidate() {
-        List<AdaNetComponent> previousComponents = getAdaNetComponentsWithOneElement();
-        AdaNetComponent component = new AdaNetComponent(1);
-        AdaNetCandidate candidate = new AdaNetCandidate(component, previousComponents);
-        return candidate;
-    }
-
     public void testCreateCandidateReturnsArchitectureWithParallelBlock() {
         AdaNetCandidate candidate = getAdaNetCandidate();
         CandidateBuilder candidateBuilder = new CandidateBuilder();
 
         ArchitectureSymbol architecture = candidateBuilder.candidateToArchitectureSymbol(candidate);
-
         ArchitectureElementSymbol parallelBlock = getParallelBlock(architecture);
         assertTrue(parallelBlock instanceof ParallelCompositeElementSymbol);
     }
@@ -59,6 +44,20 @@ public class CandidateBuilderTest extends TestCase {
     }
 
 
+    private static List<AdaNetComponent> getAdaNetComponentsWithOneElement() {
+        AdaNetComponent component = new AdaNetComponent(1);
+        List<AdaNetComponent> components = new ArrayList<>();
+        components.add(component);
+        return components;
+    }
+
+    private static AdaNetCandidate getAdaNetCandidate() {
+        List<AdaNetComponent> previousComponents = new ArrayList<>();
+        previousComponents.add(new AdaNetComponent(1));
+        AdaNetComponent component = new AdaNetComponent(2);
+        AdaNetCandidate candidate = new AdaNetCandidate(component, previousComponents);
+        return candidate;
+    }
 
     private static ArchitectureElementSymbol getParallelBlock(ArchitectureSymbol candidate) {
         List<ArchitectureElementSymbol> elements = getArchitectureElementSymbols(candidate);

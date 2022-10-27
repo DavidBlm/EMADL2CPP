@@ -16,7 +16,7 @@ public class CandidateBuilder {
 
     public CandidateBuilder() {
         modelDirPath = "src/test/resources/models/adanet/";
-        modelName = "model";
+        modelName = "AdaNet";
         modelFileEnding = ".emadl";
     }
 
@@ -26,7 +26,7 @@ public class CandidateBuilder {
         String pathString = modelDirPath + modelName + modelFileEnding;
         fileLoader.writeToFile(emadl, pathString);
 
-        ArchitectureSymbol architecture = ModelLoader.load(modelDirPath, modelName);
+        ArchitectureSymbol architecture = ModelLoader.loadAdaNet();
 
         return architecture;
     }
