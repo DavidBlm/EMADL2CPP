@@ -42,14 +42,25 @@ public class AdaNet extends TrainAlgorithm {
         this.trainPipeline = pipeline;
     }
 
+    public Pipeline getPipeline() {
+        return this.trainPipeline;
+    }
+
+    public CandidateEvaluationResult getBestCandidateResult() {
+        return bestCandidateResult;
+    }
+
 
     @Override
     public void execute(ArchitectureSymbol startNetwork) throws IllegalStateException {
+        this.execute();
+    }
+
+    public void execute() {
         if (trainPipeline == null) {
             throw new IllegalStateException("Train pipeline not set");
         }
 
-        setStartNetwork(startNetwork);
         createFirstCandidate();
         for (int i = 1; i < AdaNetConfig.MAX_ITERATIONS; i++) {
             executeIteration();
