@@ -82,8 +82,8 @@ public class AdaNet extends TrainAlgorithm {
         bestCandidateResult = bestNewCandidate;
     }
 
-    private AdaNetCandidate selectBestCandidate(List<AdaNetCandidate> candidates) {
-        HashMap<AdaNetCandidate, Float> candidateScores = new HashMap<AdaNetCandidate, Float>();
+    private CandidateEvaluationResult selectBestCandidate(List<AdaNetCandidate> candidates) {
+        CandidateEvaluationResult bestCandidate = new CandidateEvaluationResult(null, 0);
         for (AdaNetCandidate candidate : candidates) {
             CandidateEvaluationResult evaluationResult = evaluateCandidate(candidate);
             if (evaluationResult.getScore() > bestCandidate.getScore()) {
