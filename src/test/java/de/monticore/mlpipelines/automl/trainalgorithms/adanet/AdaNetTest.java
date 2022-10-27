@@ -61,4 +61,34 @@ public class AdaNetTest extends TestCase {
         assertNotNull(evaluationResult);
         assertTrue(previousComponents.isEmpty());
     }
+
+    @Test
+    public void testExecuteBestCandidateHasTwoCandidates() {
+        AdaNet adanet = new AdaNet();
+        ArchitectureSymbol architectureSymbol = ModelLoader.loadAdaNet();
+        Pipeline pipeline = mock(Pipeline.class);
+        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
+        adanet.setTrainPipeline(pipeline);
+        adanet.execute(architectureSymbol);
+
+        CandidateEvaluationResult evaluationResult = adanet.getBestCandidateResult();
+        List<AdaNetComponent> previousComponents = evaluationResult.getCandidate().getPreviousComponents();
+        assertNotNull(evaluationResult);
+        assertEquals(1, previousComponents.size());
+    }
+
+    @Test
+    public void testExecuteBestCandidateHasScore() {
+        AdaNet adanet = new AdaNet();
+        ArchitectureSymbol architectureSymbol = ModelLoader.loadAdaNet();
+        Pipeline pipeline = mock(Pipeline.class);
+        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
+        adanet.setTrainPipeline(pipeline);
+        adanet.execute(architectureSymbol);
+
+        CandidateEvaluationResult evaluationResult = adanet.getBestCandidateResult();
+        List<AdaNetComponent> previousComponents = evaluationResult.getCandidate().getPreviousComponents();
+        assertEquals(0.2f, evaluationResult.getScore());
+
+    }
 }

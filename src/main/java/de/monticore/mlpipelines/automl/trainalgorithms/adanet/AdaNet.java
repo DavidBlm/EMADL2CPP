@@ -21,7 +21,7 @@ import java.util.List;
 
 public class AdaNet extends TrainAlgorithm {
     private final CandidateFinder candidateFinder;
-    private final boolean stopAlgorithm = false;
+    private boolean stopAlgorithm = false;
     private CandidateBuilder candidateBuilder;
     private CandidateEvaluationResult bestCandidateResult;
 
@@ -73,6 +73,7 @@ public class AdaNet extends TrainAlgorithm {
         List<AdaNetCandidate> candidates = candidateFinder.findCandidates(lastCandidate);
         CandidateEvaluationResult bestNewCandidate = selectBestCandidate(candidates);
         if (bestNewCandidate.getScore() <= bestCandidateResult.getScore()) {
+            this.stopAlgorithm = true;
             return;
         }
         bestCandidateResult = bestNewCandidate;
