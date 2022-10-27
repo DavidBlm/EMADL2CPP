@@ -1,11 +1,11 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
+import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 // For at most n iterations:
@@ -23,12 +23,14 @@ import java.util.List;
 public class AdaNet extends TrainAlgorithm {
     int lastStepBestComponentsDepth = 1;
     private ArchitectureSymbol scaledArchitecture;
-    private CandidateFinder candidateFinder;
-    private AdaNetCandidate currentCandidate;
-    private boolean stopAlgorithm = false;
+    private final CandidateFinder candidateFinder;
+    private final boolean stopAlgorithm = false;
+    private CandidateBuilder candidateBuilder;
+    private CandidateEvaluationResult bestCandidateResult;
+    private Pipeline trainPipeline;
 
     public AdaNet() {
-        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        this.candidateBuilder = new CandidateBuilder();
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
         this.candidateFinder = new CandidateFinder(componentFinder);
     }
@@ -36,6 +38,10 @@ public class AdaNet extends TrainAlgorithm {
     public AdaNet(CandidateFinder candidateFinder) {
         super();
         this.candidateFinder = candidateFinder;
+    }
+
+    public void setPipeline(Pipeline pipeline) {
+        this.trainPipeline = pipeline;
     }
 
 
@@ -53,48 +59,38 @@ public class AdaNet extends TrainAlgorithm {
 
     private void createFirstCandidate() {
         AdaNetComponent component = new AdaNetComponent(1);
-        currentCandidate = new AdaNetCandidate(component, null);
+        AdaNetCandidate candidate = new AdaNetCandidate(component, null);
+
+        this.bestCandidateResult = evaluateCandidate(candidate);
+    }
+
+    private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
+        ArchitectureSymbol candidateArchitecture = candidateBuilder.createArchitectureFromCandidate(candidate);
+        Configuration configuration = new Configuration();
+        this.trainPipeline.execute(candidateArchitecture, configuration);
+        float score = this.trainPipeline.getTrainedAccuracy();
+        return new CandidateEvaluationResult(candidate, score);
     }
 
     private void executeIteration() {
-        List<AdaNetCandidate> candidates = candidateFinder.findCandidates(currentCandidate);
-        AdaNetCandidate bestCandidate = selectBestCandidate(candidates);
-        if (bestCandidate == null) {
+        AdaNetCandidate lastCandidate = bestCandidateResult.getCandidate();
+        List<AdaNetCandidate> candidates = candidateFinder.findCandidates(lastCandidate);
+        CandidateEvaluationResult bestNewCandidate = selectBestCandidate(candidates);
+        if (bestNewCandidate.getScore() <= bestCandidateResult.getScore()) {
             return;
         }
-        currentCandidate = bestCandidate;
+        bestCandidateResult = bestNewCandidate;
     }
 
     private AdaNetCandidate selectBestCandidate(List<AdaNetCandidate> candidates) {
         HashMap<AdaNetCandidate, Float> candidateScores = new HashMap<AdaNetCandidate, Float>();
         for (AdaNetCandidate candidate : candidates) {
-            List<String> candidateEmadlContent = candidate.getEmadl();
-            ArchitectureSymbol candidateArchitecture = createArchitectureFromEmadl(candidateEmadlContent);
-            float score = trainCandidate(candidateArchitecture);
-            candidateScores.put(candidate, score);
-        }
-
-        AdaNetCandidate bestCandidate = getAdaNetCandidateWithHighestScore(candidateScores);
-        return bestCandidate;
-    }
-
-    private ArchitectureSymbol createArchitectureFromEmadl(List<String> candidateEmadlContent) {
-        ArchitectureSymbol candidateArchitecture = null;
-
-    }
-
-    private AdaNetCandidate getAdaNetCandidateWithHighestScore(HashMap<AdaNetCandidate, Float> candidateScores) {
-        Iterator<AdaNetCandidate> it = candidateScores.keySet().iterator();
-        AdaNetCandidate fk = it.next();
-        Float max = candidateScores.get(fk);
-        while(it.hasNext()) {
-            AdaNetCandidate k = it.next();
-            Float val = candidateScores.get(k);
-            if (val > max){
-                max = val;
-                fk=k;
+            CandidateEvaluationResult evaluationResult = evaluateCandidate(candidate);
+            if (evaluationResult.getScore() > bestCandidate.getScore()) {
+                bestCandidateResult = evaluationResult;
             }
         }
-        return fk;
+
+        return bestCandidate;
     }
 }

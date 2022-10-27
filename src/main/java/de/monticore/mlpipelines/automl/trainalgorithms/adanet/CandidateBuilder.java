@@ -20,7 +20,7 @@ public class CandidateBuilder {
         modelFileEnding = ".emadl";
     }
 
-    public ArchitectureSymbol candidateToArchitectureSymbol(AdaNetCandidate candidate) {
+    public ArchitectureSymbol createArchitectureFromCandidate(AdaNetCandidate candidate) {
         List<String> emadl = createEmadlFileContent(candidate);
         FileLoader fileLoader = new FileLoader();
         String pathString = modelDirPath + modelName + modelFileEnding;
