@@ -44,7 +44,11 @@ public class AdaNet extends TrainAlgorithm {
 
 
     @Override
-    public void execute(ArchitectureSymbol startNetwork) {
+    public void execute(ArchitectureSymbol startNetwork) throws IllegalStateException {
+        if (trainPipeline == null) {
+            throw new IllegalStateException("Train pipeline not set");
+        }
+
         setStartNetwork(startNetwork);
         createFirstCandidate();
         for (int i = 1; i < AdaNetConfig.MAX_ITERATIONS; i++) {
