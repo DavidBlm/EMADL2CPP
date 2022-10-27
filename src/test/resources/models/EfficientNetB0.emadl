@@ -4,8 +4,8 @@ component EfficientNetB0<classes=10, imageSize=8>{
 
     implementation CNN {
 
-        def stem(){
-            Convolution(kernel=(3,3), channels=4, stride=(2, 2), padding="same") ->
+        def stem(channels){
+            Convolution(kernel=(3,3), channels=channels, stride=(2, 2), padding="same") ->
             BatchNorm() ->
             LeakyRelu()
         }
@@ -44,7 +44,7 @@ component EfficientNetB0<classes=10, imageSize=8>{
         }
 
         image ->
-        stem() ->
+        stem(channels=8) ->
         residualBlock(-> = 4, channels=48) ->
         reductionBlock(channels=48) ->
         residualBlock(-> = 4, channels=96) ->

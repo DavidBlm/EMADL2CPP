@@ -51,17 +51,15 @@ public class NetworkScaler {
         }
     }
 
-    // TODO: add channels parameter to stem and scale it
-    private void scaleWidth() {
-        List<ArchitectureElementSymbol> architectureElements = findArchitectureElements();
-
-        for (ArchitectureElementSymbol architectureElement : architectureElements) {
-            List<String> allowedLayers = Arrays.asList("residualBlock", "reductionBlock");
-            if (!allowedLayers.contains(architectureElement.getName()))
-                continue;
-
-            scaleArchitectureElementWidth(architectureElement);
+    private static int getChannelsIndex(String architectureElementName) {
+        switch (architectureElementName) {
+            case "residualBlock":
+                return 5;
+            case "reductionBlock":
+            case "stem":
+                return 1;
         }
+        throw new IllegalArgumentException("Block type not supported");
     }
 
     private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
@@ -72,23 +70,28 @@ public class NetworkScaler {
         expression.scaleRound(this.widthFactor);
     }
 
-    private static int getChannelsIndex(String architectureElementName) {
-        switch (architectureElementName) {
-            case "residualBlock":
-                return 5;
-            case "reductionBlock":
-                return 1;
+    private void scaleWidth() {
+        List<ArchitectureElementSymbol> architectureElements = findArchitectureElements();
+
+        for (ArchitectureElementSymbol architectureElement : architectureElements) {
+            List<String> allowedLayers = Arrays.asList("residualBlock", "reductionBlock", "stem");
+            if (!allowedLayers.contains(architectureElement.getName()))
+                continue;
+
+            scaleArchitectureElementWidth(architectureElement);
         }
-        throw new IllegalArgumentException("Block type not supported");
     }
 
 
     private void scaleImageResolution() {
-        Map<String, Collection<Symbol>> enclosedSymbols = this.architecture.getSpannedScope().getEnclosingScope().get().getLocalSymbols();
+        Map<String, Collection<Symbol>> enclosedSymbols = this.architecture.getSpannedScope()
+                .getEnclosingScope()
+                .get()
+                .getLocalSymbols();
         ArrayList image = (ArrayList) enclosedSymbols.get("image");
         EMAPortInstanceSymbol instanceSymbols = (EMAPortInstanceSymbol) image.get(0);
         MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) instanceSymbols.getTypeReference();
-        ASTCommonMatrixType astType = (ASTCommonMatrixType)typeReference.getAstType();
+        ASTCommonMatrixType astType = (ASTCommonMatrixType) typeReference.getAstType();
         ASTDimension dimensions = astType.getDimension();
         changeImageDimension(dimensions);
     }

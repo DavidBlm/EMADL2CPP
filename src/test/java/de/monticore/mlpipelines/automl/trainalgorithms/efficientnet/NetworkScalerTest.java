@@ -164,6 +164,22 @@ public class NetworkScalerTest extends TestCase {
     }
 
     @Test
+    public void testScaleWidthStem() {
+        ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol stem = architectureElements.get(1);
+        double stemWidth = getValueFromElement(stem, 1);
+
+        double expectedStemWidth = 16;
+
+        assertEquals(expectedStemWidth, stemWidth, 0.0001);
+    }
+
+    @Test
     public void testScaleWidthResidualBlocksRound() {
         ScalingFactors scalingFactors = new ScalingFactors(1, 1.1, 1);
         int phi = 1;
