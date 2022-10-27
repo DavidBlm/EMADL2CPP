@@ -21,8 +21,6 @@ import java.util.List;
 //        stop adaNet and return network without best component
 
 public class AdaNet extends TrainAlgorithm {
-    int lastStepBestComponentsDepth = 1;
-    private ArchitectureSymbol scaledArchitecture;
     private final CandidateFinder candidateFinder;
     private final boolean stopAlgorithm = false;
     private CandidateBuilder candidateBuilder;
@@ -64,14 +62,6 @@ public class AdaNet extends TrainAlgorithm {
         this.bestCandidateResult = evaluateCandidate(candidate);
     }
 
-    private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
-        ArchitectureSymbol candidateArchitecture = candidateBuilder.createArchitectureFromCandidate(candidate);
-        Configuration configuration = new Configuration();
-        this.trainPipeline.execute(candidateArchitecture, configuration);
-        float score = this.trainPipeline.getTrainedAccuracy();
-        return new CandidateEvaluationResult(candidate, score);
-    }
-
     private void executeIteration() {
         AdaNetCandidate lastCandidate = bestCandidateResult.getCandidate();
         List<AdaNetCandidate> candidates = candidateFinder.findCandidates(lastCandidate);
@@ -80,6 +70,14 @@ public class AdaNet extends TrainAlgorithm {
             return;
         }
         bestCandidateResult = bestNewCandidate;
+    }
+
+    private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
+        ArchitectureSymbol candidateArchitecture = candidateBuilder.createArchitectureFromCandidate(candidate);
+        Configuration configuration = new Configuration();
+        this.trainPipeline.execute(candidateArchitecture, configuration);
+        float score = this.trainPipeline.getTrainedAccuracy();
+        return new CandidateEvaluationResult(candidate, score);
     }
 
     private CandidateEvaluationResult selectBestCandidate(List<AdaNetCandidate> candidates) {
