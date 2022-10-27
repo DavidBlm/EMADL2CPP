@@ -1,7 +1,6 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
@@ -25,7 +24,6 @@ public class AdaNet extends TrainAlgorithm {
     private final boolean stopAlgorithm = false;
     private CandidateBuilder candidateBuilder;
     private CandidateEvaluationResult bestCandidateResult;
-    private Pipeline trainPipeline;
 
     public AdaNet() {
         this.candidateBuilder = new CandidateBuilder();
@@ -38,13 +36,6 @@ public class AdaNet extends TrainAlgorithm {
         this.candidateFinder = candidateFinder;
     }
 
-    public void setPipeline(Pipeline pipeline) {
-        this.trainPipeline = pipeline;
-    }
-
-    public Pipeline getPipeline() {
-        return this.trainPipeline;
-    }
 
     public CandidateEvaluationResult getBestCandidateResult() {
         return bestCandidateResult;
@@ -57,7 +48,7 @@ public class AdaNet extends TrainAlgorithm {
     }
 
     public void execute() {
-        if (trainPipeline == null) {
+        if (getTrainPipeline() == null) {
             throw new IllegalStateException("Train pipeline not set");
         }
 
@@ -90,8 +81,8 @@ public class AdaNet extends TrainAlgorithm {
     private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
         ArchitectureSymbol candidateArchitecture = candidateBuilder.createArchitectureFromCandidate(candidate);
         Configuration configuration = new Configuration();
-        this.trainPipeline.execute(candidateArchitecture, configuration);
-        float score = this.trainPipeline.getTrainedAccuracy();
+        this.getTrainPipeline().execute(candidateArchitecture, configuration);
+        float score = this.getTrainPipeline().getTrainedAccuracy();
         return new CandidateEvaluationResult(candidate, score);
     }
 

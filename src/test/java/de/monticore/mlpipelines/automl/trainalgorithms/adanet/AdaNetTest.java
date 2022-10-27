@@ -22,18 +22,10 @@ public class AdaNetTest extends TestCase {
     }
 
     @Test
-    public void testSetPipeline() {
-        AdaNet adaNet = new AdaNet();
-        Pipeline pipeline = mock(Pipeline.class);
-        adaNet.setPipeline(pipeline);
-        assertNotNull(adaNet.getPipeline());
-    }
-
-    @Test
     public void testGetBestCandidateResult() {
         AdaNet adaNet = new AdaNet();
         Pipeline pipeline = mock(Pipeline.class);
-        adaNet.setPipeline(pipeline);
+        adaNet.setTrainPipeline(pipeline);
         ArchitectureSymbol architecture = ModelLoader.loadAdaNet();
         adaNet.execute();
         assertNotNull(adaNet.getBestCandidateResult());
@@ -55,11 +47,11 @@ public class AdaNetTest extends TestCase {
         assertTrue(exceptionThrown);
     }
 
+    @Test
     public void testExecuteStopsAtFirstIteration() {
         AdaNet adanet = new AdaNet();
         ArchitectureSymbol architectureSymbol = ModelLoader.loadAdaNet();
         Pipeline pipeline = mock(Pipeline.class);
-        CandidateEvaluationResult result = new CandidateEvaluationResult(null, 0);
         when(pipeline.getTrainedAccuracy()).thenReturn(0.0f);
         adanet.setTrainPipeline(pipeline);
         adanet.execute(architectureSymbol);
