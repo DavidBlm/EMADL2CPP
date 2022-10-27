@@ -1,9 +1,6 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;
@@ -23,32 +20,72 @@ public class CandidateBuilderTest extends TestCase {
         assertNotNull(architecture);
     }
 
-    public void testCreateCandidateReturnsArchitectureWithParallelBlock() {
+    public void testCreateCandidateHas6Layers() {
         AdaNetCandidate candidate = getAdaNetCandidate();
         CandidateBuilder candidateBuilder = new CandidateBuilder();
-
         ArchitectureSymbol architecture = candidateBuilder.candidateToArchitectureSymbol(candidate);
-        ArchitectureElementSymbol parallelBlock = getParallelBlock(architecture);
-        assertTrue(parallelBlock instanceof ParallelCompositeElementSymbol);
+        List<ArchitectureElementSymbol> layers = getLayers(architecture);
+        assertEquals(6, layers.size());
     }
 
-    public void testCreateCandidateReturnsArchitectureWithParallelBlockWithOneComponent() {
+    private static List<ArchitectureElementSymbol> getLayers(ArchitectureSymbol architecture) {
+        NetworkInstructionSymbol networkInstruction = architecture.getNetworkInstructions().get(0);
+        SerialCompositeElementSymbol serialCompositeElement = networkInstruction.getBody();
+        List<ArchitectureElementSymbol> layers = serialCompositeElement.getElements();
+        return layers;
+    }
+
+    public void testCreateCandidateHasClassificationLayer() {
         AdaNetCandidate candidate = getAdaNetCandidate();
         CandidateBuilder candidateBuilder = new CandidateBuilder();
-
         ArchitectureSymbol architecture = candidateBuilder.candidateToArchitectureSymbol(candidate);
 
-        ParallelCompositeElementSymbol parallelBlock = (ParallelCompositeElementSymbol) getParallelBlock(architecture);
-        List<ArchitectureElementSymbol> parallelElements = parallelBlock.getElements();
-        assertEquals(1, parallelElements.size());
+        List<ArchitectureElementSymbol> layers = getLayers(architecture);
+        LayerSymbol classificationLayer = (LayerSymbol) layers.get(4);
+        List<ArgumentSymbol> arguments = classificationLayer.getArguments();
+        assertEquals("FullyConnected", classificationLayer.getName());
+
+        assertEquals(1, arguments.size());
+        assertEquals("units", arguments.get(0).getName());
     }
 
+    public void testCreateCandidateHasParallelLayer() {
+        AdaNetCandidate candidate = getAdaNetCandidate();
+        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        ArchitectureSymbol architecture = candidateBuilder.candidateToArchitectureSymbol(candidate);
 
-    private static List<AdaNetComponent> getAdaNetComponentsWithOneElement() {
-        AdaNetComponent component = new AdaNetComponent(1);
-        List<AdaNetComponent> components = new ArrayList<>();
-        components.add(component);
-        return components;
+        List<ArchitectureElementSymbol> layers = getLayers(architecture);
+        LayerSymbol parallelLayer = (LayerSymbol) layers.get(1);
+        List<ArgumentSymbol> arguments = parallelLayer.getArguments();
+        assertEquals("FullyConnected", parallelLayer.getName());
+
+        assertEquals(2, arguments.size());
+        assertEquals("|", arguments.get(0).getName());
+        assertEquals("units", arguments.get(1).getName());
+    }
+
+    public void testCreateCandidateHasConcatenateAfterParallelLayer() {
+        AdaNetCandidate candidate = getAdaNetCandidate();
+        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        ArchitectureSymbol architecture = candidateBuilder.candidateToArchitectureSymbol(candidate);
+
+        List<ArchitectureElementSymbol> layers = getLayers(architecture);
+        LayerSymbol concatenateLayer = (LayerSymbol) layers.get(2);
+        assertEquals("Concatenate", concatenateLayer.getName());
+    }
+
+    public void testCreateCandidateHasNonParallelLayer() {
+        AdaNetCandidate candidate = getAdaNetCandidate();
+        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        ArchitectureSymbol architecture = candidateBuilder.candidateToArchitectureSymbol(candidate);
+
+        List<ArchitectureElementSymbol> layers = getLayers(architecture);
+        LayerSymbol nonParallelLayer = (LayerSymbol) layers.get(3);
+        List<ArgumentSymbol> arguments = nonParallelLayer.getArguments();
+        assertEquals("FullyConnected", nonParallelLayer.getName());
+
+        assertEquals(1, arguments.size());
+        assertEquals("units", arguments.get(0).getName());
     }
 
     private static AdaNetCandidate getAdaNetCandidate() {
@@ -57,12 +94,6 @@ public class CandidateBuilderTest extends TestCase {
         AdaNetComponent component = new AdaNetComponent(2);
         AdaNetCandidate candidate = new AdaNetCandidate(component, previousComponents);
         return candidate;
-    }
-
-    private static ArchitectureElementSymbol getParallelBlock(ArchitectureSymbol candidate) {
-        List<ArchitectureElementSymbol> elements = getArchitectureElementSymbols(candidate);
-        ArchitectureElementSymbol parallelBlock = elements.get(1);
-        return parallelBlock;
     }
 
     private static List<ArchitectureElementSymbol> getArchitectureElementSymbols(ArchitectureSymbol candidate) {
