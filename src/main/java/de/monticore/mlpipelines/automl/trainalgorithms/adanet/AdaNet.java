@@ -4,6 +4,8 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 // For at most n iterations:
@@ -64,10 +66,35 @@ public class AdaNet extends TrainAlgorithm {
     }
 
     private AdaNetCandidate selectBestCandidate(List<AdaNetCandidate> candidates) {
-        // train all candidates
-        // evaluate all candidates
-        // select best candidate
-        // return best candidate
-        return candidates.get(0);
+        HashMap<AdaNetCandidate, Float> candidateScores = new HashMap<AdaNetCandidate, Float>();
+        for (AdaNetCandidate candidate : candidates) {
+            List<String> candidateEmadlContent = candidate.getEmadl();
+            ArchitectureSymbol candidateArchitecture = createArchitectureFromEmadl(candidateEmadlContent);
+            float score = trainCandidate(candidateArchitecture);
+            candidateScores.put(candidate, score);
+        }
+
+        AdaNetCandidate bestCandidate = getAdaNetCandidateWithHighestScore(candidateScores);
+        return bestCandidate;
+    }
+
+    private ArchitectureSymbol createArchitectureFromEmadl(List<String> candidateEmadlContent) {
+        ArchitectureSymbol candidateArchitecture = null;
+
+    }
+
+    private AdaNetCandidate getAdaNetCandidateWithHighestScore(HashMap<AdaNetCandidate, Float> candidateScores) {
+        Iterator<AdaNetCandidate> it = candidateScores.keySet().iterator();
+        AdaNetCandidate fk = it.next();
+        Float max = candidateScores.get(fk);
+        while(it.hasNext()) {
+            AdaNetCandidate k = it.next();
+            Float val = candidateScores.get(k);
+            if (val > max){
+                max = val;
+                fk=k;
+            }
+        }
+        return fk;
     }
 }
