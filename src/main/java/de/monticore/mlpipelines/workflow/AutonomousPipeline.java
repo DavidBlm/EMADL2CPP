@@ -9,4 +9,12 @@ public abstract class AutonomousPipeline extends AbstractWorkflow {
     public abstract void generateTrainingConfiguration();
 
     public abstract Path generatePipelineExecutionScript();
+
+    public void executePipelineSpecificWorkflow(){
+        selectSchemaAPI() ;
+        generateTrainingConfiguration();
+        generatePipelineExecutionScript();
+        // execute script
+        // read results
+    }
 }
