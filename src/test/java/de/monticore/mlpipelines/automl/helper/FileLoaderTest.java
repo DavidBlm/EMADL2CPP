@@ -1,6 +1,7 @@
 package de.monticore.mlpipelines.automl.helper;
 
 import junit.framework.TestCase;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,7 +14,7 @@ public class FileLoaderTest extends TestCase {
 
     public void testLoadResourceFile() {
         FileLoader ressourceLoader = new FileLoader();
-        String modelName = "models/adanet/resourceloadertest.txt";
+        String modelName = "models/adanet/ResourceLoaderTest.txt";
         List<String> lines = ressourceLoader.loadResourceFile(modelName);
         assertEquals(2, lines.size());
         assertEquals("test", lines.get(0));
@@ -23,7 +24,19 @@ public class FileLoaderTest extends TestCase {
     public void testLoadFile() {
         FileLoader ressourceLoader = new FileLoader();
         String modelName = "ResourceLoaderTest2.txt";
-        String pathString = getTempModelPathString(modelName);
+
+        String pathString = "";
+        if (SystemUtils.IS_OS_WINDOWS) {
+            pathString = getTempModelPathString(modelName);
+        }
+        else if (SystemUtils.IS_OS_LINUX) {
+            pathString = getTempModelPathString(modelName);
+            pathString = pathString.substring(0, 4) + "/" + pathString.substring(4);
+        }
+        else {
+            throw new IllegalStateException("OS is not supported (support only for Windows or Linux).");
+        }
+
         createDummyTempFile(ressourceLoader, pathString);
 
         List<String> lines = ressourceLoader.loadFile(pathString);
@@ -49,7 +62,19 @@ public class FileLoaderTest extends TestCase {
     public void testWriteToFile() {
         FileLoader ressourceLoader = new FileLoader();
         String modelName = "ResourceLoaderTest2.txt";
-        String pathString = getTempModelPathString(modelName);
+
+        String pathString = "";
+
+        if (SystemUtils.IS_OS_WINDOWS) {
+            pathString = getTempModelPathString(modelName);
+        }
+        else if (SystemUtils.IS_OS_LINUX) {
+            pathString = getTempModelPathString(modelName);
+            pathString = pathString.substring(0, 4) + "/" + pathString.substring(4);
+        }
+        else {
+            throw new IllegalStateException("OS is not supported (support only for Windows or Linux).");
+        }
 
         createDummyTempFile(ressourceLoader, pathString);
 
