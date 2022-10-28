@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.util.Optional;
 
 //TODO check compliance with  MC 7
-public abstract class AbstractParser {
+public abstract class AbstractParser<T extends ASTCNode> {
 
-    public ASTCNode parseModelOrThrowException(final String pathToModel) throws IOException {
+    public T parseModelOrThrowException(final String pathToModel) throws IOException {
 
         return parseModel(pathToModel).orElseThrow(IllegalStateException::new);
     }
 
-    abstract public Optional<? extends ASTCNode> parseModel(final String pathToModel) throws IOException;
+    abstract public Optional<T> parseModel(final String pathToModel) throws IOException;
 }
