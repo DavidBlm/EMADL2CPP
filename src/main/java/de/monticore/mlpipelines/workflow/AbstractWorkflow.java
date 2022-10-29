@@ -5,6 +5,11 @@ import de.monticore.io.paths.ModelPath;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._ast.ASTEMACompilationUnit;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
+import de.monticore.lang.monticar.semantics.Constants;
+import de.monticore.lang.monticar.semantics.ExecutionSemantics;
+import de.monticore.lang.monticar.semantics.construct.SymtabCreator;
+import de.monticore.lang.tagging._symboltable.TaggingResolver;
+import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.parsing.ConfigurationLanguageParser;
 import de.monticore.parsing.EMADLParser;
 import de.monticore.symbolmanagement.SymbolTableCreator;
@@ -36,9 +41,11 @@ public abstract class AbstractWorkflow {
         return emaInstanceComponent.orElseThrow(IllegalStateException::new);
     }
 
-    //TODO implement me
     public EMAComponentInstanceSymbol addExecutionSemanticsToEmaComponent(EMAComponentInstanceSymbol pipelineReferenceModel) {
-        // new ExecutionSemantics(pipelineReferenceModel).addExecutionSemantics();
+        // TODO FMU substitute tagging resolver in the Execution Semantics project
+        final TaggingResolver symTab = SymtabCreator.createSymTab("src/test/resources", "src/main/resources",
+                Constants.SYNTHESIZED_COMPONENTS_ROOT);
+        new ExecutionSemantics(symTab, pipelineReferenceModel).addExecutionSemantics();
         return pipelineReferenceModel;
     }
 
@@ -52,9 +59,19 @@ public abstract class AbstractWorkflow {
 
     public void execute() throws IOException {
         // frontend
-//        parseTrainingConfiguration("");
-//        parsePipelineConfiguration("");
+        final MontiAnnaContext montiAnnaConfiguration = MontiAnnaContext.getInstance();
+        final String parentModelPath = montiAnnaConfiguration.getParentModelPath();
+        final String rootModelName = montiAnnaConfiguration.getRootModelName();
+        parseTrainingConfiguration(parentModelPath + rootModelName + ".conf");
+        parsePipelineConfiguration(parentModelPath + rootModelName + "Pipeline.conf");
         //symbol table creation
+
+        //calculate execution semantics
+        //TODO get from schema
+        final String pathToPipelineReferenceModel = montiAnnaConfiguration.getPipelineReferenceModelsPath()+ " PIPELINE NAME";
+        final EMAComponentInstanceSymbol pipelineReferenceModel = parsePipelineReferenceModelToEMAComponent(pathToPipelineReferenceModel);
+        final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = addExecutionSemanticsToEmaComponent(pipelineReferenceModel);
+
 
         //check cocos
 
@@ -62,11 +79,6 @@ public abstract class AbstractWorkflow {
 
         // backend-specific validations
 
-
-//        final EMAComponentInstanceSymbol pipelineReferenceModel = parsePipelineReferenceModelToEMAComponent("");
-
-        //calculate execution semantics
-//        final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = addExecutionSemanticsToEmaComponent(pipelineReferenceModel);
 
         //backend
         //generate backend artefacts: predictor,  "network" ,
