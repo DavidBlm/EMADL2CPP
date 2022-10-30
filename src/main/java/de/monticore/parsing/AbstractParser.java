@@ -8,7 +8,8 @@ import java.util.Optional;
 //TODO check compliance with  MC 7
 public abstract class AbstractParser<T extends ASTCNode> {
 
-    public T parseModelOrThrowException(final String pathToModel) throws IOException {
+    //TODO throw this method out
+    public T parseModelIfExists(final String pathToModel) throws IOException {
 
         return parseModel(pathToModel).orElseThrow(IllegalStateException::new);
     }

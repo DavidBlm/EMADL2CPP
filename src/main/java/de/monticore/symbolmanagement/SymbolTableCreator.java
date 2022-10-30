@@ -7,7 +7,6 @@ import de.monticore.symboltable.ResolvingConfiguration;
 import de.monticore.symboltable.Scope;
 
 public class SymbolTableCreator {
-
     public static Scope createEMADLSymbolTable(ASTEMACompilationUnit astemaCompilationUnit, MutableScope enclosingScope) {
        return new EMADLLanguage().getSymbolTableCreator(new ResolvingConfiguration(), enclosingScope).orElseThrow(IllegalStateException::new).createFromAST(astemaCompilationUnit);
     }
