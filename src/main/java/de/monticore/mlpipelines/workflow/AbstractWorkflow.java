@@ -68,30 +68,51 @@ public abstract class AbstractWorkflow {
         final String rootModelName = montiAnnaConfiguration.getRootModelName();
         parseTrainingConfiguration(parentModelPath + rootModelName + ".conf");
         parsePipelineConfiguration(parentModelPath + rootModelName + "Pipeline.conf");
-        //symbol table creation
+        createSymbolTable();
 
-        //calculate execution semantics
-        //TODO get from schema
-        final String pathToPipelineReferenceModel = montiAnnaConfiguration.getPipelineReferenceModelsPath() + " PIPELINE NAME";
-        final EMAComponentInstanceSymbol pipelineReferenceModel = parsePipelineReferenceModelToEMAComponent(pathToPipelineReferenceModel);
-        final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = addExecutionSemanticsToEmaComponent(pipelineReferenceModel);
-
-
-        //check cocos
-
-        // validate configurations against schemas : depends on learning method
-
-        // backend-specific validations
+        checkCoCos();
+        validateConfigurationAgainstSchemas(); // depends on learning method
+        backendSpecificValidations();
 
 
         //backend
-        //generate backend artefacts: predictor,  "network" ,
-        //extract and write artefacts in appropriate locations
-        // generate python training configuration: default if not available
-        //select schema api: default supervised, depends on learning method
+        calculateExecutionSemantics();
+        generateBackendArtefacts(parentModelPath + rootModelName + "Pipeline"); //predictor,  "network" ,
+        extractAndWriteArtefacts();
+        generatePythonTrainingConfiguration(); // default if not available
+        selectSchemaApi(); // default supervised, depends on learning method
 
         executePipelineSpecificWorkflow();
+    }
 
+    private void createSymbolTable() {
 
+    }
+
+    private void checkCoCos() {
+    }
+
+    private void validateConfigurationAgainstSchemas() {
+    }
+
+    private void backendSpecificValidations() {
+    }
+
+    private void calculateExecutionSemantics() throws IOException {
+        //TODO get from schema
+        final String pathToPipelineReferenceModel = montiAnnaConfiguration.getPipelineReferenceModelsPath() + " PIPELINE NAME";
+        final EMAComponentInstanceSymbol pipelineReferenceModel = parsePipelineReferenceModelToEMAComponent(
+                pathToPipelineReferenceModel);
+        final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = addExecutionSemanticsToEmaComponent(
+                pipelineReferenceModel);
+    }
+
+    private void extractAndWriteArtefacts() {
+    }
+
+    private void generatePythonTrainingConfiguration() {
+    }
+
+    private void selectSchemaApi() {
     }
 }
