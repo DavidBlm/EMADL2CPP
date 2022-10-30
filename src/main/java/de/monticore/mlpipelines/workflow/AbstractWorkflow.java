@@ -23,13 +23,17 @@ import java.util.Optional;
 
 public abstract class AbstractWorkflow {
     private final MontiAnnaContext montiAnnaConfiguration = MontiAnnaContext.getInstance();
+    private final String parentModelPath = montiAnnaConfiguration.getParentModelPath();
+    private final String rootModelName = montiAnnaConfiguration.getRootModelName();
 
     //parsing steps
-    public ASTConfLangCompilationUnit parseTrainingConfiguration(final String pathToTrainingConfiguration) throws IOException {
+    public ASTConfLangCompilationUnit parseTrainingConfiguration(final String pathToTrainingConfiguration)
+            throws IOException {
         return new ConfigurationLanguageParser().parseModelOrThrowException(pathToTrainingConfiguration);
     }
 
-    public ASTConfLangCompilationUnit parsePipelineConfiguration(final String pathToPipelineConfiguration) throws IOException {
+    public ASTConfLangCompilationUnit parsePipelineConfiguration(final String pathToPipelineConfiguration)
+            throws IOException {
         return new ConfigurationLanguageParser().parseModelOrThrowException(pathToPipelineConfiguration);
     }
 
@@ -64,8 +68,6 @@ public abstract class AbstractWorkflow {
 
     public void execute() throws IOException {
         // frontend
-        final String parentModelPath = montiAnnaConfiguration.getParentModelPath();
-        final String rootModelName = montiAnnaConfiguration.getRootModelName();
         parseTrainingConfiguration(parentModelPath + rootModelName + ".conf");
         parsePipelineConfiguration(parentModelPath + rootModelName + "Pipeline.conf");
         createSymbolTable();
