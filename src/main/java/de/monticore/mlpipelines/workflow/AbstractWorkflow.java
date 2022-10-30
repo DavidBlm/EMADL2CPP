@@ -10,6 +10,7 @@ import de.monticore.lang.monticar.semantics.Constants;
 import de.monticore.lang.monticar.semantics.ExecutionSemantics;
 import de.monticore.lang.monticar.semantics.construct.SymtabCreator;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
+import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.parsing.ConfigurationLanguageParser;
 import de.monticore.parsing.EMADLParser;
@@ -22,12 +23,21 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 public abstract class AbstractWorkflow {
-    private final MontiAnnaContext montiAnnaConfiguration = MontiAnnaContext.getInstance();
-    private final String parentModelPath = montiAnnaConfiguration.getParentModelPath();
-    private final String rootModelName = montiAnnaConfiguration.getRootModelName();
+    private final MontiAnnaContext montiAnnaContext = MontiAnnaContext.getInstance();
+    private final String parentModelPath = montiAnnaContext.getParentModelPath();
+    private final String rootModelName = montiAnnaContext.getRootModelName();
 
-    //parsing steps
-    public void execute() throws IOException {
+    private Pipeline pipeline;
+
+    public void setPipeline(final Pipeline pipeline) {
+        this.pipeline = pipeline;
+    }
+
+    public Pipeline getPipeline() {
+        return pipeline;
+    }
+
+    public final void execute() throws IOException {
         // frontend
         parseTrainingConfiguration(parentModelPath + rootModelName + ".conf");
         parsePipelineConfiguration(parentModelPath + rootModelName + "Pipeline.conf");
@@ -40,12 +50,15 @@ public abstract class AbstractWorkflow {
 
         //backend
         calculateExecutionSemantics();
-        generateBackendArtefacts(parentModelPath + rootModelName + "Pipeline"); //predictor,  "network" ,
+        generateBackendArtefactsIntoExpirement(parentModelPath + rootModelName + "Pipeline"); //predictor,  "network" ,
         extractAndWriteArtefacts();
-        generatePythonTrainingConfiguration(); // default if not available
-        selectSchemaApi(); // default supervised, depends on learning method
+        createPipeline();
+        executePipeline();
+        //  pipeline.readresults()
+    }
 
-        executePipelineSpecificWorkflow();
+    private void executePipeline() {
+        this.pipeline.execute();
     }
 
     public ASTConfLangCompilationUnit parseTrainingConfiguration(final String pathToTrainingConfiguration)
@@ -75,7 +88,7 @@ public abstract class AbstractWorkflow {
 
     private void calculateExecutionSemantics() throws IOException {
         //TODO get from schema
-        final String pathToPipelineReferenceModel = montiAnnaConfiguration.getPipelineReferenceModelsPath() + " PIPELINE NAME";
+        final String pathToPipelineReferenceModel = montiAnnaContext.getPipelineReferenceModelsPath() + " PIPELINE NAME";
         final EMAComponentInstanceSymbol pipelineReferenceModel = parsePipelineReferenceModelToEMAComponent(
                 pathToPipelineReferenceModel);
         final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = addExecutionSemanticsToEmaComponent(
@@ -84,23 +97,17 @@ public abstract class AbstractWorkflow {
 
     //    public abstract void generateBackendArtefacts();
 
-    public void generateBackendArtefacts(final String generationTargetPath) {
-        final CNNArchGenerator cnnArchGenerator = montiAnnaConfiguration.getTargetBackend().getCNNArchGenerator();
+    public void generateBackendArtefactsIntoExpirement(final String generationTargetPath) {
+        final CNNArchGenerator cnnArchGenerator = montiAnnaContext.getTargetBackend().getCNNArchGenerator();
         cnnArchGenerator.setGenerationTargetPath(generationTargetPath);
-        cnnArchGenerator.generate(Paths.get(montiAnnaConfiguration.getParentModelPath()),
-                montiAnnaConfiguration.getRootModelName());
+        cnnArchGenerator.generate(Paths.get(montiAnnaContext.getParentModelPath()),
+                montiAnnaContext.getRootModelName());
     }
 
     private void extractAndWriteArtefacts() {
     }
 
-    private void generatePythonTrainingConfiguration() {
-    }
-
-    private void selectSchemaApi() {
-    }
-
-    public abstract void executePipelineSpecificWorkflow();
+    public abstract void createPipeline();
 
     public EMAComponentInstanceSymbol parsePipelineReferenceModelToEMAComponent(final String pathToPipeline)
             throws IOException {
