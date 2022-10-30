@@ -2,7 +2,7 @@ package de.monticore.mlpipelines.workflow;
 
 import java.nio.file.Path;
 
-public abstract class AutonomousPipeline extends AbstractWorkflow {
+public abstract class AutonomousPipelineWorkflow extends AbstractWorkflow {
 
     public abstract void selectSchemaAPI();
 

@@ -4,6 +4,7 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.io.paths.ModelPath;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._ast.ASTEMACompilationUnit;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
+import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
 import de.monticore.lang.monticar.semantics.Constants;
 import de.monticore.lang.monticar.semantics.ExecutionSemantics;
@@ -21,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 public abstract class AbstractWorkflow {
+    private final MontiAnnaContext montiAnnaConfiguration = MontiAnnaContext.getInstance();
 
     //parsing steps
     public ASTConfLangCompilationUnit parseTrainingConfiguration(final String pathToTrainingConfiguration) throws IOException {
@@ -49,8 +51,11 @@ public abstract class AbstractWorkflow {
         return pipelineReferenceModel;
     }
 
-    //generation
-    public abstract void generateBackendArtefacts();
+    public void generateBackendArtefacts(final String generationTargetPath) {
+        final CNNArchGenerator cnnArchGenerator = montiAnnaConfiguration.getTargetBackend().getCNNArchGenerator();
+        cnnArchGenerator.setGenerationTargetPath(generationTargetPath);
+        cnnArchGenerator.generate(Paths.get(montiAnnaConfiguration.getParentModelPath()), montiAnnaConfiguration.getRootModelName());
+    }
 
     //    public abstract void generateBackendArtefacts();
     public abstract void executePipelineSpecificWorkflow();
@@ -59,7 +64,6 @@ public abstract class AbstractWorkflow {
 
     public void execute() throws IOException {
         // frontend
-        final MontiAnnaContext montiAnnaConfiguration = MontiAnnaContext.getInstance();
         final String parentModelPath = montiAnnaConfiguration.getParentModelPath();
         final String rootModelName = montiAnnaConfiguration.getRootModelName();
         parseTrainingConfiguration(parentModelPath + rootModelName + ".conf");
@@ -68,7 +72,7 @@ public abstract class AbstractWorkflow {
 
         //calculate execution semantics
         //TODO get from schema
-        final String pathToPipelineReferenceModel = montiAnnaConfiguration.getPipelineReferenceModelsPath()+ " PIPELINE NAME";
+        final String pathToPipelineReferenceModel = montiAnnaConfiguration.getPipelineReferenceModelsPath() + " PIPELINE NAME";
         final EMAComponentInstanceSymbol pipelineReferenceModel = parsePipelineReferenceModelToEMAComponent(pathToPipelineReferenceModel);
         final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = addExecutionSemanticsToEmaComponent(pipelineReferenceModel);
 
