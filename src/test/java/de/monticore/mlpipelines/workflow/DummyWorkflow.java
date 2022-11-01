@@ -1,12 +1,10 @@
 package de.monticore.mlpipelines.workflow;
 
-public class DummyWorkflow  extends  AbstractWorkflow{
+import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
+
+public class DummyWorkflow extends AbstractWorkflow {
     @Override
-    public void executePipelineSpecificWorkflow() {
+    public void createPipeline(final LearningMethod learningMethod) {
     }
 
-    @Override
-    public void readResults() {
-
-    }
 }

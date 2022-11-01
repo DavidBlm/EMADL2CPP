@@ -1,5 +1,6 @@
 package de.monticore.mlpipelines.configuration;
 
+import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.lang.monticar.emadl.generator.Backend;
 
 public final class MontiAnnaContext {
@@ -9,7 +10,13 @@ public final class MontiAnnaContext {
     private static MontiAnnaContext montiAnnaConfiguration;
     private final String pipelineReferenceModelsPath = "";
 
+    private LearningMethod learningMethod;
+
+    private ExperimentConfiguration experimentConfiguration;
+
     private final Backend targetBackend = Backend.PYTORCH;
+    private MontiAnnaContext() {
+    }
 
     private MontiAnnaContext() {}
 
