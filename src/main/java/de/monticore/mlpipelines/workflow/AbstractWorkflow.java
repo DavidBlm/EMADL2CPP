@@ -5,6 +5,7 @@ import de.monticore.io.paths.ModelPath;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._ast.ASTEMACompilationUnit;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
+import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
 import de.monticore.lang.monticar.semantics.Constants;
 import de.monticore.lang.monticar.semantics.ExecutionSemantics;
@@ -51,8 +52,8 @@ public abstract class AbstractWorkflow {
         //backend
         calculateExecutionSemantics();
         generateBackendArtefactsIntoExpirement(parentModelPath + rootModelName + "Pipeline"); //predictor,  "network" ,
-        extractAndWriteArtefacts();
-        createPipeline();
+        final LearningMethod learningMethod = LearningMethod.SUPERVISED;
+        createPipeline(learningMethod);
         executePipeline();
         //  pipeline.readresults()
     }
@@ -104,10 +105,7 @@ public abstract class AbstractWorkflow {
                 montiAnnaContext.getRootModelName());
     }
 
-    private void extractAndWriteArtefacts() {
-    }
-
-    public abstract void createPipeline();
+    public abstract void createPipeline(final LearningMethod learningMethod);
 
     public EMAComponentInstanceSymbol parsePipelineReferenceModelToEMAComponent(final String pathToPipeline)
             throws IOException {
