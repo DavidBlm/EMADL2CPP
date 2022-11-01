@@ -9,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BackendTest {
 
-    //TODO Need to be fixed
+
+    //TODO fix me
     @Test
     void generateBackendArtefacts() {
         MontiAnnaContext.getInstance().initContext("src/test/resources/models/", "", null);
