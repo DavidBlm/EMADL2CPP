@@ -5,15 +5,15 @@ import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlg
 public class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
 
     // TODO: Specify datatype
-    private Object currentHyperparameters;
+    private double[] currentHyperparameters;
 
     // TODO: Specify datatype
-    public Object updateHyperparams() {
-        Object updatedHyperparameters = null;
+    public double[] updateHyperparams() {
+        double[] updatedHyperparameters = null;
         return updatedHyperparameters;
     }
 
-    public Object getCurrentHyperparameters() {
+    public double[] getCurrentHyperparameters() {
         return this.currentHyperparameters;
     }
 }

@@ -2,9 +2,10 @@ package de.monticore.mlpipelines.automl.hyperparameters;
 
 public abstract class AbstractHyperparameterAlgorithm {
 
-    private int currentIteration;
+    protected int currentIteration;
 
     public void executeIteration() {
+        this.currentIteration++;
         // TODO: Implement method
     }
 }
