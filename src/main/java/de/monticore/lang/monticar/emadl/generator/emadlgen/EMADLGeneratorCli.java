@@ -162,6 +162,10 @@ public class EMADLGeneratorCli {
             composedNetworksFileName = composedNetworksFileName + "_" + rootModelName + Randomizer.timeStamp();
         }
 
+        if (outputPath != null && outputPath != ""){
+            composedNetworksFileName = outputPath + "/" + composedNetworksFileName;
+        }
+
         if (backendString == null) {
             Log.warn("Backend not specified. Backend set to default value " + DEFAULT_BACKEND);
             backendString = DEFAULT_BACKEND;

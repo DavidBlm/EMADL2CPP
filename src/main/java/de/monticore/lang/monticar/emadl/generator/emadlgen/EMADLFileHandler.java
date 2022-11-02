@@ -43,8 +43,9 @@ public class EMADLFileHandler {
 
     private String composedNetworksFilePath = "";
 
-    public EMADLFileHandler(EMADLGenerator emadlGen){
+    public EMADLFileHandler(EMADLGenerator emadlGen, String composedNetworksFilePath){
         this.emadlGen =  emadlGen;
+        this.composedNetworksFilePath = composedNetworksFilePath;
     }
 
     protected String getAdaNetUtils() {
@@ -316,16 +317,28 @@ public class EMADLFileHandler {
         List<String> newHashes = new ArrayList<>();
 
         ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworksFilePath);
+        ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);
 
-        for (EMAComponentInstanceSymbol componentInstance : allInstances) {
+        for (EMAComponentInstanceSymbol componentInstance : networks) {
             Optional<ArchitectureSymbol> architecture = componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
             // added for future use if one wants to change the location of the AdaNet python files
 
-            if (!architecture.isPresent() /*|| !nss.isComposedNet(componentInstance.getName())*/) {
+            /*
+            if (!architecture.isPresent()) {
                 continue;
             }
 
             if (forced.equals("n")) {
+                continue;
+            }
+
+            */
+
+            if (!architecture.isPresent() || forced.equals("n")) {
+                continue;
+            }
+
+            if ( (!architecture.isPresent() && !composedNetworkHandler.isComposedNet(componentInstance)) || composedNetworkHandler.isPartOfComposedNet(componentInstance) ) {
                 continue;
             }
 

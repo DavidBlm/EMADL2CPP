@@ -1,6 +1,7 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbolReference;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
@@ -34,6 +35,18 @@ public class ComposedNetworkHandler {
     public boolean isComposedNet(EMAComponentInstanceSymbol instanceSymbol){
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             //networkStructureInformation.getR
+            if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null && instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isPartOfComposedNet(EMAComponentInstanceSymbol instanceSymbol){
+        for (NetworkStructureInformation networkStructureInformation : composedNetworks){
+            if (instanceSymbol != null && networkStructureInformation.isInstancePartOfNetwork(instanceSymbol)) {
+                return true;
+            }
         }
         return false;
     }
@@ -52,20 +65,34 @@ public class ComposedNetworkHandler {
             }
         }
 
-
-
+        /*
         for (EMAComponentInstanceSymbol instanceSymbol : componentInstances){
             for (NetworkStructureInformation networkStructureInformation: this.composedNetworks){
                 String instanceSymbolName = instanceSymbol.getComponentType().getReferencedSymbol().getName();
                 if (instanceSymbolName.equals(networkStructureInformation.getNetworkName())){
                     networkStructureInformation.addInstance(instanceSymbol);
+                    networkStructureInformation.setSymbolReference((EMAComponentSymbolReference) instanceSymbol.getComponentType());
                     networks.add(instanceSymbol);
+
                 }
             }
         }
+        */
+
+        for (NetworkStructureInformation networkStructureInformation: this.composedNetworks){
+            EMAComponentInstanceSymbol hitInstance = networkStructureInformation.addInstancesAndSymbolReference(componentInstances);
+            if (hitInstance != null){
+                networks.add(hitInstance);
+            }
+        }
+
+
+
+        //if (networks.size() == 0) {
+
+        //}
 
         Log.info("Processing instances:" + composedNetworks.toString(),"INSTANCE_PROCESSING");
-
         return networks;
     }
 

@@ -127,6 +127,7 @@ public class EMADLCNNHandler {
                 String instanceConfigFilename = null;
 
                 if (composedNetworkHandler.isComposedNet(componentInstance)){
+
                     String rootNetworkName = composedNetworkHandler.findConfigFileName(componentInstance);
                     if (Strings.isNullOrEmpty(rootNetworkName)) {
                         String message = String.format("(Root) network config not found");
@@ -136,7 +137,6 @@ public class EMADLCNNHandler {
                     String packagePath = component.getFullName().replaceAll("\\." ,"/");
                     int lastIndex = packagePath.lastIndexOf("/");
                     packagePath = packagePath.substring(0,lastIndex+1) ;
-
 
                     componentConfigFilename = packagePath + rootNetworkName;
                     instanceConfigFilename = packagePath + rootNetworkName + "_" + rootNetworkName;
@@ -148,10 +148,16 @@ public class EMADLCNNHandler {
 
                 String trainConfigFilename = emadlFileHandler.getConfigFilename(mainComponentConfigFilename, componentConfigFilename, instanceConfigFilename);
                 if (Strings.isNullOrEmpty(trainConfigFilename)) {
-                    String message = String.format("Missing training configuration. Could not find a file with any of the following names (only one needed): '%s.conf', '%s.conf', '%s.conf'. These files denote respectively the configuration for the single instance, the component or the whole system.",
-                            emadlFileHandler.getModelsPath() + instanceConfigFilename, emadlFileHandler.getModelsPath() + componentConfigFilename, emadlFileHandler.getModelsPath() + mainComponentConfigFilename);
-                    Log.error(message);
-                    throw new RuntimeException(String.format("Missing training configuration for network '%s'", mainComponentName));
+                    if (!composedNetworkHandler.isComposedNet(componentInstance) && composedNetworkHandler.isPartOfComposedNet(componentInstance)){
+                        Log.info("Found part of composed net","COMPOSED_NET_PART");
+                        continue;
+                    } else {
+                        String message = String.format("Missing training configuration. Could not find a file with any of the following names (only one needed): '%s.conf', '%s.conf', '%s.conf'. These files denote respectively the configuration for the single instance, the component or the whole system.",
+                                emadlFileHandler.getModelsPath() + instanceConfigFilename, emadlFileHandler.getModelsPath() + componentConfigFilename, emadlFileHandler.getModelsPath() + mainComponentConfigFilename);
+                        Log.error(message);
+                        throw new RuntimeException(String.format("Missing training configuration for network '%s'", mainComponentName));
+                    }
+
                 }
 
                 cnnTrainGenerator.setGenerationTargetPath(emadlGenerator.getGenerationTargetPath());

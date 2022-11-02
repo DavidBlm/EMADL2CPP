@@ -59,7 +59,7 @@ public class EMADLGenerator implements EMAMGenerator {
         emamGen.setGenerationTargetPath("./target/generated-sources-emadl/");
         GeneratorPythonWrapperFactory pythonWrapperFactory = new GeneratorPythonWrapperFactory();
         pythonWrapper = new GeneratorPythonWrapperStandaloneApi();
-        emadlFileHandler = new EMADLFileHandler(this);
+        emadlFileHandler = new EMADLFileHandler(this, composedNetworkFilePath);
         emadlTaggingHandler = new EMADLTagging(this);
         emadlCNNHandler = new EMADLCNNHandler(this, processedArchitecture, pythonWrapper, this.composedNetworkFilePath);
     }
