@@ -4,7 +4,6 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.io.paths.ModelPath;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._ast.ASTEMACompilationUnit;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
-import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
 import de.monticore.lang.monticar.semantics.Constants;
@@ -12,6 +11,7 @@ import de.monticore.lang.monticar.semantics.ExecutionSemantics;
 import de.monticore.lang.monticar.semantics.construct.SymtabCreator;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.mlpipelines.Pipeline;
+import de.monticore.mlpipelines.backend.generation.MontiAnnaGenerator;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.parsing.ConfigurationLanguageParser;
 import de.monticore.parsing.EMADLParser;
@@ -28,7 +28,13 @@ public abstract class AbstractWorkflow {
     private final String parentModelPath = montiAnnaContext.getParentModelPath();
     private final String rootModelName = montiAnnaContext.getRootModelName();
 
+    private MontiAnnaGenerator montiAnnaGenerator;
+
     private Pipeline pipeline;
+
+    public void setMontiAnnaGenerator(final MontiAnnaGenerator montiAnnaGenerator) {
+        this.montiAnnaGenerator = montiAnnaGenerator;
+    }
 
     public void setPipeline(final Pipeline pipeline) {
         this.pipeline = pipeline;
@@ -47,11 +53,9 @@ public abstract class AbstractWorkflow {
         checkCoCos();
         validateConfigurationAgainstSchemas(); // depends on learning method
         backendSpecificValidations();
-
-
         //backend
         calculateExecutionSemantics();
-        generateBackendArtefactsIntoExpirement(parentModelPath + rootModelName + "Pipeline"); //predictor,  "network" ,
+        generateBackendArtefactsIntoExperiment(); //predictor,  "network" ,
         final LearningMethod learningMethod = LearningMethod.SUPERVISED;
         createPipeline(learningMethod);
         executePipeline();
@@ -62,6 +66,7 @@ public abstract class AbstractWorkflow {
         this.pipeline.execute();
     }
 
+    //TODO separating model path from model name ?
     public ASTConfLangCompilationUnit parseTrainingConfiguration(final String pathToTrainingConfiguration)
             throws IOException {
         return new ConfigurationLanguageParser().parseModelOrThrowException(pathToTrainingConfiguration);
@@ -71,7 +76,7 @@ public abstract class AbstractWorkflow {
             throws IOException {
         return new ConfigurationLanguageParser().parseModelOrThrowException(pathToPipelineConfiguration);
     }
-    //TODO separating model path from model name ?
+
 
     private void createSymbolTable() {
 
@@ -98,11 +103,8 @@ public abstract class AbstractWorkflow {
 
     //    public abstract void generateBackendArtefacts();
 
-    public void generateBackendArtefactsIntoExpirement(final String generationTargetPath) {
-        final CNNArchGenerator cnnArchGenerator = montiAnnaContext.getTargetBackend().getCNNArchGenerator();
-        cnnArchGenerator.setGenerationTargetPath(generationTargetPath);
-        cnnArchGenerator.generate(Paths.get(montiAnnaContext.getParentModelPath()),
-                montiAnnaContext.getRootModelName());
+    public void generateBackendArtefactsIntoExperiment() {
+       montiAnnaGenerator.generateTargetBackendArtefacts();
     }
 
     public abstract void createPipeline(final LearningMethod learningMethod);
