@@ -19,21 +19,23 @@ import java.util.List;
 //    if network with best component is not better than network without best component:
 //        stop adaNet and return network without best component
 
-public class AdaNet extends TrainAlgorithm {
+public class AdaNetAlgorithm extends TrainAlgorithm {
     private final CandidateFinder candidateFinder;
     private boolean stopAlgorithm = false;
-    private CandidateBuilder candidateBuilder;
+    private final CandidateEmadlBuilder candidateBuilder;
     private CandidateEvaluationResult bestCandidateResult;
 
-    public AdaNet() {
-        this.candidateBuilder = new CandidateBuilder();
+    public AdaNetAlgorithm(String sourceModelPath) {
+        String generatedModelPath = sourceModelPath.substring(0, sourceModelPath.length() - 6) + "Generated.emadl";
+        this.candidateBuilder = new CandidateEmadlBuilder(sourceModelPath, generatedModelPath);
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
         this.candidateFinder = new CandidateFinder(componentFinder);
     }
 
-    public AdaNet(CandidateFinder candidateFinder) {
+    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateEmadlBuilder candidateBuilder) {
         super();
         this.candidateFinder = candidateFinder;
+        this.candidateBuilder = candidateBuilder;
     }
 
 

@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class FileLoader {
-    public List<String> loadResourceFile(String modelName) {
+    public static List<String> loadResourceFile(String modelName) {
         URL url = Resources.getResource(modelName);
         try {
             Path path = Paths.get(url.toURI());
@@ -23,7 +23,7 @@ public class FileLoader {
         }
     }
 
-    public List<String> loadFile(String pathString) {
+    public static List<String> loadFile(String pathString) {
         try {
             Path path = Paths.get(pathString);
             return Files.readAllLines(path, StandardCharsets.UTF_8);
@@ -32,7 +32,7 @@ public class FileLoader {
         }
     }
 
-    public String writeToFile(List<String> lines, String pathString) {
+    public static String writeToFile(List<String> lines, String pathString) {
         try {
             Path path = Paths.get(pathString);
             Files.write(path, lines, StandardCharsets.UTF_8);
