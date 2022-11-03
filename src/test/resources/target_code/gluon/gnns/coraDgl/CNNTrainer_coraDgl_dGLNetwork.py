@@ -7,7 +7,7 @@ import mxnet as mx
 import CNNCreator_coraDgl_dGLNetwork
 import CNNDataLoader_coraDgl_dGLNetwork
 import CNNSupervisedTrainer_coraDgl_dGLNetwork
-from CNNDataLoader_coraDgl_dGLNetwork import RetrainingConf
+from CNNDatasets_coraDgl_dGLNetwork import RetrainingConf
 
 if __name__ == "__main__":
     logger = logging.getLogger()

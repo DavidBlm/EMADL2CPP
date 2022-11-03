@@ -15,20 +15,7 @@ import numpy as np
 from mxnet import nd
 
 
-@dataclass
-class Dataset:
-    id: str
-    path: pathlib.Path
-    graphFile: t.Optional[pathlib.Path] = None
-
-@dataclass
-class TrainingDataset(Dataset):
-    retraining: bool = True
-
-@dataclass
-class RetrainingConf:
-    testing: Dataset
-    changes: t.List[TrainingDataset]
+from CNNDatasets_cartpole_master_dqn import Dataset, TrainingDataset, RetrainingConf
 
 class CNNDataLoader_cartpole_master_dqn: # pylint: disable=invalid-name
     _input_names_ = ['state']

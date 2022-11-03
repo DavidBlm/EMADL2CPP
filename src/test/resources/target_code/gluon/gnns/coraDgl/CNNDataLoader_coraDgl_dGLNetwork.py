@@ -6,7 +6,6 @@ import os
 import pathlib
 import sys
 import typing as t
-from dataclasses import dataclass
 from types import SimpleNamespace
 
 import h5py
@@ -16,20 +15,7 @@ from mxnet import nd
 
     from dgl.data.utils import load_graphs
 
-@dataclass
-class Dataset:
-    id: str
-    path: pathlib.Path
-    graphFile: t.Optional[pathlib.Path] = None
-
-@dataclass
-class TrainingDataset(Dataset):
-    retraining: bool = True
-
-@dataclass
-class RetrainingConf:
-    testing: Dataset
-    changes: t.List[TrainingDataset]
+from CNNDatasets_coraDgl_dGLNetwork import Dataset, TrainingDataset, RetrainingConf
 
 class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
     _input_names_ = ['graph', 'features', ]

@@ -7,7 +7,7 @@ import mxnet as mx
 import CNNCreator_mnist_mnistClassifier_net
 import CNNDataLoader_mnist_mnistClassifier_net
 import CNNSupervisedTrainer_mnist_mnistClassifier_net
-from CNNDataLoader_mnist_mnistClassifier_net import RetrainingConf
+from CNNDatasets_mnist_mnistClassifier_net import RetrainingConf
 
 if __name__ == "__main__":
     logger = logging.getLogger()
