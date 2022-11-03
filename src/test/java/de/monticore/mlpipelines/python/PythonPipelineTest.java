@@ -10,7 +10,7 @@ class PythonPipelineTest {
 
     @Test
     void createSchemaApiPathFromLearningMethod() {
-        final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("src/test/resources/experiment/configuration", "", "");
+        final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("src/test/resources/experiment/configuration", "", "", "");
         MontiAnnaContext.getInstance().initContext(null, null, experimentConfiguration);
         final PythonPipeline pythonPipeline = new PythonPipeline(LearningMethod.SUPERVISED);
         final String schemaApiPathFromLearningMethod = pythonPipeline.createSchemaApiPathFromLearningMethod().toString();

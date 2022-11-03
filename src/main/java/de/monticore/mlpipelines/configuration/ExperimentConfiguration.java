@@ -7,10 +7,13 @@ public class ExperimentConfiguration {
     private final  String pathToPipelineImplementations;
 
     private final  String pathToExecutionScript;
-    public ExperimentConfiguration(final String pathToTrainingConfiguration, final String pathToPipelineImplementations, final String pathToExecutionScript) {
+    private final String pathForGeneratedBackendArtefacts;
+
+    public ExperimentConfiguration(final String pathToTrainingConfiguration, final String pathToPipelineImplementations, final String pathToExecutionScript, final String pathForGeneratedBackendArtefacts) {
         this.pathToTrainingConfiguration = pathToTrainingConfiguration;
         this.pathToPipelineImplementations = pathToPipelineImplementations;
         this.pathToExecutionScript = pathToExecutionScript;
+        this.pathForGeneratedBackendArtefacts = pathForGeneratedBackendArtefacts;
     }
 
     public String getPathToTrainingConfiguration() {
@@ -23,5 +26,9 @@ public class ExperimentConfiguration {
 
     public String getPathToExecutionScript() {
         return pathToExecutionScript;
+    }
+
+    public String getGenerationTargetPath() {
+        return pathForGeneratedBackendArtefacts;
     }
 }
