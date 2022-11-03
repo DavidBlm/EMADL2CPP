@@ -20,7 +20,9 @@ public class NetworkComposer {
         ArchitectureSymbol composedNet = null;
         try {
             composedNet = generateNetworkLevel(networkStructureInformation);
-        }catch (Exception e){
+            composedNet.setComponentName(networkStructureInformation.getNetworkName());
+
+        } catch (Exception e){
             Log.error("Generation of composed network failed");
             e.printStackTrace();
         }

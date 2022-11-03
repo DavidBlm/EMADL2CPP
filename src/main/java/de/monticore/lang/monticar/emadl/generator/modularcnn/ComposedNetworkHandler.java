@@ -15,9 +15,11 @@ import java.util.Set;
 public class ComposedNetworkHandler {
     private String composedNetworkFilePath;
     private ArrayList<NetworkStructureInformation> composedNetworks;
+    private NetworkComposer networkComposer;
     public ComposedNetworkHandler(String composedNetworkFilePath) {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
+        this.networkComposer = new NetworkComposer();
     }
 
     public String findConfigFileName(EMAComponentInstanceSymbol instanceSymbol){
@@ -39,6 +41,15 @@ public class ComposedNetworkHandler {
             }
         }
         return false;
+    }
+
+    public ArchitectureSymbol fetchComposedNetworkArchitectureSymbol(EMAComponentInstanceSymbol instanceSymbol){
+        for (NetworkStructureInformation networkStructureInformation : composedNetworks){
+            if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null && instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())) {
+                return  networkStructureInformation.getComposedNetworkArchitectureSymbol();
+            }
+        }
+        return null;
     }
 
     public boolean isPartOfComposedNet(EMAComponentInstanceSymbol instanceSymbol){
@@ -79,6 +90,8 @@ public class ComposedNetworkHandler {
         */
 
         for (NetworkStructureInformation networkStructureInformation: this.composedNetworks){
+            networkStructureInformation.setComposedNetworkArchitectureSymbol(composeNetwork(networkStructureInformation));
+
             EMAComponentInstanceSymbol hitInstance = networkStructureInformation.addInstancesAndSymbolReference(componentInstances);
             if (hitInstance != null){
                 networks.add(hitInstance);
@@ -100,8 +113,8 @@ public class ComposedNetworkHandler {
         return fileHandler.fetchKnownNetworksFromFile();
     }
 
-    public ArchitectureSymbol ComposeNetwork(NetworkStructureInformation networkStructureInformation){
-
-        return null;
+    public ArchitectureSymbol composeNetwork(NetworkStructureInformation networkStructureInformation){
+        ArchitectureSymbol composedNetwork = networkComposer.generateComposedNetwork(networkStructureInformation);
+        return composedNetwork;
     }
 }
