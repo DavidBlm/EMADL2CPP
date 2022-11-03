@@ -1,5 +1,6 @@
-package de.monticore.mlpipelines.backend.generation;
+package de.monticore.mlpipelines.workflow;
 
+import de.monticore.mlpipelines.backend.generation.MontiAnnaGenerator;
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import org.junit.jupiter.api.Test;
@@ -9,14 +10,14 @@ import java.util.Arrays;
 
 import static de.monticore.mlpipelines.util.TestUtil.*;
 
-
-class MontiAnnaGeneratorTest extends BackendTest {
+class AbstractWorkflowTest {
 
     @Test
-    void backendGenerationWithEMADLGenerator() {
-        final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("./target/generated-sources-emadl");
-        final MontiAnnaContext montiAnnaContext = initialiseContext("mnist.mnistClassifier", experimentConfiguration);
-        new MontiAnnaGenerator(montiAnnaContext).generateTargetBackendArtefacts();
+    void generateBackendArtefactsIntoExperiment() {
+        final MontiAnnaContext montiAnnaContext = initialiseContext("mnist.mnistClassifier", new ExperimentConfiguration("./target/generated-sources-emadl"));
+        final DummyWorkflow dummyWorkflow = new DummyWorkflow();
+        dummyWorkflow.setMontiAnnaGenerator(new MontiAnnaGenerator(montiAnnaContext));
+        dummyWorkflow.generateBackendArtefactsIntoExperiment();
         checkFindingsCount();
 
         checkFilesAreEqual(
@@ -32,5 +33,4 @@ class MontiAnnaGeneratorTest extends BackendTest {
                         "execute_mnist_mnistClassifier_net",
                         "CNNPredictor_mnist_mnistClassifier_net.h"));
     }
-
 }

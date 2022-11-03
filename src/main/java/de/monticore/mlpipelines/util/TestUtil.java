@@ -1,5 +1,7 @@
 package de.monticore.mlpipelines.util;
 
+import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
+import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
@@ -15,6 +17,12 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TestUtil {
+
+    public static MontiAnnaContext initialiseContext(final String rootModelName, final ExperimentConfiguration experimentConfiguration1) {
+        MontiAnnaContext.getInstance().initContext("src/test/resources/models/", rootModelName, experimentConfiguration1);
+        return MontiAnnaContext.getInstance();
+
+    }
 
     /***
      * refactored from AbtractSymtabTest
