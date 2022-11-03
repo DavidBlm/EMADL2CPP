@@ -1,14 +1,16 @@
 package de.monticore.mlpipelines.backend.generation;
 
-import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-class MontiAnnaGeneratorTest extends AbstractSymtabTest {
+import static de.monticore.mlpipelines.util.TestUtil.checkFilesAreEqual;
+import static de.monticore.mlpipelines.util.TestUtil.checkFindingsCount;
+
+
+class MontiAnnaGeneratorTest extends BackendTest {
 
     @Test
     void backendGenerationWithEMADLGenerator() {
@@ -30,9 +32,4 @@ class MontiAnnaGeneratorTest extends AbstractSymtabTest {
                         "CNNPredictor_mnist_mnistClassifier_net.h"));
     }
 
-    private static MontiAnnaContext initialiseContext() {
-        final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("", "", "", "./target/generated-sources-emadl");
-        MontiAnnaContext.getInstance().initContext("src/test/resources/models/", "mnist.MnistClassifier", experimentConfiguration);
-        return MontiAnnaContext.getInstance();
-    }
 }
