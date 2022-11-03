@@ -34,7 +34,6 @@ public class ComposedNetworkHandler {
     //TODO: Finish detection if comp net here
     public boolean isComposedNet(EMAComponentInstanceSymbol instanceSymbol){
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
-            //networkStructureInformation.getR
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null && instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())) {
                 return true;
             }
@@ -99,5 +98,10 @@ public class ComposedNetworkHandler {
     private ArrayList<NetworkStructureInformation> loadNetworksFromFile(String composedNetworkFilePath){
         ComposedNetworkFileHandler fileHandler = new ComposedNetworkFileHandler(composedNetworkFilePath);
         return fileHandler.fetchKnownNetworksFromFile();
+    }
+
+    public ArchitectureSymbol ComposeNetwork(NetworkStructureInformation networkStructureInformation){
+
+        return null;
     }
 }
