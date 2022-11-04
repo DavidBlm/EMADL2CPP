@@ -16,6 +16,7 @@ public class EfficientNetConfig extends TrainAlgorithmConfig{
     private int minimumImageWidthAndHeight;
 
     private int phi;
+    private int numberClasses;
 
     public EfficientNetConfig() {
 
@@ -75,6 +76,14 @@ public class EfficientNetConfig extends TrainAlgorithmConfig{
 
     public void setPhi(int phi) {
         this.phi = phi;
+    }
+
+    public int getNumberClasses() {
+        return numberClasses;
+    }
+
+    public void setNumberClasses(int numberClasses) {
+        this.numberClasses = numberClasses;
     }
 
 }

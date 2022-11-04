@@ -1,4 +1,4 @@
-package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
+package de.monticore.mlpipelines.automl.helper;
 
 import java.util.List;
 

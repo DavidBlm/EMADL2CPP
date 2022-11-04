@@ -1,5 +1,7 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.mlpipelines.automl.helper.EmadlAble;
+
 import java.util.ArrayList;
 import java.util.List;
 
