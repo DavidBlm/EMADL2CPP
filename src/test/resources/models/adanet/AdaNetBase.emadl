@@ -4,7 +4,7 @@ component AdaNetBase<classes=10, layerWidth=10, imageSize=32>{
 
    implementation CNN {
        image ->
-       AdaNet(classes=classes) ->
+       AdaNet(classes=classes, layerWidth=layerWidth) ->
        predictions;
    }
 }
