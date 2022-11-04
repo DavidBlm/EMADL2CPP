@@ -6,7 +6,9 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CandidateBuilderTest extends TestCase {
+public class CandidateEmadlBuilderTest extends TestCase {
+    String modelPath = "src/test/resources/models/adanet/AdaNetBase.emadl";
+    String generatedModelPath = "src/test/resources/models/adanet/AdaNetBaseGenerated.emadl";
 
     public void testConstructor() {
         CandidateEmadlBuilder candidateBuilder = new CandidateEmadlBuilder(modelPath, generatedModelPath);
