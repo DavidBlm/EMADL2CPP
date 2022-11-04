@@ -89,6 +89,7 @@ public class CandidateEmadlBuilder {
         for (String line : emadlFileContent) {
             formattedEmadlFileContent.add("       " + line);
         }
+        formattedEmadlFileContent.add("       FullyConnected(units=classes) ->");
         return formattedEmadlFileContent;
     }
 }
