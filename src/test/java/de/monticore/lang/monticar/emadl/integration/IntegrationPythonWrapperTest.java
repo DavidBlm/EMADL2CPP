@@ -42,6 +42,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
                         "torcs_agent_torcsAgent_dqn.h",
                         "torcs_agent_torcsAgent_policy.h",
                         "CNNCreator_torcs_agent_torcsAgent_dqn.py",
+                        "CNNDatasets_torcs_agent_torcsAgent_dqn.py",
                         "CNNNet_torcs_agent_torcsAgent_dqn.py",
                         "CNNPredictor_torcs_agent_torcsAgent_dqn.h",
                         "CNNTrainer_torcs_agent_torcsAgent_dqn.py",
@@ -95,6 +96,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
                         "torcs_agent_torcsAgent.h",
                         "torcs_agent_torcsAgent_actor.h",
                         "CNNCreator_torcs_agent_torcsAgent_actor.py",
+                        "CNNDatasets_torcs_agent_torcsAgent_actor.py",
                         "CNNNet_torcs_agent_torcsAgent_actor.py",
                         "CNNPredictor_torcs_agent_torcsAgent_actor.h",
                         "CNNTrainer_torcs_agent_torcsAgent_actor.py",
@@ -120,6 +122,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
                         "reinforcement_learning/util.py",
                         "reinforcement_learning/cnnarch_logger.py",
                         "reinforcement_learning/CNNCreator_torcs_agent_network_torcsCritic.py",
+                        "reinforcement_learning/CNNDatasets_torcs_agent_network_torcsCritic.py",
                         "reinforcement_learning/CNNNet_torcs_agent_network_torcsCritic.py"
                 )
         );

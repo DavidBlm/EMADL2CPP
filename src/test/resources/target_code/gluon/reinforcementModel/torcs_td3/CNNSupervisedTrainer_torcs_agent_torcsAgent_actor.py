@@ -18,7 +18,7 @@ try:
     import AdamW
 except:
     pass
-from CNNDataLoader_torcs_agent_torcsAgent_actor import TrainingDataset
+from CNNDatasets_torcs_agent_torcsAgent_actor import TrainingDataset
 
 logger = logging.getLogger(__name__)
 

@@ -19,7 +19,7 @@ try:
     import AdamW
 except:
     pass
-from CNNDataLoader_coraDgl_dGLNetwork import TrainingDataset
+from CNNDatasets_coraDgl_dGLNetwork import TrainingDataset
 
 logger = logging.getLogger(__name__)
 

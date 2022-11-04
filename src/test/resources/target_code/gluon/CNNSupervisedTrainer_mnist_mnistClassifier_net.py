@@ -18,7 +18,7 @@ try:
     import AdamW
 except:
     pass
-from CNNDataLoader_mnist_mnistClassifier_net import TrainingDataset
+from CNNDatasets_mnist_mnistClassifier_net import TrainingDataset
 
 logger = logging.getLogger(__name__)
 
