@@ -41,4 +41,9 @@ public class MathNumberExpressionWrapper {
         Rational rational = number.getValue().getRealNumber();
         return RationalMath.getFloatValue(rational);
     }
+
+    public int getIntValue() {
+        Rational rational = number.getValue().getRealNumber();
+        return RationalMath.getIntValue(rational);
+    }
 }

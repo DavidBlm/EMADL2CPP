@@ -17,6 +17,16 @@ public class EfficientNetEmadlBuilderTest extends TestCase {
         assertNotNull(efficientNetEmadlBuilder);
     }
 
+    public void testGetEmadlCreatesHeader() {
+        ArchitectureSymbol architecture = ModelLoader.loadEfficientnetB0();
+        EfficientNetConfig config = createConfig();
+        EfficientNetEmadlBuilder efficientNetEmadlBuilder = new EfficientNetEmadlBuilder(architecture, config);
+        List<String> emadl = efficientNetEmadlBuilder.getEmadl();
+
+        assertEquals("component EfficientNetB1<classes=10>{", emadl.get(0));
+        assertEquals("}", emadl.get(emadl.size() - 1));
+    }
+
     private EfficientNetConfig createConfig() {
         EfficientNetConfig config = new EfficientNetConfig();
         config.setPhi(1);
@@ -25,13 +35,13 @@ public class EfficientNetEmadlBuilderTest extends TestCase {
         return config;
     }
 
-    public void testGetEmadl() {
+    public void testGetEmadlCreatesPorts() {
         ArchitectureSymbol architecture = ModelLoader.loadEfficientnetB0();
         EfficientNetConfig config = createConfig();
         EfficientNetEmadlBuilder efficientNetEmadlBuilder = new EfficientNetEmadlBuilder(architecture, config);
         List<String> emadl = efficientNetEmadlBuilder.getEmadl();
 
-        assertEquals("component EfficientNetB1<classes=10>{", emadl.get(0));
-        assertEquals("}", emadl.get(1));
+        assertEquals("    ports in Z(0:255)^{1, 16, 16} image,", emadl.get(1));
+        assertEquals("          out Z(0:1)^{10} prediction;", emadl.get(2));
     }
 }
