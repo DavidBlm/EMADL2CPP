@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
+import org.apache.commons.io.FileUtils;
+import java.io.File;
+import java.io.IOException;
+
 public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
 
     @Before
@@ -84,7 +88,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/reinforcementModel/torcs_td3", "-r", "torcs.agent.TorcsAgent", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
-        assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
+        assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());        
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon/reinforcementModel/torcs_td3"),

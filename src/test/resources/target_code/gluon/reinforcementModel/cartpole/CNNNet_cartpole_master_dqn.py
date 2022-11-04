@@ -15,9 +15,9 @@ class ZScoreNormalization(gluon.HybridBlock):
         super(ZScoreNormalization, self).__init__(**kwargs)
         with self.name_scope():
             self.data_mean = self.params.get('data_mean', shape=data_mean.shape,
-                init=mx.init.Constant(np.array(data_mean).tolist()), differentiable=False)
+                init=mx.init.Constant(data_mean.asnumpy()), differentiable=False)
             self.data_std = self.params.get('data_std', shape=data_mean.shape,
-                init=mx.init.Constant(np.array(data_std).tolist()), differentiable=False)
+                init=mx.init.Constant(data_std.asnumpy()), differentiable=False)
 
     def hybrid_forward(self, F, x, data_mean, data_std):
         x = F.broadcast_sub(x, data_mean)
@@ -601,7 +601,6 @@ class Net_0(gluon.HybridBlock):
 
 
             pass
-
 
     def hybrid_forward(self, F, state_):
         state_ = self.input_normalization_state_(state_)
