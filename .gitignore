@@ -9,3 +9,4 @@ nppBackup
 *.iml
 train.log
 model
+/src/test/resources/models/adanet/AdaNetBaseGenerated.emadl

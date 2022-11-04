@@ -23,21 +23,47 @@ public class CandidateEmadlBuilder {
 
         //Get filename and directory from generatedModelPath
         String[] pathParts = generatedModelPath.split("/");
-        String filename = pathParts[pathParts.length - 1];
-        String directory = generatedModelPath.replace(filename, "");
+        String modelName = getComponentNameFromPath(generatedModelPath);
+        modelName = lowercaseFirstChar(modelName);
+        String directory = getDirectoryFromPath(generatedModelPath);
 
-        ArchitectureSymbol architecture = ModelLoader.load(directory, filename);
+        ArchitectureSymbol architecture = ModelLoader.load(directory, modelName);
 
         return architecture;
     }
 
     private List<String> createEmadlFileContent(AdaNetCandidate candidate) {
         List<String> emadlFileContent = FileLoader.loadFile(sourceModelPath);
+        String oldComponentName = getComponentNameFromPath(sourceModelPath);
+        String newComponentName = getComponentNameFromPath(generatedModelPath);
+        emadlFileContent.set(0, emadlFileContent.get(0).replace(oldComponentName, newComponentName));
+        replaceAdanetWithAdanetCandidateEmadl(candidate, emadlFileContent);
+        return emadlFileContent;
+    }
+
+    private String getComponentNameFromPath(String path) {
+        String[] pathParts = path.split("/");
+        String filename = pathParts[pathParts.length - 1];
+        String name = filename.replace(".emadl", "");
+        return name;
+    }
+
+    private String lowercaseFirstChar(String s) {
+        return s.substring(0, 1).toLowerCase() + s.substring(1);
+    }
+
+    private String getDirectoryFromPath(String generatedModelPath) {
+        String[] pathParts = generatedModelPath.split("/");
+        String filename = pathParts[pathParts.length - 1];
+        String directory = generatedModelPath.replace(filename, "");
+        return directory;
+    }
+
+    private void replaceAdanetWithAdanetCandidateEmadl(AdaNetCandidate candidate, List<String> emadlFileContent) {
         int adanetLineIndex = getAdaNetLineIndex(emadlFileContent);
         List<String> candidateEmadl = getFormattedCandidateEmadl(candidate);
         emadlFileContent.remove(adanetLineIndex);
         emadlFileContent.addAll(adanetLineIndex, candidateEmadl);
-        return emadlFileContent;
     }
 
     private static int getAdaNetLineIndex(List<String> emadlFileContent) {

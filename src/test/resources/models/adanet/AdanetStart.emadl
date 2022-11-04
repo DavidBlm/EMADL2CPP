@@ -1,4 +1,4 @@
-component Adanet<classes=10, imageSize=32>{
+component AdanetStart<classes=10, imageSize=32>{
     ports in Z(0:255)^{1, imageSize, imageSize} image,
           out Q(0:1)^{classes} predictions;
 
