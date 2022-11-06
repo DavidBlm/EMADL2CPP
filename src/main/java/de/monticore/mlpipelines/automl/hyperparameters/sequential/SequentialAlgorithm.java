@@ -2,18 +2,17 @@ package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 
-public class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
+import java.util.Map;
 
-    // TODO: Specify datatype
-    private double[] currentHyperparameters;
+public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
 
-    // TODO: Specify datatype
-    public double[] updateHyperparams() {
-        double[] updatedHyperparameters = null;
-        return updatedHyperparameters;
+    private Map<String, Double> currentHyperparameters;
+
+    public Map<String, Double> getCurrentHyperparameters() {
+        return this.currentHyperparameters;
     }
 
-    public double[] getCurrentHyperparameters() {
-        return this.currentHyperparameters;
+    public void setCurrentHyperparameters(Map<String, Double> currentHyperparameters) {
+        this.currentHyperparameters = currentHyperparameters;
     }
 }
