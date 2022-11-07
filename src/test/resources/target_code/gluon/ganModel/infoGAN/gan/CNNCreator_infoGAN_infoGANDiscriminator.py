@@ -19,11 +19,18 @@ from CNNDatasets_infoGAN_infoGANDiscriminator import Dataset, TrainingDataset
 log = logging.getLogger(__name__)
 
 class CNNCreator_infoGAN_infoGANDiscriminator: # pylint: disable=invalid-name
+<<<<<<< HEAD
+=======
+    _model_basedir_ = pathlib.Path("model", "infoGAN.InfoGANDiscriminator")
+>>>>>>> origin/master
 
     def __init__(self):
         self.weight_initializer = mx.init.Normal()
         self.networks = {}
+<<<<<<< HEAD
         self._model_basedir_ = pathlib.Path("model", "infoGAN.InfoGANDiscriminator")
+=======
+>>>>>>> origin/master
         self.dataset: TrainingDataset = None
         self._weights_dir_ = None
 

@@ -1,5 +1,13 @@
 # (c) https://github.com/MontiCore/monticore
+import importlib
+import json
+import logging
 import os
+import pathlib
+import sys
+import typing as t
+from types import SimpleNamespace
+
 import h5py
 import logging
 import warnings
@@ -9,7 +17,10 @@ import importlib
 import mxnet as mx
 from mxnet import gluon, nd
 
-class CNNDataLoader_mnist_mnistClassifier_net:
+
+from CNNDatasets_mnist_mnistClassifier_net import Dataset, TrainingDataset, RetrainingConf
+
+class CNNDataLoader_mnist_mnistClassifier_net: # pylint: disable=invalid-name
     _input_names_ = ['image']
     _output_names_ = ['predictions_label']
 
@@ -67,6 +78,7 @@ class CNNDataLoader_mnist_mnistClassifier_net:
         data_mean = {}
         data_std = {}
         train_images = {}
+        test_images = {}
 
         for input_name in self._input_names_:
             if input_name in train_h5:
@@ -93,12 +105,6 @@ class CNNDataLoader_mnist_mnistClassifier_net:
 
                 if 'images' in train_h5:
                     train_images = train_h5['images']
-            else:
-                if input_name == 'graph':
-                    if multi_graph:
-                        train_graph, _ = load_graphs(self._data_dir + "train" + "_graph")
-                    else:
-                        train_graph, _ = load_graphs(self._data_dir + "graph")
 
         train_label = {}
         index = 0
@@ -127,10 +133,6 @@ class CNNDataLoader_mnist_mnistClassifier_net:
 
                     if 'images' in test_h5:
                         test_images = test_h5['images']
-                else:
-                    if input_name == 'graph':
-                        if multi_graph:
-                            test_graph, _ = load_graphs(self._data_dir + "test" + "_graph")
 
             test_label = {}
             index = 0
@@ -280,8 +282,10 @@ class CNNDataLoader_mnist_mnistClassifier_net:
             setattr(input_wrapper, output_name, data)
         return instance_wrapper.execute(input_wrapper)
 
-    def load_h5_files(self, learning_method=""):
-        train_h5 = None
+    def load_h5_files(self, learning_method="", dataset: pathlib.Path = None, test_dataset: t.Optional[str] = None):
+        if not dataset:
+            dataset = self._data_dir / "train.h5"
+        train_h5 = self.load_dataset(dataset, learning_method)
         test_h5 = None
         val_h5 = None
         train_path = self._data_dir + "train.h5"
@@ -373,7 +377,7 @@ class CNNDataLoader_mnist_mnistClassifier_net:
 
         test_iter = None
 
-        if test_h5 != None:
+        if test_h5 is not None:
             test_data = {}
             test_label = {}
             test_images = {}

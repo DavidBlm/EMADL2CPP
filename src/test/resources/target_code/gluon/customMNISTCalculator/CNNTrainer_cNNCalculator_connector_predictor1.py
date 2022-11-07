@@ -9,6 +9,7 @@ import CNNDataLoader_cNNCalculator_connector_predictor1
 from CNNDatasets_cNNCalculator_connector_predictor1 import RetrainingConf
 import CNNDataCleaner_cNNCalculator_connector_predictor1
 import CNNSupervisedTrainer_cNNCalculator_connector_predictor1
+from CNNDatasets_cNNCalculator_connector_predictor1 import RetrainingConf
 
 if __name__ == "__main__":
     logger = logging.getLogger()
@@ -31,6 +32,8 @@ if __name__ == "__main__":
         cNNCalculator_connector_predictor1_creator
     )
 
+    prev_dataset = None
+    retraining_conf = cNNCalculator_connector_predictor1_loader.load_retraining_conf()
     for dataset in retraining_conf.changes:
         cNNCalculator_connector_predictor1_creator.dataset = dataset
         if(dataset.retraining):
@@ -64,6 +67,6 @@ if __name__ == "__main__":
             )
         else: 
             logger.info("Skipped training of dataset %s. Training is not necessary", dataset.id)
-
+        
         prev_dataset = dataset
 
