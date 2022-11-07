@@ -42,6 +42,6 @@ public class EfficientNetEmadlBuilderTest extends TestCase {
         List<String> emadl = efficientNetEmadlBuilder.getEmadl();
 
         assertEquals("    ports in Z(0:255)^{1, 16, 16} image,", emadl.get(1));
-        assertEquals("          out Z(0:1)^{10} prediction;", emadl.get(2));
+        assertEquals("        out Q(0:1)^{10} predictions;", emadl.get(2));
     }
 }
