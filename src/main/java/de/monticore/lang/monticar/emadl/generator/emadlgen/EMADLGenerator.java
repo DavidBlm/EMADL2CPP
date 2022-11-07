@@ -284,7 +284,12 @@ public class EMADLGenerator implements EMAMGenerator {
         emaComponentSymbol.getFullName();
         /* */
 
-        Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
+        composedNetworkHandler.processComponentInstances(allInstances);
+
+        //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+        Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfInstance(componentInstanceSymbol);
+        //Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfReferencedSymbol(componentInstanceSymbol);
 
         // set the path to AdaNet python files
         architecture.ifPresent(architectureSymbol -> {architectureSymbol.setAdaNetUtils(emadlFileHandler.getAdaNetUtils());});
@@ -292,7 +297,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         EMADLCocos.checkAll(componentInstanceSymbol);
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
+
 
         if (architecture.isPresent()) {
 

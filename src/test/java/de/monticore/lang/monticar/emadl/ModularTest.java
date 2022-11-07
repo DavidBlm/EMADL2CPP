@@ -40,7 +40,14 @@ public class ModularTest extends AbstractSymtabTest {
             });
 
         }catch (Exception e) {
-            e.printStackTrace();
+            Log.info(e.toString(),"MODULAR_TEST_EXCEPTION");
+            StackTraceElement[] stackTraceElements = e.getStackTrace();
+            StringBuilder trace = new StringBuilder("Stack trace: \n");
+            for (StackTraceElement element:stackTraceElements){
+                trace.append(element.toString()).append("\n");
+            }
+            Log.info(trace.toString(),"MODULAR_TEST_EXCEPTION");
+
             if (!exceptionAllowed) assertFalse(true);
         }
 
