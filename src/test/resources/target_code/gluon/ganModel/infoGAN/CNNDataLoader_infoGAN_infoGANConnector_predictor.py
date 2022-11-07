@@ -1,11 +1,7 @@
 # (c) https://github.com/MontiCore/monticore
 import importlib
 import json
-<<<<<<< HEAD
 import logging, warnings
-=======
-import logging
->>>>>>> origin/master
 import os
 import pathlib
 import sys
@@ -13,25 +9,16 @@ import typing as t
 from types import SimpleNamespace
 
 import h5py
-<<<<<<< HEAD
 import numpy as np
 import mxnet as mx
 from mxnet import gluon, nd
 
-=======
-import mxnet as mx
-import numpy as np
-from mxnet import nd
-
-
->>>>>>> origin/master
 from CNNDatasets_infoGAN_infoGANConnector_predictor import Dataset, TrainingDataset, RetrainingConf
 
 class CNNDataLoader_infoGAN_infoGANConnector_predictor: # pylint: disable=invalid-name
     _input_names_ = ['noise', 'c1']
     _output_names_ = ['data_label']
 
-<<<<<<< HEAD
     def __init__(self, data_cleaner):
         self._data_dir = pathlib.Path("src/test/resources/training_data/Cifar/")
         self._model_dir_   = os.path.join(os.path.join('./'), 'model', 'infoGAN.InfoGANGenerator')
@@ -59,20 +46,6 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor: # pylint: disable=invali
                 data_imbalance, data_imbalance_param, 
                 data_splitting, data_splitting_param
             )
-=======
-    def __init__(self):
-        self._data_dir = pathlib.Path("src/test/resources/training_data/Cifar/")
-
-    def load_data(self, batch_size, shuffle=False, multi_graph=False, dataset: TrainingDataset=None, test_dataset: Dataset=None):
-        if not dataset: 
-            raise KeyError("No dataset specified.")
-
-        train_h5, test_h5 = self.load_h5_files(
-            "", 
-            pathlib.Path(dataset.path), 
-            pathlib.Path(test_dataset.path) if test_dataset else None
-        )
->>>>>>> origin/master
 
         train_graph = None
         test_graph = None
@@ -284,26 +257,18 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor: # pylint: disable=invali
             setattr(input_wrapper, output_name, data)
         return instance_wrapper.execute(input_wrapper)
 
-<<<<<<< HEAD
     def load_h5_files(self, learning_method="", dataset: pathlib.Path = None, val_dataset: t.Optional[str] = None, test_dataset: t.Optional[str] = None):
-=======
-    def load_h5_files(self, learning_method="", dataset: pathlib.Path = None, test_dataset: t.Optional[str] = None):
->>>>>>> origin/master
         if not dataset:
             dataset = self._data_dir / "train.h5"
         train_h5 = self.load_dataset(dataset, learning_method)
         test_h5 = None
-<<<<<<< HEAD
         val_h5 = None
-=======
->>>>>>> origin/master
         
         if test_dataset:
             try: 
                 test_h5 = self.load_dataset(test_dataset, learning_method)
             except FileNotFoundError: 
                 logging.error("Couldn't load test set. File '%s' does not exist.", test_dataset)
-<<<<<<< HEAD
 
         if val_dataset:
             try: 
@@ -312,10 +277,6 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor: # pylint: disable=invali
                 logging.error("Couldn't load validation set. File '%s' does not exist.", val_dataset)
             
         return train_h5, val_h5, test_h5 
-=======
-            
-        return train_h5, test_h5
->>>>>>> origin/master
 
     def load_dataset(self, h5_path: pathlib.Path, learning_method: str) -> h5py.File:
         if h5_path.exists():
@@ -339,11 +300,7 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor: # pylint: disable=invali
 
     def load_vae_data(self, batch_size, shuffle=False, input_names=None):
         self._input_names_ = input_names or []
-<<<<<<< HEAD
         train_h5, _, test_h5 = self.load_h5_files(learning_method="vae")
-=======
-        train_h5, test_h5 = self.load_h5_files(learning_method="vae")
->>>>>>> origin/master
 
         train_data = {}
         data_mean = {}
@@ -407,7 +364,6 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor: # pylint: disable=invali
 
         return train_iter, test_iter, data_mean, data_std, train_images, test_images
 
-<<<<<<< HEAD
     def check_bias(self, dataset: TrainingDataset=None, test_dataset: Dataset=None, val_dataset: Dataset=None):
         _, _, test = self.load_h5_files(
             "", 
@@ -470,8 +426,6 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor: # pylint: disable=invali
             logging.info('\n------------------------------------------------------------------------------')
 
 
-=======
->>>>>>> origin/master
     @classmethod
     def load_retraining_conf(cls) -> RetrainingConf:
         """load the retraining configuration from the file system.
@@ -484,7 +438,6 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor: # pylint: disable=invali
             conf.changes = [dataset for dataset in conf.changes if pathlib.Path(dataset.path).suffix == ".h5"]
             return conf
         except FileNotFoundError:
-<<<<<<< HEAD
             logging.warning("Retraining configuration not found. Fallback to 'train.h5' for training, 'test.h5' for testing and 'validation.h5' for validating.")
             path = "src/test/resources/training_data/Cifar/"
             
@@ -500,11 +453,3 @@ class CNNDataLoader_infoGAN_infoGANConnector_predictor: # pylint: disable=invali
                     validating=None,
                     changes=[TrainingDataset(id="train", path=path + "train.h5", retraining=True)]
                 )
-=======
-            logging.warning("Retraining configuration not found. Fallback to 'train.h5' for training and 'test.h5' for testing.")
-            path = "src/test/resources/training_data/Cifar/"
-            return RetrainingConf(
-                testing=Dataset(id="test", path=path + "test.h5"),
-                changes=[TrainingDataset(id="train", path=path + "train.h5", retraining=True)]
-            )
->>>>>>> origin/master

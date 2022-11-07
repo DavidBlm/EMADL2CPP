@@ -24,7 +24,10 @@ class CNNCreator_torcs_agent_network_torcsCritic: # pylint: disable=invalid-name
         self.weight_initializer = mx.init.Normal()
         self.networks = {}
         self._model_basedir_ = pathlib.Path("model", "torcs.agent.network.TorcsCritic")
+        self.dataset: TrainingDataset = None
         self._weights_dir_ = None
+
+    def get_model_dir(self, epoch: int, dataset: Dataset = None) -> pathlib.Path:
         if not dataset and not self.dataset:
             return self._model_basedir_ / "model" / str(epoch)
         elif not dataset:
