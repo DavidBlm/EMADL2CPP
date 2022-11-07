@@ -137,7 +137,7 @@ public class EfficientNetEmadlBuilder {
         ASTDimension dimensions = ArchitectureSymbolHelper.getImageDimension(architecture);
         int imageSize = getImageSize(dimensions);
         String line1 = "    ports in Z(0:255)^{1, " + imageSize + ", " + imageSize + "} image,";
-        String line2 = "          out Q(0:1)^{" + config.getNumberClasses() + "} predictions;";
+        String line2 = "        out Q(0:1)^{" + config.getNumberClasses() + "} predictions;";
         List<String> lines = new ArrayList<>();
         lines.add(line1);
         lines.add(line2);
