@@ -54,16 +54,16 @@ public class EfficientNetEmadlBuilder {
         List<String> lines = new ArrayList<>();
         String stemChannels = "8";
         String firstResidualBlockChannels = "48";
-        String firstRedcutionBlockChannels = "48";
+        String firstReductionBlockChannels = "48";
         String secondResidualBlockChannels = "96";
-        String secondRedcutionBlockChannels = "96";
+        String secondReductionBlockChannels = "96";
 
         lines.add("        image ->");
         lines.add("        stem(channels="+ stemChannels +") ->");
         lines.add("        residualBlock(-> = 4, channels="+ firstResidualBlockChannels +") ->");
-        lines.add("        reductionBlock(channels="+ firstRedcutionBlockChannels +") ->");
+        lines.add("        reductionBlock(channels="+ firstReductionBlockChannels +") ->");
         lines.add("        residualBlock(-> = 4, channels="+ secondResidualBlockChannels +") ->");
-        lines.add("        reductionBlock(channels="+ secondRedcutionBlockChannels +") ->");
+        lines.add("        reductionBlock(channels="+ secondReductionBlockChannels +") ->");
         lines.add("        FullyConnected(units="+ argClasses +") ->");
         lines.add("        prediction");
         return lines;
