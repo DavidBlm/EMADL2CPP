@@ -3,6 +3,7 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
+import de.monticore.mlpipelines.automl.helper.FileLoader;
 import junit.framework.TestCase;
 
 import java.util.List;
@@ -43,5 +44,19 @@ public class EfficientNetEmadlBuilderTest extends TestCase {
 
         assertEquals("    ports in Z(0:255)^{1, 16, 16} image,", emadl.get(1));
         assertEquals("        out Q(0:1)^{10} predictions;", emadl.get(2));
+    }
+
+    public void testGetEmadlReturnsScalesNetworkEmadl() {
+        NetworkScaler networkScaler = new NetworkScaler();
+        ArchitectureSymbol architecture = ModelLoader.loadEfficientnetB0();
+        ScalingFactors scalingFactors = new ScalingFactors(2, 2, 2);
+        int phi = 1;
+        ArchitectureSymbol scaledNetwork = networkScaler.scale(architecture, scalingFactors, phi);
+        EfficientNetEmadlBuilder efficientNetEmadlBuilder = new EfficientNetEmadlBuilder(scaledNetwork, createConfig());
+        List<String> actualEmadl = efficientNetEmadlBuilder.getEmadl();
+        String expectedEmadlFile = "models/efficientnet/EfficientNetScalingTest.emadl";
+        List<String> expectedEmadl = new FileLoader().loadResourceFile(expectedEmadlFile);
+
+        assertEquals("The emadl of the scaled network is not correct.", expectedEmadl, actualEmadl);
     }
 }

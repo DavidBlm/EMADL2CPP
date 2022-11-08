@@ -85,5 +85,4 @@ public class EfficientNetConfig extends TrainAlgorithmConfig{
     public void setNumberClasses(int numberClasses) {
         this.numberClasses = numberClasses;
     }
-
 }
