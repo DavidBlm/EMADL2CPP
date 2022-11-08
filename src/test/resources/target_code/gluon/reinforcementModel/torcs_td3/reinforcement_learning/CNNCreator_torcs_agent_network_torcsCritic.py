@@ -19,11 +19,11 @@ from CNNDatasets_torcs_agent_network_torcsCritic import Dataset, TrainingDataset
 log = logging.getLogger(__name__)
 
 class CNNCreator_torcs_agent_network_torcsCritic: # pylint: disable=invalid-name
-    _model_basedir_ = pathlib.Path("model", "torcs.agent.network.TorcsCritic")
 
     def __init__(self):
         self.weight_initializer = mx.init.Normal()
         self.networks = {}
+        self._model_basedir_ = pathlib.Path("model", "torcs.agent.network.TorcsCritic")
         self.dataset: TrainingDataset = None
         self._weights_dir_ = None
 
