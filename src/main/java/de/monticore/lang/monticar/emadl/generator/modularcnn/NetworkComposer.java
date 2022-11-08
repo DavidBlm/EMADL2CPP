@@ -46,9 +46,10 @@ public class NetworkComposer {
                     Log.info("","");
                     if (!architectureOpt.isPresent()){
                         throw new Exception("Architecture symbol of atomic network missing");
+                    } else{
+                        subnet.setComposedNetworkArchitectureSymbol(architectureOpt.get());
+                        subnetArchSymbols.add(architectureOpt.get());
                     }
-                    subnet.setComposedNetworkArchitectureSymbol(architectureOpt.get());
-                    subnetArchSymbols.add(architectureOpt.get());
                 } else {
                     subnetArchSymbols.add(generateNetworkLevel(subnet));
                 }

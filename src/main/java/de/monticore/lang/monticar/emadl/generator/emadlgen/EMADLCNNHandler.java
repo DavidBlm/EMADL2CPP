@@ -99,7 +99,9 @@ public class EMADLCNNHandler {
         ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);
 
         for (EMAComponentInstanceSymbol componentInstance : networks) {
+
             EMAComponentSymbol component = componentInstance.getComponentType().getReferencedSymbol();
+            //Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
             Optional<ArchitectureSymbol> architecture = null;
 
             architecture = composedNetworkHandler.resolveArchitectureSymbolOfReferencedSymbol(componentInstance);
