@@ -10,3 +10,4 @@ nppBackup
 train.log
 model
 /src/test/resources/models/adanet/AdaNetBaseGenerated.emadl
+/src/test/resources/models/efficientnet/EfficientNetB1.emadl
