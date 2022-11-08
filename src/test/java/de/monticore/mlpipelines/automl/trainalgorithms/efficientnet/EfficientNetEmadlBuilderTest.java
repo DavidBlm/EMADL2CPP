@@ -12,7 +12,6 @@ public class EfficientNetEmadlBuilderTest extends TestCase {
 
     public void testConstructor() {
         ArchitectureSymbol architecture = ModelLoader.loadEfficientnetB0();
-        int phi = 1;
         EfficientNetConfig config = createConfig();
         EfficientNetEmadlBuilder efficientNetEmadlBuilder = new EfficientNetEmadlBuilder(architecture, config);
         assertNotNull(efficientNetEmadlBuilder);
