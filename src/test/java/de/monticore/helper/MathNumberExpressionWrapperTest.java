@@ -1,6 +1,7 @@
-package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
+package de.monticore.helper;
 
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
+import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
 import junit.framework.TestCase;
 import org.jscience.mathematics.number.Rational;
 

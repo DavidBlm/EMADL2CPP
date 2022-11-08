@@ -26,7 +26,7 @@ public class EfficientNetTest extends TestCase {
     public void testTrainSets() {
         EfficientNet efficientNet = createEfficientNet();
         ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
-        efficientNet.train(startNetwork);
+        efficientNet.execute(startNetwork);
         assertEquals(0.0, efficientNet.trainedAccuracy);
         assertNotNull(efficientNet.getStartNetwork());
     }
@@ -35,7 +35,7 @@ public class EfficientNetTest extends TestCase {
     public void testTrainCreatesNetworkScaler(){
         EfficientNet efficientNet = createEfficientNet();
         ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
-        efficientNet.train(startNetwork);
+        efficientNet.execute(startNetwork);
         assertNotNull(efficientNet.getNetworkScaler());
     }
 
@@ -43,7 +43,7 @@ public class EfficientNetTest extends TestCase {
     public void testTrainCreatesGridSearch(){
         EfficientNet efficientNet = createEfficientNet();
         ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
-        efficientNet.train(startNetwork);
+        efficientNet.execute(startNetwork);
         assertNotNull(efficientNet.getGridSearch());
     }
 
@@ -51,7 +51,7 @@ public class EfficientNetTest extends TestCase {
     public void trainFindsScalingFactors(){
         EfficientNet efficientNet = createEfficientNet();
         ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
-        efficientNet.train(startNetwork);
+        efficientNet.execute(startNetwork);
         assertNotNull(efficientNet.getScalingFactors());
     }
 
@@ -61,8 +61,9 @@ public class EfficientNetTest extends TestCase {
         ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
         NetworkScaler networkScaler = mock(NetworkScaler.class);
         efficientNet.setNetworkScaler(networkScaler);
-        when(networkScaler.scale(isA(ArchitectureSymbol.class), isA(ScalingFactors.class), any(Integer.class))).thenReturn(startNetwork);
-        efficientNet.train(startNetwork);
+        when(networkScaler.scale(isA(ArchitectureSymbol.class), isA(ScalingFactors.class),
+                any(Integer.class))).thenReturn(startNetwork);
+        efficientNet.execute(startNetwork);
         assertNotNull(efficientNet.getScaledArchitecture());
     }
 

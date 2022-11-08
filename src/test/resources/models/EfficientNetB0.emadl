@@ -1,7 +1,9 @@
 component EfficientNetB0<classes=10, imageSize=8>{
     ports in Z(0:255)^{1, 16, 16} image,
           out Q(0:1)^{classes} predictions;
+
     implementation CNN {
+
         def stem(){
             Convolution(kernel=(3,3), channels=4, stride=(2, 2), padding="same") ->
             BatchNorm() ->
