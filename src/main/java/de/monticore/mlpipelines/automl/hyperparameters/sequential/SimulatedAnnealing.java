@@ -46,8 +46,8 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
             }
         }
 
-        this.decreaseTemperature();
         super.executeIteration();
+        this.decreaseTemperature();
     }
 
     public Map<String, Double> getNewHyperparamsCandidate() {

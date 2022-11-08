@@ -3,12 +3,15 @@ package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertNotEquals;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SimulatedAnnealingTest extends TestCase {
 
     private SimulatedAnnealing simulatedAnnealing1;
@@ -38,7 +41,8 @@ public class SimulatedAnnealingTest extends TestCase {
 
     private String metricType = "Accuracy";
 
-    private void setup() {
+    @Before
+    public void setup() {
         this.simulatedAnnealing1 = new SimulatedAnnealing();
         simulatedAnnealing1.setInitialTemperature(50.0);
         simulatedAnnealing1.executeOptimizationStep(hyperParams, evalValue, metricType);
@@ -57,7 +61,6 @@ public class SimulatedAnnealingTest extends TestCase {
 
     @Test
     public void testFirstStepCurrBestHyperparams() {
-        setup();
         assertEquals(simulatedAnnealing1.getCurrBestHyperparams(), hyperParams);
     }
 
@@ -86,7 +89,7 @@ public class SimulatedAnnealingTest extends TestCase {
         Map<String, Double> newCandidate = simulatedAnnealing1.getNewHyperparamsCandidate();
 
         assertEquals(newCandidate.keySet(), hyperParams.keySet());
-        assertFalse(hyperParams.equals(newCandidate));
+        assertNotEquals(hyperParams, newCandidate);
     }
 
     @Test
@@ -111,7 +114,7 @@ public class SimulatedAnnealingTest extends TestCase {
 
     @Test
     public void testSecondStepCurrentTemperature() {
-        assertEquals(simulatedAnnealing2.getCurrentTemperature(), (50/3));
+        assertEquals(simulatedAnnealing2.getCurrentTemperature(), (50.0/3.0));
     }
 
     @Test
