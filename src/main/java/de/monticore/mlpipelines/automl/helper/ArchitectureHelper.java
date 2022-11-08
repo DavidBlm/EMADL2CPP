@@ -1,6 +1,7 @@
 package de.monticore.mlpipelines.automl.helper;
 
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementScope;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.LayerSymbol;
@@ -14,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class ArchitectureSymbolHelper {
+public class ArchitectureHelper {
 
     public static ASTDimension getImageDimension(ArchitectureSymbol architecture) {
         Map<String, Collection<Symbol>> enclosedSymbols = architecture.getSpannedScope()
@@ -38,5 +39,12 @@ public class ArchitectureSymbolHelper {
             }
         }
         return layerSymbols;
+    }
+
+    public static ArrayList getExpressions(ArchitectureElementSymbol architectureElement) {
+        ArchitectureElementScope spannedScope = architectureElement.getSpannedScope();
+        ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols()
+                .get(""); //the MathNumberExpressionSymbol is in the key ""
+        return expressions;
     }
 }

@@ -2,9 +2,10 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.LayerSymbol;
 import de.monticore.lang.monticar.types2._ast.ASTDimension;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
-import de.monticore.mlpipelines.automl.helper.ArchitectureSymbolHelper;
+import de.monticore.mlpipelines.automl.helper.ArchitectureHelper;
 import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
 
 import java.util.ArrayList;
@@ -38,10 +39,10 @@ public class EfficientNetEmadlBuilder {
     }
 
     private List<String> createPortsEmadl() {
-        ASTDimension dimensions = ArchitectureSymbolHelper.getImageDimension(architecture);
+        ASTDimension dimensions = ArchitectureHelper.getImageDimension(architecture);
         int imageSize = getImageSize(dimensions);
         String line1 = "    ports in Z(0:255)^{1, " + imageSize + ", " + imageSize + "} image,";
-        String line2 = "        out Q(0:1)^{" + config.getNumberClasses() + "} predictions;";
+        String line2 = "          out Q(0:1)^{classes} predictions;";
         List<String> lines = new ArrayList<>();
         lines.add(line1);
         lines.add(line2);
@@ -67,6 +68,16 @@ public class EfficientNetEmadlBuilder {
         lines.addAll(createElementLayers());
         lines.add("    }");
         return lines;
+    }
+
+    private int getImageSize(ASTDimension dimensions) {
+        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol) dimensions.getMatrixDim(2).getSymbol();
+        MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
+        return imageWidth.getIntValue();
+    }
+
+    private String getHeaderParameters() {
+        return "<classes=" + config.getNumberClasses() + ">";
     }
 
     private Collection<String> createStemEmadl() {
@@ -107,7 +118,7 @@ public class EfficientNetEmadlBuilder {
         lines.add("        def residualBlock(" + channelsVariableName + "){");
         lines.add("            (");
         lines.add("                conv(channels=" + channelsVariableName + ") ->");
-        lines.add("                conv(channels=" + channelsVariableName + ") ");
+        lines.add("                conv(channels=" + channelsVariableName + ")");
         lines.add("            |");
         lines.add("                LeakyRelu()");
         lines.add("            ) ->");
@@ -133,30 +144,60 @@ public class EfficientNetEmadlBuilder {
 
     private Collection<String> createElementLayers() {
         List<String> lines = new ArrayList<>();
-        String stemChannels = "8";
-        String firstResidualBlockChannels = "48";
-        String firstReductionBlockChannels = "48";
-        String secondResidualBlockChannels = "96";
-        String secondReductionBlockChannels = "96";
-
         lines.add("        image ->");
-        lines.add("        stem(channels=" + stemChannels + ") ->");
-        lines.add("        residualBlock(-> = 4, channels=" + firstResidualBlockChannels + ") ->");
-        lines.add("        reductionBlock(channels=" + firstReductionBlockChannels + ") ->");
-        lines.add("        residualBlock(-> = 4, channels=" + secondResidualBlockChannels + ") ->");
-        lines.add("        reductionBlock(channels=" + secondReductionBlockChannels + ") ->");
-        lines.add("        FullyConnected(units=" + classesVariableName + ") ->");
-        lines.add("        prediction");
+        List<LayerSymbol> layers = ArchitectureHelper.getLayerSymbols(architecture);
+        for (LayerSymbol layer : layers) {
+            lines.add("        " + createLayerEmadl(layer));
+        }
+        lines.add("        predictions;");
         return lines;
     }
 
-    private String getHeaderParameters() {
-        return "<classes=" + config.getNumberClasses() + ">";
+    private String createLayerEmadl(LayerSymbol layer) {
+        int channels = 0;
+        switch (layer.getName()) {
+            case "stem":
+                channels = getLayerChannels(layer);
+                return "stem(channels=" + channels + ") ->";
+            case "residualBlock":
+                int repetitions = getLayerDepth(layer);
+                channels = getLayerChannels(layer);
+                return "residualBlock(-> = " + repetitions + ", channels=" + channels + ") ->";
+            case "reductionBlock":
+                channels = getLayerChannels(layer);
+                return "reductionBlock(channels=" + channels + ") ->";
+            case "FullyConnected":
+                return "FullyConnected(units=" + classesVariableName + ") ->";
+            default:
+                return "";
+        }
     }
 
-    private int getImageSize(ASTDimension dimensions) {
-        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol) dimensions.getMatrixDim(2).getSymbol();
-        MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
-        return imageWidth.getIntValue();
+    private int getLayerChannels(LayerSymbol layer) {
+        ArrayList expressions = ArchitectureHelper.getExpressions(layer);
+        int channelsIndex = getChannelsIndex(layer.getName());
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
+        return expression.getIntValue();
+    }
+
+    private int getLayerDepth(LayerSymbol layer) {
+        ArrayList expressions = ArchitectureHelper.getExpressions(layer);
+        int layerRepetitionsIndex = 3;
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) expressions.get(
+                layerRepetitionsIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
+        return expression.getIntValue();
+    }
+
+    private static int getChannelsIndex(String architectureElementName) {
+        switch (architectureElementName) {
+            case "residualBlock":
+                return 5;
+            case "reductionBlock":
+            case "stem":
+                return 1;
+        }
+        throw new IllegalArgumentException("Block type not supported");
     }
 }

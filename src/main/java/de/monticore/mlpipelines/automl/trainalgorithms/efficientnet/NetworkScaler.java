@@ -1,9 +1,12 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.*;
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
 import de.monticore.lang.monticar.types2._ast.ASTDimension;
-import de.monticore.mlpipelines.automl.helper.ArchitectureSymbolHelper;
+import de.monticore.mlpipelines.automl.helper.ArchitectureHelper;
 import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
 
 import java.util.ArrayList;
@@ -62,7 +65,7 @@ public class NetworkScaler {
     }
 
     private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
-        ArrayList expressions = getExpressions(architectureElement);
+        ArrayList expressions = ArchitectureHelper.getExpressions(architectureElement);
         int channelsIndex = getChannelsIndex(architectureElement.getName());
         MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
         MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
@@ -83,7 +86,7 @@ public class NetworkScaler {
 
 
     private void scaleImageResolution() {
-        ASTDimension dimensions = ArchitectureSymbolHelper.getImageDimension(architecture);
+        ASTDimension dimensions = ArchitectureHelper.getImageDimension(architecture);
         changeImageDimension(dimensions);
     }
 
@@ -115,18 +118,11 @@ public class NetworkScaler {
     }
 
     private void scaleNetworkElementDepth(ArchitectureElementSymbol architectureElement) {
-        ArrayList symbolExpressions = getExpressions(architectureElement);
+        ArrayList symbolExpressions = ArchitectureHelper.getExpressions(architectureElement);
         int depthIndex = 3; //MathNumberExpressionSymbol at index 3 needs to be changed
         MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(depthIndex);
         MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
         expression.scaleRound(this.depthFactor);
-    }
-
-    private static ArrayList getExpressions(ArchitectureElementSymbol architectureElement) {
-        ArchitectureElementScope spannedScope = architectureElement.getSpannedScope();
-        ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols()
-                .get(""); //the MathNumberExpressionSymbol is in the key ""
-        return expressions;
     }
 
     public ArchitectureSymbol getArchitectureSymbol() {

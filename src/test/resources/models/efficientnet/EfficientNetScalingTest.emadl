@@ -44,7 +44,7 @@ component EfficientNetB1<classes=10>{
         }
 
         image ->
-        stem(channels=32) ->
+        stem(channels=16) ->
         residualBlock(-> = 8, channels=96) ->
         reductionBlock(channels=96) ->
         residualBlock(-> = 8, channels=192) ->
