@@ -50,7 +50,7 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
         super.executeIteration();
     }
 
-    private Map<String, Double> getNewHyperparamsCandidate() {
+    public Map<String, Double> getNewHyperparamsCandidate() {
         Random r = new Random();
         Map<String, Double> candidateMap = new HashMap<>();
         for (Map.Entry<String, Double> entry : this.getCurrentHyperparameters().entrySet()) {
@@ -81,7 +81,7 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
         return (diff > 0) && Math.random() < criterion;
     }
 
-    public void decreaseTemperature() {
+    private void decreaseTemperature() {
         this.currentTemperature = this.initialTemperature / (this.currentIteration + 1);
     }
 
@@ -89,7 +89,31 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
         return currBestHyperparams;
     }
 
+    public void setCurrBestHyperparams(Map<String, Double> currBestHyperparams) {
+        this.currBestHyperparams = currBestHyperparams;
+    }
+
     public double getCurrBestEvalMetric() {
         return currBestEvalMetric;
+    }
+
+    public void setCurrBestEvalMetric(double currBestEvalMetric) {
+        this.currBestEvalMetric = currBestEvalMetric;
+    }
+
+    public void setInitialTemperature(double initialTemperature) {
+        this.initialTemperature = initialTemperature;
+    }
+
+    public double getCurrentTemperature() {
+        return currentTemperature;
+    }
+
+    public double getCurrEvalMetric() {
+        return currEvalMetric;
+    }
+
+    public void setCurrEvalMetric(double currEvalMetric) {
+        this.currEvalMetric = currEvalMetric;
     }
 }

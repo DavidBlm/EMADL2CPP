@@ -4,7 +4,7 @@ import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlg
 
 import java.util.Map;
 
-public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
+public class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
 
     private Map<String, Double> currentHyperparameters;
 

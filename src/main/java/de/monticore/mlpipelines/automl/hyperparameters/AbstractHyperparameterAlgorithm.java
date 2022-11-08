@@ -7,4 +7,12 @@ public abstract class AbstractHyperparameterAlgorithm {
     public void executeIteration() {
         this.currentIteration++;
     }
+
+    public int getCurrentIteration() {
+        return currentIteration;
+    }
+
+    public void setCurrentIteration(int currentIteration) {
+        this.currentIteration = currentIteration;
+    }
 }
