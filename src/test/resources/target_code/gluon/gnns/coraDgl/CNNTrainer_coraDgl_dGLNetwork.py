@@ -6,8 +6,9 @@ import mxnet as mx
 
 import CNNCreator_coraDgl_dGLNetwork
 import CNNDataLoader_coraDgl_dGLNetwork
-import CNNSupervisedTrainer_coraDgl_dGLNetwork
 from CNNDatasets_coraDgl_dGLNetwork import RetrainingConf
+import CNNDataCleaner_coraDgl_dGLNetwork
+import CNNSupervisedTrainer_coraDgl_dGLNetwork
 
 if __name__ == "__main__":
     logger = logging.getLogger()
@@ -17,14 +18,19 @@ if __name__ == "__main__":
 
     coraDgl_dGLNetwork_creator = CNNCreator_coraDgl_dGLNetwork.CNNCreator_coraDgl_dGLNetwork()
     coraDgl_dGLNetwork_creator.validate_parameters()
-    coraDgl_dGLNetwork_loader = CNNDataLoader_coraDgl_dGLNetwork.CNNDataLoader_coraDgl_dGLNetwork()
+    coraDgl_dGLNetwork_cleaner = CNNDataCleaner_coraDgl_dGLNetwork.CNNDataCleaner_coraDgl_dGLNetwork()
+    coraDgl_dGLNetwork_loader = CNNDataLoader_coraDgl_dGLNetwork.CNNDataLoader_coraDgl_dGLNetwork(
+        coraDgl_dGLNetwork_cleaner
+    )
+
+    prev_dataset = None
+    retraining_conf = coraDgl_dGLNetwork_loader.load_retraining_conf()
+    
     coraDgl_dGLNetwork_trainer = CNNSupervisedTrainer_coraDgl_dGLNetwork.CNNSupervisedTrainer_coraDgl_dGLNetwork(
         coraDgl_dGLNetwork_loader,
         coraDgl_dGLNetwork_creator
     )
 
-    prev_dataset = None
-    retraining_conf = coraDgl_dGLNetwork_loader.load_retraining_conf()
     for dataset in retraining_conf.changes:
         coraDgl_dGLNetwork_creator.dataset = dataset
         if(dataset.retraining):
@@ -65,6 +71,6 @@ if __name__ == "__main__":
             )
         else: 
             logger.info("Skipped training of dataset %s. Training is not necessary", dataset.id)
-        
+
         prev_dataset = dataset
 

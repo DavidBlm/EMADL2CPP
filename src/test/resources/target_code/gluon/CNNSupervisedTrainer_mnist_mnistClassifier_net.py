@@ -336,6 +336,7 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
               checkpoint_period=5,
               dataset=None,
               test_dataset=None,
+              val_dataset=None,
               load_pretrained=False,
               load_pretrained_dataset=None,
               log_period=50,
@@ -343,6 +344,12 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
               save_attention_image=False,
               use_teacher_forcing=False,
               normalize=True,
+              cleaning=None,
+              cleaning_params=(None),
+              data_imbalance=None,
+              data_imbalance_params=(None),
+              data_splitting=None,
+              data_splitting_params=(None),
               shuffle_data=False,
               clip_global_grad_norm=None,
               preprocessing=False,
@@ -372,7 +379,14 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
             preproc_lib = "CNNPreprocessor_mnist_mnistClassifier_net_executor"
             train_iter, test_iter, data_mean, data_std, train_images, test_images = self._data_loader.load_preprocessed_data(batch_size, preproc_lib, shuffle_data)
         else:
-            train_iter, test_iter, data_mean, data_std, train_images, test_images, train_graph, test_graph = self._data_loader.load_data(batch_size, shuffle_data, multi_graph, dataset, test_dataset)
+            train_iter, test_iter, val_iter, data_mean, data_std, train_images, test_images, train_graph, test_graph = self._data_loader.load_data(
+                batch_size, 
+                cleaning, cleaning_params,
+                data_imbalance, data_imbalance_params,
+                data_splitting, data_splitting_params, 
+                optimizer, shuffle_data, multi_graph, 
+                dataset, test_dataset, val_dataset
+            )
 
         if 'weight_decay' in optimizer_params:
             optimizer_params['wd'] = optimizer_params['weight_decay']
@@ -483,7 +497,14 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                     preproc_lib = "CNNPreprocessor_mnist_mnistClassifier_net_executor"
                     train_iter, test_iter, data_mean, data_std, train_images, test_images = self._data_loader.load_preprocessed_data(batch_size, preproc_lib, shuffle_data)
                 else:
-                    train_iter, test_iter, data_mean, data_std, train_images, test_images, train_graph, test_graph = self._data_loader.load_data(batch_size, shuffle_data, multi_graph, dataset, test_dataset)
+                    train_iter, test_iter, val_iter, data_mean, data_std, train_images, test_images, train_graph, test_graph = self._data_loader.load_data(
+                        batch_size, 
+                        cleaning, cleaning_params,
+                        data_imbalance, data_imbalance_params,
+                        data_splitting, data_splitting_params, 
+                        optimizer, shuffle_data, multi_graph, 
+                        dataset, test_dataset, val_dataset
+                    )
 
             global_loss_train = 0.0
             train_batches = 0
@@ -782,6 +803,10 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                 logger.info("Saved learning rate to %s", str(learning_rate_path))
             except IndexError:
                 logging.warning("Failure during saving the learning rate.")
+
+        # check imbalance bias
+        if data_imbalance is not None:
+            if data_imbalance_params['check_bias']: self._data_loader.check_bias(dataset, test_dataset, val_dataset)
 
     def get_mask_array(self, shape, mask):
         if mask is None:

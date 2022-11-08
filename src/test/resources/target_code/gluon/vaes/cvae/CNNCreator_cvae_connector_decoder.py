@@ -19,11 +19,11 @@ from CNNDatasets_cvae_connector_decoder import Dataset, TrainingDataset
 log = logging.getLogger(__name__)
 
 class CNNCreator_cvae_connector_decoder: # pylint: disable=invalid-name
-    _model_basedir_ = pathlib.Path("model", "cvae.Decoder")
 
     def __init__(self):
         self.weight_initializer = mx.init.Normal()
         self.networks = {}
+        self._model_basedir_ = pathlib.Path("model", "cvae.Decoder")
         self.dataset: TrainingDataset = None
         self._weights_dir_ = None
 

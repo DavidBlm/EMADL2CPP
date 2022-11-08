@@ -6,8 +6,9 @@ import mxnet as mx
 
 import CNNCreator_mnist_mnistClassifier_net
 import CNNDataLoader_mnist_mnistClassifier_net
-import CNNSupervisedTrainer_mnist_mnistClassifier_net
 from CNNDatasets_mnist_mnistClassifier_net import RetrainingConf
+import CNNDataCleaner_mnist_mnistClassifier_net
+import CNNSupervisedTrainer_mnist_mnistClassifier_net
 
 if __name__ == "__main__":
     logger = logging.getLogger()
@@ -17,14 +18,19 @@ if __name__ == "__main__":
 
     mnist_mnistClassifier_net_creator = CNNCreator_mnist_mnistClassifier_net.CNNCreator_mnist_mnistClassifier_net()
     mnist_mnistClassifier_net_creator.validate_parameters()
-    mnist_mnistClassifier_net_loader = CNNDataLoader_mnist_mnistClassifier_net.CNNDataLoader_mnist_mnistClassifier_net()
+    mnist_mnistClassifier_net_cleaner = CNNDataCleaner_mnist_mnistClassifier_net.CNNDataCleaner_mnist_mnistClassifier_net()
+    mnist_mnistClassifier_net_loader = CNNDataLoader_mnist_mnistClassifier_net.CNNDataLoader_mnist_mnistClassifier_net(
+        mnist_mnistClassifier_net_cleaner
+    )
+
+    prev_dataset = None
+    retraining_conf = mnist_mnistClassifier_net_loader.load_retraining_conf()
+    
     mnist_mnistClassifier_net_trainer = CNNSupervisedTrainer_mnist_mnistClassifier_net.CNNSupervisedTrainer_mnist_mnistClassifier_net(
         mnist_mnistClassifier_net_loader,
         mnist_mnistClassifier_net_creator
     )
 
-    prev_dataset = None
-    retraining_conf = mnist_mnistClassifier_net_loader.load_retraining_conf()
     for dataset in retraining_conf.changes:
         mnist_mnistClassifier_net_creator.dataset = dataset
         if(dataset.retraining):
@@ -61,6 +67,6 @@ if __name__ == "__main__":
             )
         else: 
             logger.info("Skipped training of dataset %s. Training is not necessary", dataset.id)
-        
+
         prev_dataset = dataset
 

@@ -19,11 +19,11 @@ from CNNDatasets_mnist_mnistClassifier_net import Dataset, TrainingDataset
 log = logging.getLogger(__name__)
 
 class CNNCreator_mnist_mnistClassifier_net: # pylint: disable=invalid-name
-    _model_basedir_ = pathlib.Path("model", "mnist.LeNetNetwork")
 
     def __init__(self):
         self.weight_initializer = mx.init.Normal()
         self.networks = {}
+        self._model_basedir_ = pathlib.Path("model", "mnist.LeNetNetwork")
         self.dataset: TrainingDataset = None
         self._weights_dir_ = None
 

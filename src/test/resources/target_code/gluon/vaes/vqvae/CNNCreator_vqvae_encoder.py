@@ -19,11 +19,11 @@ from CNNDatasets_vqvae_encoder import Dataset, TrainingDataset
 log = logging.getLogger(__name__)
 
 class CNNCreator_vqvae_encoder: # pylint: disable=invalid-name
-    _model_basedir_ = pathlib.Path("model", "vqvae.Encoder")
 
     def __init__(self):
         self.weight_initializer = mx.init.Normal()
         self.networks = {}
+        self._model_basedir_ = pathlib.Path("model", "vqvae.Encoder")
         self.dataset: TrainingDataset = None
         self._weights_dir_ = None
 

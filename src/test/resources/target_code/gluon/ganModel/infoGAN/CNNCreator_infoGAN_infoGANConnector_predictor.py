@@ -19,11 +19,11 @@ from CNNDatasets_infoGAN_infoGANConnector_predictor import Dataset, TrainingData
 log = logging.getLogger(__name__)
 
 class CNNCreator_infoGAN_infoGANConnector_predictor: # pylint: disable=invalid-name
-    _model_basedir_ = pathlib.Path("model", "infoGAN.InfoGANGenerator")
 
     def __init__(self):
         self.weight_initializer = mx.init.Normal()
         self.networks = {}
+        self._model_basedir_ = pathlib.Path("model", "infoGAN.InfoGANGenerator")
         self.dataset: TrainingDataset = None
         self._weights_dir_ = None
 

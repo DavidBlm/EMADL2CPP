@@ -6,8 +6,9 @@ import mxnet as mx
 
 import CNNCreator_cNNCalculator_connector_predictor1
 import CNNDataLoader_cNNCalculator_connector_predictor1
-import CNNSupervisedTrainer_cNNCalculator_connector_predictor1
 from CNNDatasets_cNNCalculator_connector_predictor1 import RetrainingConf
+import CNNDataCleaner_cNNCalculator_connector_predictor1
+import CNNSupervisedTrainer_cNNCalculator_connector_predictor1
 
 if __name__ == "__main__":
     logger = logging.getLogger()
@@ -17,14 +18,19 @@ if __name__ == "__main__":
 
     cNNCalculator_connector_predictor1_creator = CNNCreator_cNNCalculator_connector_predictor1.CNNCreator_cNNCalculator_connector_predictor1()
     cNNCalculator_connector_predictor1_creator.validate_parameters()
-    cNNCalculator_connector_predictor1_loader = CNNDataLoader_cNNCalculator_connector_predictor1.CNNDataLoader_cNNCalculator_connector_predictor1()
+    cNNCalculator_connector_predictor1_cleaner = CNNDataCleaner_cNNCalculator_connector_predictor1.CNNDataCleaner_cNNCalculator_connector_predictor1()
+    cNNCalculator_connector_predictor1_loader = CNNDataLoader_cNNCalculator_connector_predictor1.CNNDataLoader_cNNCalculator_connector_predictor1(
+        cNNCalculator_connector_predictor1_cleaner
+    )
+
+    prev_dataset = None
+    retraining_conf = cNNCalculator_connector_predictor1_loader.load_retraining_conf()
+    
     cNNCalculator_connector_predictor1_trainer = CNNSupervisedTrainer_cNNCalculator_connector_predictor1.CNNSupervisedTrainer_cNNCalculator_connector_predictor1(
         cNNCalculator_connector_predictor1_loader,
         cNNCalculator_connector_predictor1_creator
     )
 
-    prev_dataset = None
-    retraining_conf = cNNCalculator_connector_predictor1_loader.load_retraining_conf()
     for dataset in retraining_conf.changes:
         cNNCalculator_connector_predictor1_creator.dataset = dataset
         if(dataset.retraining):
@@ -58,6 +64,6 @@ if __name__ == "__main__":
             )
         else: 
             logger.info("Skipped training of dataset %s. Training is not necessary", dataset.id)
-        
+
         prev_dataset = dataset
 

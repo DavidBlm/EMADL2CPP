@@ -19,11 +19,11 @@ from CNNDatasets_mountaincar_master_actor import Dataset, TrainingDataset
 log = logging.getLogger(__name__)
 
 class CNNCreator_mountaincar_master_actor: # pylint: disable=invalid-name
-    _model_basedir_ = pathlib.Path("model", "mountaincar.agent.MountaincarActor")
 
     def __init__(self):
         self.weight_initializer = mx.init.Normal()
         self.networks = {}
+        self._model_basedir_ = pathlib.Path("model", "mountaincar.agent.MountaincarActor")
         self.dataset: TrainingDataset = None
         self._weights_dir_ = None
 
