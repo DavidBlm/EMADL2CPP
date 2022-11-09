@@ -6,6 +6,8 @@ import mxnet as mx
 
 import CNNCreator_mnist_mnistClassifier_net
 import CNNDataLoader_mnist_mnistClassifier_net
+import CNNDataCleaner_mnist_mnistClassifier_net
+import CNNSupervisedTrainer_mnist_mnistClassifier_net
 from CNNDatasets_mnist_mnistClassifier_net import RetrainingConf
 import CNNDataCleaner_mnist_mnistClassifier_net
 import CNNSupervisedTrainer_mnist_mnistClassifier_net
@@ -23,9 +25,6 @@ if __name__ == "__main__":
         mnist_mnistClassifier_net_cleaner
     )
 
-    prev_dataset = None
-    retraining_conf = mnist_mnistClassifier_net_loader.load_retraining_conf()
-    
     mnist_mnistClassifier_net_trainer = CNNSupervisedTrainer_mnist_mnistClassifier_net.CNNSupervisedTrainer_mnist_mnistClassifier_net(
         mnist_mnistClassifier_net_loader,
         mnist_mnistClassifier_net_creator

@@ -51,6 +51,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         assertTrue(Log.getFindings().isEmpty());
     }
 
+    @Ignore
     @Test
     public void testMultipleStreams() {
         Log.getFindings().clear();
@@ -89,6 +90,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         checkFindingsCount();
     }
 
+    @Ignore
     @Test
     public void testShowAttendTell() {
         Log.getFindings().clear();

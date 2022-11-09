@@ -15,4 +15,5 @@ class TrainingDataset(Dataset):
 @dataclass
 class RetrainingConf:
     testing: Dataset
+    validating: Dataset
     changes: t.List[TrainingDataset]

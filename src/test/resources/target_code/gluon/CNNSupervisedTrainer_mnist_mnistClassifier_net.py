@@ -803,6 +803,9 @@ class CNNSupervisedTrainer_mnist_mnistClassifier_net:
                 logger.info("Saved learning rate to %s", str(learning_rate_path))
             except IndexError:
                 logging.warning("Failure during saving the learning rate.")
+        
+        if data_imbalance is not None:
+            if data_imbalance_params['check_bias']: self._data_loader.check_bias()
 
         # check imbalance bias
         if data_imbalance is not None:

@@ -2,6 +2,7 @@
 import logging
 import mxnet as mx
 import CNNCreator_cifar10_cifar10Classifier_net
+import CNNDataCleaner_cifar10_cifar10Classifier_net
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
@@ -9,7 +10,10 @@ if __name__ == "__main__":
     handler = logging.FileHandler("train.log", "w", encoding=None, delay="true")
     logger.addHandler(handler)
 
-    cifar10_cifar10Classifier_net = CNNCreator_cifar10_cifar10Classifier_net.CNNCreator_cifar10_cifar10Classifier_net()
+    cifar10_cifar10Classifier_net_cleaner = CNNDataCleaner_cifar10_cifar10Classifier_net.CNNDataCleaner_cifar10_cifar10Classifier_net()
+    cifar10_cifar10Classifier_net = CNNCreator_cifar10_cifar10Classifier_net.CNNCreator_cifar10_cifar10Classifier_net(
+        cifar10_cifar10Classifier_net_cleaner
+    )
     cifar10_cifar10Classifier_net.train(
         batch_size=5,
         num_epoch=10,
