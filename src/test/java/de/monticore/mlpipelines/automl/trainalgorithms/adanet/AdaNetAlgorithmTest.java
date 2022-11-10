@@ -12,7 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AdaNetTest extends TestCase {
+public class AdaNetAlgorithmTest extends TestCase {
     String modelPath = "src/test/resources/models/adanet/AdaNetBase.emadl";
 
     @Test
