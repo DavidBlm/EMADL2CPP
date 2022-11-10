@@ -7,10 +7,21 @@ import junit.framework.TestCase;
 
 public class EmadlPrettyPrinterTest extends TestCase {
 
-    public void testPrettyPrint() {
+    public void testPrettyPrintArchitectureSymbol() {
+        ArchitectureSymbol arch = ModelLoader.loadEfficientnetB0();
+        EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
+        String emadl = printer.prettyPrint(arch);
+        String expectedEmadl = "";
+        assertEquals(expectedEmadl, emadl);
+    }
+
+    public void testPrettyPrintAstArchitecture() {
         ArchitectureSymbol arch = ModelLoader.loadEfficientnetB0();
         EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
         ASTArchitecture ast = (ASTArchitecture) arch.getAstNode().get();
+        String emadl = printer.prettyPrint(ast);
+        String expectedEmadl = "";
+        assertEquals(expectedEmadl, emadl);
     }
 
     public void testVisit() {
