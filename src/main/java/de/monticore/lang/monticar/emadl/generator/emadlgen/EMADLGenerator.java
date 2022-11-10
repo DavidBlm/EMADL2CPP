@@ -284,12 +284,15 @@ public class EMADLGenerator implements EMAMGenerator {
         emaComponentSymbol.getFullName();
         /* */
 
+        //TODO: fix composed Net Null pointer problem here
         ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
+        if(composedNetworkHandler.isComposedNet(componentInstanceSymbol)) composedNetworkHandler.refreshInformation(allInstances);
         //composedNetworkHandler.processComponentInstances(allInstances);
 
         //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+        //if(composedNetworkHandler.isComposedNet(componentInstanceSymbol)) composedNetworkHandler.refreshInformation(allInstances);
         Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfInstance(componentInstanceSymbol);
-        //Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfReferencedSymbol(componentInstanceSymbol);
+
 
         // set the path to AdaNet python files
         architecture.ifPresent(architectureSymbol -> {architectureSymbol.setAdaNetUtils(emadlFileHandler.getAdaNetUtils());});

@@ -317,7 +317,8 @@ public class EMADLFileHandler {
         List<String> newHashes = new ArrayList<>();
 
         ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworksFilePath);
-        ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);
+        composedNetworkHandler.refreshInformation(allInstances);
+        Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
 
         for (EMAComponentInstanceSymbol componentInstance : networks) {
             Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfInstance(componentInstance);

@@ -48,7 +48,13 @@ public class ModularTest extends AbstractSymtabTest {
             }
             Log.info(trace.toString(),"MODULAR_TEST_EXCEPTION");
 
-            if (!exceptionAllowed) assertFalse(true);
+            if (!exceptionAllowed) {
+                assertFalse(true);
+                throw new RuntimeException();
+            }
+
+
+
         }
 
     }

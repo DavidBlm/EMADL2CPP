@@ -7,8 +7,10 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
 import de.monticore.lang.monticar.emadl.modularcnn.tools.ComposedNetworkFileHandler;
 import de.se_rwth.commons.logging.Log;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -16,10 +18,12 @@ public class ComposedNetworkHandler {
     private String composedNetworkFilePath;
     private ArrayList<NetworkStructureInformation> composedNetworks;
     private NetworkComposer networkComposer;
+    private NetworkDecomposer networkDecomposer;
     public ComposedNetworkHandler(String composedNetworkFilePath) {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer();
+        this.networkDecomposer = new NetworkDecomposer();
     }
 
     public String findConfigFileName(EMAComponentInstanceSymbol instanceSymbol){
@@ -83,6 +87,43 @@ public class ComposedNetworkHandler {
         }
     }
 
+    public HashSet<EMAComponentInstanceSymbol> filterComposedNetworks(Set<EMAComponentInstanceSymbol> componentInstances){
+        if (this.composedNetworks.size() == 0) loadNetworksFromFile(this.composedNetworkFilePath);
+        ArrayList<EMAComponentInstanceSymbol> networks = processComponentInstances(componentInstances);
+        HashSet<EMAComponentInstanceSymbol> filteredNetworks = new HashSet<>();
+
+        for (EMAComponentInstanceSymbol network: networks){
+            if (!isComposedNet(network)){
+                filteredNetworks.add(network);
+            }
+        }
+        return filteredNetworks;
+    }
+
+    public HashSet<EMAComponentInstanceSymbol> filterAtomicNetworks(Set<EMAComponentInstanceSymbol> componentInstances){
+        if (this.composedNetworks.size() == 0) loadNetworksFromFile(this.composedNetworkFilePath);
+        ArrayList<EMAComponentInstanceSymbol> networks = processComponentInstances(componentInstances);
+        HashSet<EMAComponentInstanceSymbol> filteredNetworks = new HashSet<>();
+
+        for (EMAComponentInstanceSymbol network: networks){
+            if (isComposedNet(network)){
+                filteredNetworks.add(network);
+            }
+        }
+        return filteredNetworks;
+    }
+
+    public HashSet<EMAComponentInstanceSymbol> getSortedNetworksFromAtomicToComposed(Set<EMAComponentInstanceSymbol> componentInstances){
+        if (this.composedNetworks.size() == 0) loadNetworksFromFile(this.composedNetworkFilePath);
+        HashSet<EMAComponentInstanceSymbol> atomicNetworks = filterComposedNetworks(componentInstances);
+        HashSet<EMAComponentInstanceSymbol> composedNetworks = filterAtomicNetworks(componentInstances);
+        HashSet<EMAComponentInstanceSymbol> filteredNetworks = new HashSet<>();
+        filteredNetworks.addAll(atomicNetworks);
+        filteredNetworks.addAll(composedNetworks);
+
+        return filteredNetworks;
+    }
+
     public ArrayList<EMAComponentInstanceSymbol> processComponentInstances(Set<EMAComponentInstanceSymbol> componentInstances){
         ArrayList<EMAComponentInstanceSymbol> networks = new ArrayList<>();
 
@@ -101,7 +142,6 @@ public class ComposedNetworkHandler {
             if (hitInstance != null){
                 networks.add(hitInstance);
             }
-
             networkStructureInformation.setComposedNetworkArchitectureSymbol(composeNetwork(networkStructureInformation));
         }
 
@@ -117,5 +157,12 @@ public class ComposedNetworkHandler {
     public ArchitectureSymbol composeNetwork(NetworkStructureInformation networkStructureInformation){
         ArchitectureSymbol composedNetwork = networkComposer.generateComposedNetwork(networkStructureInformation);
         return composedNetwork;
+    }
+
+    public ArrayList<EMAComponentInstanceSymbol> refreshInformation(Set<EMAComponentInstanceSymbol> instanceSymbols){
+        this.composedNetworks = new ArrayList<>();
+        //ArrayList<EMAComponentInstanceSymbol> refreshed = processComponentInstances(instanceSymbols);
+
+        return processComponentInstances(instanceSymbols);
     }
 }

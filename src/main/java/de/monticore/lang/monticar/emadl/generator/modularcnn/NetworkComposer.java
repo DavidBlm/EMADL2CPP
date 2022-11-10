@@ -1,10 +1,7 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
 import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.LayerVariableDeclarationSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.VariableSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
 import de.se_rwth.commons.logging.Log;
 
@@ -21,7 +18,10 @@ public class NetworkComposer {
         ArchitectureSymbol composedNet = null;
         try {
             composedNet = generateNetworkLevel(networkStructureInformation);
-            composedNet.setComponentName(networkStructureInformation.getNetworkName());
+            if (composedNet != null){
+                composedNet.setComponentName(networkStructureInformation.getNetworkName());
+            }
+
             //composedNet.setAstNode(networkStructureInformation.getSubNetworks().get(0).getComposedNetworkArchitectureSymbol().getAstNode().get());
             //composedNet.set
         } catch (Exception e){
@@ -42,6 +42,8 @@ public class NetworkComposer {
 
             for (NetworkStructureInformation subnet : subnets){
                 if (subnet.isAtomic()) {
+                    //TODO: Null pointer exception from generateComponent in EMADLGenerator
+                    if (subnet.getSymbolReference() == null) return null;
                     Optional<ArchitectureSymbol> architectureOpt = subnet.getSymbolReference().getReferencedSymbol().getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     Log.info("","");
                     if (!architectureOpt.isPresent()){
@@ -95,6 +97,13 @@ public class NetworkComposer {
                 //instructions.addAll(symbols.get(i).getNetworkInstructions());
                 //mergedNetworkInstructions.addAll(stripIoNetworkInstructions(instructions,i,symbols.size()));
                 mergedNetworkInstructions.addAll(symbols.get(i).getNetworkInstructions());
+            }
+
+            for (NetworkInstructionSymbol symbol : mergedNetworkInstructions){
+                ArchitectureElementSymbol first = symbol.getBody().getElements().get(0);
+                ArchitectureElementSymbol last = symbol.getBody().getElements().get(symbol.getBody().getElements().size()-1);
+                Log.info("first:" + first.toString(),"NETWORK_INSTRUCTION_MERGER");
+                Log.info("last:" + last.toString(),"NETWORK_INSTRUCTION_MERGER");
             }
 
             //mergedInputs.addAll(symbol.getInputs());
