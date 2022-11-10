@@ -28,10 +28,6 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         return this.printer.getContent();
     }
 
-    public void traverse(ASTArchitectureElement node) {
-        this.printer.println(" ->");
-    }
-
     @Override
     public void setRealThis(CNNArchVisitor realThis) {
         CNNArchVisitor.super.setRealThis(realThis);
@@ -74,15 +70,6 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     }
 
     @Override
-    public void visit(ASTLayerParameter node) {
-        String parameterName = node.getName();
-        this.printer.print(parameterName);
-        if (node.isPresentDefault()) {
-            node.getDefault().accept(getRealThis());
-        }
-    }
-
-    @Override
     public void visit(ASTStream node) {
         // print the elements of the stream with a comma in between
         List<ASTArchitectureElement> elements = node.getElementsList();
@@ -91,6 +78,18 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         }
     }
 
+    @Override
+    public void visit(ASTLayerParameter node) {
+        String parameterName = node.getName();
+        this.printer.print(parameterName);
+        if (node.isPresentDefault()) {
+            node.getDefault().accept(getRealThis());
+        }
+    }
+
+    public void traverse(ASTArchitectureElement node) {
+        this.printer.println(" ->");
+    }
 
     @Override
     public void visit(ASTLayer node) {
