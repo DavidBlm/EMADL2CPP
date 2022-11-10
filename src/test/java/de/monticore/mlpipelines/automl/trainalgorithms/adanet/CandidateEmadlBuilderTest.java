@@ -6,23 +6,25 @@ import junit.framework.TestCase;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CandidateBuilderTest extends TestCase {
+public class CandidateEmadlBuilderTest extends TestCase {
+    String modelPath = "src/test/resources/models/adanet/AdaNetBase.emadl";
+    String generatedModelPath = "src/test/resources/models/adanet/AdaNetBaseGenerated.emadl";
 
     public void testConstructor() {
-        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        CandidateEmadlBuilder candidateBuilder = new CandidateEmadlBuilder(modelPath, generatedModelPath);
         assertNotNull(candidateBuilder);
     }
 
     public void testCreateCandidate() {
         AdaNetCandidate candidate = getAdaNetCandidate();
-        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        CandidateEmadlBuilder candidateBuilder = new CandidateEmadlBuilder(modelPath, generatedModelPath);
         ArchitectureSymbol architecture = candidateBuilder.createArchitectureFromCandidate(candidate);
         assertNotNull(architecture);
     }
 
     public void testCreateCandidateHas6Layers() {
         AdaNetCandidate candidate = getAdaNetCandidate();
-        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        CandidateEmadlBuilder candidateBuilder = new CandidateEmadlBuilder(modelPath, generatedModelPath);
         ArchitectureSymbol architecture = candidateBuilder.createArchitectureFromCandidate(candidate);
         List<ArchitectureElementSymbol> layers = getLayers(architecture);
         assertEquals(6, layers.size());
@@ -37,7 +39,7 @@ public class CandidateBuilderTest extends TestCase {
 
     public void testCreateCandidateHasClassificationLayer() {
         AdaNetCandidate candidate = getAdaNetCandidate();
-        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        CandidateEmadlBuilder candidateBuilder = new CandidateEmadlBuilder(modelPath, generatedModelPath);
         ArchitectureSymbol architecture = candidateBuilder.createArchitectureFromCandidate(candidate);
 
         List<ArchitectureElementSymbol> layers = getLayers(architecture);
@@ -51,7 +53,7 @@ public class CandidateBuilderTest extends TestCase {
 
     public void testCreateCandidateHasParallelLayer() {
         AdaNetCandidate candidate = getAdaNetCandidate();
-        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        CandidateEmadlBuilder candidateBuilder = new CandidateEmadlBuilder(modelPath, generatedModelPath);
         ArchitectureSymbol architecture = candidateBuilder.createArchitectureFromCandidate(candidate);
 
         List<ArchitectureElementSymbol> layers = getLayers(architecture);
@@ -66,7 +68,7 @@ public class CandidateBuilderTest extends TestCase {
 
     public void testCreateCandidateHasConcatenateAfterParallelLayer() {
         AdaNetCandidate candidate = getAdaNetCandidate();
-        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        CandidateEmadlBuilder candidateBuilder = new CandidateEmadlBuilder(modelPath, generatedModelPath);
         ArchitectureSymbol architecture = candidateBuilder.createArchitectureFromCandidate(candidate);
 
         List<ArchitectureElementSymbol> layers = getLayers(architecture);
@@ -76,7 +78,7 @@ public class CandidateBuilderTest extends TestCase {
 
     public void testCreateCandidateHasNonParallelLayer() {
         AdaNetCandidate candidate = getAdaNetCandidate();
-        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        CandidateEmadlBuilder candidateBuilder = new CandidateEmadlBuilder(modelPath, generatedModelPath);
         ArchitectureSymbol architecture = candidateBuilder.createArchitectureFromCandidate(candidate);
 
         List<ArchitectureElementSymbol> layers = getLayers(architecture);

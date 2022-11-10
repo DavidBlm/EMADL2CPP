@@ -2,8 +2,8 @@ package de.monticore.mlpipelines.automl.trainalgorithms;
 
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.AdaNetAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.EfficientNet;
-import de.monticore.mlpipelines.automl.trainalgorithms.adanet.AdaNet;
 import de.monticore.mlpipelines.python.PythonPipeline;
 
 
@@ -31,18 +31,18 @@ public class TrainAlgorithmBuilder {
             case EfficientNet:
                 return new EfficientNet();
             case AdaNet:
-                return new AdaNet();
+                String modelPath = "src.test.resources.models.adanet.AdaNet.emadl";
+                return new AdaNetAlgorithm(modelPath);
             default:
-                throw new IllegalArgumentException("Train algorithm " + config.getTrainAlgorithmName() + " not supported");
+                throw new IllegalArgumentException(
+                        "Train algorithm " + config.getTrainAlgorithmName() + " not supported");
         }
     }
 
-    private Pipeline getPipeline(){
-        switch (config.getTrainPipelineName()){
-            case PytorchPipeline:
-                return new PythonPipeline();
-            default:
-                throw new IllegalArgumentException("Pipeline " + config.getTrainPipelineName() + " not supported");
+    private Pipeline getPipeline() {
+        if (PytorchPipeline.equals(config.getTrainPipelineName())) {
+            return new PythonPipeline();
         }
+        throw new IllegalArgumentException("Pipeline " + config.getTrainPipelineName() + " not supported");
     }
 }

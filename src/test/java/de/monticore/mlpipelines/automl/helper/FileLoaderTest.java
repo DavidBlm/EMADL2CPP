@@ -13,16 +13,14 @@ import java.util.List;
 public class FileLoaderTest extends TestCase {
 
     public void testLoadResourceFile() {
-        FileLoader ressourceLoader = new FileLoader();
         String modelName = "models/adanet/ResourceLoaderTest.txt";
-        List<String> lines = ressourceLoader.loadResourceFile(modelName);
+        List<String> lines = FileLoader.loadResourceFile(modelName);
         assertEquals(2, lines.size());
         assertEquals("test", lines.get(0));
         assertEquals("test2", lines.get(1));
     }
 
     public void testLoadFile() {
-        FileLoader ressourceLoader = new FileLoader();
         String modelName = "ResourceLoaderTest2.txt";
 
         String pathString = "";
@@ -37,20 +35,20 @@ public class FileLoaderTest extends TestCase {
             throw new IllegalStateException("OS is not supported (support only for Windows or Linux).");
         }
 
-        createDummyTempFile(ressourceLoader, pathString);
+        createDummyTempFile(pathString);
 
-        List<String> lines = ressourceLoader.loadFile(pathString);
+        List<String> lines = FileLoader.loadFile(pathString);
         assertEquals(3, lines.size());
         assertEquals("test", lines.get(0));
         assertEquals("test2", lines.get(1));
         assertEquals("test3", lines.get(2));
     }
 
-    private void createDummyTempFile(FileLoader ressourceLoader, String pathString) {
+    private void createDummyTempFile(String pathString) {
         deleteFileIfExists(pathString);
         createFileIfNotExists(pathString);
         List<String> lines = createFileContent();
-        ressourceLoader.writeToFile(lines, pathString);
+        FileLoader.writeToFile(lines, pathString);
     }
 
     private static String getTempModelPathString(String modelName) {
@@ -60,7 +58,6 @@ public class FileLoaderTest extends TestCase {
     }
 
     public void testWriteToFile() {
-        FileLoader ressourceLoader = new FileLoader();
         String modelName = "ResourceLoaderTest2.txt";
 
         String pathString = "";
@@ -76,9 +73,9 @@ public class FileLoaderTest extends TestCase {
             throw new IllegalStateException("OS is not supported (support only for Windows or Linux).");
         }
 
-        createDummyTempFile(ressourceLoader, pathString);
+        createDummyTempFile(pathString);
 
-        List<String> lines2 = ressourceLoader.loadFile(pathString);
+        List<String> lines2 = FileLoader.loadFile(pathString);
         assertEquals(3, lines2.size());
         assertEquals("test", lines2.get(0));
         assertEquals("test2", lines2.get(1));
