@@ -22,7 +22,4 @@ public class EmadlPrettyPrinterTest extends TestCase {
         String emadl = printer.prettyPrint(ast);
         assertEquals(expectedEmadl, emadl);
     }
-
-    public void testVisit() {
-    }
 }
