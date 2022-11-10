@@ -6,12 +6,12 @@ import de.monticore.mlpipelines.ModelLoader;
 import junit.framework.TestCase;
 
 public class EmadlPrettyPrinterTest extends TestCase {
+    String expectedEmadl = "component";
 
     public void testPrettyPrintArchitectureSymbol() {
         ArchitectureSymbol arch = ModelLoader.loadEfficientnetB0();
         EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
         String emadl = printer.prettyPrint(arch);
-        String expectedEmadl = "";
         assertEquals(expectedEmadl, emadl);
     }
 
@@ -20,7 +20,6 @@ public class EmadlPrettyPrinterTest extends TestCase {
         EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
         ASTArchitecture ast = (ASTArchitecture) arch.getAstNode().get();
         String emadl = printer.prettyPrint(ast);
-        String expectedEmadl = "";
         assertEquals(expectedEmadl, emadl);
     }
 

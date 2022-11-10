@@ -1,7 +1,7 @@
 package de.monticore.mlpipelines.automl.emadlprinter;
 
 import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
-import de.monticore.lang.monticar.cnnarch._ast.ASTArchitectureElement;
+import de.monticore.lang.monticar.cnnarch._ast.ASTLayerDeclaration;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._visitor.CNNArchVisitor;
 import de.monticore.prettyprint.AstPrettyPrinter;
@@ -28,12 +28,19 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     }
 
     @Override
-    public void visit(ASTArchitectureElement node) {
-
+    public void visit(ASTLayerDeclaration node) {
+        String layerName = node.getName();
+        this.printer.print("def " + layerName + "(");
     }
 
     @Override
-    public void endVisit(ASTArchitecture node) {
+    public void endVisit(ASTLayerDeclaration node) {
+        this.printer.println("}");
+        this.printer.println();
+    }
 
+    @Override
+    public void traverse(ASTLayerDeclaration node) {
+        this.printer.println("){");
     }
 }
