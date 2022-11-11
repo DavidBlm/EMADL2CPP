@@ -23,7 +23,7 @@ public class NetworkComposer {
         try {
             composedNet = generateNetworkLevel(networkStructureInformation);
             if (composedNet != null){
-                composedNet.setComponentName(networkStructureInformation.getNetworkName());
+                composedNet.setComponentName(networkStructureInformation.getComponentName());
 
 
                 for (Scope scope : fromInstance.getEnclosingScope().getSubScopes()){
@@ -45,8 +45,6 @@ public class NetworkComposer {
             e.printStackTrace();
             throw new RuntimeException();
         }
-
-
 
         return composedNet;
     }

@@ -69,7 +69,7 @@ public class ComposedNetworkHandler {
 
     public boolean isPartOfComposedNet(EMAComponentInstanceSymbol instanceSymbol){
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
-            if (instanceSymbol != null && networkStructureInformation.isInstancePartOfNetwork(instanceSymbol)) {
+            if (instanceSymbol != null && networkStructureInformation.isInstancePartOfSubNetworks(instanceSymbol)) {
                 return true;
             }
         }
