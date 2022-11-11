@@ -29,6 +29,14 @@ public class NumberPrinter {
         Optional<ASTTupleExpression> tupleExpressionOpt = expression.getTupleExpressionOpt();
         if (tupleExpressionOpt.isPresent())
             printASTTupleExpression(tupleExpressionOpt.get());
+
+        Optional<ASTArchArithmeticExpression> arithmeticExpression = expression.getArithmeticExpressionOpt();
+        if (arithmeticExpression.isPresent()) {
+            ASTArchArithmeticExpression astArchArithmeticExpression = arithmeticExpression.get();
+            if (astArchArithmeticExpression instanceof ASTArchSimpleArithmeticExpression)
+                printASTSimpleArithmeticExpression((ASTArchSimpleArithmeticExpression) arithmeticExpression.get());
+        }
+
     }
 
     private void printASTTupleExpression(ASTTupleExpression astTupleExpression) {
