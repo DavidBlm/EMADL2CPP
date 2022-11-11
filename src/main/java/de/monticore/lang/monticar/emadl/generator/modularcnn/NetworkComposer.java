@@ -1,8 +1,12 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
+import de.monticore.symboltable.CommonScope;
+import de.monticore.symboltable.MutableScope;
+import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 
 import java.util.ArrayList;
@@ -14,12 +18,24 @@ public class NetworkComposer {
 
     }
 
-    public ArchitectureSymbol generateComposedNetwork(NetworkStructureInformation networkStructureInformation){
+    public ArchitectureSymbol generateComposedNetwork(NetworkStructureInformation networkStructureInformation,EMAComponentInstanceSymbol fromInstance){
         ArchitectureSymbol composedNet = null;
         try {
             composedNet = generateNetworkLevel(networkStructureInformation);
             if (composedNet != null){
                 composedNet.setComponentName(networkStructureInformation.getNetworkName());
+
+
+                for (Scope scope : fromInstance.getEnclosingScope().getSubScopes()){
+                    CommonScope commonScope = (CommonScope) scope;
+                    if(commonScope.getSpanningSymbol().get().getFullName().equals(fromInstance.getFullName())){
+                        composedNet.setEnclosingScope(commonScope);
+                        break;
+                    }
+                }
+
+                //composedNet.setEnclosingScope(fromInstance.get);
+                //composedNet.setFullName(fromInstance.getFullName());
             }
 
             //composedNet.setAstNode(networkStructureInformation.getSubNetworks().get(0).getComposedNetworkArchitectureSymbol().getAstNode().get());
@@ -57,17 +73,18 @@ public class NetworkComposer {
                 }
             }
         }
-        return mergeArchitectureSymbols(subnetArchSymbols);
+        return mergeArchitectureSymbols(subnetArchSymbols,networkStructureInformation);
     }
 
 
-    private ArchitectureSymbol mergeArchitectureSymbols(ArrayList<ArchitectureSymbol> symbols) throws Exception {
+    private ArchitectureSymbol mergeArchitectureSymbols(ArrayList<ArchitectureSymbol> symbols,NetworkStructureInformation networkStructureInformation) throws Exception {
 
         if (symbols == null || symbols.size() < 2) {
             throw new Exception("Architecture Symbol Merge error: "  + "Not enough symbols to merge (at least 2 required)");
         }
 
         ArchitectureSymbol mergedArchitecture = new ArchitectureSymbol();
+        //mergedArchitecture.setEnclosingScope(networkStructureInformation.getSymbolReference().getEnclosingScope().getAsMutableScope());
 
         ArrayList<ArchitectureSymbol> mergedAuxiliaryArchitecture = new ArrayList<>();
         ArrayList<LayerVariableDeclarationSymbol> mergedLayerVariableDeclarations = new ArrayList<>();

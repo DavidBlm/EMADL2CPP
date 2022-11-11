@@ -54,7 +54,7 @@ public class ComposedNetworkHandler {
 
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null && instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())) {
-                networkStructureInformation.setComposedNetworkArchitectureSymbol(composeNetwork(networkStructureInformation));
+                networkStructureInformation.setComposedNetworkArchitectureSymbol(composeNetwork(networkStructureInformation,instanceSymbol));
                 ArchitectureSymbol fetchedSymbol = networkStructureInformation.getComposedNetworkArchitectureSymbol();
                 if (fetchedSymbol != null){
                     return Optional.of(networkStructureInformation.getComposedNetworkArchitectureSymbol());
@@ -159,8 +159,8 @@ public class ComposedNetworkHandler {
         return fileHandler.fetchKnownNetworksFromFile();
     }
 
-    public ArchitectureSymbol composeNetwork(NetworkStructureInformation networkStructureInformation){
-        ArchitectureSymbol composedNetwork = networkComposer.generateComposedNetwork(networkStructureInformation);
+    public ArchitectureSymbol composeNetwork(NetworkStructureInformation networkStructureInformation,EMAComponentInstanceSymbol fromInstance){
+        ArchitectureSymbol composedNetwork = networkComposer.generateComposedNetwork(networkStructureInformation, fromInstance);
         return composedNetwork;
     }
 

@@ -41,6 +41,7 @@ public class EMADLCNNHandler {
     private EMADLTagging emadlTaggingHandler;
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
     private String composedNetworkFilePath;
+    private Map<String, ArchitectureSymbol> processedArch;
 
 
     public EMADLCNNHandler (EMADLGenerator emadlGen, Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi, String composedNetworkFilePath ) {
@@ -51,6 +52,8 @@ public class EMADLCNNHandler {
         emadlTaggingHandler = emadlGenerator.getEmadlTaggingHandler();
         pythonWrapper = pythonWrapperApi;
         this.composedNetworkFilePath = composedNetworkFilePath;
+        this.processedArch = processedArch;
+
     }
 
     protected CNNArchGenerator getCnnArchGenerator() {
