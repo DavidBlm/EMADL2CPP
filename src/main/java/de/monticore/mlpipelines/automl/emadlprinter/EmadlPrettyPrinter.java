@@ -69,13 +69,39 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         this.printer.println();
     }
 
+//    @Override
+//    public void handle(ASTLayer node) {
+//    }
+
     @Override
     public void visit(ASTStream node) {
-        // print the elements of the stream with a comma in between
         List<ASTArchitectureElement> elements = node.getElementsList();
         for (int i = 0; i < elements.size(); i++) {
-            elements.get(i).accept(getRealThis());
+            ASTArchitectureElement element = elements.get(i);
+            printASTArchitectureElement(element);
+            if (i < elements.size() - 1) {
+                printer.print(" ->");
+            }
+            printer.println();
         }
+    }
+
+    private void printASTArchitectureElement(ASTArchitectureElement element) {
+        if (element instanceof ASTLayer)
+            printASTLayer((ASTLayer) element);
+    }
+
+    public void printASTLayer(ASTLayer node) {
+        String layerName = node.getName();
+        this.printer.print(layerName + "(");
+        List<ASTArchArgument> arguments = node.getArgumentsList();
+        for (int i = 0; i < arguments.size(); i++) {
+            printASTArchArgument(arguments.get(i));
+            if (i < arguments.size() - 1) {
+                this.printer.print(", ");
+            }
+        }
+        this.printer.print(")");
     }
 
     @Override
@@ -87,36 +113,23 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         }
     }
 
-    public void traverse(ASTArchitectureElement node) {
-        this.printer.println(" ->");
-    }
-
-    @Override
-    public void visit(ASTLayer node) {
-        String layerName = node.getName();
-        this.printer.print(layerName + "(");
-    }
-
-    @Override
-    public void endVisit(ASTLayer node) {
-        this.printer.println(") ->");
-    }
-
     @Override
     public void endVisit(ASTParallelBlock node) {
         CNNArchVisitor.super.endVisit(node);
     }
 
-    @Override
-    public void visit(ASTArchParameterArgument node) {
+    private void printASTArchArgument(ASTArchArgument argument) {
+        if (argument instanceof ASTArchParameterArgument)
+            printASTArchParameterArgument((ASTArchParameterArgument) argument);
+        else {
+            printer.print(argument.getName());
+        }
+    }
+
+    public void printASTArchParameterArgument(ASTArchParameterArgument node) {
         String argumentName = node.getName();
         this.printer.print(argumentName + " = ");
         node.getRhs().accept(getRealThis());
-    }
-
-    @Override
-    public void endVisit(ASTArchParameterArgument node) {
-        this.printer.print(", ");
     }
 
 //    @Override
