@@ -45,21 +45,16 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         printASTLayerParams(node.getParametersList());
         this.printer.println("){");
         this.printer.indent();
-        node.getBody().accept(this);
+        printASTStream(node.getBody());
     }
 
     private void printASTLayerParams(List<ASTLayerParameter> params) {
         for (int i = 0; i < params.size(); i++) {
-            params.get(i).accept(getRealThis());
+            params.get(i).getName();
             if (i < params.size() - 1) {
                 this.printer.print(", ");
             }
         }
-    }
-
-    @Override
-    public void traverse(ASTLayerDeclaration node) {
-
     }
 
     @Override
@@ -69,12 +64,7 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         this.printer.println();
     }
 
-//    @Override
-//    public void handle(ASTLayer node) {
-//    }
-
-    @Override
-    public void visit(ASTStream node) {
+    public void printASTStream(ASTStream node) {
         List<ASTArchitectureElement> elements = node.getElementsList();
         for (int i = 0; i < elements.size(); i++) {
             ASTArchitectureElement element = elements.get(i);
@@ -89,6 +79,22 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     private void printASTArchitectureElement(ASTArchitectureElement element) {
         if (element instanceof ASTLayer)
             printASTLayer((ASTLayer) element);
+        else if (element instanceof ASTParallelBlock)
+            printASTParallelBlock((ASTParallelBlock) element);
+    }
+
+    private void printASTParallelBlock(ASTParallelBlock element) {
+        printer.println("(");
+        List<ASTStream> groups = element.getGroupsList();
+        for (int i = 0; i < groups.size(); i++) {
+            printer.indent();
+            printASTStream(groups.get(i));
+            printer.unindent();
+            if (i < groups.size() - 1) {
+                printer.println("| ");
+            }
+        }
+        printer.print(")");
     }
 
     public void printASTLayer(ASTLayer node) {
@@ -102,20 +108,6 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
             }
         }
         this.printer.print(")");
-    }
-
-    @Override
-    public void visit(ASTLayerParameter node) {
-        String parameterName = node.getName();
-        this.printer.print(parameterName);
-        if (node.isPresentDefault()) {
-            node.getDefault().accept(getRealThis());
-        }
-    }
-
-    @Override
-    public void endVisit(ASTParallelBlock node) {
-        CNNArchVisitor.super.endVisit(node);
     }
 
     private void printASTArchArgument(ASTArchArgument argument) {
