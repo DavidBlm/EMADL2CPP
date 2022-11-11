@@ -3,9 +3,6 @@ package de.monticore.mlpipelines.automl.emadlprinter;
 import de.monticore.lang.monticar.cnnarch._ast.*;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._visitor.CNNArchVisitor;
-import de.monticore.literals.literals._ast.ASTIntLiteral;
-import de.monticore.literals.literals._ast.ASTNumericLiteral;
-import de.monticore.numberunit._ast.ASTNumberWithInf;
 import de.monticore.prettyprint.AstPrettyPrinter;
 import de.monticore.prettyprint.IndentPrinter;
 
@@ -130,26 +127,13 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     public void printASTArchParameterArgument(ASTArchParameterArgument node) {
         String argumentName = node.getName();
         this.printer.print(argumentName + " = ");
-        node.getRhs().accept(getRealThis());
+        NumberPrinter numberPrinter = new NumberPrinter(printer);
+        numberPrinter.printASTArchExpression(node.getRhs());
     }
 
     @Override
     public void visit(ASTStreamInstruction node) {
         printASTStream(node.getBody());
-    }
-
-    @Override
-    public void visit(ASTNumberWithInf node) {
-        if (node.isPresentInf()) {
-            printer.print("inf");
-        } else {
-            ASTNumericLiteral literal = node.getNumber();
-
-            if (literal instanceof ASTIntLiteral) {
-                ASTIntLiteral number = (ASTIntLiteral) literal;
-                printer.print("" + number.getValue());
-            }
-        }
     }
 
 //    @Override
