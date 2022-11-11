@@ -124,6 +124,11 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         node.getRhs().accept(getRealThis());
     }
 
+    @Override
+    public void visit(ASTStreamInstruction node) {
+        printASTStream(node.getBody());
+    }
+
 //    @Override
 //    public void visit(ASTArchExpression node) {
 //        node.getExpression().accept(getRealThis());
