@@ -47,9 +47,14 @@ public class ComposedNetworkHandler {
         return false;
     }
 
-    public Optional<ArchitectureSymbol> fetchComposedNetworkArchitectureSymbol(EMAComponentInstanceSymbol instanceSymbol){
+    public Optional<ArchitectureSymbol> fetchComposedNetworkArchitectureSymbol(EMAComponentInstanceSymbol instanceSymbol,Set<EMAComponentInstanceSymbol> componentInstanceSymbols){
+        if (componentInstanceSymbols != null) {
+            refreshInformation(componentInstanceSymbols);
+        }
+
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null && instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())) {
+                networkStructureInformation.setComposedNetworkArchitectureSymbol(composeNetwork(networkStructureInformation));
                 ArchitectureSymbol fetchedSymbol = networkStructureInformation.getComposedNetworkArchitectureSymbol();
                 if (fetchedSymbol != null){
                     return Optional.of(networkStructureInformation.getComposedNetworkArchitectureSymbol());
@@ -71,17 +76,17 @@ public class ComposedNetworkHandler {
         return false;
     }
 
-    public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfInstance(EMAComponentInstanceSymbol componentInstance){
+    public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfInstance(EMAComponentInstanceSymbol componentInstance, Set<EMAComponentInstanceSymbol> componentInstanceSymbols){
         if (isComposedNet(componentInstance)){
-            return fetchComposedNetworkArchitectureSymbol(componentInstance);
+            return fetchComposedNetworkArchitectureSymbol(componentInstance,componentInstanceSymbols);
         } else {
             return componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
         }
     }
 
-    public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfReferencedSymbol(EMAComponentInstanceSymbol componentInstance){
+    public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfReferencedSymbol(EMAComponentInstanceSymbol componentInstance, Set<EMAComponentInstanceSymbol> componentInstanceSymbols){
         if (isComposedNet(componentInstance)){
-            return fetchComposedNetworkArchitectureSymbol(componentInstance);
+            return fetchComposedNetworkArchitectureSymbol(componentInstance, componentInstanceSymbols);
         } else {
             return componentInstance.getComponentType().getReferencedSymbol().getSpannedScope().resolve("", ArchitectureSymbol.KIND);
         }
@@ -142,7 +147,7 @@ public class ComposedNetworkHandler {
             if (hitInstance != null){
                 networks.add(hitInstance);
             }
-            networkStructureInformation.setComposedNetworkArchitectureSymbol(composeNetwork(networkStructureInformation));
+            //networkStructureInformation.setComposedNetworkArchitectureSymbol(composeNetwork(networkStructureInformation));
         }
 
         Log.info("Processing instances:" + composedNetworks.toString(),"INSTANCE_PROCESSING");
@@ -160,9 +165,9 @@ public class ComposedNetworkHandler {
     }
 
     public ArrayList<EMAComponentInstanceSymbol> refreshInformation(Set<EMAComponentInstanceSymbol> instanceSymbols){
-        this.composedNetworks = new ArrayList<>();
+        //this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         //ArrayList<EMAComponentInstanceSymbol> refreshed = processComponentInstances(instanceSymbols);
-
-        return processComponentInstances(instanceSymbols);
+        //return processComponentInstances(instanceSymbols);
+        return null;
     }
 }

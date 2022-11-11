@@ -43,8 +43,8 @@ public class NetworkComposer {
             for (NetworkStructureInformation subnet : subnets){
                 if (subnet.isAtomic()) {
                     //TODO: Null pointer exception from generateComponent in EMADLGenerator
-                    if (subnet.getSymbolReference() == null) return null;
-                    Optional<ArchitectureSymbol> architectureOpt = subnet.getSymbolReference().getReferencedSymbol().getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+                    if (subnet.getSymbolReference() == null || subnet.getInstances() == null || subnet.getInstances().size() == 0) return null;
+                    Optional<ArchitectureSymbol> architectureOpt = subnet.getInstances().get(0).getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     Log.info("","");
                     if (!architectureOpt.isPresent()){
                         throw new Exception("Architecture symbol of atomic network missing");
