@@ -19,13 +19,12 @@ public class NetworkComposer {
     }
 
     public ArchitectureSymbol generateComposedNetwork(NetworkStructureInformation networkStructureInformation,EMAComponentInstanceSymbol fromInstance){
+
         ArchitectureSymbol composedNet = null;
         try {
             composedNet = generateNetworkLevel(networkStructureInformation);
             if (composedNet != null){
                 composedNet.setComponentName(networkStructureInformation.getComponentName());
-
-
                 for (Scope scope : fromInstance.getEnclosingScope().getSubScopes()){
                     CommonScope commonScope = (CommonScope) scope;
                     if(commonScope.getSpanningSymbol().get().getFullName().equals(fromInstance.getFullName())){
@@ -56,7 +55,6 @@ public class NetworkComposer {
 
             for (NetworkStructureInformation subnet : subnets){
                 if (subnet.isAtomic()) {
-                    //TODO: Null pointer exception from generateComponent in EMADLGenerator
                     if (subnet.getSymbolReference() == null || subnet.getInstances() == null || subnet.getInstances().size() == 0) return null;
                     Optional<ArchitectureSymbol> architectureOpt = subnet.getInstances().get(0).getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     Log.info("","");
@@ -71,7 +69,7 @@ public class NetworkComposer {
                 }
             }
         }
-        return mergeArchitectureSymbols(subnetArchSymbols,networkStructureInformation);
+        return mergeArchitectureSymbols(subnetArchSymbols, networkStructureInformation);
     }
 
 
@@ -79,6 +77,27 @@ public class NetworkComposer {
 
         if (symbols == null || symbols.size() < 2) {
             throw new Exception("Architecture Symbol Merge error: "  + "Not enough symbols to merge (at least 2 required)");
+        }
+
+        ArrayList<String> dataFlow = networkStructureInformation.getNetworkInstancesDataFlow();
+
+        if (dataFlow.size() < 3
+                || !dataFlow.get(0).equals(networkStructureInformation.getNetworkName())
+                || !dataFlow.get(dataFlow.size()-1).equals(networkStructureInformation.getNetworkName())){
+            throw new Exception("Architecture Symbol Merge error: "  + "DataFlow not correctly analyzed/given. Malformed networks probably.");
+        } else {
+            //dataFlow.remove(0);
+            //dataFlow.remove(dataFlow.size()-1);
+        }
+
+        ArrayList<ArchitectureSymbol> dataFlowSymbols = new ArrayList<>();
+
+        for (int i = 1; i < dataFlow.size()-1; i++){
+            for(ArchitectureSymbol symbol : symbols){
+                String[] splitCompName = symbol.getComponentName().split("\\.");
+                String symbolNetComponentName = splitCompName[splitCompName.length-1];
+                if(dataFlow.get(i).equals(symbolNetComponentName)) dataFlowSymbols.add(symbol);
+            }
         }
 
         ArchitectureSymbol mergedArchitecture = new ArchitectureSymbol();
@@ -91,27 +110,25 @@ public class NetworkComposer {
         ArrayList<String> mergedCustomFilePaths = new ArrayList<>();
         ArrayList<Boolean> mergedUseDgls = new ArrayList<>();
         ArrayList<String> mergedWeightPaths = new ArrayList<>();
-        ArrayList<VariableSymbol> mergedInputs = new ArrayList<>();
-        ArrayList<VariableSymbol> mergedOutputs = new ArrayList<>();
 
-        for ( int i=0; i < symbols.size(); i++ ){
+        for ( int i=0; i < dataFlowSymbols.size(); i++ ){
 
-            if (symbols.get(i).getAdaNetUtils() != null) mergedAdaNetUtils.add(symbols.get(i).getAdaNetUtils());
+            if (dataFlowSymbols.get(i).getAdaNetUtils() != null) mergedAdaNetUtils.add(dataFlowSymbols.get(i).getAdaNetUtils());
 
-            if (symbols.get(i).getCustomPyFilesPath() != null) mergedCustomFilePaths.add(symbols.get(i).getCustomPyFilesPath());
-            mergedUseDgls.add(symbols.get(i).getUseDgl());
-            if (symbols.get(i).getWeightsPath() != null) mergedWeightPaths.add(symbols.get(i).getWeightsPath());
+            if (dataFlowSymbols.get(i).getCustomPyFilesPath() != null) mergedCustomFilePaths.add(dataFlowSymbols.get(i).getCustomPyFilesPath());
+            mergedUseDgls.add(dataFlowSymbols.get(i).getUseDgl());
+            if (dataFlowSymbols.get(i).getWeightsPath() != null) mergedWeightPaths.add(dataFlowSymbols.get(i).getWeightsPath());
 
-            if (symbols.get(i).getAuxiliaryArchitecture() != null) mergedAuxiliaryArchitecture.add(symbols.get(i).getAuxiliaryArchitecture());
+            if (dataFlowSymbols.get(i).getAuxiliaryArchitecture() != null) mergedAuxiliaryArchitecture.add(dataFlowSymbols.get(i).getAuxiliaryArchitecture());
 
-            if (symbols.get(i).getLayerVariableDeclarations() != null) mergedLayerVariableDeclarations.addAll(symbols.get(i).getLayerVariableDeclarations());
+            if (dataFlowSymbols.get(i).getLayerVariableDeclarations() != null) mergedLayerVariableDeclarations.addAll(dataFlowSymbols.get(i).getLayerVariableDeclarations());
 
 
-            if (symbols.get(i).getNetworkInstructions() != null) {
+            if (dataFlowSymbols.get(i).getNetworkInstructions() != null) {
                 //ArrayList<NetworkInstructionSymbol> instructions = new ArrayList<>();
                 //instructions.addAll(symbols.get(i).getNetworkInstructions());
                 //mergedNetworkInstructions.addAll(stripIoNetworkInstructions(instructions,i,symbols.size()));
-                mergedNetworkInstructions.addAll(symbols.get(i).getNetworkInstructions());
+                mergedNetworkInstructions.addAll(dataFlowSymbols.get(i).getNetworkInstructions());
             }
 
             for (NetworkInstructionSymbol symbol : mergedNetworkInstructions){
@@ -158,8 +175,9 @@ public class NetworkComposer {
         }
         */
 
-        mergedArchitecture.setInputs(symbols.get(0).getInputs());
-        mergedArchitecture.setOutputs(symbols.get(symbols.size()-1).getOutputs());
+        //
+        mergedArchitecture.setInputs(dataFlowSymbols.get(0).getInputs());
+        mergedArchitecture.setOutputs(dataFlowSymbols.get(dataFlowSymbols.size()-1).getOutputs());
 
         return mergedArchitecture;
     }
