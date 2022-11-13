@@ -1,9 +1,11 @@
 package de.monticore.mlpipelines.automl.emadlprinter;
 
+import de.monticore.lang.math._ast.ASTNameExpression;
 import de.monticore.lang.math._ast.ASTNumberExpression;
 import de.monticore.lang.monticar.cnnarch._ast.*;
 import de.monticore.literals.literals._ast.ASTIntLiteral;
 import de.monticore.literals.literals._ast.ASTNumericLiteral;
+import de.monticore.literals.literals._ast.ASTStringLiteral;
 import de.monticore.numberunit._ast.ASTNumberWithInf;
 import de.monticore.numberunit._ast.ASTNumberWithUnit;
 import de.monticore.prettyprint.IndentPrinter;
@@ -26,17 +28,23 @@ public class NumberPrinter {
 
 
     private void printASTArchSimpleExpression(ASTArchSimpleExpression expression) {
-        Optional<ASTTupleExpression> tupleExpressionOpt = expression.getTupleExpressionOpt();
-        if (tupleExpressionOpt.isPresent())
-            printASTTupleExpression(tupleExpressionOpt.get());
-
-        Optional<ASTArchArithmeticExpression> arithmeticExpression = expression.getArithmeticExpressionOpt();
-        if (arithmeticExpression.isPresent()) {
-            ASTArchArithmeticExpression astArchArithmeticExpression = arithmeticExpression.get();
-            if (astArchArithmeticExpression instanceof ASTArchSimpleArithmeticExpression)
-                printASTSimpleArithmeticExpression((ASTArchSimpleArithmeticExpression) arithmeticExpression.get());
+        if (expression.getTupleExpressionOpt().isPresent())
+            printASTTupleExpression(expression.getTupleExpressionOpt().get());
+        else if(expression.getStringOpt().isPresent()){
+            printStringNameExpression(expression.getStringOpt().get());
         }
+        else if(expression.getArithmeticExpressionOpt().isPresent())
+        {
+            ASTArchArithmeticExpression astArchArithmeticExpression = expression.getArithmeticExpressionOpt().get();
+            if (astArchArithmeticExpression instanceof ASTArchSimpleArithmeticExpression)
+                printASTSimpleArithmeticExpression((ASTArchSimpleArithmeticExpression) astArchArithmeticExpression);
+        }
+        //need to add booleanExpression condition as well
+        //else if(expression.getBooleanExpression().isPresent()){}
+    }
 
+    private void printStringNameExpression(ASTStringLiteral astStringLiteral) {
+        printer.print("\"" + astStringLiteral.getValue() +"\"");
     }
 
     private void printASTTupleExpression(ASTTupleExpression astTupleExpression) {
@@ -58,8 +66,18 @@ public class NumberPrinter {
 
     private void printASTSimpleArithmeticExpression(ASTArchSimpleArithmeticExpression expression) {
         Optional<ASTNumberExpression> numberExpressionOpt = expression.getNumberExpressionOpt();
+        Optional<ASTNameExpression> nameExpressionOpt = expression.getNameExpressionOpt();
+
         if (numberExpressionOpt.isPresent())
             printASTNumberExpression(numberExpressionOpt.get());
+        else if (nameExpressionOpt.isPresent())
+            printASTNameExpression(nameExpressionOpt.get());
+    }
+
+    private void printASTNameExpression(ASTNameExpression astNameExpression) {
+        String name = astNameExpression.getName();
+        printer.print(name);
+
     }
 
     private void printASTNumberExpression(ASTNumberExpression expression) {

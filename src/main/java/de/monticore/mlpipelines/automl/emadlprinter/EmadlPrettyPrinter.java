@@ -119,9 +119,20 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     private void printASTArchArgument(ASTArchArgument argument) {
         if (argument instanceof ASTArchParameterArgument)
             printASTArchParameterArgument((ASTArchParameterArgument) argument);
+        else if(argument instanceof ASTArchSpecialArgument)
+            printASTArchSpecialArgument((ASTArchSpecialArgument) argument);
+        //else if(argument instanceof ASTArchValueArgument)
+        //    printASTArchValueArgument((ASTArchValueArgument) argument);
         else {
             printer.print(argument.getName());
         }
+    }
+
+    private void printASTArchSpecialArgument(ASTArchSpecialArgument argument) {
+        String argumentName = argument.getName();
+        this.printer.print(argumentName + " = ");
+        NumberPrinter numberPrinter = new NumberPrinter(printer);
+        numberPrinter.printASTArchExpression(argument.getRhs());
     }
 
     public void printASTArchParameterArgument(ASTArchParameterArgument node) {
