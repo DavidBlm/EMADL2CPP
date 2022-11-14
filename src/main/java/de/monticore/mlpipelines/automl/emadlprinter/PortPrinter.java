@@ -4,6 +4,7 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
 import de.monticore.lang.monticar.ts.references.MCASTTypeSymbolReference;
+import de.monticore.lang.monticar.types2._ast.ASTDimension;
 import de.monticore.lang.monticar.types2._ast.ASTElementType;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.symboltable.Symbol;
@@ -45,22 +46,27 @@ public class PortPrinter {
         ArrayList symbolList = (ArrayList) enclosedSymbols.get(portName);
         EMAPortArraySymbol port = (EMAPortArraySymbol) symbolList.get(1);
         String portIncome = port.isIncoming() ? "in " : "out ";
-        String portType = getPortType(port);
-        this.printer.print(portIncome + portType + " " + portName);
+        printer.print(portIncome);
+        printPortType(port);
+        String portDimension = getPortDimension(port);
+        this.printer.print("^" + portDimension + " " + portName);
     }
 
-    private String getPortType(EMAPortArraySymbol port) {
+
+    private void printPortType(EMAPortArraySymbol port) {
         MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) port.getTypeReference();
         ASTCommonMatrixType astType = (ASTCommonMatrixType) typeReference.getAstType();
         ASTElementType elementType = astType.getElementType();
         String type = elementType.getName();
-        return type;
+        printer.print(type);
+        new NumberPrinter(printer).printASTRange(elementType.getRange());
     }
 
-//    private String getPortDimensions(EMAPortArraySymbol port) {
-//        MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) port.getTypeReference();
-//        ASTCommonMatrixType astType = (ASTCommonMatrixType) typeReference.getAstType();
-//        String dimensions = astType.getDimensions().toString();
-//        return dimensions;
-//    }
+    private String getPortDimension(EMAPortArraySymbol port) {
+        MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) port.getTypeReference();
+        ASTCommonMatrixType astType = (ASTCommonMatrixType) typeReference.getAstType();
+        ASTDimension dimension = astType.getDimension();
+        String dimString = "{}";
+        return dimString;
+    }
 }

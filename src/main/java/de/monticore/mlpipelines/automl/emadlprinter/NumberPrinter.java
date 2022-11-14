@@ -3,6 +3,8 @@ package de.monticore.mlpipelines.automl.emadlprinter;
 import de.monticore.lang.math._ast.ASTNameExpression;
 import de.monticore.lang.math._ast.ASTNumberExpression;
 import de.monticore.lang.monticar.cnnarch._ast.*;
+import de.monticore.lang.monticar.ranges._ast.ASTRange;
+import de.monticore.lang.monticar.resolution._ast.ASTUnitNumberResolution;
 import de.monticore.literals.literals._ast.ASTIntLiteral;
 import de.monticore.literals.literals._ast.ASTNumericLiteral;
 import de.monticore.literals.literals._ast.ASTStringLiteral;
@@ -26,15 +28,25 @@ public class NumberPrinter {
         printASTArchSimpleExpression(expression);
     }
 
+    public void printASTRange(ASTRange range) {
+        this.printer.print("(");
+        printASTUnitNumberResolution(range.getMin());
+        this.printer.print(":");
+        printASTUnitNumberResolution(range.getMax());
+        this.printer.print(")");
+    }
+
+    private void printASTUnitNumberResolution(ASTUnitNumberResolution unitNumberResolution) {
+        this.printASTNumberWithUnit(unitNumberResolution.getNumberWithUnit());
+    }
+
 
     private void printASTArchSimpleExpression(ASTArchSimpleExpression expression) {
         if (expression.getTupleExpressionOpt().isPresent())
             printASTTupleExpression(expression.getTupleExpressionOpt().get());
-        else if(expression.getStringOpt().isPresent()){
+        else if (expression.getStringOpt().isPresent()) {
             printStringNameExpression(expression.getStringOpt().get());
-        }
-        else if(expression.getArithmeticExpressionOpt().isPresent())
-        {
+        } else if (expression.getArithmeticExpressionOpt().isPresent()) {
             ASTArchArithmeticExpression astArchArithmeticExpression = expression.getArithmeticExpressionOpt().get();
             if (astArchArithmeticExpression instanceof ASTArchSimpleArithmeticExpression)
                 printASTSimpleArithmeticExpression((ASTArchSimpleArithmeticExpression) astArchArithmeticExpression);
