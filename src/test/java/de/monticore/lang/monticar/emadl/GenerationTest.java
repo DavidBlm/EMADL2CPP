@@ -441,7 +441,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         Log.info(Log.getFindings().toString(), "testGluonPreprocessinWithSupervised");
-        checkFindingsCount(1L);
+        checkFindingsCount();
     }
 
     @Test
@@ -450,7 +450,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON", "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
         Log.info(Log.getFindings().toString(), "testGluonPreprocessingWithGAN");
-        checkFindingsCount(1L);
+        checkFindingsCount();
     }
 
     @Test
