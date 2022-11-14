@@ -50,7 +50,8 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
 
     private void printASTLayerParams(List<ASTLayerParameter> params) {
         for (int i = 0; i < params.size(); i++) {
-            params.get(i).getName();
+            String name = params.get(i).getName();
+            this.printer.print(name);
             if (i < params.size() - 1) {
                 this.printer.print(", ");
             }
