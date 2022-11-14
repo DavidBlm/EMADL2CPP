@@ -6,7 +6,6 @@ component Net2 {
 
      implementation CNN {
             dataInput ->
-            FullyConnected(units=10) ->
             Softmax() ->
             softmax;
         }

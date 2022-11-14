@@ -17,6 +17,7 @@ component Net1 {
         FullyConnected(units=500) ->
         Relu() ->
         Dropout() ->
+        FullyConnected(units=10) ->
         dataOutput;
     }
     

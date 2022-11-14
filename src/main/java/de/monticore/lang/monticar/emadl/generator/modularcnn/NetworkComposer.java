@@ -18,7 +18,7 @@ public class NetworkComposer {
 
     }
 
-    public ArchitectureSymbol generateComposedNetwork(NetworkStructureInformation networkStructureInformation,EMAComponentInstanceSymbol fromInstance){
+    public ArchitectureSymbol generateComposedNetwork(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance){
 
         ArchitectureSymbol composedNet = null;
         try {
@@ -32,13 +32,7 @@ public class NetworkComposer {
                         break;
                     }
                 }
-
-                //composedNet.setEnclosingScope(fromInstance.get);
-                //composedNet.setFullName(fromInstance.getFullName());
             }
-
-            //composedNet.setAstNode(networkStructureInformation.getSubNetworks().get(0).getComposedNetworkArchitectureSymbol().getAstNode().get());
-            //composedNet.set
         } catch (Exception e){
             Log.error("Generation of composed network failed");
             e.printStackTrace();
@@ -162,7 +156,7 @@ public class NetworkComposer {
         }
 
         mergedArchitecture.setLayerVariableDeclarations(mergedLayerVariableDeclarations);
-        mergedArchitecture.setNetworkInstructions(mergedNetworkInstructions);
+        mergedArchitecture.setNetworkInstructions(mergeNetworkInstructionsToSingleInstruction(mergedNetworkInstructions));
 
         /*
         if (mergedInputs.size() == 0 || mergedOutputs.size() == 0){
@@ -229,6 +223,38 @@ public class NetworkComposer {
         }
 
         return strippedInstructions;
+    }
+
+    private ArrayList<NetworkInstructionSymbol> mergeNetworkInstructionsToSingleInstruction(ArrayList<NetworkInstructionSymbol> seperatedInstructions){
+        if (seperatedInstructions.size() < 2) return seperatedInstructions;
+
+        ArrayList<NetworkInstructionSymbol> mergedInstructions = new ArrayList<>();
+        NetworkInstructionSymbol targetInstruction = seperatedInstructions.get(0);
+
+        ArrayList<ArchitectureElementSymbol> targetElementSymbols = (ArrayList<ArchitectureElementSymbol>) targetInstruction.getBody().getElements();
+        targetElementSymbols.remove(targetElementSymbols.size()-1);
+
+        for (int i=1; i < seperatedInstructions.size(); i++){
+            ArrayList<ArchitectureElementSymbol> currentElements = (ArrayList<ArchitectureElementSymbol>) seperatedInstructions.get(i).getBody().getElements();
+
+            if (currentElements.size() > 1){
+                currentElements.remove(0);
+            }
+
+
+            if (i != seperatedInstructions.size() - 1 && currentElements.size() > 1){
+                currentElements.remove(currentElements.size()-1);
+            }
+
+
+
+            targetElementSymbols.get(targetElementSymbols.size()-1).setOutputElement(currentElements.get(0));
+            currentElements.get(0).setInputElement(targetElementSymbols.get(targetElementSymbols.size()-1));
+            targetElementSymbols.addAll(currentElements);
+        }
+
+        mergedInstructions.add(targetInstruction);
+        return mergedInstructions;
     }
 
 
