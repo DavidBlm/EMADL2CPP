@@ -1,5 +1,6 @@
 package de.monticore.mlpipelines.automl.emadlprinter;
 
+import de.monticore.expressionsbasis._ast.ASTExpression;
 import de.monticore.lang.math._ast.ASTNameExpression;
 import de.monticore.lang.math._ast.ASTNumberExpression;
 import de.monticore.lang.monticar.cnnarch._ast.*;
@@ -22,7 +23,6 @@ public class NumberPrinter {
         this.printer = printer;
     }
 
-
     public void printASTArchExpression(ASTArchExpression rhs) {
         ASTArchSimpleExpression expression = rhs.getExpression();
         printASTArchSimpleExpression(expression);
@@ -34,6 +34,21 @@ public class NumberPrinter {
         this.printer.print(":");
         printASTUnitNumberResolution(range.getMax());
         this.printer.print(")");
+    }
+
+    public void printASTExpression(ASTExpression expression) {
+        if (expression instanceof ASTNumberExpression) {
+            ASTNumberExpression numberExpression = (ASTNumberExpression) expression;
+            printASTNumberExpression(numberExpression);
+        } else if (expression instanceof ASTNameExpression) {
+            ASTNameExpression nameExpression = (ASTNameExpression) expression;
+            printASTNameExpression(nameExpression);
+        }
+    }
+
+    private void printASTNumberExpression(ASTNumberExpression expression) {
+        ASTNumberWithUnit numberWithUnit = expression.getNumberWithUnit();
+        printASTNumberWithUnit(numberWithUnit);
     }
 
     private void printASTUnitNumberResolution(ASTUnitNumberResolution unitNumberResolution) {
@@ -90,11 +105,6 @@ public class NumberPrinter {
         String name = astNameExpression.getName();
         printer.print(name);
 
-    }
-
-    private void printASTNumberExpression(ASTNumberExpression expression) {
-        ASTNumberWithUnit numberWithUnit = expression.getNumberWithUnit();
-        printASTNumberWithUnit(numberWithUnit);
     }
 
     private void printASTNumberWithUnit(ASTNumberWithUnit numberWithUnit) {

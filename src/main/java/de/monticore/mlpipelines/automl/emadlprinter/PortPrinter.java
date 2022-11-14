@@ -1,5 +1,6 @@
 package de.monticore.mlpipelines.automl.emadlprinter;
 
+import de.monticore.expressionsbasis._ast.ASTExpression;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAPortArraySymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
@@ -48,8 +49,8 @@ public class PortPrinter {
         String portIncome = port.isIncoming() ? "in " : "out ";
         printer.print(portIncome);
         printPortType(port);
-        String portDimension = getPortDimension(port);
-        this.printer.print("^" + portDimension + " " + portName);
+        printPortDimension(port);
+        this.printer.print(" " + portName);
     }
 
 
@@ -62,11 +63,18 @@ public class PortPrinter {
         new NumberPrinter(printer).printASTRange(elementType.getRange());
     }
 
-    private String getPortDimension(EMAPortArraySymbol port) {
+    private void printPortDimension(EMAPortArraySymbol port) {
         MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) port.getTypeReference();
         ASTCommonMatrixType astType = (ASTCommonMatrixType) typeReference.getAstType();
         ASTDimension dimension = astType.getDimension();
-        String dimString = "{}";
-        return dimString;
+        printer.print("^{");
+        for (int i = 0; i < dimension.getMatrixDimList().size(); i++) {
+            ASTExpression expression = dimension.getMatrixDim(i);
+            new NumberPrinter(printer).printASTExpression(expression);
+
+            if (i < dimension.getMatrixDimList().size() - 1)
+                printer.print(", ");
+        }
+        printer.print("}");
     }
 }
