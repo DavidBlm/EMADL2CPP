@@ -80,7 +80,7 @@ public class NumberPrinter {
         for (int i = 0; i < expressions.size(); i++) {
             printASTArithmeticExpression(expressions.get(i));
             if (i < expressions.size() - 1) {
-                printer.print(", ");
+                printer.print(",");
             }
         }
         printer.print(")");

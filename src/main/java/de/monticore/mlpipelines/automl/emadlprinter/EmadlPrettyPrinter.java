@@ -29,6 +29,7 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         this.printer.println("implementation CNN {");
         this.printer.indent();
         this.handle((ASTArchitecture) arch.getAstNode().get());
+        this.printer.println(";");
         this.printer.unindent();
         this.printer.println("}");
         this.printer.unindent();
@@ -123,7 +124,7 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
             printASTStream(groups.get(i));
             printer.unindent();
             if (i < groups.size() - 1) {
-                printer.println("| ");
+                printer.println("|");
             }
         }
         printer.print(")");
