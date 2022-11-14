@@ -7,6 +7,7 @@ import de.monticore.prettyprint.AstPrettyPrinter;
 import de.monticore.prettyprint.IndentPrinter;
 
 import java.util.List;
+import java.util.Optional;
 
 public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CNNArchVisitor {
     protected final IndentPrinter printer;
@@ -17,8 +18,11 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     }
 
     public String prettyPrint(ArchitectureSymbol arch) {
+        Optional<String> nameOptional = arch.getEnclosingScope().getEnclosingScope().get().getName();
+        String archName = nameOptional.orElse("unnamed");
+
         this.printer.clearBuffer();
-        this.printer.println("component EfficientNetB0 {");
+        this.printer.println("component " + archName + "{");
         this.printer.indent();
         new PortPrinter(this.printer).printPorts(arch);
         this.printer.println("");
