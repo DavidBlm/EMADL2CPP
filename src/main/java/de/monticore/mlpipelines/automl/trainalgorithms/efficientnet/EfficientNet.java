@@ -3,11 +3,11 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
-import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
+import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 
 import java.util.List;
 
-public class EfficientNet extends TrainAlgorithm {
+public class EfficientNet extends NeuralArchitectureSearch {
     private ScalingFactorsGridSearch gridSearch;
     private NetworkScaler networkScaler;
 
@@ -46,12 +46,13 @@ public class EfficientNet extends TrainAlgorithm {
     }
 
     @Override
-    public void execute(ArchitectureSymbol startNetwork) {
+    public ArchitectureSymbol execute(ArchitectureSymbol startNetwork) {
         setStartNetwork(startNetwork);
         createMissingObjects();
         findBestScalingFactors();
         scaleNetwork();
         saveNetwork();
+        return scaledArchitecture;
     }
 
     private void createMissingObjects() {

@@ -27,16 +27,6 @@ public class AutoMLPipelineTest extends TestCase {
         assertNotNull(automl.getArchitecture());
     }
 
-    private static AutoMLPipeline getAutoMLPipeline() {
-        AutoMLPipeline automl = new AutoMLPipeline();
-        TrainAlgorithmBuilder builder = mock(TrainAlgorithmBuilder.class);
-        EfficientNet efficientNet = mock(EfficientNet.class);
-        doNothing().when(efficientNet).execute(isA(ArchitectureSymbol.class));
-        when(builder.build()).thenReturn(efficientNet);
-        automl.setTrainAlgorithmBuilder(builder);
-        return automl;
-    }
-
     @Test
     public void testTrainCreatesTrainAlgorithm() {
         AutoMLPipeline automl = getAutoMLPipeline();
@@ -44,5 +34,15 @@ public class AutoMLPipelineTest extends TestCase {
         Configuration configuration = new Configuration();
         automl.execute(architecture, configuration);
         assertNotNull(automl.getTrainAlgorithm());
+    }
+
+    private static AutoMLPipeline getAutoMLPipeline() {
+        AutoMLPipeline automl = new AutoMLPipeline();
+        TrainAlgorithmBuilder builder = mock(TrainAlgorithmBuilder.class);
+        EfficientNet efficientNet = mock(EfficientNet.class);
+        doReturn(null).when(efficientNet).execute(isA(ArchitectureSymbol.class));
+        when(builder.build()).thenReturn(efficientNet);
+        automl.setTrainAlgorithmBuilder(builder);
+        return automl;
     }
 }

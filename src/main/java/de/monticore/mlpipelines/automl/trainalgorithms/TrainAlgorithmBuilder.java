@@ -18,15 +18,15 @@ public class TrainAlgorithmBuilder {
         this.config = config;
     }
 
-    public TrainAlgorithm build() {
-        TrainAlgorithm trainAlgorithm = getTrainAlgorithm();
+    public NeuralArchitectureSearch build() {
+        NeuralArchitectureSearch neuralArchitectureSearch = getTrainAlgorithm();
         Pipeline trainPipeline = getPipeline();
-        trainAlgorithm.setTrainPipeline(trainPipeline);
-        trainAlgorithm.setTrainConfiguration(config);
-        return trainAlgorithm;
+        neuralArchitectureSearch.setTrainPipeline(trainPipeline);
+        neuralArchitectureSearch.setTrainConfiguration(config);
+        return neuralArchitectureSearch;
     }
 
-    private TrainAlgorithm getTrainAlgorithm() {
+    private NeuralArchitectureSearch getTrainAlgorithm() {
         switch (config.getTrainAlgorithmName()) {
             case EfficientNet:
                 return new EfficientNet();

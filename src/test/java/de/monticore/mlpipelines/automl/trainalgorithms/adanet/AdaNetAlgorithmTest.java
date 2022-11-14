@@ -1,5 +1,6 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -23,19 +24,21 @@ public class AdaNetAlgorithmTest extends TestCase {
 
     @Test
     public void testGetBestCandidateResult() {
+        ArchitectureSymbol arch = mock(ArchitectureSymbol.class);
         AdaNetAlgorithm adaNet = new AdaNetAlgorithm(modelPath);
         Pipeline pipeline = mock(Pipeline.class);
         adaNet.setTrainPipeline(pipeline);
-        adaNet.execute();
+        adaNet.execute(arch);
         assertNotNull(adaNet.getBestCandidateResult());
     }
 
     @Test
     public void testExecuteThrowsExceptionWhenTrainPipelineNotSet() {
+        ArchitectureSymbol arch = mock(ArchitectureSymbol.class);
         AdaNetAlgorithm adanet = new AdaNetAlgorithm(modelPath);
         boolean exceptionThrown = false;
         try {
-            adanet.execute();
+            adanet.execute(arch);
             fail("Expected exception");
         } catch (IllegalStateException e) {
             exceptionThrown = true;
@@ -47,11 +50,12 @@ public class AdaNetAlgorithmTest extends TestCase {
 
     @Test
     public void testExecuteStopsAtFirstIteration() {
+        ArchitectureSymbol arch = mock(ArchitectureSymbol.class);
         AdaNetAlgorithm adanet = new AdaNetAlgorithm(modelPath);
         Pipeline pipeline = mock(Pipeline.class);
         when(pipeline.getTrainedAccuracy()).thenReturn(0.0f);
         adanet.setTrainPipeline(pipeline);
-        adanet.execute();
+        adanet.execute(arch);
 
         CandidateEvaluationResult evaluationResult = adanet.getBestCandidateResult();
         List<AdaNetComponent> previousComponents = evaluationResult.getCandidate().getPreviousComponents();
@@ -61,11 +65,12 @@ public class AdaNetAlgorithmTest extends TestCase {
 
     @Test
     public void testExecuteBestCandidateHasTwoCandidates() {
+        ArchitectureSymbol arch = mock(ArchitectureSymbol.class);
         AdaNetAlgorithm adanet = new AdaNetAlgorithm(modelPath);
         Pipeline pipeline = mock(Pipeline.class);
         when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
         adanet.setTrainPipeline(pipeline);
-        adanet.execute();
+        adanet.execute(arch);
 
         CandidateEvaluationResult evaluationResult = adanet.getBestCandidateResult();
         List<AdaNetComponent> previousComponents = evaluationResult.getCandidate().getPreviousComponents();
@@ -75,11 +80,12 @@ public class AdaNetAlgorithmTest extends TestCase {
 
     @Test
     public void testExecuteBestCandidateHasScore() {
+        ArchitectureSymbol arch = mock(ArchitectureSymbol.class);
         AdaNetAlgorithm adanet = new AdaNetAlgorithm(modelPath);
         Pipeline pipeline = mock(Pipeline.class);
         when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
         adanet.setTrainPipeline(pipeline);
-        adanet.execute();
+        adanet.execute(arch);
 
         CandidateEvaluationResult evaluationResult = adanet.getBestCandidateResult();
         List<AdaNetComponent> previousComponents = evaluationResult.getCandidate().getPreviousComponents();

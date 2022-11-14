@@ -3,7 +3,7 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
+import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ import java.util.List;
 //    if network with best component is not better than network without best component:
 //        stop adaNet and return network without best component
 
-public class AdaNetAlgorithm extends TrainAlgorithm {
+public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private final CandidateFinder candidateFinder;
     private boolean stopAlgorithm = false;
     private final CandidateEmadlBuilder candidateBuilder;
@@ -45,11 +45,7 @@ public class AdaNetAlgorithm extends TrainAlgorithm {
 
 
     @Override
-    public void execute(ArchitectureSymbol startNetwork) throws IllegalStateException {
-        this.execute();
-    }
-
-    public void execute() {
+    public ArchitectureSymbol execute(ArchitectureSymbol startNetwork) throws IllegalStateException {
         if (getTrainPipeline() == null) {
             throw new IllegalStateException("Train pipeline not set");
         }
@@ -61,6 +57,8 @@ public class AdaNetAlgorithm extends TrainAlgorithm {
                 break;
             }
         }
+
+        return null;
     }
 
     private void createFirstCandidate() {

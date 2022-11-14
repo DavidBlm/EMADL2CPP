@@ -4,13 +4,13 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 
-public abstract class TrainAlgorithm {
+public abstract class NeuralArchitectureSearch {
     public double trainedAccuracy;
     private TrainAlgorithmConfig trainConfiguration;
     private Pipeline trainPipeline;
     private ArchitectureSymbol startNetwork;
 
-    public abstract void execute(ArchitectureSymbol startNetwork);
+    public abstract ArchitectureSymbol execute(ArchitectureSymbol startNetwork);
 
     public <T extends TrainAlgorithmConfig> T getTrainConfiguration() {
         return (T) trainConfiguration;

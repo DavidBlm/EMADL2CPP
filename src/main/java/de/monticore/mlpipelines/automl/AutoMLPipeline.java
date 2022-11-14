@@ -3,14 +3,14 @@ package de.monticore.mlpipelines.automl;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
+import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
 
 public class AutoMLPipeline extends Pipeline {
     private Configuration configuration;
     private Pipeline trainPipeline;
     private ArchitectureSymbol architecture;
-    private TrainAlgorithm trainAlgorithm;
+    private NeuralArchitectureSearch neuralArchitectureSearch;
     private TrainAlgorithmBuilder trainAlgorithmBuilder;
 
     public AutoMLPipeline() {
@@ -23,12 +23,12 @@ public class AutoMLPipeline extends Pipeline {
         this.configuration = configuration;
 
         loadTrainAlgorithm();
-        trainAlgorithm.execute(architecture);
+        neuralArchitectureSearch.execute(architecture);
     }
 
     public void loadTrainAlgorithm() {
         trainAlgorithmBuilder.setConfig(configuration.getTrainAlgorithmConfig());
-        this.trainAlgorithm = trainAlgorithmBuilder.build();
+        this.neuralArchitectureSearch = trainAlgorithmBuilder.build();
     }
 
     public Configuration getConfiguration() {
@@ -39,8 +39,8 @@ public class AutoMLPipeline extends Pipeline {
         return trainPipeline;
     }
 
-    public TrainAlgorithm getTrainAlgorithm() {
-        return trainAlgorithm;
+    public NeuralArchitectureSearch getTrainAlgorithm() {
+        return neuralArchitectureSearch;
     }
 
     public ArchitectureSymbol getArchitecture() {
