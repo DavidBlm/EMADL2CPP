@@ -5,8 +5,11 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._visitor.CNNArchVisitor;
 import de.monticore.prettyprint.AstPrettyPrinter;
 import de.monticore.prettyprint.IndentPrinter;
+import de.monticore.symboltable.Symbol;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CNNArchVisitor {
     protected final IndentPrinter printer;
@@ -17,8 +20,27 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     }
 
     public String prettyPrint(ArchitectureSymbol arch) {
-        ASTArchitecture ast = (ASTArchitecture) arch.getAstNode().get();
-        return prettyPrint(ast);
+        this.printer.clearBuffer();
+        this.printer.println("component EfficientNetB0 {");
+        this.printer.indent();
+        this.printPorts(arch);
+        this.printer.println("");
+        this.handle((ASTArchitecture) arch.getAstNode().get());
+        this.printer.unindent();
+        this.printer.println("}");
+        return this.printer.getContent();
+    }
+
+    private void printPorts(ArchitectureSymbol arch) {
+        Map<String, Collection<Symbol>> enclosedSymbols = arch.getSpannedScope()
+                .getEnclosingScope()
+                .get()
+                .getLocalSymbols();
+        for (String portName : enclosedSymbols.keySet()) {
+            if (portName.equals(""))
+                continue;
+            this.printer.println("port " + portName + " : " + portName + ";");
+        }
     }
 
     @Override
