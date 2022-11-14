@@ -1,6 +1,5 @@
 package de.monticore.mlpipelines.automl.emadlprinter;
 
-import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
@@ -23,18 +22,6 @@ public class EmadlPrettyPrinterTest extends TestCase {
         assertEquals(expectedEmadl.size(), emadl.length);
         for (int i = 0; i < emadl.length; i++) {
             System.out.println(emadl[i]);
-            assertEquals(expectedEmadl.get(i), emadl[i]);
-        }
-    }
-
-    public void testPrettyPrintAstArchitecture() {
-        ArchitectureSymbol arch = ModelLoader.loadEfficientnetB0();
-        EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
-        ASTArchitecture ast = (ASTArchitecture) arch.getAstNode().get();
-
-        String[] emadl = printer.prettyPrint(ast).split("\n");
-        assertEquals(expectedEmadl.size(), emadl.length);
-        for (int i = 0; i < emadl.length; i++) {
             assertEquals(expectedEmadl.get(i), emadl[i]);
         }
     }
