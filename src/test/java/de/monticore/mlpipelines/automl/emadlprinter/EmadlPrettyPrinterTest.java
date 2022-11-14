@@ -8,17 +8,25 @@ import junit.framework.TestCase;
 import java.util.List;
 
 public class EmadlPrettyPrinterTest extends TestCase {
-    List<String> expectedEmadl;
-
-    public EmadlPrettyPrinterTest() {
-        expectedEmadl = FileLoader.loadFile("src/test/resources/models/EfficientNetB0.emadl");
-    }
-
-    public void testPrettyPrintArchitectureSymbol() {
+    public void testPrettyPrintEfficientnet() {
         ArchitectureSymbol arch = ModelLoader.loadEfficientnetB0();
         EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
-
         String[] emadl = printer.prettyPrint(arch).split("\n");
+
+        List<String> expectedEmadl = FileLoader.loadFile("src/test/resources/models/EfficientNetB0.emadl");
+        assertEquals(expectedEmadl.size(), emadl.length);
+        for (int i = 0; i < emadl.length; i++) {
+            System.out.println(emadl[i]);
+            assertEquals(expectedEmadl.get(i), emadl[i]);
+        }
+    }
+
+    public void testPrettyPrintAdanet() {
+        ArchitectureSymbol arch = ModelLoader.load("src/test/resources/models/adanet/", "adanetBase.emadl");
+        EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
+        String[] emadl = printer.prettyPrint(arch).split("\n");
+
+        List<String> expectedEmadl = FileLoader.loadFile("src/test/resources/models/adanet/AdanetBase.emadl");
         assertEquals(expectedEmadl.size(), emadl.length);
         for (int i = 0; i < emadl.length; i++) {
             System.out.println(emadl[i]);
