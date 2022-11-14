@@ -26,7 +26,11 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         this.printer.indent();
         new PortPrinter(this.printer).printPorts(arch);
         this.printer.println("");
+        this.printer.println("implementation CNN {");
+        this.printer.indent();
         this.handle((ASTArchitecture) arch.getAstNode().get());
+        this.printer.unindent();
+        this.printer.println("}");
         this.printer.unindent();
         this.printer.println("}");
         return this.printer.getContent();
