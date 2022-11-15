@@ -79,9 +79,6 @@ public class NetworkComposer {
                 || !dataFlow.get(0).equals(networkStructureInformation.getNetworkName())
                 || !dataFlow.get(dataFlow.size()-1).equals(networkStructureInformation.getNetworkName())){
             throw new Exception("Architecture Symbol Merge error: "  + "DataFlow not correctly analyzed/given. Malformed networks probably.");
-        } else {
-            //dataFlow.remove(0);
-            //dataFlow.remove(dataFlow.size()-1);
         }
 
         ArrayList<ArchitectureSymbol> dataFlowSymbols = new ArrayList<>();
@@ -95,7 +92,6 @@ public class NetworkComposer {
         }
 
         ArchitectureSymbol mergedArchitecture = new ArchitectureSymbol();
-        //mergedArchitecture.setEnclosingScope(networkStructureInformation.getSymbolReference().getEnclosingScope().getAsMutableScope());
 
         ArrayList<ArchitectureSymbol> mergedAuxiliaryArchitecture = new ArrayList<>();
         ArrayList<LayerVariableDeclarationSymbol> mergedLayerVariableDeclarations = new ArrayList<>();
@@ -119,9 +115,6 @@ public class NetworkComposer {
 
 
             if (dataFlowSymbols.get(i).getNetworkInstructions() != null) {
-                //ArrayList<NetworkInstructionSymbol> instructions = new ArrayList<>();
-                //instructions.addAll(symbols.get(i).getNetworkInstructions());
-                //mergedNetworkInstructions.addAll(stripIoNetworkInstructions(instructions,i,symbols.size()));
                 mergedNetworkInstructions.addAll(dataFlowSymbols.get(i).getNetworkInstructions());
             }
 
@@ -131,9 +124,6 @@ public class NetworkComposer {
                 Log.info("first:" + first.toString(),"NETWORK_INSTRUCTION_MERGER");
                 Log.info("last:" + last.toString(),"NETWORK_INSTRUCTION_MERGER");
             }
-
-            //mergedInputs.addAll(symbol.getInputs());
-            //mergedOutputs.addAll(symbol.getOutputs());
         }
 
         if ( !verifyEqualityString(mergedAdaNetUtils) || !verifyEqualityString(mergedCustomFilePaths) || !verifyEqualityString(mergedWeightPaths)|| !verifyEqualityBoolean(mergedUseDgls)){
@@ -151,25 +141,14 @@ public class NetworkComposer {
             Log.info("Auxiliary Architecture present: " + mergedAuxiliaryArchitecture.toString(),"SYMBOL_MERGE");
         }
 
-        if (/* mergedLayerVariableDeclarations.size() == 0 || */ mergedNetworkInstructions.size() == 0){
+        if (mergedNetworkInstructions.size() == 0){
             throw new Exception("Architecture Symbol Merge error: "  + "LayerVariableDeclarations/NetworkInstructions malformed");
         }
 
         mergedArchitecture.setLayerVariableDeclarations(mergedLayerVariableDeclarations);
         mergedArchitecture.setNetworkInstructions(mergeNetworkInstructionsToSingleInstruction(mergedNetworkInstructions));
 
-        /*
-        if (mergedInputs.size() == 0 || mergedOutputs.size() == 0){
-            throw new Exception("Architecture Symbol Merge error: "  + "Inputs and/or Outputs malformed");
-        }
-        */
-        /*
-        if (symbols.size() < 2){
-            throw new Exception("Architecture Symbol Merge error: "  + "Inputs and/or Outputs malformed");
-        }
-        */
 
-        //
         mergedArchitecture.setInputs(dataFlowSymbols.get(0).getInputs());
         mergedArchitecture.setOutputs(dataFlowSymbols.get(dataFlowSymbols.size()-1).getOutputs());
 
@@ -204,25 +183,6 @@ public class NetworkComposer {
             }
         }
         return true;
-    }
-
-    private ArrayList<NetworkInstructionSymbol> stripIoNetworkInstructions(ArrayList<NetworkInstructionSymbol> instructions, int index, int symbolListSize){
-        ArrayList<NetworkInstructionSymbol> strippedInstructions = new ArrayList<>();
-
-        if (instructions != null && instructions.size() > 0){
-            if (index == 0){
-                    instructions.remove(instructions.size()-1);
-
-            } else if (index == symbolListSize-1){
-                    instructions.remove(0);
-            } else {
-                instructions.remove(instructions.size()-1);
-                instructions.remove(0);
-            }
-            strippedInstructions = instructions;
-        }
-
-        return strippedInstructions;
     }
 
     private ArrayList<NetworkInstructionSymbol> mergeNetworkInstructionsToSingleInstruction(ArrayList<NetworkInstructionSymbol> seperatedInstructions){

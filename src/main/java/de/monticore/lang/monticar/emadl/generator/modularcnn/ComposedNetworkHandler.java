@@ -50,10 +50,9 @@ public class ComposedNetworkHandler {
 
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null && instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())) {
-                networkStructureInformation.setComposedNetworkArchitectureSymbol(composeNetwork(networkStructureInformation,instanceSymbol));
-                ArchitectureSymbol fetchedSymbol = networkStructureInformation.getComposedNetworkArchitectureSymbol();
+                ArchitectureSymbol fetchedSymbol = composeNetwork(networkStructureInformation,instanceSymbol);
                 if (fetchedSymbol != null){
-                    return Optional.of(networkStructureInformation.getComposedNetworkArchitectureSymbol());
+                    return Optional.of(fetchedSymbol);
                 } else {
                     return Optional.empty();
                 }
@@ -142,8 +141,7 @@ public class ComposedNetworkHandler {
 
 
         for (NetworkStructureInformation networkStructureInformation: this.composedNetworks){
-            EMAComponentInstanceSymbol hitInstance = networkStructureInformation.addInstancesAndSymbolReference(componentInstances);
-            //networkStructureInformation.setComposedNetworkArchitectureSymbol(composeNetwork(networkStructureInformation));
+            networkStructureInformation.addInstancesAndSymbolReference(componentInstances);
         }
 
         for (NetworkStructureInformation networkStructureInformation: this.composedNetworks){
@@ -162,12 +160,5 @@ public class ComposedNetworkHandler {
     public ArchitectureSymbol composeNetwork(NetworkStructureInformation networkStructureInformation,EMAComponentInstanceSymbol fromInstance){
         ArchitectureSymbol composedNetwork = networkComposer.generateComposedNetwork(networkStructureInformation, fromInstance);
         return composedNetwork;
-    }
-
-    public ArrayList<EMAComponentInstanceSymbol> refreshInformation(Set<EMAComponentInstanceSymbol> instanceSymbols){
-        //this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
-        //ArrayList<EMAComponentInstanceSymbol> refreshed = processComponentInstances(instanceSymbols);
-        //return processComponentInstances(instanceSymbols);
-        return null;
     }
 }
