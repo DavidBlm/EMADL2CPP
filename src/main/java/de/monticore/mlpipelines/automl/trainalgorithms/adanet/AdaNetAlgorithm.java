@@ -1,7 +1,9 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
+import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 
 import java.util.List;
@@ -21,19 +23,21 @@ import java.util.List;
 public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private final CandidateFinder candidateFinder;
     private boolean stopAlgorithm = false;
-    //    private final CandidateEmadlBuilder candidateBuilder;
+    private final CandidateASTNodeBuilder candidateBuilder;
     private CandidateEvaluationResult bestCandidateResult;
+    private ArchitectureSymbol architectureSymbol;
+    private ASTArchitecture refASTArchitecture;
 
     public AdaNetAlgorithm() {
-//        this.candidateBuilder = new CandidateEmadlBuilder(sourceModelPath, generatedModelPath);
+        this.candidateBuilder = new CandidateASTNodeBuilder();
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
         this.candidateFinder = new CandidateFinder(componentFinder);
     }
 
-    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateEmadlBuilder candidateBuilder) {
+    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateASTNodeBuilder candidateBuilder) {
         super();
         this.candidateFinder = candidateFinder;
-//        this.candidateBuilder = candidateBuilder;
+        this.candidateBuilder = candidateBuilder;
     }
 
 
@@ -44,6 +48,9 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
 
     @Override
     public ArchitectureSymbol execute(ArchitectureSymbol startNetwork) throws IllegalStateException {
+        this.architectureSymbol = startNetwork;
+        this.refASTArchitecture = (ASTArchitecture) startNetwork.getAstNode().orElse(null);
+
         if (getTrainPipeline() == null) {
             throw new IllegalStateException("Train pipeline not set");
         }
@@ -67,8 +74,8 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     }
 
     private void executeIteration() {
-        AdaNetCandidate lastCandidate = bestCandidateResult.getCandidate();
-        List<AdaNetCandidate> candidates = candidateFinder.findCandidates(lastCandidate);
+        AdaNetCandidate bestCandidate = bestCandidateResult.getCandidate();
+        List<AdaNetCandidate> candidates = candidateFinder.findCandidates(bestCandidate);
         CandidateEvaluationResult bestNewCandidate = selectBestCandidate(candidates);
         if (bestNewCandidate.getScore() <= bestCandidateResult.getScore()) {
             this.stopAlgorithm = true;
@@ -78,12 +85,16 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     }
 
     private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
-//        ArchitectureSymbol candidateArchitecture = candidateBuilder.createArchitectureFromCandidate(candidate);
-//        Configuration configuration = new Configuration();
-//        this.getTrainPipeline().execute(candidateArchitecture, configuration);
-//        float score = this.getTrainPipeline().getTrainedAccuracy();
-//        return new CandidateEvaluationResult(candidate, score);
-        return null;
+        setCurrentCandidate(candidate);
+        Configuration configuration = new Configuration();
+        this.getTrainPipeline().execute(architectureSymbol, configuration);
+        float score = this.getTrainPipeline().getTrainedAccuracy();
+        return new CandidateEvaluationResult(candidate, score);
+    }
+
+    private void setCurrentCandidate(AdaNetCandidate bestCandidate) {
+        ASTArchitecture currentCandidate = candidateBuilder.build(refASTArchitecture, bestCandidate);
+        architectureSymbol.setAstNode(currentCandidate);
     }
 
     private CandidateEvaluationResult selectBestCandidate(List<AdaNetCandidate> candidates) {
