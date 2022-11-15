@@ -51,11 +51,12 @@ public class IntegrationGluonTest extends IntegrationTest {
         assertTrue(Log.getFindings().isEmpty());
     }
 
+    @Ignore
     @Test
     public void testMultipleStreams() {
         Log.getFindings().clear();
 
-        deleteHashFile(Paths.get("./target/generated-sources-emadl/MultipleStreams.training_hash"));
+        deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
@@ -68,7 +69,7 @@ public class IntegrationGluonTest extends IntegrationTest {
     public void testRNNencdec() {
         Log.getFindings().clear();
 
-        deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnencdec/Network.training_hash"));
+        deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnencdec.Main", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
@@ -81,7 +82,7 @@ public class IntegrationGluonTest extends IntegrationTest {
     public void testRNNsearch() {
         Log.getFindings().clear();
 
-        deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnsearch/Network.training_hash"));
+        deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnsearch.Main", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
@@ -89,11 +90,12 @@ public class IntegrationGluonTest extends IntegrationTest {
         checkFindingsCount();
     }
 
+    @Ignore
     @Test
     public void testShowAttendTell() {
         Log.getFindings().clear();
 
-        deleteHashFile(Paths.get("./target/generated-sources-emadl/showAttendTell/Show_attend_tell.training_hash"));
+        deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
@@ -106,7 +108,7 @@ public class IntegrationGluonTest extends IntegrationTest {
     public void testEpisodicMemorySimple() {
         Log.getFindings().clear();
 
-        deleteHashFile(Paths.get("./target/generated-sources-emadl/episodicMemorySimple/episodicMemorySimple.training_hash"));
+        deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "y"};
         EMADLGeneratorCli.main(args);
@@ -116,7 +118,7 @@ public class IntegrationGluonTest extends IntegrationTest {
     @Ignore // TODO fix
     public void testGluonPreprocessingWithSupervised() {
         Log.getFindings().clear();
-        deleteHashFile(Paths.get("./target/generated-sources-emadl/PreprocessingNetwork.training_hash"));
+        deleteHashFile();
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
         checkFindingsCount(1);
@@ -126,7 +128,7 @@ public class IntegrationGluonTest extends IntegrationTest {
     @Ignore // TODO fix
     public void testGluonPreprocessingWithGAN() {
         Log.getFindings().clear();
-        deleteHashFile(Paths.get("./target/generated-sources-emadl/defaultGANPreprocessing/GeneratorWithPreprocessing.training_hash"));
+        deleteHashFile();
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON"};
         EMADLGeneratorCli.main(args);
 
@@ -137,7 +139,7 @@ public class IntegrationGluonTest extends IntegrationTest {
     public void testMNISTCalculatorWithCustomLayer() {
         Log.getFindings().clear();
 
-        deleteHashFile(Paths.get("./target/generated-sources-emadl/cNNCalculator/Network.training_hash"));
+        deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-cfp", "src/test/resources/custom_files"};
         EMADLGeneratorCli.main(args);
@@ -145,9 +147,9 @@ public class IntegrationGluonTest extends IntegrationTest {
         checkFindingsCount(6);
     }
 
-    private void deleteHashFile(Path hashFile) {
+    private void deleteHashFile() {
         try {
-            Files.delete(hashFile);
+            Files.delete(Paths.get("./target/generated-sources-emadl/hashes/hashes.json"));
         }
         catch (NoSuchFileException e) {
 
