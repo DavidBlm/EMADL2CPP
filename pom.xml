@@ -20,6 +20,7 @@
         <cnnarch-mxnet-generator.version>0.4.9-SNAPSHOT</cnnarch-mxnet-generator.version>
         <cnnarch-caffe2-generator.version>0.4.9-SNAPSHOT</cnnarch-caffe2-generator.version>
         <cnnarch-tensorflow-generator.version>0.4.9-SNAPSHOT</cnnarch-tensorflow-generator.version>
+        <cnnarch-pytorch-generator.version>0.0.1-SNAPSHOT</cnnarch-pytorch-generator.version>
         <cnnarch-gluon-generator.version>0.5.4-SNAPSHOT</cnnarch-gluon-generator.version>
 
         <!-- .. Libraries .................................................. -->
@@ -88,6 +89,12 @@
             <groupId>de.monticore.lang.monticar</groupId>
             <artifactId>cnnarch-caffe2-generator</artifactId>
             <version>${cnnarch-caffe2-generator.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.monticore.lang.monticar</groupId>
+            <artifactId>cnnarch-pytorch-generator</artifactId>
+            <version>${cnnarch-pytorch-generator.version}</version>
         </dependency>
 
         <dependency>
