@@ -63,7 +63,8 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
             }
         }
 
-        return null;
+        setCandidateForArchitecture(bestCandidateResult.getCandidate());
+        return architectureSymbol;
     }
 
     private void createFirstCandidate() {
@@ -84,17 +85,17 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
         bestCandidateResult = bestNewCandidate;
     }
 
+    private void setCandidateForArchitecture(AdaNetCandidate bestCandidate) {
+        ASTArchitecture currentCandidate = candidateBuilder.build(refASTArchitecture, bestCandidate);
+        architectureSymbol.setAstNode(currentCandidate);
+    }
+
     private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
-        setCurrentCandidate(candidate);
+        setCandidateForArchitecture(candidate);
         Configuration configuration = new Configuration();
         this.getTrainPipeline().execute(architectureSymbol, configuration);
         float score = this.getTrainPipeline().getTrainedAccuracy();
         return new CandidateEvaluationResult(candidate, score);
-    }
-
-    private void setCurrentCandidate(AdaNetCandidate bestCandidate) {
-        ASTArchitecture currentCandidate = candidateBuilder.build(refASTArchitecture, bestCandidate);
-        architectureSymbol.setAstNode(currentCandidate);
     }
 
     private CandidateEvaluationResult selectBestCandidate(List<AdaNetCandidate> candidates) {
