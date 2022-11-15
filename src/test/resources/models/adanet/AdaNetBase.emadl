@@ -3,7 +3,8 @@ component AdaNetBase{
 
     implementation CNN {
         image ->
-        AdaNet(layerWidth = 10, classes = 10) ->
+        AdaNet() ->
+        FullyConnected(units = 10) ->
         predictions
         ;
     }
