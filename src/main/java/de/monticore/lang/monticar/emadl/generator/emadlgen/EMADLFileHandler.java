@@ -321,7 +321,7 @@ public class EMADLFileHandler {
         Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
 
         for (EMAComponentInstanceSymbol componentInstance : networks) {
-            Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfInstance(componentInstance,null);
+            Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfInstance(componentInstance);
             //Optional<ArchitectureSymbol> architecture = componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
             // added for future use if one wants to change the location of the AdaNet python files
 

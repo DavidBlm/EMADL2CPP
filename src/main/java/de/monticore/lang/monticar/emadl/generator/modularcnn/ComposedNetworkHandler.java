@@ -47,10 +47,7 @@ public class ComposedNetworkHandler {
         return false;
     }
 
-    public Optional<ArchitectureSymbol> fetchComposedNetworkArchitectureSymbol(EMAComponentInstanceSymbol instanceSymbol,Set<EMAComponentInstanceSymbol> componentInstanceSymbols){
-        if (componentInstanceSymbols != null) {
-            refreshInformation(componentInstanceSymbols);
-        }
+    public Optional<ArchitectureSymbol> fetchComposedNetworkArchitectureSymbol(EMAComponentInstanceSymbol instanceSymbol){
 
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null && instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())) {
@@ -76,17 +73,17 @@ public class ComposedNetworkHandler {
         return false;
     }
 
-    public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfInstance(EMAComponentInstanceSymbol componentInstance, Set<EMAComponentInstanceSymbol> componentInstanceSymbols){
+    public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfInstance(EMAComponentInstanceSymbol componentInstance){
         if (isComposedNet(componentInstance)){
-            return fetchComposedNetworkArchitectureSymbol(componentInstance,componentInstanceSymbols);
+            return fetchComposedNetworkArchitectureSymbol(componentInstance);
         } else {
             return componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
         }
     }
 
-    public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfReferencedSymbol(EMAComponentInstanceSymbol componentInstance, Set<EMAComponentInstanceSymbol> componentInstanceSymbols){
+    public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfReferencedSymbol(EMAComponentInstanceSymbol componentInstance){
         if (isComposedNet(componentInstance)){
-            return fetchComposedNetworkArchitectureSymbol(componentInstance, componentInstanceSymbols);
+            return fetchComposedNetworkArchitectureSymbol(componentInstance);
         } else {
             return componentInstance.getComponentType().getReferencedSymbol().getSpannedScope().resolve("", ArchitectureSymbol.KIND);
         }

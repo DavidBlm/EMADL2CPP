@@ -108,7 +108,7 @@ public class EMADLCNNHandler {
             //Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
             Optional<ArchitectureSymbol> architecture = null;
 
-            architecture = composedNetworkHandler.resolveArchitectureSymbolOfReferencedSymbol(componentInstance,null);
+            architecture = composedNetworkHandler.resolveArchitectureSymbolOfReferencedSymbol(componentInstance);
 
             if (architecture != null && architecture.isPresent()) {
                 String mainComponentConfigFilename = mainComponentName.replaceAll("\\.", "/");
@@ -188,7 +188,7 @@ public class EMADLCNNHandler {
                             symTabAndTaggingResolver);
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> critic = instanceSymbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
-                    Optional<ArchitectureSymbol> critic = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol,null);
+                    Optional<ArchitectureSymbol> critic = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!critic.isPresent()) {
                         String message = String.format("Resolving critic component failed. Critic component '%s' does not have a CNN implementation, but is required to have one.", fullCriticName);
                         Log.error(message);
@@ -212,7 +212,7 @@ public class EMADLCNNHandler {
                             fullDiscriminatorName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> discriminator = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
-                    Optional<ArchitectureSymbol> discriminator = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol,null);
+                    Optional<ArchitectureSymbol> discriminator = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!discriminator.isPresent()) {
                         String message = String.format("Resolving discriminator component failed. Discriminator component '%s' does not have a CNN implementation, but is required to have one.", fullDiscriminatorName);
                         Log.error(message);
@@ -237,7 +237,7 @@ public class EMADLCNNHandler {
                             fullQNetworkName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> qNetwork = instanceSymbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
-                    Optional<ArchitectureSymbol> qNetwork = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol,null);
+                    Optional<ArchitectureSymbol> qNetwork = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!qNetwork.isPresent()) {
                         String message = String.format("Resolving Q-Network component failed. Q-Network component '%s' does not have a CNN implementation, but is required to have one.", fullQNetworkName);
                         Log.error(message);
@@ -261,7 +261,7 @@ public class EMADLCNNHandler {
                             fullEncoderName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> encoder = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
-                    Optional<ArchitectureSymbol> encoder = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol,null);
+                    Optional<ArchitectureSymbol> encoder = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!encoder.isPresent()) {
                         String message = String.format("Resolving encoder component failed. Encoder component '%s' does not have a CNN implementation, but is required to have one.", fullEncoderName);
                         Log.error(message);

@@ -295,7 +295,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
         //if(composedNetworkHandler.isComposedNet(componentInstanceSymbol)) composedNetworkHandler.refreshInformation(allInstances);
-        Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfInstance(componentInstanceSymbol,allInstances);
+        Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfInstance(componentInstanceSymbol);
 
 
         // set the path to AdaNet python files
