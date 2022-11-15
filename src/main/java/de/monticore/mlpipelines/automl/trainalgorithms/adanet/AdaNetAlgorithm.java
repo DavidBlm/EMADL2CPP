@@ -56,15 +56,19 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
         }
 
         createFirstCandidate();
+        executeIterations();
+
+        setCandidateForArchitecture(bestCandidateResult.getCandidate());
+        return architectureSymbol;
+    }
+
+    private void executeIterations() {
         for (int i = 1; i < AdaNetConfig.MAX_ITERATIONS; i++) {
             executeIteration();
             if (stopAlgorithm) {
                 break;
             }
         }
-
-        setCandidateForArchitecture(bestCandidateResult.getCandidate());
-        return architectureSymbol;
     }
 
     private void createFirstCandidate() {

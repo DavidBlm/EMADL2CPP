@@ -32,7 +32,7 @@ public class CandidateASTNodeBuilder {
             ASTArchitectureElement element = elements.get(i);
             if (element instanceof ASTLayer) {
                 ASTLayer layer = (ASTLayer) element;
-                if (layer.getName().equals("Adanet")) {
+                if (layer.getName().equals("AdaNet")) {
                     elements.set(i, getCandidate());
                 }
             }
