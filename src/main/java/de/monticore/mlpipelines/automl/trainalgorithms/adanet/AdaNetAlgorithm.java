@@ -2,7 +2,6 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
-import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 
 import java.util.List;
@@ -22,12 +21,11 @@ import java.util.List;
 public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private final CandidateFinder candidateFinder;
     private boolean stopAlgorithm = false;
-    private final CandidateEmadlBuilder candidateBuilder;
+    //    private final CandidateEmadlBuilder candidateBuilder;
     private CandidateEvaluationResult bestCandidateResult;
 
-    public AdaNetAlgorithm(String sourceModelPath) {
-        String generatedModelPath = sourceModelPath.substring(0, sourceModelPath.length() - 6) + "Generated.emadl";
-        this.candidateBuilder = new CandidateEmadlBuilder(sourceModelPath, generatedModelPath);
+    public AdaNetAlgorithm() {
+//        this.candidateBuilder = new CandidateEmadlBuilder(sourceModelPath, generatedModelPath);
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
         this.candidateFinder = new CandidateFinder(componentFinder);
     }
@@ -35,7 +33,7 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateEmadlBuilder candidateBuilder) {
         super();
         this.candidateFinder = candidateFinder;
-        this.candidateBuilder = candidateBuilder;
+//        this.candidateBuilder = candidateBuilder;
     }
 
 
@@ -80,11 +78,12 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     }
 
     private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
-        ArchitectureSymbol candidateArchitecture = candidateBuilder.createArchitectureFromCandidate(candidate);
-        Configuration configuration = new Configuration();
-        this.getTrainPipeline().execute(candidateArchitecture, configuration);
-        float score = this.getTrainPipeline().getTrainedAccuracy();
-        return new CandidateEvaluationResult(candidate, score);
+//        ArchitectureSymbol candidateArchitecture = candidateBuilder.createArchitectureFromCandidate(candidate);
+//        Configuration configuration = new Configuration();
+//        this.getTrainPipeline().execute(candidateArchitecture, configuration);
+//        float score = this.getTrainPipeline().getTrainedAccuracy();
+//        return new CandidateEvaluationResult(candidate, score);
+        return null;
     }
 
     private CandidateEvaluationResult selectBestCandidate(List<AdaNetCandidate> candidates) {

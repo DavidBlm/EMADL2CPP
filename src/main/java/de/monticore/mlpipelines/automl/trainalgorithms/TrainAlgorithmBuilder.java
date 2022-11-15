@@ -32,7 +32,7 @@ public class TrainAlgorithmBuilder {
                 return new EfficientNet();
             case AdaNet:
                 String modelPath = "src.test.resources.models.adanet.AdaNet.emadl";
-                return new AdaNetAlgorithm(modelPath);
+                return new AdaNetAlgorithm();
             default:
                 throw new IllegalArgumentException(
                         "Train algorithm " + config.getTrainAlgorithmName() + " not supported");
