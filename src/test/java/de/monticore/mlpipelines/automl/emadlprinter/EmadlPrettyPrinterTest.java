@@ -22,11 +22,11 @@ public class EmadlPrettyPrinterTest extends TestCase {
     }
 
     public void testPrettyPrintAdanet() {
-        ArchitectureSymbol arch = ModelLoader.load("src/test/resources/models/adanet/", "adaNetStart");
+        ArchitectureSymbol arch = ModelLoader.load("src/test/resources/models/adanet/", "adaNetBase");
         EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
         String[] emadl = printer.prettyPrint(arch).split("\n");
 
-        List<String> expectedEmadl = FileLoader.loadFile("src/test/resources/models/adanet/AdaNetStart.emadl");
+        List<String> expectedEmadl = FileLoader.loadFile("src/test/resources/models/adanet/AdaNetBase.emadl");
         assertEquals(expectedEmadl.size(), emadl.length);
         for (int i = 0; i < emadl.length; i++) {
             System.out.println(emadl[i]);
