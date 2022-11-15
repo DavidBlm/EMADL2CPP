@@ -1,10 +1,12 @@
 package de.monticore.mlpipelines.automl.emadlprinter;
 
+import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
 import junit.framework.TestCase;
 import org.junit.Ignore;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -34,5 +36,15 @@ public class EmadlPrettyPrinterTest extends TestCase {
             System.out.println(emadl[i]);
             assertEquals(expectedEmadl.get(i), emadl[i]);
         }
+    }
+
+    @Test
+    public void testASTArchitectureDeepClone() {
+        ArchitectureSymbol arch = ModelLoader.loadEfficientnetB0();
+        ASTArchitecture astNode = (ASTArchitecture) arch.getAstNode().orElse(null);
+        ASTArchitecture astNodeCopy = astNode.deepClone();
+        arch.setAstNode(astNodeCopy);
+
+        assertNotSame(astNode, astNodeCopy);
     }
 }
