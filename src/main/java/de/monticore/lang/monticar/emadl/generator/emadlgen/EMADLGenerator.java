@@ -383,11 +383,12 @@ public class EMADLGenerator implements EMAMGenerator {
         fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol));
         String lastNameWithoutArrayPart = "";
 
+        /*
         ArrayList<EMAComponentInstanceSymbol> composedNets = new ArrayList<>();
         ArrayList<EMAComponentInstanceSymbol> otherComponents = new ArrayList<>();
         ArrayList<EMAComponentInstanceSymbol> sortedSymbols = new ArrayList<>();
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
+
 
         for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()){
             if(composedNetworkHandler.isComposedNet(instanceSymbol)) composedNets.add(instanceSymbol);
@@ -396,9 +397,11 @@ public class EMADLGenerator implements EMAMGenerator {
 
         sortedSymbols.addAll(otherComponents);
         sortedSymbols.addAll(composedNets);
+        */
 
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
 
-        for (EMAComponentInstanceSymbol instanceSymbol : sortedSymbols) {
+        for (EMAComponentInstanceSymbol instanceSymbol : composedNetworkHandler.sortComposedNetworksToEnd(componentInstanceSymbol.getSubComponents())) {
             int arrayBracketIndex = instanceSymbol.getName().indexOf("[");
             boolean generateComponentInstance = true;
             if (arrayBracketIndex != -1) {

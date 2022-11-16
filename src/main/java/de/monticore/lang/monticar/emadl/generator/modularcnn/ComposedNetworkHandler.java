@@ -8,10 +8,7 @@ import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInfo
 import de.monticore.lang.monticar.emadl.modularcnn.tools.ComposedNetworkFileHandler;
 import de.se_rwth.commons.logging.Log;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class ComposedNetworkHandler {
     private String composedNetworkFilePath;
@@ -160,5 +157,71 @@ public class ComposedNetworkHandler {
     public ArchitectureSymbol composeNetwork(NetworkStructureInformation networkStructureInformation,EMAComponentInstanceSymbol fromInstance){
         ArchitectureSymbol composedNetwork = networkComposer.generateComposedNetwork(networkStructureInformation, fromInstance);
         return composedNetwork;
+    }
+
+    public Set<EMAComponentInstanceSymbol> sortComposedNetworksToEnd(Set<EMAComponentInstanceSymbol> instanceSymbols) {
+        if (instanceSymbols == null) return instanceSymbols;
+
+
+        ArrayList<EMAComponentInstanceSymbol> otherComponents = new ArrayList<>();
+        ArrayList<EMAComponentInstanceSymbol> composedNets = new ArrayList<>();
+        HashSet<EMAComponentInstanceSymbol> sortedComponents = new HashSet<>();
+
+        for (EMAComponentInstanceSymbol instanceSymbol : instanceSymbols) {
+            if (isComposedNet(instanceSymbol)) {
+                composedNets.add(instanceSymbol);
+            } else {
+                otherComponents.add(instanceSymbol);
+            }
+        }
+
+        sortedComponents.addAll(otherComponents);
+        sortedComponents.addAll(composedNets);
+
+        return sortedComponents;
+    }
+
+    public ArrayList<EMAComponentInstanceSymbol> sortComposedNetworksToEnd(ArrayList<EMAComponentInstanceSymbol> instanceSymbols) {
+        if (instanceSymbols == null) return instanceSymbols;
+
+
+        ArrayList<EMAComponentInstanceSymbol> otherComponents = new ArrayList<>();
+        ArrayList<EMAComponentInstanceSymbol> composedNets = new ArrayList<>();
+        ArrayList<EMAComponentInstanceSymbol> sortedComponents = new ArrayList<>();
+
+        for (EMAComponentInstanceSymbol instanceSymbol : instanceSymbols) {
+            if (isComposedNet(instanceSymbol)) {
+                composedNets.add(instanceSymbol);
+            } else {
+                otherComponents.add(instanceSymbol);
+            }
+        }
+
+        sortedComponents.addAll(otherComponents);
+        sortedComponents.addAll(composedNets);
+
+        return sortedComponents;
+    }
+
+    public ArrayList<EMAComponentInstanceSymbol> sortComposedNetworksToEnd(Collection<EMAComponentInstanceSymbol> instanceSymbols) {
+        if (instanceSymbols == null) return null;
+
+
+        ArrayList<EMAComponentInstanceSymbol> otherComponents = new ArrayList<>();
+        ArrayList<EMAComponentInstanceSymbol> composedNets = new ArrayList<>();
+        ArrayList<EMAComponentInstanceSymbol> sortedComponents = new ArrayList<>();
+
+        for (EMAComponentInstanceSymbol instanceSymbol : instanceSymbols) {
+            if (isComposedNet(instanceSymbol)) {
+                composedNets.add(instanceSymbol);
+            } else {
+                otherComponents.add(instanceSymbol);
+            }
+        }
+
+        sortedComponents.addAll(otherComponents);
+        sortedComponents.addAll(composedNets);
+
+        return sortedComponents;
     }
 }
