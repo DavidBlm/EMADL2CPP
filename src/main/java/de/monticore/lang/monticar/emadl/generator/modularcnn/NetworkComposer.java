@@ -7,10 +7,10 @@ import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInfo
 import de.monticore.symboltable.CommonScope;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
 
 public class NetworkComposer {
 
@@ -22,7 +22,7 @@ public class NetworkComposer {
 
         ArchitectureSymbol composedNet = null;
         try {
-            composedNet = generateNetworkLevel(networkStructureInformation);
+            composedNet = generateNetworkLevel(networkStructureInformation,fromInstance);
             if (composedNet != null){
                 composedNet.setComponentName(networkStructureInformation.getComponentName());
                 for (Scope scope : fromInstance.getEnclosingScope().getSubScopes()){
@@ -42,26 +42,41 @@ public class NetworkComposer {
         return composedNet;
     }
 
-    public ArchitectureSymbol generateNetworkLevel(NetworkStructureInformation networkStructureInformation) throws Exception {
+    public ArchitectureSymbol generateNetworkLevel(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance) throws Exception {
         ArrayList<NetworkStructureInformation> subnets = networkStructureInformation.getSubNetworks();
         ArrayList<ArchitectureSymbol> subnetArchSymbols = new ArrayList<>();
         if (subnets != null && subnets.size() > 0){
-
-            for (NetworkStructureInformation subnet : subnets){
-                if (subnet.isAtomic()) {
-                    if (subnet.getSymbolReference() == null || subnet.getInstances() == null || subnet.getInstances().size() == 0) return null;
-                    Optional<ArchitectureSymbol> architectureOpt = subnet.getInstances().get(0).getSpannedScope().resolve("", ArchitectureSymbol.KIND);
-                    Log.info("","");
-                    if (!architectureOpt.isPresent()){
-                        throw new Exception("Architecture symbol of atomic network missing");
-                    } else{
-                        subnet.setComposedNetworkArchitectureSymbol(architectureOpt.get());
-                        subnetArchSymbols.add(architectureOpt.get());
-                    }
-                } else {
-                    subnetArchSymbols.add(generateNetworkLevel(subnet));
+            ArrayList<String> dataFlowList = networkStructureInformation.getNetworkInstancesDataFlow();
+            ArrayList<String> instanceOnlyDataFlow = new ArrayList<>();
+            for (String net : dataFlowList){
+                String[] netSplit  = net.split("\\|");
+                if (netSplit.length == 2){
+                    instanceOnlyDataFlow.add(netSplit[1]);
                 }
             }
+            networkStructureInformation.setNetworkInstancesDataFlow(instanceOnlyDataFlow);
+
+            for (String dataFlowElement : instanceOnlyDataFlow){
+                for (NetworkStructureInformation subnet : subnets){
+                    if (!subnet.getInstanceSymbolName().equals(dataFlowElement)) continue;
+
+                    if (subnet.isAtomic()) {
+                        if (subnet.getInstances() == null || subnet.getInstances().size() == 0) return null;
+                        //Optional<ArchitectureSymbol> architectureOpt = subnet.getInstances().get(0).getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+                        Optional<ArchitectureSymbol> architectureOpt = fetchSubComponentInstanceArchitectureSymbol(subnet, fromInstance);
+                        Log.info("","");
+                        if (!architectureOpt.isPresent()){
+                            throw new Exception("Architecture symbol of atomic network missing");
+                        } else{
+                            subnet.setComposedNetworkArchitectureSymbol(architectureOpt.get());
+                            subnetArchSymbols.add(architectureOpt.get());
+                        }
+                    } else {
+                        subnetArchSymbols.add(generateNetworkLevel(subnet, fromInstance));
+                    }
+                }
+            }
+
         }
         return mergeArchitectureSymbols(subnetArchSymbols, networkStructureInformation);
     }
@@ -73,6 +88,7 @@ public class NetworkComposer {
             throw new Exception("Architecture Symbol Merge error: "  + "Not enough symbols to merge (at least 2 required)");
         }
 
+        /*
         ArrayList<String> dataFlow = networkStructureInformation.getNetworkInstancesDataFlow();
 
         if (dataFlow.size() < 3
@@ -90,6 +106,9 @@ public class NetworkComposer {
                 if(dataFlow.get(i).equals(symbolNetComponentName)) dataFlowSymbols.add(symbol);
             }
         }
+         */
+
+        ArrayList<ArchitectureSymbol> dataFlowSymbols = symbols;
 
         ArchitectureSymbol mergedArchitecture = new ArchitectureSymbol();
 
@@ -118,12 +137,15 @@ public class NetworkComposer {
                 mergedNetworkInstructions.addAll(dataFlowSymbols.get(i).getNetworkInstructions());
             }
 
+            /*
             for (NetworkInstructionSymbol symbol : mergedNetworkInstructions){
                 ArchitectureElementSymbol first = symbol.getBody().getElements().get(0);
                 ArchitectureElementSymbol last = symbol.getBody().getElements().get(symbol.getBody().getElements().size()-1);
                 Log.info("first:" + first.toString(),"NETWORK_INSTRUCTION_MERGER");
                 Log.info("last:" + last.toString(),"NETWORK_INSTRUCTION_MERGER");
             }
+            */
+
         }
 
         if ( !verifyEqualityString(mergedAdaNetUtils) || !verifyEqualityString(mergedCustomFilePaths) || !verifyEqualityString(mergedWeightPaths)|| !verifyEqualityBoolean(mergedUseDgls)){
@@ -217,11 +239,27 @@ public class NetworkComposer {
         return mergedInstructions;
     }
 
+    private Optional<ArchitectureSymbol> fetchSubComponentInstanceArchitectureSymbol(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance){
+        Map<String, Collection<Symbol>> symbols = fromInstance.getSpannedScope().getLocalSymbols();
+        ArrayList<Symbol> symbolArrayList = (ArrayList<Symbol>)symbols.get(networkStructureInformation.getInstanceSymbolName());
 
+        EMAComponentInstanceSymbol symbol = null;
 
+        for (Symbol sym : symbolArrayList){
+            EMAComponentInstanceSymbol instanceSymbol = (EMAComponentInstanceSymbol) sym;
+            if (instanceSymbol.getName().equals(networkStructureInformation.getInstanceSymbolName()));{
+                symbol = instanceSymbol;
+                break;
+            }
+        }
 
+        if (symbol != null){
+            for(EMAComponentInstanceSymbol instanceSymbol : networkStructureInformation.getInstances()){
+                if (symbol.getName().equals(instanceSymbol.getName())) return instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+            }
+            //return symbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+        }
 
-
-
-
+        return Optional.empty();
+    }
 }

@@ -382,7 +382,23 @@ public class EMADLGenerator implements EMAMGenerator {
     protected void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) {
         fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol));
         String lastNameWithoutArrayPart = "";
-        for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) {
+
+        ArrayList<EMAComponentInstanceSymbol> composedNets = new ArrayList<>();
+        ArrayList<EMAComponentInstanceSymbol> otherComponents = new ArrayList<>();
+        ArrayList<EMAComponentInstanceSymbol> sortedSymbols = new ArrayList<>();
+
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
+
+        for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()){
+            if(composedNetworkHandler.isComposedNet(instanceSymbol)) composedNets.add(instanceSymbol);
+            else otherComponents.add(instanceSymbol);
+        }
+
+        sortedSymbols.addAll(otherComponents);
+        sortedSymbols.addAll(composedNets);
+
+
+        for (EMAComponentInstanceSymbol instanceSymbol : sortedSymbols) {
             int arrayBracketIndex = instanceSymbol.getName().indexOf("[");
             boolean generateComponentInstance = true;
             if (arrayBracketIndex != -1) {
