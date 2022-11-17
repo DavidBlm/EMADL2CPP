@@ -5,7 +5,8 @@ import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.ASTLayerBu
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.ASTParallelBlockBuilderCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.ASTStreamBuilderCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
-import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.ParallelCandidateLayer;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.ParallelCandidateLayerElement;
 
 import java.util.List;
 
@@ -42,24 +43,42 @@ public class CandidateASTNodeBuilder {
     }
 
     private ASTParallelBlock getCandidate() {
-        ASTParallelBlockBuilder builder = new ASTParallelBlockBuilderCustom();
-        for (AdaNetComponent component : this.candidate.getAllComponents()) {
-            ASTStream stream = getAstStream(component);
-            builder.addGroups(stream);
+        ASTParallelBlockBuilder candidateBuilder = new ASTParallelBlockBuilderCustom();
+        ASTStreamBuilder candidateLayersBuilder = new ASTStreamBuilderCustom();
+        for (ParallelCandidateLayer layer : this.candidate.getParallelCandidateLayers()) {
+            ASTParallelBlock parallelLayer = getParallelLayer(layer);
+            candidateLayersBuilder.addElements(parallelLayer);
+            candidateLayersBuilder.addElements(getConcatenateLayer());
         }
-        return builder.build();
+        ASTStream candidateLayers = candidateLayersBuilder.build();
+        candidateBuilder.addGroups(candidateLayers);
+        return candidateBuilder.build();
     }
 
-    private ASTStream getAstStream(AdaNetComponent component) {
-        ASTStreamBuilder streamBuilder = new ASTStreamBuilderCustom();
-        for (int i = 0; i < component.getDepth(); i++) {
-            ASTLayer layer = getAstLayer(component.getLayerWidth());
-            streamBuilder.addElements(layer);
+    private ASTParallelBlock getParallelLayer(ParallelCandidateLayer layer) {
+        ASTParallelBlockBuilder parallelBlockBuilder = new ASTParallelBlockBuilderCustom();
+        for (ParallelCandidateLayerElement element : layer.getElements()) {
+            ASTStream parallelElement = getLayerElementAstStream(element);
+            parallelBlockBuilder.addGroups(parallelElement);
         }
+        return parallelBlockBuilder.build();
+    }
+
+    private ASTLayer getConcatenateLayer() {
+        ASTLayerBuilder layerBuilder = new ASTLayerBuilderCustom();
+        layerBuilder.setName("Concatenate");
+        ASTLayer layer = layerBuilder.build();
+        return layer;
+    }
+
+    private ASTStream getLayerElementAstStream(ParallelCandidateLayerElement element) {
+        ASTStreamBuilder streamBuilder = new ASTStreamBuilderCustom();
+        ASTLayer layer = getAstLayer(element.getUnits());
+        streamBuilder.addElements(layer);
         return streamBuilder.build();
     }
 
-    private ASTLayer getAstLayer(int layerWidth) {
+    private ASTLayer getAstLayer(int units) {
         ASTLayerBuilder layerBuilder = new ASTLayerBuilderCustom();
         layerBuilder.setName("FullyConnected");
         ASTLayer layer = layerBuilder.build();
