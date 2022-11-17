@@ -15,7 +15,7 @@ using namespace mxnet::cpp;
     
 class CNNPredictor_cartpole_master_dqn_0{
 public:
-    const std::string file_prefix = "model/cartpole.agent.CartPoleDQN/model_0_newest";
+    const std::string file_prefix = "model/cartpole.agent.CartPoleDQN/newest";
     
     //network
     const std::vector<std::string> network_input_keys = {
