@@ -3,6 +3,7 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 
 import java.util.ArrayList;
 import java.util.List;

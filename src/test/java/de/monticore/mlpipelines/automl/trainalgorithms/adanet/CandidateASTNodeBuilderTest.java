@@ -3,6 +3,8 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.ModelLoader;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
