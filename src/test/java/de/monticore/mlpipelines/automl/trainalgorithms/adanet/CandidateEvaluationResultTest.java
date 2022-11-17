@@ -1,5 +1,6 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import junit.framework.TestCase;
 
 public class CandidateEvaluationResultTest extends TestCase {

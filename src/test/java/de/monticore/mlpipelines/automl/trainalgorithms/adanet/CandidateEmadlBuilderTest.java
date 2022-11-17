@@ -1,6 +1,8 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
 import junit.framework.TestCase;
 
 import java.util.ArrayList;

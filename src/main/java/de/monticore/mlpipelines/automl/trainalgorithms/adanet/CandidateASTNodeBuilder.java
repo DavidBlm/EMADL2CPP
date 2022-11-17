@@ -4,6 +4,8 @@ import de.monticore.lang.monticar.cnnarch._ast.*;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.ASTLayerBuilderCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.ASTParallelBlockBuilderCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.ASTStreamBuilderCustom;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
 
 import java.util.List;
 

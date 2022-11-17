@@ -1,4 +1,4 @@
-package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
+package de.monticore.mlpipelines.automl.trainalgorithms.adanet.models;
 
 import de.monticore.mlpipelines.automl.helper.EmadlAble;
 
