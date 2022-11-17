@@ -15,7 +15,7 @@ using namespace mxnet::cpp;
     
 class CNNPredictor_defaultGAN_defaultGANConnector_predictor_0{
 public:
-    const std::string file_prefix = "model/defaultGAN.DefaultGANGenerator/model_0_newest";
+    const std::string file_prefix = "model/defaultGAN.DefaultGANGenerator/newest";
     
     //network
     const std::vector<std::string> network_input_keys = {
