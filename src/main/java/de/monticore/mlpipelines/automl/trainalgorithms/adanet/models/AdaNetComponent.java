@@ -1,12 +1,8 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet.models;
 
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
-import de.monticore.mlpipelines.automl.helper.EmadlAble;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class AdaNetComponent implements EmadlAble {
+public class AdaNetComponent {
     private int depth;
     private int layerWidth;
 
@@ -18,22 +14,6 @@ public class AdaNetComponent implements EmadlAble {
     public AdaNetComponent(int depth, int layerWidth) {
         this.depth = depth;
         this.layerWidth = layerWidth;
-    }
-
-    @Override
-    public List<String> getEmadl() {
-        List<String> lines = new ArrayList<>();
-        int layerWidth = getLayerWidth();
-
-        for (int i = 0; i < getDepth() - 1; i++) {
-            String line = String.format("FullyConnected(units=%s) ->", layerWidth);
-            lines.add(line);
-        }
-
-        String line = String.format("FullyConnected(units=%s)", layerWidth);
-        lines.add(line);
-
-        return lines;
     }
 
     public int getDepth() {

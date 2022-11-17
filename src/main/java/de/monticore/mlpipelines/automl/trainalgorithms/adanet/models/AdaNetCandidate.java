@@ -1,11 +1,9 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet.models;
 
-import de.monticore.mlpipelines.automl.helper.EmadlAble;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdaNetCandidate implements EmadlAble {
+public class AdaNetCandidate {
     private AdaNetComponent component;
     private List<AdaNetComponent> previousComponents;
 
@@ -37,36 +35,25 @@ public class AdaNetCandidate implements EmadlAble {
         this.previousComponents = previousComponents;
     }
 
-    @Override
-    public List<String> getEmadl() {
-        List<String> candidateContent = new ArrayList<>();
+    public List<ParallelCandidateLayer> getParallelCandidateLayers() {
+        List<ParallelCandidateLayer> layers = new ArrayList<>();
         for (int layerIndex = 0; layerIndex < getMaxDepth(); layerIndex++) {
-            addLayerToCandidateContent(candidateContent, layerIndex);
+            ParallelCandidateLayer layer = createParallelCandidateLayer(layerIndex);
+            layers.add(layer);
         }
-        return candidateContent;
+        return layers;
     }
 
-    private void addLayerToCandidateContent(List<String> candidateContent, int layerIndex) {
-        int numberComponentsInLayer = componentsInLayer(layerIndex);
-        if (numberComponentsInLayer == 1) {
-            candidateContent.add("FullyConnected(units=layerWidth)->");
-        } else {
-            candidateContent.add(
-                    String.format("FullyConnected(| = %d, units=layerWidth)->", componentsInLayer(layerIndex)));
-            candidateContent.add("Concatenate()->");
-        }
-    }
-
-    private int componentsInLayer(int layer) {
-        int layerDepth = layer + 1;
-        int numberComponents = getAllComponents().size();
-        for (int componentIndex = layer; componentIndex < numberComponents; componentIndex++) {
-            if (componentIsInLayer(layerDepth, componentIndex)) {
-                return numberComponents - componentIndex;
+    private ParallelCandidateLayer createParallelCandidateLayer(int layerIndex) {
+        ParallelCandidateLayer layer = new ParallelCandidateLayer();
+        for (AdaNetComponent component : this.getAllComponents()) {
+            if (component.getDepth() >= layerIndex + 1) {
+                int units = component.getLayerWidth();
+                ParallelCandidateLayerElement element = new ParallelCandidateLayerElement(units);
+                layer.addElement(element);
             }
         }
-
-        return 0;
+        return layer;
     }
 
     public List<AdaNetComponent> getAllComponents() {
@@ -74,10 +61,6 @@ public class AdaNetCandidate implements EmadlAble {
         allComponents.addAll(this.previousComponents);
         allComponents.add(this.component);
         return allComponents;
-    }
-
-    private boolean componentIsInLayer(int layerDepth, int componentIndex) {
-        return getAllComponents().get(componentIndex).getDepth() >= layerDepth;
     }
 
     private int getMaxDepth() {
