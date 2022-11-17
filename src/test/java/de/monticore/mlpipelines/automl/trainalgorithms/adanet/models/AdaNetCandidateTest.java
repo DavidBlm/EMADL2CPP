@@ -75,18 +75,22 @@ public class AdaNetCandidateTest extends TestCase {
         assertEquals(component, allComponents.get(1));
     }
 
-    public void testGetEmadl() {
-        AdaNetComponent component = new AdaNetComponent(2);
+    public void testGetParallelCandidateLayers() {
+        AdaNetComponent component = new AdaNetComponent(2, 20);
         List<AdaNetComponent> previousComponents = new ArrayList<>();
-        AdaNetComponent previousComponent = new AdaNetComponent(1);
+        AdaNetComponent previousComponent = new AdaNetComponent(1, 10);
         previousComponents.add(previousComponent);
         AdaNetCandidate adanetCandidate = new AdaNetCandidate(component, previousComponents);
 
-        List<String> emadl = adanetCandidate.getEmadl();
+        List<ParallelCandidateLayer> parallelCandidateLayers = adanetCandidate.getParallelCandidateLayers();
+        ParallelCandidateLayer parallelCandidateLayer1 = parallelCandidateLayers.get(0);
+        ParallelCandidateLayer parallelCandidateLayer2 = parallelCandidateLayers.get(1);
 
-        assertEquals(3, emadl.size());
-        assertEquals("FullyConnected(| = 2, units=layerWidth)->", emadl.get(0));
-        assertEquals("Concatenate()->", emadl.get(1));
-        assertEquals("FullyConnected(units=layerWidth)->", emadl.get(2));
+        assertEquals(2, parallelCandidateLayers.size());
+        assertEquals(2, parallelCandidateLayer1.getElements().size());
+        assertEquals(1, parallelCandidateLayer2.getElements().size());
+        assertEquals(10, parallelCandidateLayer1.getElements().get(0).getUnits());
+        assertEquals(20, parallelCandidateLayer1.getElements().get(1).getUnits());
+        assertEquals(20, parallelCandidateLayer2.getElements().get(0).getUnits());
     }
 }

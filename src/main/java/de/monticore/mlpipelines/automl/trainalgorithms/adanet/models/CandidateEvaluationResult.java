@@ -1,6 +1,4 @@
-package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
-
-import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
+package de.monticore.mlpipelines.automl.trainalgorithms.adanet.models;
 
 public class CandidateEvaluationResult {
     private final float score;

@@ -7,6 +7,7 @@ import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.CandidateEvaluationResult;
 
 import java.util.List;
 
