@@ -1,8 +1,8 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
-import de.monticore.lang.monticar.cnnarch._ast.*;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
 import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
@@ -24,21 +24,26 @@ public class CandidateBuilderTest extends TestCase {
     }
 
     @Test
-    public void testBuild() {
+    public void testBuildAddsEnoughLayers() {
         ArchitectureSymbol refArch = ModelLoader.load("src/test/resources/models/adanet/", "adaNetBase");
         AdaNetCandidate candidate = new AdaNetCandidate(new AdaNetComponent(3), new ArrayList<>());
-        ArchitectureElementSymbol newArch = candidateBuilder.build(candidate);
-
-//        ASTStream layers = getAdanetLayers(newArch);
-        assertNotNull(newArch);
+        ParallelCompositeElementSymbol newArch = (ParallelCompositeElementSymbol) candidateBuilder.build(candidate);
+        SerialCompositeElementSymbol serial = (SerialCompositeElementSymbol) newArch.getElements().get(0);
+        assertEquals(6, serial.getElements().size());
     }
 
-    private static ASTStream getAdanetLayers(ASTArchitecture newArch) {
-        ASTStreamInstruction networkInstruction = (ASTStreamInstruction) newArch.getInstructions(0)
-                .getNetworkInstruction();
-        List<ASTArchitectureElement> elementsList = networkInstruction.getBody().getElementsList();
-        ASTParallelBlock parallelBlock = (ASTParallelBlock) elementsList.get(1);
-        ASTStream layers = parallelBlock.getGroups(0);
-        return layers;
+    @Test
+    public void testBuildAddsMultipleElementsInParallelLayer() {
+        List<AdaNetComponent> previousComponents = new ArrayList<>();
+        previousComponents.add(new AdaNetComponent(1));
+        AdaNetCandidate candidate = new AdaNetCandidate(new AdaNetComponent(3), previousComponents);
+        ParallelCompositeElementSymbol newArch = (ParallelCompositeElementSymbol) candidateBuilder.build(candidate);
+
+        SerialCompositeElementSymbol serial = (SerialCompositeElementSymbol) newArch.getElements().get(0);
+        ParallelCompositeElementSymbol firstLayer = (ParallelCompositeElementSymbol) serial.getElements().get(0);
+        ParallelCompositeElementSymbol secondLayer = (ParallelCompositeElementSymbol) serial.getElements().get(2);
+        assertEquals(2, firstLayer.getElements().size());
+        assertEquals(1, secondLayer.getElements().size());
+
     }
 }
