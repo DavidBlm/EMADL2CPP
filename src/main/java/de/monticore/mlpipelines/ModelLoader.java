@@ -22,4 +22,11 @@ public class ModelLoader {
 
         return load(modelFolderPath, modelName);
     }
+
+    public static ArchitectureSymbol loadAdaNetStart() {
+        String modelFolderPath = "src/test/resources/models/adanet";
+        String modelName = "adaNetStart";
+
+        return load(modelFolderPath, modelName);
+    }
 }
