@@ -27,8 +27,8 @@ import java.util.List;
 
 public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private final CandidateFinder candidateFinder;
-    private boolean stopAlgorithm = false;
     private final CandidateBuilder candidateBuilder;
+    private boolean stopAlgorithm = false;
     private CandidateEvaluationResult bestCandidateResult;
     private ArchitectureSymbol architectureSymbol;
     private ASTArchitecture refASTArchitecture;
@@ -96,8 +96,8 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
 
     private void setCandidateForArchitecture(AdaNetCandidate bestCandidate) {
         ArchitectureElementSymbol adaNetSymbol = candidateBuilder.build(bestCandidate);
-        StreamInstructionSymbol networkInstructionSymbol = (StreamInstructionSymbol) architectureSymbol.getNetworkInstructions()
-                .get(0);
+        StreamInstructionSymbol networkInstructionSymbol =
+                (StreamInstructionSymbol) architectureSymbol.getNetworkInstructions().get(0);
         List<ArchitectureElementSymbol> elements = networkInstructionSymbol.getBody().getElements();
         for (int i = 0; i < elements.size(); i++) {
             if (elements.get(i).getName().equals(AdaNetConfig.ADA_NET_NAME)) {
