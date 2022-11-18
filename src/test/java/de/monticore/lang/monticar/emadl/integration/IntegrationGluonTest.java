@@ -16,6 +16,7 @@ import java.util.Arrays;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public class IntegrationGluonTest extends IntegrationTest {
 
@@ -155,7 +156,7 @@ public class IntegrationGluonTest extends IntegrationTest {
 
         }
         catch(Exception e) {
-            assertFalse("Could not delete hash file", true);
+            fail("Could not delete hash file");
         }
     }
 }

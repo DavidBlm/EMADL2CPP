@@ -74,7 +74,7 @@ public class EMADLAbstractSymtab {
         ThreadingOptimizer.resetID();
         ModelingLanguageFamily fam = new ModelingLanguageFamily();
 
-        EMADLLanguage montiArcLanguage = new EMADLLanguage(customFilesPath, pythonPath, backend.getBackendString(backend).toLowerCase());
+        EMADLLanguage montiArcLanguage = new EMADLLanguage(customFilesPath, pythonPath, Backend.getBackendString(backend).toLowerCase());
 
 
         fam.addModelingLanguage(montiArcLanguage);

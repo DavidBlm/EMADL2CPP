@@ -116,7 +116,7 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     public void setModelsPath(String modelsPath) {
-        if (!(modelsPath.substring(modelsPath.length() - 1).equals("/"))) {
+        if (!(modelsPath.endsWith("/"))) {
             this.modelsPath = modelsPath + "/";
         }
         else {
@@ -151,7 +151,7 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     public void setGenerationTargetPath(String generationTargetPath){
-        if (!(generationTargetPath.substring(generationTargetPath.length() - 1).equals("/"))){
+        if (!(generationTargetPath.endsWith("/"))){
             getEmamGen().setGenerationTargetPath(generationTargetPath + "/");
         }
         else {
@@ -247,7 +247,7 @@ public class EMADLGenerator implements EMAMGenerator {
         }
 
         Scope c1 = component.getEnclosingScope();
-        Optional<EMAComponentInstanceSymbol> c2 = c1.<EMAComponentInstanceSymbol>resolve(instanceName, EMAComponentInstanceSymbol.KIND);
+        Optional<EMAComponentInstanceSymbol> c2 = c1.resolve(instanceName, EMAComponentInstanceSymbol.KIND);
         EMAComponentInstanceSymbol c3 = c2.get();
         return c3;
     }
@@ -269,7 +269,7 @@ public class EMADLGenerator implements EMAMGenerator {
                 throw new RuntimeException(errMsg);
             }
         }catch(Exception e){
-            String errMsg ="During compilation, the following error occured: '" + e.toString() + "'";
+            String errMsg ="During compilation, the following error occured: '" + e + "'";
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
         } finally {
@@ -832,6 +832,8 @@ public class EMADLGenerator implements EMAMGenerator {
                 }
             }
             stopGeneratorIfWarning();
+
+
         }
         else {
             Path dataPathDefinition = Paths.get(getModelsPath(), "data_paths.txt");
@@ -962,7 +964,7 @@ public class EMADLGenerator implements EMAMGenerator {
             else {
                 BufferedInputStream is = new BufferedInputStream(zipFile.getInputStream(jarEntry));
                 int currentByte;
-                byte data[] = new byte[1024];
+                byte[] data = new byte[1024];
 
                 FileOutputStream fos = new FileOutputStream(outputFile);
                 BufferedOutputStream dest = new BufferedOutputStream(fos, 1024);
@@ -1057,7 +1059,7 @@ public class EMADLGenerator implements EMAMGenerator {
             applyBeamSearchMethod = applyBeamSearchMethods.get(0);
         }
 
-        String component = emamGen.generateString(taggingResolver, instance, (MathStatementsSymbol) null);
+        String component = emamGen.generateString(taggingResolver, instance, null);
         FileContent componentFileContent = new FileContent(
                 transformComponent(component, "CNNPredictor_" + fullName,
                         applyBeamSearchMethod,
@@ -1113,7 +1115,7 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     public void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) {
-        fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol));
+        fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, null), componentInstanceSymbol));
         String lastNameWithoutArrayPart = "";
         for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) {
             int arrayBracketIndex = instanceSymbol.getName().indexOf("[");
@@ -1372,7 +1374,7 @@ public class EMADLGenerator implements EMAMGenerator {
             try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
                 for (Path path : Files.walk(fs.getPath(rootSchemaModelPath)).filter(Files::isRegularFile).collect(Collectors.toList())) {
                     if (path.toString().endsWith(".scm") || path.toString().endsWith(".ema")) {
-                        Path destination = Paths.get(target_path + path.toString());
+                        Path destination = Paths.get(target_path + path);
                         Files.createDirectories(destination.getParent());
                         Files.copy(path, destination, StandardCopyOption.REPLACE_EXISTING);
                     }

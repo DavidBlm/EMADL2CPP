@@ -249,7 +249,7 @@ public class GenerationTest extends AbstractSymtabTest {
 
         try {
             tester.getChecksumForFile("invalid Path!");
-            assertTrue("Hash method should throw IOException on invalid path", false);
+            fail("Hash method should throw IOException on invalid path");
         } catch (IOException e) {
         }
     }
@@ -462,7 +462,7 @@ public class GenerationTest extends AbstractSymtabTest {
         checkFindingsCount(1L);
         assertEquals(Log.getFindings().get(0).toString(),
                 "Tagging info for DataPath symbol was found, ignoring data_paths.txt: src/test/resources/models");
-        assertTrue(Log.getErrorCount() == 0);
+        assertEquals(0, Log.getErrorCount());
     }
 
     @Test

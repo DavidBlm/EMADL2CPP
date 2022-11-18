@@ -188,7 +188,7 @@ If you did submit the job, you can access the status information with `sacct`.
 
 For improvement of EmbeddedMontiArcDL models optimization methods for the architectures and hyperparameters are considered.
 
-Different method for the hyperparameter optimization are presented here: [Hyperparameter_Optimization.pdf](./presentations/Hyperparameter_Optimization.pdf)
+Different method for the hyperparameter optimization are presented here: [Hyperparameter_Optimization.pdf](documents/presentations/Hyperparameter_Optimization.pdf)
 
 Different methods for neural architecture search and model evaluation methods are presented here:
-[Neural_Architecture_Search.pdf](./presentations/Neural_Architecture_Search.pdf)
+[Neural_Architecture_Search.pdf](documents/presentations/Neural_Architecture_Search.pdf)

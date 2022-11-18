@@ -13,19 +13,22 @@ import org.junit.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public abstract class IntegrationTest extends AbstractSymtabTest {
 
-    private String backend;
-    private String trainingHash;
+    private final String backend;
+    private final String trainingHash;
 
     @BeforeClass
     public static void setupClass() throws IOException {
@@ -46,16 +49,16 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         this.trainingHash = trainingHash;
     }
 
-    private Path netTrainingHashFile = Paths.get("./target/generated-sources-emadl/simpleCifar10/CifarNetwork.training_hash");
+    private final Path netTrainingHashFile = Paths.get("./target/generated-sources-emadl/simpleCifar10/CifarNetwork.training_hash");
 
     private void createHashFile() {
         try {
             netTrainingHashFile.toFile().getParentFile().mkdirs();
-            List<String> lines = Arrays.asList(this.trainingHash);
-            Files.write(netTrainingHashFile, lines, Charset.forName("UTF-8"));
+            List<String> lines = Collections.singletonList(this.trainingHash);
+            Files.write(netTrainingHashFile, lines, StandardCharsets.UTF_8);
         }
         catch(Exception e) {
-            assertFalse("Hash file could not be created", true);
+            fail("Hash file could not be created");
         }
     }
 
@@ -64,7 +67,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
             Files.delete(Paths.get("./target/generated-sources-emadl/hashes/hashes.json"));
         }
         catch(Exception e) {
-            assertFalse("Could not delete hash file", true);
+            fail("Could not delete hash file");
         }
     }
 
@@ -125,7 +128,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
             Files.delete(Paths.get("./target/generated-sources-emadl/hashes/hashes.json"));
         }
         catch(Exception e) {
-            assertFalse("Could not delete hash file", true);
+            fail("Could not delete hash file");
         }
     }
 
