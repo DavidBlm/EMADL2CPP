@@ -1,11 +1,13 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.lang.math._symboltable.JSValue;
+import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.ArgumentSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.LayerSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
-import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.LayerSymbolCustom;
-import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.ParallelCompositeElementSymbolCustom;
-import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.SerialCompositeElementSymbolCustom;
+import de.monticore.mlpipelines.automl.helper.RationalMath;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.*;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.ParallelCandidateLayer;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.ParallelCandidateLayerElement;
@@ -20,26 +22,6 @@ public class CandidateBuilder {
         this.candidate = candidate;
         return getCandidateSymbol();
     }
-
-//    private List<ASTArchitectureElement> getAstArchitectureElements(ASTArchitecture newArch) {
-//        ASTInstruction instruction = newArch.getInstructions(0);
-//        ASTStreamInstruction streamInstruction = (ASTStreamInstruction) instruction.getNetworkInstruction();
-//        ASTStream stream = streamInstruction.getBody();
-//        List<ASTArchitectureElement> elements = stream.getElementsList();
-//        return elements;
-//    }
-//
-//    private void replaceAdaNetKeyWordByCandidate(List<ASTArchitectureElement> elements) {
-//        for (int i = 0; i < elements.size(); i++) {
-//            ASTArchitectureElement element = elements.get(i);
-//            if (element instanceof ASTLayer) {
-//                ASTLayer layer = (ASTLayer) element;
-//                if (layer.getName().equals("AdaNet")) {
-//                    elements.set(i, getCandidateSymbol());
-//                }
-//            }
-//        }
-//    }
 
     private ParallelCompositeElementSymbol getCandidateSymbol() {
         ParallelCompositeElementSymbolCustom candidateSymbol = new ParallelCompositeElementSymbolCustom();
@@ -98,6 +80,25 @@ public class CandidateBuilder {
 
     private LayerSymbol getFullyConnectedLayer(int units) {
         LayerSymbolCustom layer = new LayerSymbolCustom("FullyConnected");
+        List<ArgumentSymbol> arguments = new ArrayList<>();
+        arguments.add(getUnitsArgumentSymbol(units));
+        layer.setArguments(arguments);
         return layer;
+    }
+
+    private static ArgumentSymbol getUnitsArgumentSymbol(int units) {
+        ArgumentSymbolCustom unitsArgument = new ArgumentSymbolCustom("units");
+        MathNumberExpressionSymbol unitsValue = getMathNumberExpressionSymbol(units);
+        ArchSimpleExpressionSymbolCustom archSimpleExpressionSymbol = new ArchSimpleExpressionSymbolCustom();
+        archSimpleExpressionSymbol.setMathExpression(unitsValue);
+        unitsArgument.setRhs(archSimpleExpressionSymbol);
+        return unitsArgument;
+    }
+
+    private static MathNumberExpressionSymbol getMathNumberExpressionSymbol(int value) {
+        MathNumberExpressionSymbol unitsValue = new MathNumberExpressionSymbol();
+        JSValue jsValue = new JSValue(RationalMath.of(value));
+        unitsValue.setValue(jsValue);
+        return unitsValue;
     }
 }

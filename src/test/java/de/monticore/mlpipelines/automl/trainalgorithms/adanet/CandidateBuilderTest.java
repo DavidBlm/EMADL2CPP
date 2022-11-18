@@ -1,9 +1,8 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
-import de.monticore.mlpipelines.ModelLoader;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.LayerSymbolCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
 import junit.framework.TestCase;
@@ -25,7 +24,6 @@ public class CandidateBuilderTest extends TestCase {
 
     @Test
     public void testBuildAddsEnoughLayers() {
-        ArchitectureSymbol refArch = ModelLoader.load("src/test/resources/models/adanet/", "adaNetBase");
         AdaNetCandidate candidate = new AdaNetCandidate(new AdaNetComponent(3), new ArrayList<>());
         ParallelCompositeElementSymbol newArch = (ParallelCompositeElementSymbol) candidateBuilder.build(candidate);
         SerialCompositeElementSymbol serial = (SerialCompositeElementSymbol) newArch.getElements().get(0);
@@ -45,5 +43,20 @@ public class CandidateBuilderTest extends TestCase {
         assertEquals(2, firstLayer.getElements().size());
         assertEquals(1, secondLayer.getElements().size());
 
+    }
+
+    @Test
+    public void testBuildAddsParameterToFullyConnected() {
+        List<AdaNetComponent> previousComponents = new ArrayList<>();
+        previousComponents.add(new AdaNetComponent(1));
+        AdaNetCandidate candidate = new AdaNetCandidate(new AdaNetComponent(3), previousComponents);
+        ParallelCompositeElementSymbol newArch = (ParallelCompositeElementSymbol) candidateBuilder.build(candidate);
+
+        SerialCompositeElementSymbol serial = (SerialCompositeElementSymbol) newArch.getElements().get(0);
+        ParallelCompositeElementSymbol firstLayer = (ParallelCompositeElementSymbol) serial.getElements().get(0);
+        SerialCompositeElementSymbol firstLayerParallelElement = (SerialCompositeElementSymbol) firstLayer.getElements()
+                .get(0);
+        LayerSymbolCustom layerSymbolCustom = (LayerSymbolCustom) firstLayerParallelElement.getElements().get(0);
+        assertEquals(1, layerSymbolCustom.getArguments().size());
     }
 }
