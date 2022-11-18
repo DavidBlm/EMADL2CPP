@@ -17,11 +17,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SymbolTableCreatorTest {
 
-    //TODO more validations on symbol table ?
     @Test
     void createEMADLSymbolTable() throws IOException {
         final ModelPath modelPath = new ModelPath(Paths.get("src/test/resources/models/pipeline"));
-        final ASTEMACompilationUnit parsedModel = (ASTEMACompilationUnit) new EMADLParser().parseModelIfExists("src/test/resources/models/pipeline/LinearPipeline.ema");
+        final ASTEMACompilationUnit parsedModel = new EMADLParser().parseModelIfExists("src/test/resources/models/pipeline/LinearPipeline.ema");
         final Scope symbolTable = SymbolTableCreator.createEMADLSymbolTable(parsedModel, new GlobalScope(modelPath, new EMADLLanguage()));
         final Optional<EMAComponentInstanceSymbol> emaInstanceComponent = symbolTable.resolve("linearPipeline", EMAComponentInstanceSymbol.KIND);
         assertAll(() -> assertEquals(2, symbolTable.getSubScopes().size()),
