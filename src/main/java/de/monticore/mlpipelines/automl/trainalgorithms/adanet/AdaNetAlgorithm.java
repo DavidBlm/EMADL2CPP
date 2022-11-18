@@ -26,18 +26,18 @@ import java.util.List;
 public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private final CandidateFinder candidateFinder;
     private boolean stopAlgorithm = false;
-    private final CandidateASTNodeBuilder candidateBuilder;
+    private final CandidateBuilder candidateBuilder;
     private CandidateEvaluationResult bestCandidateResult;
     private ArchitectureSymbol architectureSymbol;
     private ASTArchitecture refASTArchitecture;
 
     public AdaNetAlgorithm() {
-        this.candidateBuilder = new CandidateASTNodeBuilder();
+        this.candidateBuilder = new CandidateBuilder();
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
         this.candidateFinder = new CandidateFinder(componentFinder);
     }
 
-    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateASTNodeBuilder candidateBuilder) {
+    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateBuilder candidateBuilder) {
         super();
         this.candidateFinder = candidateFinder;
         this.candidateBuilder = candidateBuilder;
@@ -93,8 +93,8 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     }
 
     private void setCandidateForArchitecture(AdaNetCandidate bestCandidate) {
-        ASTArchitecture currentCandidate = candidateBuilder.build(refASTArchitecture, bestCandidate);
-        architectureSymbol.setAstNode(currentCandidate);
+//        ASTArchitecture currentCandidate = candidateBuilder.build(refASTArchitecture, bestCandidate);
+//        architectureSymbol.setAstNode(currentCandidate);
     }
 
     private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {

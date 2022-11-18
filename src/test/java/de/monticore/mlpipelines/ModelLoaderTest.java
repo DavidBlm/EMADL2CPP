@@ -19,4 +19,9 @@ public class ModelLoaderTest extends TestCase {
         ArchitectureSymbol arch = ModelLoader.loadEfficientnetB0();
         assertNotNull(arch);
     }
+
+    public void testLoadAdaNetStart() {
+        ArchitectureSymbol arch = ModelLoader.loadAdaNetStart();
+        assertNotNull(arch);
+    }
 }
