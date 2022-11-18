@@ -2,7 +2,6 @@ package de.monticore.mlpipelines;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 
 public abstract class Pipeline {
     private float trainedAccuracy;
@@ -15,5 +14,5 @@ public abstract class Pipeline {
         this.trainedAccuracy = trainedAccuracy;
     }
 
-    public abstract void train(ArchitectureSymbol architecture, Configuration configuration);
+    public abstract void execute(ArchitectureSymbol architecture, Configuration configuration);
 }

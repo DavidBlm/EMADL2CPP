@@ -57,7 +57,7 @@ public class ScalingFactorsGridSearch {
 
         ArchitectureSymbol scaledArchitecture = this.networkScaler.scale(this.architecture, scalingFactors, this.trainConfig.getPhi());
         Configuration pipelineConfig = getConfigurationFromTrainConfig(this.trainConfig);
-        trainPipeline.train(scaledArchitecture, pipelineConfig);
+        trainPipeline.execute(scaledArchitecture, pipelineConfig);
         checkIfScalingFactorsAreBetterThanBest(scalingFactors);
     }
 

@@ -7,6 +7,7 @@ import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
 import de.monticore.lang.monticar.ts.references.MCASTTypeSymbolReference;
 import de.monticore.lang.monticar.types2._ast.ASTDimension;
 import de.monticore.mlpipelines.ModelLoader;
+import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
 import junit.framework.TestCase;
@@ -160,6 +161,22 @@ public class NetworkScalerTest extends TestCase {
 
         assertEquals(expectedResidualWidth1, residualBlock1Width, 0.0001);
         assertEquals(expectedResidualWidth2, residualBlock2Width, 0.0001);
+    }
+
+    @Test
+    public void testScaleWidthStem() {
+        ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol stem = architectureElements.get(1);
+        double stemWidth = getValueFromElement(stem, 1);
+
+        double expectedStemWidth = 16;
+
+        assertEquals(expectedStemWidth, stemWidth, 0.0001);
     }
 
     @Test

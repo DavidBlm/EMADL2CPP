@@ -1,14 +1,17 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.*;
-import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
-import de.monticore.lang.monticar.ts.references.MCASTTypeSymbolReference;
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
 import de.monticore.lang.monticar.types2._ast.ASTDimension;
-import de.monticore.symboltable.Symbol;
+import de.monticore.mlpipelines.automl.helper.ArchitectureHelper;
+import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class NetworkScaler {
 
@@ -50,12 +53,30 @@ public class NetworkScaler {
         }
     }
 
-    // TODO: add channels parameter to stem and scale it
+    private static int getChannelsIndex(String architectureElementName) {
+        switch (architectureElementName) {
+            case "residualBlock":
+                return 5;
+            case "reductionBlock":
+            case "stem":
+                return 1;
+        }
+        throw new IllegalArgumentException("Block type not supported");
+    }
+
+    private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
+        ArrayList expressions = ArchitectureHelper.getExpressions(architectureElement);
+        int channelsIndex = getChannelsIndex(architectureElement.getName());
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
+        expression.scaleRound(this.widthFactor);
+    }
+
     private void scaleWidth() {
         List<ArchitectureElementSymbol> architectureElements = findArchitectureElements();
 
         for (ArchitectureElementSymbol architectureElement : architectureElements) {
-            List<String> allowedLayers = Arrays.asList("residualBlock", "reductionBlock");
+            List<String> allowedLayers = Arrays.asList("residualBlock", "reductionBlock", "stem");
             if (!allowedLayers.contains(architectureElement.getName()))
                 continue;
 
@@ -63,32 +84,9 @@ public class NetworkScaler {
         }
     }
 
-    private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
-        ArrayList expressions = getExpressions(architectureElement);
-        int channelsIndex = getChannelsIndex(architectureElement.getName());
-        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
-        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
-        expression.scaleRound(this.widthFactor);
-    }
-
-    private static int getChannelsIndex(String architectureElementName) {
-        switch (architectureElementName) {
-            case "residualBlock":
-                return 5;
-            case "reductionBlock":
-                return 1;
-        }
-        throw new IllegalArgumentException("Block type not supported");
-    }
-
 
     private void scaleImageResolution() {
-        Map<String, Collection<Symbol>> enclosedSymbols = this.architecture.getSpannedScope().getEnclosingScope().get().getLocalSymbols();
-        ArrayList image = (ArrayList) enclosedSymbols.get("image");
-        EMAPortInstanceSymbol instanceSymbols = (EMAPortInstanceSymbol) image.get(0);
-        MCASTTypeSymbolReference typeReference = (MCASTTypeSymbolReference) instanceSymbols.getTypeReference();
-        ASTCommonMatrixType astType = (ASTCommonMatrixType)typeReference.getAstType();
-        ASTDimension dimensions = astType.getDimension();
+        ASTDimension dimensions = ArchitectureHelper.getImageDimension(architecture);
         changeImageDimension(dimensions);
     }
 
@@ -120,18 +118,11 @@ public class NetworkScaler {
     }
 
     private void scaleNetworkElementDepth(ArchitectureElementSymbol architectureElement) {
-        ArrayList symbolExpressions = getExpressions(architectureElement);
+        ArrayList symbolExpressions = ArchitectureHelper.getExpressions(architectureElement);
         int depthIndex = 3; //MathNumberExpressionSymbol at index 3 needs to be changed
         MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(depthIndex);
         MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
         expression.scaleRound(this.depthFactor);
-    }
-
-    private static ArrayList getExpressions(ArchitectureElementSymbol architectureElement) {
-        ArchitectureElementScope spannedScope = architectureElement.getSpannedScope();
-        ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols()
-                .get(""); //the MathNumberExpressionSymbol is in the key ""
-        return expressions;
     }
 
     public ArchitectureSymbol getArchitectureSymbol() {

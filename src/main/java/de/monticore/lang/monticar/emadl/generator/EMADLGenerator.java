@@ -25,6 +25,9 @@ import de.monticore.lang.monticar.cnnarch.generator.validation.TrainedArchitectu
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.DataPathCocos;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
+import de.monticore.lang.monticar.emadl.generator.utils.ChecksumGenerator;
+import de.monticore.lang.monticar.emadl.generator.utils.DependencyInstaller;
+import de.monticore.lang.monticar.emadl.generator.utils.MavenSettings;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactSymbol;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.LayerArtifactParameterSymbol;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
@@ -47,8 +50,14 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.Splitters;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.net.URI;
@@ -67,14 +76,13 @@ import java.util.zip.ZipFile;
 import static de.monticore.lang.monticar.cnnarch.generator.validation.Constants.ROOT_SCHEMA_MODEL_PATH;
 
 public class EMADLGenerator implements EMAMGenerator {
-
     private boolean generateCMake = false;
-    private final CMakeConfig cMakeConfig = new CMakeConfig("");
-    private final GeneratorCPP emamGen;
-    private final CNNArchGenerator cnnArchGenerator;
-    private final CNNTrainGenerator cnnTrainGenerator;
-    private final GeneratorPythonWrapperStandaloneApi pythonWrapper;
-    private final Backend backend;
+    private CMakeConfig cMakeConfig = new CMakeConfig("");
+    private GeneratorCPP emamGen;
+    private CNNArchGenerator cnnArchGenerator;
+    private CNNTrainGenerator cnnTrainGenerator;
+    private GeneratorPythonWrapperStandaloneApi pythonWrapper;
+    private Backend backend;
 
     private String modelsPath;
     private String customFilesPath = "";
@@ -82,6 +90,7 @@ public class EMADLGenerator implements EMAMGenerator {
     private String adaNetUtils = "./src/main/resources/AdaNet/";
     private boolean useDgl = false;
     private Map<String, ArchitectureSymbol> processedArchitecture;
+
 
     public EMADLGenerator(Backend backend) {
         this.backend = backend;
@@ -124,7 +133,6 @@ public class EMADLGenerator implements EMAMGenerator {
         else {
             this.customFilesPath = customPythonFilesPath;
         }
-
     }
 
     public boolean getUseDgl() { return useDgl; }
@@ -326,6 +334,7 @@ public class EMADLGenerator implements EMAMGenerator {
             return "No_Such_Algorithm_Exception";
         }
     }
+
     public static String hex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
         for (byte aByte : bytes) {
@@ -334,24 +343,15 @@ public class EMADLGenerator implements EMAMGenerator {
         return result.toString();
     }
 
-
-    public String getChecksumForLargerFile(String filePath) throws IOException {
-        try {
-            return (new File(filePath)).lastModified() + "";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Exception_calculating_hash_large_file";
-        }
-    }
-
     public List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
 
         List<FileContent> fileContents = generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
 
-        Log.info("Generating adapters ...", EMADLGenerator.class.getName());
+        Log.info("Generating adapters...", EMADLGenerator.class.getName());
         emamGen.generateAdapters(fileContents, EMAComponentSymbol);
+
 
         for (FileContent fileContent : fileContents) {
             generatedFiles.add(emamGen.generateFile(fileContent));
@@ -364,7 +364,6 @@ public class EMADLGenerator implements EMAMGenerator {
         }
 
         List<FileContent> fileContentsTrainingHashes = new ArrayList<>();
-        List<String> newHashes = new ArrayList<>();
         for (EMAComponentInstanceSymbol componentInstance : allInstances) {
             Optional<ArchitectureSymbol> architecture = componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
             // added for future use if one wants to change the location of the AdaNet python files
@@ -377,69 +376,43 @@ public class EMADLGenerator implements EMAMGenerator {
                 continue;
             }
 
-            String mainComponentConfigFilename = componentInstance.getComponentType().getFullName().replaceAll("\\.", "/");
-            String instanceConfigFilename = componentInstance.getFullName().replaceAll("\\.", "/") + "_" + componentInstance.getName();
-            String configFilename = getConfigFilename(mainComponentConfigFilename, componentInstance.getFullName().replaceAll("\\.", "/"), instanceConfigFilename);
-            String configFilepath = getModelsPath().concat(configFilename);
-            String emadlPath = configFilepath.concat(".emadl");
-            String cnntPath = configFilepath.concat(".conf");
-
-            String emadlHash = getChecksumForFile(emadlPath);
-            String cnntHash = getChecksumForFile(cnntPath);
-
-            String componentConfigFilename = componentInstance.getComponentType().getReferencedSymbol().getFullName().replaceAll("\\.", "/");
-
-            String b = Backend.getBackendString(backend);
-            String trainingDataHash = "";
-            String testDataHash = "";
-
-            if (architecture.get().getDataPath() != null) {
-                if (b.equals("CAFFE2")) {
-                    trainingDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/train_lmdb/data.mdb");
-                    testDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/test_lmdb/data.mdb");
-                } else {
-                    trainingDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/train.h5");
-                    testDataHash = getChecksumForLargerFile(architecture.get().getDataPath() + "/test.h5");
-                }
+            if (architecture.get().getDataPaths().isEmpty()) {
+                throw new RuntimeException("No dataset found. Please specify a dataset using the Network.tag file");
             }
-            String trainingHash = emadlHash + "#" + cnntHash + "#" + trainingDataHash + "#" + testDataHash;
 
-            boolean alreadyTrained = newHashes.contains(trainingHash) || isAlreadyTrained(trainingHash, componentInstance);
-            if (alreadyTrained && !forced.equals("y")) {
-                Log.warn("Training of model " + componentInstance.getFullName() + " skipped");
+            if (!computeChanges(architecture, componentInstance) && !forced.equals("y")) {
+                Log.error("Training of model " + componentInstance.getFullName() + " skipped");
+                continue;
             }
-            else {
-                String parsedFullName = componentInstance.getFullName().substring(0, 1).toLowerCase() + componentInstance.getFullName().substring(1).replaceAll("\\.", "_");
-                String trainerScriptName = "CNNTrainer_" + parsedFullName + ".py";
-                Log.warn("Training of model " + trainerScriptName);
-                String trainingPath = getGenerationTargetPath() + trainerScriptName;
-                if (Files.exists(Paths.get(trainingPath))) {
-                    ProcessBuilder pb = new ProcessBuilder(Arrays.asList(pythonPath, trainingPath)).inheritIO();
-                    Process p = pb.start();
 
-                    int exitCode = 0;
-                    try {
-                        exitCode = p.waitFor();
-                    }
-                    catch(InterruptedException e) {
-                        String errMsg = "Training aborted: exit code " + exitCode;
+            String parsedFullName = componentInstance.getFullName().
+                    substring(0, 1).toLowerCase() + componentInstance.getFullName().substring(1).replaceAll("\\.", "_");
+            String trainerScriptName = "CNNTrainer_" + parsedFullName + ".py";
+            Log.warn("Training of model " + trainerScriptName);
+            String trainingPath = getGenerationTargetPath() + trainerScriptName;
+            if (Files.exists(Paths.get(trainingPath))) {
+                ProcessBuilder pb = new ProcessBuilder(Arrays.asList(pythonPath, trainingPath)).inheritIO();
+                Process p = pb.start();
 
-                        Log.error(errMsg);
-                        throw new RuntimeException(errMsg);
-                    }
-
-                    if(exitCode != 0) {
-                        String errMsg = "Training failed: exit code " + exitCode;
-
-                        Log.error(errMsg);
-                        throw new RuntimeException(errMsg);
-                    }
-
-                    fileContentsTrainingHashes.add(new FileContent(trainingHash, componentConfigFilename + ".training_hash"));
-                    newHashes.add(trainingHash);
-                } else {
-                    Log.warn("Training file " + trainingPath + " not found.");
+                int exitCode = 0;
+                try {
+                    exitCode = p.waitFor();
                 }
+                catch(InterruptedException e) {
+                    String errMsg = "Training aborted: exit code " + exitCode;
+
+                    Log.error(errMsg);
+                    throw new RuntimeException(errMsg);
+                }
+
+                if(exitCode != 0) {
+                    String errMsg = "Training failed: exit code " + exitCode;
+
+                    Log.error(errMsg);
+                    throw new RuntimeException(errMsg);
+                }
+            } else {
+                Log.warn("Training file " + trainingPath + " not found.");
             }
         }
 
@@ -451,6 +424,249 @@ public class EMADLGenerator implements EMAMGenerator {
             generateCMakeFiles(EMAComponentSymbol);
 
         return generatedFiles;
+    }
+
+    /**
+     * This function hashes all dataset files, emadl and cnnt files.
+     * The hashes are packed into a JSON file and get saved to disk.
+     * @param architecture
+     * @param componentInstance
+     * @return JSONObject with the individual hashes of all files.
+     */
+    private JSONObject generateHashFile(Optional<ArchitectureSymbol> architecture, EMAComponentInstanceSymbol componentInstance) {
+
+        String componentConfigFilename = "hashes/hashes.json";
+        JSONObject newDatasetsHashes = new JSONObject();
+
+        List<File> datasets = architecture.get().getDataPaths().stream().map(File::new).map(
+                file -> file.listFiles((FilenameFilter) new WildcardFileFilter("*.json"))
+        ).flatMap(Arrays::stream).collect(Collectors.toList());
+        if(!datasets.isEmpty()){
+            String content = "";
+            for(File child : datasets){
+                try(FileInputStream inputStream = new FileInputStream(child.getAbsolutePath())) {
+                    content = IOUtils.toString(inputStream, Charset.defaultCharset());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException("Exception while reading dataset metadata " + child.getAbsolutePath());
+                }
+
+                JSONObject datasetMetadata = new JSONObject(content);
+
+                String datasetFilename = datasetMetadata.getString("id") + "." + datasetMetadata.getString("filetype");
+                datasetMetadata.put("hash", ChecksumGenerator.getChecksumForFileSHA1(child.getParent() + File.separator + datasetFilename));
+                datasetMetadata.put("path", new File(child.getParentFile(), datasetFilename).getAbsolutePath());
+                newDatasetsHashes.put(datasetMetadata.getString("id"), datasetMetadata);
+            }
+        } else {
+            Log.info("No metadata information about datasets found. Fallback to hashing all files.", this.getClass().getName());
+            datasets = architecture.get().getDataPaths().stream().map(File::new).map(
+                    file -> file.listFiles()).flatMap(Arrays::stream).collect(Collectors.toList());
+            for (File child : datasets) {
+                if(child.isDirectory()){
+                    continue;
+                }
+                String newChecksum = ChecksumGenerator.getChecksumForFileSHA1(child.getPath());
+
+                JSONObject datasetMetadata = new JSONObject();
+
+                String baseFileName = child.getName().split("\\.")[0];
+                if(baseFileName.equals("testing") || baseFileName.equals("test")){
+                    datasetMetadata.put("testing", true);
+                }
+                datasetMetadata.put("hash", newChecksum);
+                datasetMetadata.put("path", child.getAbsolutePath());
+                newDatasetsHashes.put(child.getName(), datasetMetadata);
+            }
+        }
+
+        String mainComponentConfigFilename = componentInstance.getComponentType().getFullName().replaceAll("\\.", "/");
+        String instanceConfigFilename = componentInstance.getFullName().replaceAll("\\.", "/") + "_" + componentInstance.getName();
+        String configFilename = getConfigFilename(mainComponentConfigFilename, componentInstance.getFullName().replaceAll("\\.", "/"), instanceConfigFilename);
+        String configFilepath = getModelsPath().concat(configFilename);
+        String emadlPath = configFilepath.concat(".emadl");
+        String cnntPath = configFilepath.concat(".conf");
+
+        JSONObject newHashes = new JSONObject();
+        newHashes.put("datasets", newDatasetsHashes);
+        newHashes.put("emadl", ChecksumGenerator.getChecksumForFileSHA1(emadlPath));
+        newHashes.put("cnnt", ChecksumGenerator.getChecksumForFileSHA1(cnntPath));
+
+        File newHashFile = getNewHashFile();
+        if(newHashFile.exists()){
+            newHashFile.delete();
+        }
+
+        try {
+            generateFile(new FileContent(newHashes.toString(), componentConfigFilename));
+        } catch (IOException e){
+            e.printStackTrace();
+            throw new RuntimeException("Could not write to file " + newHashFile.getAbsolutePath());
+        }
+
+        return newHashes;
+    }
+
+    /**
+     * Computes the changes between the last execution and the files of this execution.
+     * It will read the old_hashes.json file internally, where the old hashes are stored.
+     * @param architecture
+     * @param componentInstance
+     * @return change status of datasets and emadl files. True if something changed, false if nothing changed.
+     */
+    private boolean computeChanges(Optional<ArchitectureSymbol> architecture, EMAComponentInstanceSymbol componentInstance){
+        JSONObject oldHashes;
+        boolean executionNecessary = false;
+
+        try {
+            String fileContent = "";
+            try(FileInputStream hashInputStream = new FileInputStream(getGenerationTargetPath() + "hashes/hashes.json")) {
+                fileContent = IOUtils.toString(hashInputStream, Charset.defaultCharset());
+            }
+            oldHashes = new JSONObject(fileContent);
+        } catch (FileNotFoundException e){
+            Log.info("Execution necessary: Hashfile not found.", this.getClass().getName());
+            this.generateHashFile(architecture, componentInstance);
+            executionNecessary = true;
+            oldHashes = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Exception while reading old hash files");
+        }
+
+        JSONObject oldDatasetHashes;
+        if(oldHashes != null){
+            oldDatasetHashes = oldHashes.getJSONObject("datasets");
+        } else {
+            oldDatasetHashes = null;
+        }
+
+        JSONObject newHashes = this.generateHashFile(architecture, componentInstance);
+
+        for(String key : newHashes.keySet()){
+            if(!key.equals("datasets")){
+                if(oldHashes == null || !newHashes.getString(key).equalsIgnoreCase(oldHashes.getString(key))){
+                    Log.info("Input file " + key + " did change. Execution necessary", this.getClass().getName());
+                    executionNecessary = true;
+                } else {
+                    Log.debug("Input file " + key + " did not change.", this.getClass().getName());
+                }
+            }
+        }
+
+        JSONObject newDatasetHashes = newHashes.getJSONObject("datasets");
+        LinkedList<String> executionOrder = new LinkedList<>();
+
+        JSONObject retrainingConf = new JSONObject();
+
+        // Use kind of insertion sort to resolve references and determine execution order
+        for(String id : newDatasetHashes.keySet()) {
+            boolean testing = false;
+            try {
+                testing = newDatasetHashes.getJSONObject(id).getBoolean("testing");
+            } catch (JSONException e){
+                Log.debug("Found no testing flag. This does usually happen when using the old dataset style.", this.getClass().getName());
+            }
+
+            // Ignore testing dataset
+            if(!testing){
+                this.calculateExecutionOrder(executionOrder, newDatasetHashes, id);
+            } else {
+                retrainingConf.put("testing", newDatasetHashes.getJSONObject(id));
+            }
+        }
+
+        Log.info("Determined execution order: " + executionOrder, this.getClass().getName());
+
+        JSONArray changes = new JSONArray();
+        for (String id : executionOrder){
+            // Compute change
+            JSONObject changeContent = new JSONObject();
+            changeContent.put("id", id);
+            changeContent.put("path", newDatasetHashes.getJSONObject(id).getString("path"));
+            if(oldDatasetHashes == null) {
+                Log.info("Old dataset hashes not found. Execution required.", this.getClass().getName());
+                changeContent.put("retraining", true);
+                executionNecessary = true;
+            } else if(!oldDatasetHashes.has(id)){
+                Log.info("Dataset " + id + " has been added: Execution required.", this.getClass().getName());
+                changeContent.put("retraining", true);
+                executionNecessary = true;
+            } else if(!newDatasetHashes.getJSONObject(id).getString("hash")
+                    .equalsIgnoreCase(oldDatasetHashes.getJSONObject(id).getString("hash"))){
+                Log.info("Dataset " + id + " has changed: Execution required.", this.getClass().getName());
+                changeContent.put("retraining", true);
+                executionNecessary = true;
+            } else {
+                changeContent.put("retraining", false);
+                Log.debug("Dataset hasn't changed.", this.getClass().getName());
+            }
+
+            changes.put(changeContent);
+        }
+
+        retrainingConf.put("changes", changes);
+
+        // Write changes to file
+        String componentChangeFilename = "/conf/retraining.json";
+        try {
+            generateFile(new FileContent(retrainingConf.toString(), componentChangeFilename));
+        } catch (IOException e){
+            e.printStackTrace();
+            throw new RuntimeException("Could not write to file " + componentChangeFilename);
+        }
+
+        if(!executionNecessary){
+            Log.info("Execution not necessary: No files changed.", this.getClass().getName());
+        }
+        return executionNecessary;
+    }
+
+    private int calculateExecutionOrder(List<String> executionOrder, JSONObject datasets, String idToCheck){
+
+        // If id is already in executionOrder list, return the position.
+        int idIndex = executionOrder.indexOf(idToCheck);
+        if(idIndex != -1){
+            return idIndex;
+        }
+
+        JSONObject dataset = datasets.getJSONObject(idToCheck);
+
+        String reference = null;
+        try {
+            reference = dataset.getString("references");
+        } catch (JSONException e){
+            Log.debug("Found no reference flag. This does usually happen when using the old dataset style.", this.getClass().getName());
+        }
+
+        // If reference is null, add dataset at position 0 (has to be trained first).
+        if (reference == null) {
+            Log.debug("Dataset " + idToCheck + " has no reference. Will use it as base.", this.getClass().getName());
+            executionOrder.add(0, idToCheck);
+            return 0;
+        }
+
+        // Resolve reference
+        Log.debug("Dataset " + idToCheck + " has the reference " + reference + ". Trying to resolve reference...", this.getClass().getName());
+        int referenceIndex = executionOrder.indexOf(reference);
+        if (referenceIndex == -1) {
+            if(datasets.has(reference)){
+                referenceIndex = calculateExecutionOrder(executionOrder, datasets, reference);
+                if(referenceIndex != -1){
+                    executionOrder.add( referenceIndex + 1, idToCheck);
+                }
+                return referenceIndex + 1;
+            } else {
+                throw new RuntimeException("Reference " + reference + " of dataset not found. Please check your dataset configuration.");
+            }
+        } else {
+            executionOrder.add(referenceIndex + 1, idToCheck);
+            return referenceIndex + 1;
+        }
+    }
+
+    private File getNewHashFile(){
+        return Paths.get(this.getGenerationTargetPath(), "hashes", "new_hashes.json").toFile();
     }
 
     public List<File> generateCMakeFiles(EMAComponentInstanceSymbol componentInstanceSymbol) {
@@ -470,7 +686,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public File generateFile(FileContent fileContent) throws IOException {
         File f = new File(getGenerationTargetPath() + fileContent.getFileName());
-        Log.info(f.getName(), "FileCreation:");
+        Log.debug("FileCreation:" + f.getName(), this.getClass().getName());
         boolean contentEqual = false;
         //Actually slower than just saving and overwriting the file
         /*if (f.exists()) {
@@ -482,7 +698,7 @@ public class EMADLGenerator implements EMAMGenerator {
         if (!f.exists()) {
             f.getParentFile().mkdirs();
             if (!f.createNewFile()) {
-                Log.error("File could not be created");
+                Log.error("File could not be created: "+ f.getAbsolutePath());
             }
         }
 
@@ -501,29 +717,6 @@ public class EMADLGenerator implements EMAMGenerator {
                     .substring(1));
         }
         return stringBuffer.toString();
-    }
-
-    private boolean isAlreadyTrained(String trainingHash, EMAComponentInstanceSymbol componentInstance) {
-        try {
-            EMAComponentSymbol component = componentInstance.getComponentType().getReferencedSymbol();
-            String componentConfigFilename = component.getFullName().replaceAll("\\.", "/");
-
-            String checkFilePathString = getGenerationTargetPath() + componentConfigFilename + ".training_hash";
-            Path checkFilePath = Paths.get(checkFilePathString);
-            if (Files.exists(checkFilePath)) {
-                List<String> hashes = Files.readAllLines(checkFilePath);
-                for (String hash : hashes) {
-                    if (hash.equals(trainingHash)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-        catch(Exception e) {
-            return false;
-        }
     }
 
     public List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Set<EMAComponentInstanceSymbol> allInstances, String forced) {
@@ -545,7 +738,9 @@ public class EMADLGenerator implements EMAMGenerator {
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
-        fileContents.addAll(generateCNNTrainer(allInstances, instanceName));
+        if (!Backend.getBackendString(this.backend).equals("PYTORCH")) {
+            fileContents.addAll(generateCNNTrainer(allInstances, instanceName));
+        }
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
 
@@ -569,7 +764,7 @@ public class EMADLGenerator implements EMAMGenerator {
         return fileContents;
     }
 
-    protected String getDataPath(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
+    protected List<String> getDataPaths(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
         List<TagSymbol> instanceTags = new LinkedList<>();
 
         boolean isChildComponent = instance.getEnclosingComponent().isPresent();
@@ -594,26 +789,47 @@ public class EMADLGenerator implements EMAMGenerator {
         }
         else {
             tags = Stream
-                .concat(taggingResolver.getTags(component, DataPathSymbol.KIND).stream(), taggingResolver.getTags(component, DatasetArtifactSymbol.KIND).stream())
-                .collect(Collectors.toList());
+                    .concat(taggingResolver.getTags(component, DataPathSymbol.KIND).stream(), taggingResolver.getTags(component, DatasetArtifactSymbol.KIND).stream())
+                    .collect(Collectors.toList());
         }
-        String dataPath;
+        List<String> dataPaths = new LinkedList<>();
 
         if (!tags.isEmpty()) {
-            if (tags.get(0) instanceof DataPathSymbol) {
-                DataPathSymbol dataPathSymbol = (DataPathSymbol) tags.get(0);
-                DataPathCocos.check(dataPathSymbol);
+            for(TagSymbol tagSymbol : tags){
+                if (tagSymbol instanceof DataPathSymbol) {
+                    DataPathSymbol dataPathSymbol = (DataPathSymbol) tagSymbol;
+                    DataPathCocos.check(dataPathSymbol);
 
-                dataPath = dataPathSymbol.getPath();
-                Log.warn("Tagging info for DataPath symbol was found, ignoring data_paths.txt: " + dataPath);
-            }
-            else {
-                DatasetArtifactSymbol datasetArtifactSymbol = (DatasetArtifactSymbol) tags.get(0);
+                    String dataPath = dataPathSymbol.getPath();
+                    dataPaths.add(dataPath);
+                    Log.warn("Tagging info for DataPath symbol was found, ignoring data_paths.txt: " + dataPath);
+                }
+                else {
+                    DatasetArtifactSymbol datasetArtifactSymbol = (DatasetArtifactSymbol) tagSymbol;
 
-                String localRepo = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
-                dataPath = getArtifactDestination(localRepo, datasetArtifactSymbol.getArtifact(), datasetArtifactSymbol.getJar()) + File.separator + "training_data";
-                Log.warn("Tagging info for DatasetArtifact symbol was found, ignoring data_paths.txt: " + dataPath);
+                    String groupId = datasetArtifactSymbol.getGroupId();
+                    String artifactId = datasetArtifactSymbol.getArtifactId();
+                    String version = datasetArtifactSymbol.getVersion();
+                    DependencyInstaller.installDependency(groupId, artifactId, version);
 
+                    for(Pair<Path, String> mavenPackage : DependencyInstaller.resolveDependencies(groupId, artifactId, version)){
+                        Path dataPathPrefix = mavenPackage.getKey().resolve(mavenPackage.getValue() + "-dataset");
+                        try {
+                            unzipJar(dataPathPrefix.toString());
+                        } catch (IOException e){
+                            e.printStackTrace();
+                        }
+
+                        if(dataPathPrefix.resolve("training_data").toFile().exists()){
+                            dataPaths.add(dataPathPrefix.resolve("training_data").toString());
+                        } else if(dataPathPrefix.resolve( "data").toFile().exists()){
+                            dataPaths.add(dataPathPrefix.resolve("data").toString());
+                        } else {
+                            System.out.println(dataPathPrefix.resolve( "data").toString());
+                            throw new RuntimeException("No valid dataset artifact structure found for artifact " + groupId + ":" + artifactId + ":" + version);
+                        }
+                    }
+                }
             }
             stopGeneratorIfWarning();
 
@@ -623,15 +839,15 @@ public class EMADLGenerator implements EMAMGenerator {
             Path dataPathDefinition = Paths.get(getModelsPath(), "data_paths.txt");
             if (dataPathDefinition.toFile().exists()) {
                 DataPathConfigParser newParserConfig = new DataPathConfigParser(getModelsPath() + "data_paths.txt");
-                dataPath = newParserConfig.getDataPath(component.getFullName());
+                dataPaths.add(newParserConfig.getDataPath(component.getFullName()));
             } else {
                 Log.warn("No data path definition found in " + dataPathDefinition + " found: "
                         + "Set data path to default ./data path");
-                dataPath = "data";
+                dataPaths.add("data");
             }
         }
 
-        return dataPath;
+        return dataPaths;
     }
 
     protected String getWeightsPath(EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
@@ -642,8 +858,8 @@ public class EMADLGenerator implements EMAMGenerator {
             WeightsPathConfigParser newParserConfig = new WeightsPathConfigParser(getModelsPath() + "weights_paths.txt");
             weightsPath = newParserConfig.getWeightsPath(component.getFullName());
         } else {
-            Log.info("No weights path definition found in " + weightsPathDefinition + ": "
-                    + "No pretrained weights will be loaded.", "EMADLGenerator");
+            Log.debug("No weights path definition found in " + weightsPathDefinition + ": "
+                    + "No pretrained weights will be loaded.", this.getClass().getName());
             weightsPath = null;
         }
         return weightsPath;
@@ -688,22 +904,22 @@ public class EMADLGenerator implements EMAMGenerator {
         if (isChildComponent) {
             // get all instantiated components of parent
             List<EMAComponentInstantiationSymbol> instantiationSymbols = (List<EMAComponentInstantiationSymbol>) instance
-                .getEnclosingComponent().get().getComponentType().getReferencedSymbol().getSubComponents();
+                    .getEnclosingComponent().get().getComponentType().getReferencedSymbol().getSubComponents();
 
             // filter corresponding instantiation of instance and add tags
             instantiationSymbols.stream().filter(e -> e.getName().equals(instance.getName())).findFirst()
-                .ifPresent(symbol -> instanceTags.addAll(taggingResolver.getTags(symbol, LayerArtifactParameterSymbol.KIND)));
+                    .ifPresent(symbol -> instanceTags.addAll(taggingResolver.getTags(symbol, LayerArtifactParameterSymbol.KIND)));
         }
 
         List<TagSymbol> tags = !instanceTags.isEmpty() ? instanceTags
-            : (List<TagSymbol>) taggingResolver.getTags(component, LayerArtifactParameterSymbol.KIND);
+                : (List<TagSymbol>) taggingResolver.getTags(component, LayerArtifactParameterSymbol.KIND);
 
         HashMap layerArtifactParameterTags = new HashMap();
-        String localRepo = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
+        File localRepo = new MavenSettings().getLocalRepository();
         if (!tags.isEmpty()) {
             for(TagSymbol tag: tags) {
                 LayerArtifactParameterSymbol layerArtifactParameterSymbol = (LayerArtifactParameterSymbol) tag;
-                String path = getArtifactDestination(localRepo, layerArtifactParameterSymbol.getArtifact(), layerArtifactParameterSymbol.getJar());
+                String path = getArtifactDestination(localRepo.toString(), layerArtifactParameterSymbol.getArtifact(), layerArtifactParameterSymbol.getJar());
                 layerArtifactParameterTags.put(layerArtifactParameterSymbol.getId(), path);
             }
             stopGeneratorIfWarning();
@@ -787,13 +1003,15 @@ public class EMADLGenerator implements EMAMGenerator {
 
         EMADLCocos.checkAll(componentInstanceSymbol);
 
+
         if (architecture.isPresent()) {
             cnnArchGenerator.check(architecture.get());
-            String dPath = getDataPath(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
+            List<String> dPaths = getDataPaths(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
             String wPath = getWeightsPath(EMAComponentSymbol, componentInstanceSymbol);
             HashMap layerPathParameterTags = getLayerPathParameterTags(taggingResolver, EMAComponentSymbol, componentInstanceSymbol);
             layerPathParameterTags.putAll(getLayerArtifactParameterTags(taggingResolver, EMAComponentSymbol, componentInstanceSymbol));
-            architecture.get().setDataPath(dPath);
+            architecture.get().setDataPaths(dPaths);
+            architecture.get().setDataPath(dPaths.get(0));
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(EMAComponentSymbol.getFullName());
@@ -905,8 +1123,8 @@ public class EMADLGenerator implements EMAMGenerator {
             if (arrayBracketIndex != -1) {
                 generateComponentInstance = !instanceSymbol.getName().substring(0, arrayBracketIndex).equals(lastNameWithoutArrayPart);
                 lastNameWithoutArrayPart = instanceSymbol.getName().substring(0, arrayBracketIndex);
-                Log.info(lastNameWithoutArrayPart, "Without:");
-                Log.info(generateComponentInstance + "", "Bool:");
+                Log.info("Without: " + lastNameWithoutArrayPart, this.getClass().getName());
+                Log.info("Bool: " + generateComponentInstance, this.getClass().getName());
             }
             if (generateComponentInstance) {
                 generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol);
