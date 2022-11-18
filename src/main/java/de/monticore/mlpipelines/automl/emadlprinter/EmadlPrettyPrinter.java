@@ -22,7 +22,9 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         String archName = nameOptional.orElse("unnamed");
 
         this.printer.clearBuffer();
-        this.printer.println("component " + archName + "{");
+        this.printer.print("component " + archName);
+        this.printArchParams(arch);
+        this.printer.println("{");
         this.printer.indent();
         new PortPrinter(this.printer).printPorts(arch);
         this.printer.println("");
@@ -35,6 +37,9 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         this.printer.unindent();
         this.printer.println("}");
         return this.printer.getContent();
+    }
+
+    private void printArchParams(ArchitectureSymbol arch) {
     }
 
 

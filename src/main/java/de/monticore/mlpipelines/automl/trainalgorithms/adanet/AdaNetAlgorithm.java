@@ -1,5 +1,6 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
@@ -22,17 +23,18 @@ import java.util.List;
 public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private final CandidateFinder candidateFinder;
     private boolean stopAlgorithm = false;
-    private final CandidateEmadlBuilder candidateBuilder;
+    private final CandidateASTNodeBuilder candidateBuilder;
     private CandidateEvaluationResult bestCandidateResult;
+    private ArchitectureSymbol architectureSymbol;
+    private ASTArchitecture refASTArchitecture;
 
-    public AdaNetAlgorithm(String sourceModelPath) {
-        String generatedModelPath = sourceModelPath.substring(0, sourceModelPath.length() - 6) + "Generated.emadl";
-        this.candidateBuilder = new CandidateEmadlBuilder(sourceModelPath, generatedModelPath);
+    public AdaNetAlgorithm() {
+        this.candidateBuilder = new CandidateASTNodeBuilder();
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
         this.candidateFinder = new CandidateFinder(componentFinder);
     }
 
-    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateEmadlBuilder candidateBuilder) {
+    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateASTNodeBuilder candidateBuilder) {
         super();
         this.candidateFinder = candidateFinder;
         this.candidateBuilder = candidateBuilder;
@@ -46,19 +48,27 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
 
     @Override
     public ArchitectureSymbol execute(ArchitectureSymbol startNetwork) throws IllegalStateException {
+        this.architectureSymbol = startNetwork;
+        this.refASTArchitecture = (ASTArchitecture) startNetwork.getAstNode().orElse(null);
+
         if (getTrainPipeline() == null) {
             throw new IllegalStateException("Train pipeline not set");
         }
 
         createFirstCandidate();
+        executeIterations();
+
+        setCandidateForArchitecture(bestCandidateResult.getCandidate());
+        return architectureSymbol;
+    }
+
+    private void executeIterations() {
         for (int i = 1; i < AdaNetConfig.MAX_ITERATIONS; i++) {
             executeIteration();
             if (stopAlgorithm) {
                 break;
             }
         }
-
-        return null;
     }
 
     private void createFirstCandidate() {
@@ -69,8 +79,8 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     }
 
     private void executeIteration() {
-        AdaNetCandidate lastCandidate = bestCandidateResult.getCandidate();
-        List<AdaNetCandidate> candidates = candidateFinder.findCandidates(lastCandidate);
+        AdaNetCandidate bestCandidate = bestCandidateResult.getCandidate();
+        List<AdaNetCandidate> candidates = candidateFinder.findCandidates(bestCandidate);
         CandidateEvaluationResult bestNewCandidate = selectBestCandidate(candidates);
         if (bestNewCandidate.getScore() <= bestCandidateResult.getScore()) {
             this.stopAlgorithm = true;
@@ -79,10 +89,15 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
         bestCandidateResult = bestNewCandidate;
     }
 
+    private void setCandidateForArchitecture(AdaNetCandidate bestCandidate) {
+        ASTArchitecture currentCandidate = candidateBuilder.build(refASTArchitecture, bestCandidate);
+        architectureSymbol.setAstNode(currentCandidate);
+    }
+
     private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
-        ArchitectureSymbol candidateArchitecture = candidateBuilder.createArchitectureFromCandidate(candidate);
+        setCandidateForArchitecture(candidate);
         Configuration configuration = new Configuration();
-        this.getTrainPipeline().execute(candidateArchitecture, configuration);
+        this.getTrainPipeline().execute(architectureSymbol, configuration);
         float score = this.getTrainPipeline().getTrainedAccuracy();
         return new CandidateEvaluationResult(candidate, score);
     }

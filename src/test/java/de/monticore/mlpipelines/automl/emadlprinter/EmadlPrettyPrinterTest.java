@@ -4,7 +4,6 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
 import junit.framework.TestCase;
-import org.junit.Ignore;
 
 import java.util.List;
 
@@ -22,13 +21,25 @@ public class EmadlPrettyPrinterTest extends TestCase {
         }
     }
 
-    @Ignore
-    public void prettyPrintAdanet() {
-        ArchitectureSymbol arch = ModelLoader.load("src/test/resources/models/adanet/", "adanetBase.emadl");
+    public void testPrettyPrintAdanetStart() {
+        ArchitectureSymbol arch = ModelLoader.load("src/test/resources/models/adanet/", "adaNetStart");
         EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
         String[] emadl = printer.prettyPrint(arch).split("\n");
 
-        List<String> expectedEmadl = FileLoader.loadFile("src/test/resources/models/adanet/AdanetBase.emadl");
+        List<String> expectedEmadl = FileLoader.loadFile("src/test/resources/models/adanet/AdaNetStart.emadl");
+        assertEquals(expectedEmadl.size(), emadl.length);
+        for (int i = 0; i < emadl.length; i++) {
+            System.out.println(emadl[i]);
+            assertEquals(expectedEmadl.get(i), emadl[i]);
+        }
+    }
+
+    public void testPrettyPrintAdanetBase() {
+        ArchitectureSymbol arch = ModelLoader.load("src/test/resources/models/adanet/", "adaNetBase");
+        EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
+        String[] emadl = printer.prettyPrint(arch).split("\n");
+
+        List<String> expectedEmadl = FileLoader.loadFile("src/test/resources/models/adanet/AdaNetBase.emadl");
         assertEquals(expectedEmadl.size(), emadl.length);
         for (int i = 0; i < emadl.length; i++) {
             System.out.println(emadl[i]);

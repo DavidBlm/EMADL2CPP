@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 from reinforcement_learning.agent import DdpgAgent
 from reinforcement_learning.util import AgentSignalHandler
 from reinforcement_learning.cnnarch_logger import ArchLogger
@@ -98,10 +98,10 @@ if __name__ == "__main__":
         'critic': critic_creator.networks[0],
         'actor_optimizer': 'adam',
         'actor_optimizer_params': {
-            'learning_rate': 1.0E-4},
+        'learning_rate': 1.0E-4},
         'critic_optimizer': 'adam',
         'critic_optimizer_params': {
-            'learning_rate': 0.001},
+        'learning_rate': 0.001},
     }
 
     resume, resume_directory = resume_session(all_output_dir)
@@ -125,4 +125,4 @@ if __name__ == "__main__":
     train_successful = agent.train()
 
     if train_successful:
-        agent.export_best_network(path=actor_creator._model_dir_ + actor_creator._model_prefix_ + '_0_newest', epoch=0)
+        agent.export_best_network(path=str(actor_creator.get_model_dir(epoch=0) / 'model_0_newest'), epoch=0)
