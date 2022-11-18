@@ -1,6 +1,5 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
-import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.StreamInstructionSymbol;
@@ -31,7 +30,6 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private boolean stopAlgorithm = false;
     private CandidateEvaluationResult bestCandidateResult;
     private ArchitectureSymbol architectureSymbol;
-    private ASTArchitecture refASTArchitecture;
 
     public AdaNetAlgorithm() {
         this.candidateBuilder = new CandidateBuilder();
@@ -58,7 +56,6 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     @Override
     public ArchitectureSymbol execute(ArchitectureSymbol startNetwork) throws IllegalStateException {
         this.architectureSymbol = startNetwork;
-        this.refASTArchitecture = (ASTArchitecture) startNetwork.getAstNode().orElse(null);
 
         if (getTrainPipeline() == null) {
             throw new IllegalStateException("Train pipeline not set");
