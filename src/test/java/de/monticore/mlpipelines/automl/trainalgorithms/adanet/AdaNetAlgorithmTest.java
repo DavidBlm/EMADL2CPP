@@ -1,8 +1,11 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.StreamInstructionSymbol;
 import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.Pipeline;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.ParallelCompositeElementSymbolCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.CandidateEvaluationResult;
 import junit.framework.TestCase;
@@ -94,5 +97,19 @@ public class AdaNetAlgorithmTest extends TestCase {
         List<AdaNetComponent> previousComponents = evaluationResult.getCandidate().getPreviousComponents();
         assertEquals(0.2f, evaluationResult.getScore());
 
+    }
+
+    @Test
+    public void testExecuteReplacesAdaNet() {
+        ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
+        AdaNetAlgorithm adanet = new AdaNetAlgorithm();
+        Pipeline pipeline = mock(Pipeline.class);
+        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
+        adanet.setTrainPipeline(pipeline);
+        adanet.execute(arch);
+        StreamInstructionSymbol networkInstructionSymbol = (StreamInstructionSymbol) arch.getNetworkInstructions()
+                .get(0);
+        List<ArchitectureElementSymbol> elements = networkInstructionSymbol.getBody().getElements();
+        assertEquals(ParallelCompositeElementSymbolCustom.class, elements.get(1).getClass());
     }
 }

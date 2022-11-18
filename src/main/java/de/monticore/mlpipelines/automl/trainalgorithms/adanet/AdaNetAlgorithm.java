@@ -46,6 +46,10 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     }
 
 
+    public ArchitectureSymbol getArchitectureSymbol() {
+        return architectureSymbol;
+    }
+
     public CandidateEvaluationResult getBestCandidateResult() {
         return bestCandidateResult;
     }
