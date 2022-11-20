@@ -46,7 +46,7 @@ public abstract class AbstractWorkflow {
 
     public final void execute() throws IOException {
         // frontend
-        parseTrainingConfiguration(parentModelPath + rootModelName + ".conf");
+        final ASTConfLangCompilationUnit trainingConfiguration = parseTrainingConfiguration(parentModelPath + rootModelName + ".conf");
         parsePipelineConfiguration(parentModelPath + rootModelName + "Pipeline.conf");
         createSymbolTable();
 
@@ -58,6 +58,7 @@ public abstract class AbstractWorkflow {
         generateBackendArtefactsIntoExperiment();
         final LearningMethod learningMethod = LearningMethod.SUPERVISED;
         createPipeline(learningMethod);
+        pipeline.setConfigurationModel(trainingConfiguration);
         executePipeline();
 
         //  pipeline.readresults()

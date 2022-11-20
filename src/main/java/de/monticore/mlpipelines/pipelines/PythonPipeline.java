@@ -29,6 +29,7 @@ public class PythonPipeline extends Pipeline {
     }
 
     public void generateTrainingConfiguration() {
+        montiAnnaGenerator.generateTrainingConfiguration(this.trainingConfiguration);
     }
 
     public void generatePipelineExecutionScript() {
