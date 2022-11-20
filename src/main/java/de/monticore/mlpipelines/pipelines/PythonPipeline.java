@@ -1,7 +1,6 @@
-package de.monticore.mlpipelines.python;
+package de.monticore.mlpipelines.pipelines;
 
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
-import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 
 import java.nio.file.Path;

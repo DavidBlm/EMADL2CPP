@@ -1,4 +1,4 @@
-package de.monticore.mlpipelines;
+package de.monticore.mlpipelines.pipelines;
 
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 

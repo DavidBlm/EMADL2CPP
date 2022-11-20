@@ -10,7 +10,7 @@ import de.monticore.lang.monticar.semantics.Constants;
 import de.monticore.lang.monticar.semantics.ExecutionSemantics;
 import de.monticore.lang.monticar.semantics.construct.SymtabCreator;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
-import de.monticore.mlpipelines.Pipeline;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 import de.monticore.mlpipelines.backend.generation.MontiAnnaGenerator;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.parsing.ConfigurationLanguageParser;

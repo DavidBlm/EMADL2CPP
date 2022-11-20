@@ -3,6 +3,7 @@ package de.monticore.mlpipelines.python;
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
+import de.monticore.mlpipelines.pipelines.PythonPipeline;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
