@@ -1,9 +1,12 @@
 package de.monticore.mlpipelines.backend.generation;
 
+import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
+import de.monticore.mlpipelines.workflow.DummyWorkflow;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -15,7 +18,7 @@ class MontiAnnaGeneratorTest extends BackendTest {
     @Test
     void backendGenerationWithEMADLGenerator() {
         final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("./target/generated-sources-emadl");
-        final MontiAnnaContext montiAnnaContext = initialiseContext("mnist.mnistClassifier", experimentConfiguration);
+        final MontiAnnaContext montiAnnaContext = initialiseContext("src/test/resources/models/", "mnist.mnistClassifier", experimentConfiguration);
         new MontiAnnaGenerator(montiAnnaContext).generateTargetBackendArtefacts();
         checkFindingsCount();
 
@@ -33,4 +36,11 @@ class MontiAnnaGeneratorTest extends BackendTest {
                         "CNNPredictor_mnist_mnistClassifier_net.h"));
     }
 
+    @Test
+    void generateTrainingConfiguration() throws IOException {
+        final MontiAnnaContext montiAnnaContext = initialiseContext("src/test/resources/models/mnist/", "LeNetNetwork", null);
+        final String pathToTrainingConfiguration = montiAnnaContext.getParentModelPath() + montiAnnaContext.getRootModelName()+ ".conf";
+        final ASTConfLangCompilationUnit configurationModel = new DummyWorkflow().parseTrainingConfiguration(pathToTrainingConfiguration);
+        new MontiAnnaGenerator(montiAnnaContext).generateTrainingConfiguration(configurationModel);
+    }
 }
