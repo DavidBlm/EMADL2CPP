@@ -28,7 +28,7 @@ public abstract class AbstractWorkflow {
     private final String parentModelPath = montiAnnaContext.getParentModelPath();
     private final String rootModelName = montiAnnaContext.getRootModelName();
 
-    private MontiAnnaGenerator montiAnnaGenerator;
+    protected MontiAnnaGenerator montiAnnaGenerator;
 
     private Pipeline pipeline;
 
@@ -55,10 +55,11 @@ public abstract class AbstractWorkflow {
         backendSpecificValidations();
         //backend
         calculateExecutionSemantics();
-        generateBackendArtefactsIntoExperiment(); //predictor,  "network" ,
+        generateBackendArtefactsIntoExperiment();
         final LearningMethod learningMethod = LearningMethod.SUPERVISED;
         createPipeline(learningMethod);
         executePipeline();
+
         //  pipeline.readresults()
     }
 

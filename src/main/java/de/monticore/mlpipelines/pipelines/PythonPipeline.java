@@ -1,6 +1,7 @@
 package de.monticore.mlpipelines.pipelines;
 
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
+import de.monticore.mlpipelines.backend.generation.MontiAnnaGenerator;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 
 import java.nio.file.Path;
@@ -12,6 +13,12 @@ public class PythonPipeline extends Pipeline {
     //private PipelineGenerator
     private Path pathToExecutionScript;
 
+    private MontiAnnaGenerator montiAnnaGenerator;
+
+    public void setMontiAnnaGenerator(final MontiAnnaGenerator montiAnnaGenerator) {
+        this.montiAnnaGenerator = montiAnnaGenerator;
+    }
+
     public PythonPipeline(final LearningMethod learningMethod) {
         super(learningMethod);
     }
@@ -22,7 +29,6 @@ public class PythonPipeline extends Pipeline {
     }
 
     public void generateTrainingConfiguration() {
-
     }
 
     public void generatePipelineExecutionScript() {
