@@ -67,7 +67,8 @@ public class ComposedNetworkHandler {
             if (instanceSymbol != null
                     && networkStructureInformation.getSymbolReference() != null
                     //&& instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())) {
-                    && instanceSymbol.getComponentType().getName().equals(networkStructureInformation.getSymbolReference().getName())) {
+                    //&& instanceSymbol.getComponentType().getName().equals(networkStructureInformation.getSymbolReference().getName())) {
+                    && instanceSymbol.getComponentType().getReferencedSymbol().equals(networkStructureInformation.getSymbolReference().getReferencedSymbol())) {
                 ArchitectureSymbol fetchedSymbol = composeNetwork(networkStructureInformation,instanceSymbol);
                 if (fetchedSymbol != null){
                     return Optional.of(fetchedSymbol);
@@ -90,7 +91,8 @@ public class ComposedNetworkHandler {
     }
 
     public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfInstance(EMAComponentInstanceSymbol componentInstance){
-        if (isComposedNetBySymbolReference(componentInstance)){
+        //if (isComposedNetBySymbolReference(componentInstance)){
+        if (isComposedNet(componentInstance)){
             return fetchComposedNetworkArchitectureSymbol(componentInstance);
         } else {
             return componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);

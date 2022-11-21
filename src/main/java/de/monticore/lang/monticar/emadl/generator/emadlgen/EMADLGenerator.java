@@ -246,15 +246,14 @@ public class EMADLGenerator implements EMAMGenerator {
         processedArchitecture = new HashMap<>();
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol, false);
 
-
-        //ArrayList<EMAComponentInstanceSymbol> compositionsToRepeat = emadlCNNHandler.getCompositionsToRepeat();
+        /*
         if (compositionsToRepeat != null && this.compositionsToRepeat.size() > 0){
             for (EMAComponentInstanceSymbol instanceSymbol: compositionsToRepeat){
-                //generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol, true);
+                generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol, true);
             }
 
         }
-
+        */
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
         Log.info("Instance name: " + instanceName,"GENERATE_STRINGS");
@@ -308,13 +307,9 @@ public class EMADLGenerator implements EMAMGenerator {
         // set the path to AdaNet python files
         architecture.ifPresent(architectureSymbol -> {architectureSymbol.setAdaNetUtils(emadlFileHandler.getAdaNetUtils());});
         Optional<MathStatementsSymbol> mathStatements = emaComponentSymbol.getSpannedScope().resolve("MathStatements", MathStatementsSymbol.KIND);
-
         EMADLCocos.checkAll(componentInstanceSymbol);
 
-
-
         if (architecture.isPresent()) {
-
             emadlCNNHandler.getCnnArchGenerator().check(architecture.get());
             String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
@@ -325,36 +320,33 @@ public class EMADLGenerator implements EMAMGenerator {
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(emaComponentSymbol.getFullName());
             architecture.get().setUseDgl(getUseDgl());
+
             if(!emadlFileHandler.getCustomFilesPath().equals("")) {
                 architecture.get().setCustomPyFilesPath(emadlFileHandler.getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
             }
-            emadlCNNHandler.generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
+
+            if (!composedNetworkHandler.isPartOfComposedNet(componentInstanceSymbol)){
+                emadlCNNHandler.generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
+            }
+
+
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
             }
-        } /*else if (composedNetworkHandler.isComposedNet(emaComponentSymbol.getName())) {
-
-            String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
-            String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
-            HashMap layerPathParameterTags = emadlTaggingHandler.getLayerPathParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
-            layerPathParameterTags.putAll(emadlTaggingHandler.getLayerArtifactParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol));
-
-        }*/
-        else if (mathStatements.isPresent()){
+        } else if (mathStatements.isPresent()){
             generateMathComponent(fileContents, taggingResolver, componentInstanceSymbol, mathStatements.get());
-        }
-        else {
+        } else {
             generateSubComponents(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
         }
 
+        /*
         ArrayList<EMAComponentInstanceSymbol> compsToRepeat = composedNetworkHandler.getCompositionsToRepeat();
         for (EMAComponentInstanceSymbol instanceSymbol: compsToRepeat){
             if (!this.compositionsToRepeat.contains(instanceSymbol)){
                 this.compositionsToRepeat.add(instanceSymbol);
             }
         }
-
-
+        */
     }
 
 

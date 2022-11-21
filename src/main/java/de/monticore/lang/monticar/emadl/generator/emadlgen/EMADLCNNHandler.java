@@ -347,12 +347,10 @@ public class EMADLCNNHandler {
 
                 String cnnTrainGenInstanceName = componentInstance.getFullName().replaceAll("\\.", "_");
 
-
                 cnnTrainGenerator.setInstanceName(cnnTrainGenInstanceName);
                 List<FileContent> fileContentList = cnnTrainGenerator.generateStrings(trainingConfiguration,
                         trainingComponentsContainer, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null);
                 fileContents.addAll(fileContentList);
-
 
                 /*
                 List<FileContent> fileContentList = new ArrayList<>();
@@ -366,15 +364,13 @@ public class EMADLCNNHandler {
                 fileContentList.addAll(cnnTrainGenerator.generateStrings(trainingConfiguration,
                         trainingComponentsContainer, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null));
 
-
-
                 cnnTrainGenerator.setInstanceName(cnnTrainGenInstanceName);
                 fileContentList.addAll(cnnTrainGenerator.generateStrings(trainingConfiguration,
                         trainingComponentsContainer, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null));
 
-
-                 */
                 fileContents.addAll(fileContentList);
+                */
+
 
             }
         }
