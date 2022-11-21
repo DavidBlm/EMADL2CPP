@@ -45,6 +45,8 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private String composedNetworkFilePath = "";
 
+    private ArrayList<EMAComponentInstanceSymbol> compositionsToRepeat = new ArrayList<>();
+
 
 
     private boolean useDgl = false;
@@ -242,7 +244,17 @@ public class EMADLGenerator implements EMAMGenerator {
         }
 
         processedArchitecture = new HashMap<>();
-        generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
+        generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol, false);
+
+
+        //ArrayList<EMAComponentInstanceSymbol> compositionsToRepeat = emadlCNNHandler.getCompositionsToRepeat();
+        if (compositionsToRepeat != null && this.compositionsToRepeat.size() > 0){
+            for (EMAComponentInstanceSymbol instanceSymbol: compositionsToRepeat){
+                //generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol, true);
+            }
+
+        }
+
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
         Log.info("Instance name: " + instanceName,"GENERATE_STRINGS");
@@ -273,7 +285,8 @@ public class EMADLGenerator implements EMAMGenerator {
     protected void generateComponent(List<FileContent> fileContents,
                                      Set<EMAComponentInstanceSymbol> allInstances,
                                      TaggingResolver taggingResolver,
-                                     EMAComponentInstanceSymbol componentInstanceSymbol) {
+                                     EMAComponentInstanceSymbol componentInstanceSymbol, boolean composedNetRerun) {
+        boolean compRerun = composedNetRerun;
         emamGen.addSemantics(taggingResolver, componentInstanceSymbol);
 
         allInstances.add(componentInstanceSymbol);
@@ -284,13 +297,7 @@ public class EMADLGenerator implements EMAMGenerator {
         emaComponentSymbol.getFullName();
         /* */
 
-        //TODO: fix composed Net Null pointer problem here
         ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
-
-        if(composedNetworkHandler.isComposedNet(componentInstanceSymbol)) {
-            //composedNetworkHandler.refreshInformation(allInstances);
-            Log.info("","");
-        }
         composedNetworkHandler.processComponentInstances(allInstances);
 
         //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
@@ -339,6 +346,15 @@ public class EMADLGenerator implements EMAMGenerator {
         else {
             generateSubComponents(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
         }
+
+        ArrayList<EMAComponentInstanceSymbol> compsToRepeat = composedNetworkHandler.getCompositionsToRepeat();
+        for (EMAComponentInstanceSymbol instanceSymbol: compsToRepeat){
+            if (!this.compositionsToRepeat.contains(instanceSymbol)){
+                this.compositionsToRepeat.add(instanceSymbol);
+            }
+        }
+
+
     }
 
 
@@ -400,8 +416,10 @@ public class EMADLGenerator implements EMAMGenerator {
         */
 
         ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
+        //hashSet or ArrayList = composedNetworkHandler.sortComposedNetworksToEnd(componentInstanceSymbol.getSubComponents());
 
-        for (EMAComponentInstanceSymbol instanceSymbol : composedNetworkHandler.sortComposedNetworksToEnd(componentInstanceSymbol.getSubComponents())) {
+
+        for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) {
             int arrayBracketIndex = instanceSymbol.getName().indexOf("[");
             boolean generateComponentInstance = true;
             if (arrayBracketIndex != -1) {
@@ -411,7 +429,7 @@ public class EMADLGenerator implements EMAMGenerator {
                 Log.info(generateComponentInstance + "", "Bool:");
             }
             if (generateComponentInstance) {
-                generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol);
+                generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol,false);
             }
         }
     }

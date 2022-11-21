@@ -32,6 +32,9 @@ public class NetworkComposer {
                         break;
                     }
                 }
+                String composedFullName = composedNet.getEnclosingScope().getSpanningSymbol().get().getFullName() + ".";
+                ArchitectureSymbol sym = (ArchitectureSymbol) composedNet.getNetworkInstructions().get(0).getEnclosingScope().getSpanningSymbol().get();
+                sym.setFullName(composedFullName);
             }
         } catch (Exception e){
             Log.error("Generation of composed network failed");
@@ -49,12 +52,12 @@ public class NetworkComposer {
             ArrayList<String> dataFlowList = networkStructureInformation.getNetworkInstancesDataFlow();
             ArrayList<String> instanceOnlyDataFlow = new ArrayList<>();
             for (String net : dataFlowList){
-                String[] netSplit  = net.split("\\|");
-                if (netSplit.length == 2){
-                    instanceOnlyDataFlow.add(netSplit[1]);
-                }
+                    String[] netSplit  = net.split("\\|");
+                    if (netSplit.length == 2){
+                        instanceOnlyDataFlow.add(netSplit[1]);
+                    }
             }
-            networkStructureInformation.setNetworkInstancesDataFlow(instanceOnlyDataFlow);
+            //networkStructureInformation.setNetworkInstancesDataFlow(instanceOnlyDataFlow);
 
             for (String dataFlowElement : instanceOnlyDataFlow){
                 for (NetworkStructureInformation subnet : subnets){

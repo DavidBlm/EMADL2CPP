@@ -44,6 +44,8 @@ public class EMADLCNNHandler {
     private Map<String, ArchitectureSymbol> processedArch;
 
 
+
+
     public EMADLCNNHandler (EMADLGenerator emadlGen, Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi, String composedNetworkFilePath ) {
         emadlGenerator = emadlGen;
         cnnArchGenerator = emadlGenerator.getBackend().getCNNArchGenerator();
@@ -55,6 +57,8 @@ public class EMADLCNNHandler {
         this.processedArch = processedArch;
 
     }
+
+
 
     protected CNNArchGenerator getCnnArchGenerator() {
         return cnnArchGenerator;
@@ -323,7 +327,7 @@ public class EMADLCNNHandler {
                     EMAComponentInstanceSymbol processor_instance = emadlGenerator.resolveComponentInstanceSymbol(fullPreprocessorName, symtab);
                     processor_instance.setFullName("CNNPreprocessor_" + instanceName);
                     List<FileContent> processorContents = new ArrayList<>();
-                    emadlGenerator.generateComponent(processorContents, new HashSet<>(), symtab, processor_instance);
+                    emadlGenerator.generateComponent(processorContents, new HashSet<>(), symtab, processor_instance, false);
                     emadlFileHandler.fixArmadilloImports(processorContents);
 
                     for (FileContent fileContent : processorContents) {
@@ -341,12 +345,37 @@ public class EMADLCNNHandler {
                     trainingComponentsContainer.setPreprocessingComponentParameter(componentParameter);
                 }
 
-                cnnTrainGenerator.setInstanceName(componentInstance.getFullName().replaceAll("\\.", "_"));
+                String cnnTrainGenInstanceName = componentInstance.getFullName().replaceAll("\\.", "_");
+
+                /*
+                cnnTrainGenerator.setInstanceName(cnnTrainGenInstanceName);
                 List<FileContent> fileContentList = cnnTrainGenerator.generateStrings(trainingConfiguration,
                         trainingComponentsContainer, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null);
                 fileContents.addAll(fileContentList);
+                 */
+
+                List<FileContent> fileContentList = new ArrayList<>();
+
+                cnnTrainGenerator.setInstanceName(cnnTrainGenInstanceName + "_net1");
+                fileContentList.addAll(cnnTrainGenerator.generateStrings(trainingConfiguration,
+                        trainingComponentsContainer, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null));
+                //fileContents.addAll(fileContentList);
+
+                cnnTrainGenerator.setInstanceName(cnnTrainGenInstanceName + "_net2");
+                fileContentList.addAll(cnnTrainGenerator.generateStrings(trainingConfiguration,
+                        trainingComponentsContainer, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null));
+
+
+
+                cnnTrainGenerator.setInstanceName(cnnTrainGenInstanceName);
+                fileContentList.addAll(cnnTrainGenerator.generateStrings(trainingConfiguration,
+                        trainingComponentsContainer, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null));
+
+                fileContents.addAll(fileContentList);
+
             }
         }
+
         return fileContents;
     }
 }
