@@ -4,8 +4,11 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGenerator;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
 import de.monticore.lang.monticar.emadl.modularcnn.tools.ComposedNetworkFileHandler;
+import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.se_rwth.commons.logging.Log;
 
 import java.util.*;
@@ -15,6 +18,7 @@ public class ComposedNetworkHandler {
     private ArrayList<NetworkStructureInformation> composedNetworks;
     private NetworkComposer networkComposer;
     private NetworkDecomposer networkDecomposer;
+    private EMADLGenerator emadlGenerator = null;
 
     private ArrayList<EMAComponentInstanceSymbol> compositionsToRepeat =  new ArrayList<>();
 
@@ -24,6 +28,9 @@ public class ComposedNetworkHandler {
         this.networkComposer = new NetworkComposer();
         this.networkDecomposer = new NetworkDecomposer();
     }
+
+
+
 
     public String findConfigFileName(EMAComponentInstanceSymbol instanceSymbol){
         if (this.composedNetworks == null) return null;

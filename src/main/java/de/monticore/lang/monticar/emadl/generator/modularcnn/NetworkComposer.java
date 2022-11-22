@@ -1,9 +1,12 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGenerator;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
+import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.CommonScope;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.Scope;
@@ -14,6 +17,8 @@ import java.util.*;
 
 public class NetworkComposer {
 
+    EMADLGenerator emadlGenerator = null;
+    TaggingResolver taggingResolver = null;
     public NetworkComposer(){
 
     }
@@ -22,7 +27,7 @@ public class NetworkComposer {
 
         ArchitectureSymbol composedNet = null;
         try {
-            composedNet = generateNetworkLevel(networkStructureInformation,fromInstance);
+            composedNet = generateNetworkLevel(networkStructureInformation, fromInstance);
             if (composedNet != null){
                 composedNet.setComponentName(networkStructureInformation.getComponentName());
                 for (Scope scope : fromInstance.getEnclosingScope().getSubScopes()){
@@ -64,12 +69,13 @@ public class NetworkComposer {
                     if (!subnet.getInstanceSymbolName().equals(dataFlowElement)) continue;
 
                     if (subnet.isAtomic()) {
-                        if (subnet.getInstances() == null || subnet.getInstances().size() == 0) return null;
+                        //if (subnet.getInstances() == null || subnet.getInstances().size() == 0) return null;
                         //Optional<ArchitectureSymbol> architectureOpt = subnet.getInstances().get(0).getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                         Optional<ArchitectureSymbol> architectureOpt = fetchSubComponentInstanceArchitectureSymbol(subnet, fromInstance);
                         Log.info("","");
                         if (!architectureOpt.isPresent()){
-                            throw new Exception("Architecture symbol of atomic network missing");
+                            return null;
+                            //throw new Exception("Architecture symbol of atomic network missing");
                         } else{
                             subnet.setComposedNetworkArchitectureSymbol(architectureOpt.get());
                             subnetArchSymbols.add(architectureOpt.get());
@@ -260,7 +266,12 @@ public class NetworkComposer {
             for(EMAComponentInstanceSymbol instanceSymbol : networkStructureInformation.getInstances()){
                 if (symbol.getName().equals(instanceSymbol.getName())) return instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
             }
-            //return symbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+            if (symbol.getName().equals(networkStructureInformation.getInstanceSymbolName())){
+                Log.info("Fetched architecture symbol could be verified by instances of subnetwork (generator did not yet process it probably","NETWORK_COMPOSITION");
+                Optional<ArchitectureSymbol> architectureSymbol = symbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
+                //Optional<ArchitectureSymbol> architectureSymbol = Optional.empty();
+                return architectureSymbol;
+            }
         }
 
         return Optional.empty();
