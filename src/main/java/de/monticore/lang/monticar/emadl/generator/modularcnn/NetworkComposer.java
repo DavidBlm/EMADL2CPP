@@ -17,7 +17,7 @@ import java.util.*;
 
 public class NetworkComposer {
 
-    private Set<EMAComponentInstanceSymbol> instanceVault;
+    private Set<EMAComponentInstanceSymbol> instanceVault = null;
     public NetworkComposer(){
 
     }
