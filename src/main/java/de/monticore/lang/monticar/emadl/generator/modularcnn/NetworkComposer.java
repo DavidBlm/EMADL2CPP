@@ -72,13 +72,14 @@ public class NetworkComposer {
                     if (!subnet.getInstanceSymbolName().equals(dataFlowElement)) continue;
 
                     if (subnet.isAtomic()) {
-                        //if (subnet.getInstances() == null || subnet.getInstances().size() == 0) return null;
+                        if ( (subnet.getInstances() == null || subnet.getInstances().size() == 0 )
+                        && (instanceVault == null || instanceVault.size() == 0) ) return null;
                         //Optional<ArchitectureSymbol> architectureOpt = subnet.getInstances().get(0).getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                         Optional<ArchitectureSymbol> architectureOpt = fetchSubComponentInstanceArchitectureSymbol(subnet, fromInstance);
                         Log.info("","");
                         if (!architectureOpt.isPresent()){
-                            return null;
-                            //throw new Exception("Architecture symbol of atomic network missing");
+                            //return null;
+                            throw new Exception("Architecture symbol of atomic network missing");
                         } else{
                             subnet.setComposedNetworkArchitectureSymbol(architectureOpt.get());
                             subnetArchSymbols.add(architectureOpt.get());

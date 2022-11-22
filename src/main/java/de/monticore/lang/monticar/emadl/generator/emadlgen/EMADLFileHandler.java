@@ -303,8 +303,9 @@ public class EMADLFileHandler {
 
         Set<EMAComponentInstanceSymbol> newInstanceVault = new HashSet<>();
 
-        emadlGen.generateStrings( emadlGen.getEmadlTaggingHandler().getSymTabAndTaggingResolver(), EMAComponentSymbol, newInstanceVault, forced);
+        emadlGen.generateStrings(taggingResolver, EMAComponentSymbol, newInstanceVault, forced);
         this.instanceVault = newInstanceVault;
+        Log.clearFindings();
 
 
         List<FileContent> fileContents = emadlGen.generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);

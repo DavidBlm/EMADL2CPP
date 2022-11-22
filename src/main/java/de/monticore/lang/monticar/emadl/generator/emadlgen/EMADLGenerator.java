@@ -325,6 +325,7 @@ public class EMADLGenerator implements EMAMGenerator {
                 architecture.get().setCustomPyFilesPath(emadlFileHandler.getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
             }
 
+            //TODO: Check if useful here
             if (!composedNetworkHandler.isPartOfComposedNet(componentInstanceSymbol)){
                 emadlCNNHandler.generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             }
