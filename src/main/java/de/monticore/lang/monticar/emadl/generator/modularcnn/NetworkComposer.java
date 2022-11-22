@@ -17,8 +17,6 @@ import java.util.*;
 
 public class NetworkComposer {
 
-    EMADLGenerator emadlGenerator = null;
-    TaggingResolver taggingResolver = null;
     public NetworkComposer(){
 
     }
@@ -97,28 +95,7 @@ public class NetworkComposer {
             throw new Exception("Architecture Symbol Merge error: "  + "Not enough symbols to merge (at least 2 required)");
         }
 
-        /*
-        ArrayList<String> dataFlow = networkStructureInformation.getNetworkInstancesDataFlow();
-
-        if (dataFlow.size() < 3
-                || !dataFlow.get(0).equals(networkStructureInformation.getNetworkName())
-                || !dataFlow.get(dataFlow.size()-1).equals(networkStructureInformation.getNetworkName())){
-            throw new Exception("Architecture Symbol Merge error: "  + "DataFlow not correctly analyzed/given. Malformed networks probably.");
-        }
-
-        ArrayList<ArchitectureSymbol> dataFlowSymbols = new ArrayList<>();
-
-        for (int i = 1; i < dataFlow.size()-1; i++){
-            for(ArchitectureSymbol symbol : symbols){
-                String[] splitCompName = symbol.getComponentName().split("\\.");
-                String symbolNetComponentName = splitCompName[splitCompName.length-1];
-                if(dataFlow.get(i).equals(symbolNetComponentName)) dataFlowSymbols.add(symbol);
-            }
-        }
-         */
-
         ArrayList<ArchitectureSymbol> dataFlowSymbols = symbols;
-
         ArchitectureSymbol mergedArchitecture = new ArchitectureSymbol();
 
         ArrayList<ArchitectureSymbol> mergedAuxiliaryArchitecture = new ArrayList<>();
@@ -145,22 +122,11 @@ public class NetworkComposer {
             if (dataFlowSymbols.get(i).getNetworkInstructions() != null) {
                 mergedNetworkInstructions.addAll(dataFlowSymbols.get(i).getNetworkInstructions());
             }
-
-            /*
-            for (NetworkInstructionSymbol symbol : mergedNetworkInstructions){
-                ArchitectureElementSymbol first = symbol.getBody().getElements().get(0);
-                ArchitectureElementSymbol last = symbol.getBody().getElements().get(symbol.getBody().getElements().size()-1);
-                Log.info("first:" + first.toString(),"NETWORK_INSTRUCTION_MERGER");
-                Log.info("last:" + last.toString(),"NETWORK_INSTRUCTION_MERGER");
-            }
-            */
-
         }
 
         if ( !verifyEqualityString(mergedAdaNetUtils) || !verifyEqualityString(mergedCustomFilePaths) || !verifyEqualityString(mergedWeightPaths)|| !verifyEqualityBoolean(mergedUseDgls)){
             throw new Exception("Architecture Symbol Merge error: "  + "Path(s)/Boolean inequality");
         } else{
-
             if (mergedAdaNetUtils.size() > 0) mergedArchitecture.setAdaNetUtils(mergedAdaNetUtils.get(0));
             if (mergedCustomFilePaths.size() > 0) mergedArchitecture.setCustomPyFilesPath(mergedCustomFilePaths.get(0));
             if (mergedWeightPaths.size() > 0) mergedArchitecture.setWeightsPath(mergedWeightPaths.get(0));
@@ -178,7 +144,6 @@ public class NetworkComposer {
 
         mergedArchitecture.setLayerVariableDeclarations(mergedLayerVariableDeclarations);
         mergedArchitecture.setNetworkInstructions(mergeNetworkInstructionsToSingleInstruction(mergedNetworkInstructions));
-
 
         mergedArchitecture.setInputs(dataFlowSymbols.get(0).getInputs());
         mergedArchitecture.setOutputs(dataFlowSymbols.get(dataFlowSymbols.size()-1).getOutputs());
@@ -232,12 +197,9 @@ public class NetworkComposer {
                 currentElements.remove(0);
             }
 
-
             if (i != seperatedInstructions.size() - 1 && currentElements.size() > 1){
                 currentElements.remove(currentElements.size()-1);
             }
-
-
 
             targetElementSymbols.get(targetElementSymbols.size()-1).setOutputElement(currentElements.get(0));
             currentElements.get(0).setInputElement(targetElementSymbols.get(targetElementSymbols.size()-1));
@@ -273,7 +235,6 @@ public class NetworkComposer {
                 return architectureSymbol;
             }
         }
-
         return Optional.empty();
     }
 }

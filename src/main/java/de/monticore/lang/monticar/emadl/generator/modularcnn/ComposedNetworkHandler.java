@@ -18,7 +18,6 @@ public class ComposedNetworkHandler {
     private ArrayList<NetworkStructureInformation> composedNetworks;
     private NetworkComposer networkComposer;
     private NetworkDecomposer networkDecomposer;
-    private EMADLGenerator emadlGenerator = null;
 
     private ArrayList<EMAComponentInstanceSymbol> compositionsToRepeat =  new ArrayList<>();
 
@@ -28,9 +27,6 @@ public class ComposedNetworkHandler {
         this.networkComposer = new NetworkComposer();
         this.networkDecomposer = new NetworkDecomposer();
     }
-
-
-
 
     public String findConfigFileName(EMAComponentInstanceSymbol instanceSymbol){
         if (this.composedNetworks == null) return null;
