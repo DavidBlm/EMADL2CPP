@@ -10,7 +10,8 @@ public class ModelLoader {
     public static ArchitectureSymbol load(String modelFolderPath, String modelName){
         Scope symTab = createSymTab(modelFolderPath);
         EMAComponentInstanceSymbol c = symTab.<EMAComponentInstanceSymbol>resolve(modelName,
-                EMAComponentInstanceSymbol.KIND).orElse(null);
+                        EMAComponentInstanceSymbol.KIND)
+                .orElse(null);
 
         ArchitectureSymbol arch = c.getSpannedScope().<ArchitectureSymbol>resolve("", ArchitectureSymbol.KIND).get();
         return arch;

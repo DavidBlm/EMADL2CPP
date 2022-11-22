@@ -1,7 +1,10 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.lang.monticar.cnnarch._ast.ASTArchitectureBuilder;
+import de.monticore.lang.monticar.cnnarch._ast.CNNArchMill;
 import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.CandidateSymbolBuilder;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.LayerSymbolCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
@@ -15,8 +18,8 @@ import java.util.List;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class CandidateBuilderTest extends TestCase {
-    private final CandidateBuilder candidateBuilder = new CandidateBuilder();
+public class CandidateSymbolBuilderTest extends TestCase {
+    private final CandidateSymbolBuilder candidateBuilder = new CandidateSymbolBuilder();
 
     public void setUp() throws Exception {
         super.setUp();
@@ -57,6 +60,9 @@ public class CandidateBuilderTest extends TestCase {
         SerialCompositeElementSymbol firstLayerParallelElement = (SerialCompositeElementSymbol) firstLayer.getElements()
                 .get(0);
         LayerSymbolCustom layerSymbolCustom = (LayerSymbolCustom) firstLayerParallelElement.getElements().get(0);
+
+
+        ASTArchitectureBuilder astArchitectureBuilder = CNNArchMill.architectureBuilder();
         assertEquals(1, layerSymbolCustom.getArguments().size());
     }
 }
