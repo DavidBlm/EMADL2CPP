@@ -52,7 +52,6 @@ public class CandidateBuilder {
             int adanetElementIndex = getAdaNetElementIndex(symbolElements);
             symbolElements.set(adanetElementIndex, adaNetSymbol);
             astElements.set(adanetElementIndex, adaNetAST);
-            System.out.println("CandidateBuilder: setCandidateInArchitecture: " + adaNetSymbol.getName());
         } catch (RuntimeException e) {
             e.printStackTrace();
         }

@@ -1,10 +1,9 @@
-package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
+package de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder;
 
 import de.monticore.lang.monticar.cnnarch._ast.ASTArchitectureBuilder;
 import de.monticore.lang.monticar.cnnarch._ast.CNNArchMill;
 import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
-import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.CandidateSymbolBuilder;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.LayerSymbolCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
