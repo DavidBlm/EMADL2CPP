@@ -296,7 +296,7 @@ public class EMADLGenerator implements EMAMGenerator {
         emaComponentSymbol.getFullName();
         /* */
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath,emadlFileHandler.getInstanceVault());
         composedNetworkHandler.processComponentInstances(allInstances);
 
         //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
@@ -407,7 +407,7 @@ public class EMADLGenerator implements EMAMGenerator {
         sortedSymbols.addAll(composedNets);
         */
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
+        //ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
         //hashSet or ArrayList = composedNetworkHandler.sortComposedNetworksToEnd(componentInstanceSymbol.getSubComponents());
 
 

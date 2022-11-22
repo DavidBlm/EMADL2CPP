@@ -17,8 +17,13 @@ import java.util.*;
 
 public class NetworkComposer {
 
+    private Set<EMAComponentInstanceSymbol> instanceVault;
     public NetworkComposer(){
 
+    }
+
+    public NetworkComposer(Set<EMAComponentInstanceSymbol> instanceVault){
+        this.instanceVault = instanceVault;
     }
 
     public ArchitectureSymbol generateComposedNetwork(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance){
@@ -230,8 +235,13 @@ public class NetworkComposer {
             }
             if (symbol.getName().equals(networkStructureInformation.getInstanceSymbolName())){
                 Log.info("Fetched architecture symbol could be verified by instances of subnetwork (generator did not yet process it probably","NETWORK_COMPOSITION");
-                Optional<ArchitectureSymbol> architectureSymbol = symbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
-                //Optional<ArchitectureSymbol> architectureSymbol = Optional.empty();
+                if (instanceVault != null){
+                    for (EMAComponentInstanceSymbol instanceSymbol: instanceVault){
+                        if (symbol.getName().equals(instanceSymbol.getName())) return instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+                    }
+                }
+                //Optional<ArchitectureSymbol> architectureSymbol = symbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
+                Optional<ArchitectureSymbol> architectureSymbol = Optional.empty();
                 return architectureSymbol;
             }
         }

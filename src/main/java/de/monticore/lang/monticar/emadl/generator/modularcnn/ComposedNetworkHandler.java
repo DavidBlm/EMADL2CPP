@@ -20,12 +20,21 @@ public class ComposedNetworkHandler {
     private NetworkDecomposer networkDecomposer;
 
     private ArrayList<EMAComponentInstanceSymbol> compositionsToRepeat =  new ArrayList<>();
+    private Set<EMAComponentInstanceSymbol> instanceVault = null;
 
     public ComposedNetworkHandler(String composedNetworkFilePath) {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer();
         this.networkDecomposer = new NetworkDecomposer();
+    }
+
+    public ComposedNetworkHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault) {
+        this.composedNetworkFilePath = composedNetworkFilePath;
+        this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
+        this.networkComposer = new NetworkComposer(instanceVault);
+        this.networkDecomposer = new NetworkDecomposer();
+        this.instanceVault = instanceVault;
     }
 
     public String findConfigFileName(EMAComponentInstanceSymbol instanceSymbol){

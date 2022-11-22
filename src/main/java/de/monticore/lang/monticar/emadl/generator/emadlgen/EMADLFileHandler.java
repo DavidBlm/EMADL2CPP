@@ -42,10 +42,15 @@ public class EMADLFileHandler {
     private String rootConfigFileName = "";
 
     private String composedNetworksFilePath = "";
+    private Set<EMAComponentInstanceSymbol> instanceVault = null;
 
     public EMADLFileHandler(EMADLGenerator emadlGen, String composedNetworksFilePath){
         this.emadlGen =  emadlGen;
         this.composedNetworksFilePath = composedNetworksFilePath;
+    }
+
+    public Set<EMAComponentInstanceSymbol> getInstanceVault(){
+        return this.instanceVault;
     }
 
     protected String getAdaNetUtils() {
@@ -296,7 +301,12 @@ public class EMADLFileHandler {
     protected List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol EMAComponentSymbol, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
 
-        //TODO: Filter instances
+        Set<EMAComponentInstanceSymbol> newInstanceVault = new HashSet<>();
+
+        emadlGen.generateStrings(taggingResolver, EMAComponentSymbol, newInstanceVault, forced);
+        this.instanceVault = newInstanceVault;
+
+
         List<FileContent> fileContents = emadlGen.generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
 
@@ -316,7 +326,7 @@ public class EMADLFileHandler {
         List<FileContent> fileContentsTrainingHashes = new ArrayList<>();
         List<String> newHashes = new ArrayList<>();
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworksFilePath);
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworksFilePath, instanceVault);
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
         ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);
