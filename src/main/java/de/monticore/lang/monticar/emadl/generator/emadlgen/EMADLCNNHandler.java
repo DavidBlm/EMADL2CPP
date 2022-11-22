@@ -343,7 +343,7 @@ public class EMADLCNNHandler {
                     EMAComponentInstanceSymbol processor_instance = emadlGenerator.resolveComponentInstanceSymbol(fullPreprocessorName, symtab);
                     processor_instance.setFullName("CNNPreprocessor_" + instanceName);
                     List<FileContent> processorContents = new ArrayList<>();
-                    emadlGenerator.generateComponent(processorContents, new HashSet<>(), symtab, processor_instance, false);
+                    emadlGenerator.generateComponent(processorContents, new HashSet<>(), symtab, processor_instance);
                     emadlFileHandler.fixArmadilloImports(processorContents);
 
                     for (FileContent fileContent : processorContents) {

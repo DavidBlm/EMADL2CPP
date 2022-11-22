@@ -244,7 +244,7 @@ public class EMADLGenerator implements EMAMGenerator {
         }
 
         processedArchitecture = new HashMap<>();
-        generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol, false);
+        generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
 
         /*
         if (compositionsToRepeat != null && this.compositionsToRepeat.size() > 0){
@@ -284,8 +284,7 @@ public class EMADLGenerator implements EMAMGenerator {
     protected void generateComponent(List<FileContent> fileContents,
                                      Set<EMAComponentInstanceSymbol> allInstances,
                                      TaggingResolver taggingResolver,
-                                     EMAComponentInstanceSymbol componentInstanceSymbol, boolean composedNetRerun) {
-        boolean compRerun = composedNetRerun;
+                                     EMAComponentInstanceSymbol componentInstanceSymbol) {
         emamGen.addSemantics(taggingResolver, componentInstanceSymbol);
 
         allInstances.add(componentInstanceSymbol);
@@ -422,7 +421,7 @@ public class EMADLGenerator implements EMAMGenerator {
                 Log.info(generateComponentInstance + "", "Bool:");
             }
             if (generateComponentInstance) {
-                generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol,false);
+                generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol);
             }
         }
     }
