@@ -66,6 +66,22 @@ public class EMADLCNNHandler {
 
     protected void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture) {
         List<FileContent> contents = cnnArchGenerator.generateStrings(taggingResolver, architecture);
+
+        /*
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault());
+        if (composedNetworkHandler.isComposedNetByNetworkName(instance)){
+            ArrayList<ArchitectureSymbol> subnetArchSymbols = composedNetworkHandler.fetchSubnetworkArchitectureSymbols(instance);
+            for (ArchitectureSymbol architectureSymbol : subnetArchSymbols){
+                List<FileContent> extraContent = cnnArchGenerator.generateStrings(taggingResolver,architectureSymbol);
+                for (FileContent fileContent : extraContent){
+                    if (!contents.contains(fileContent)) {
+                        contents.add(fileContent);
+                    }
+                }
+            }
+        }
+        */
+
         String fullName = instance.getFullName().replaceAll("\\.", "_");
 
         //get the components execute method

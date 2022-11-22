@@ -9,6 +9,7 @@ import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
 import de.monticore.lang.monticar.emadl.modularcnn.tools.ComposedNetworkFileHandler;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
+import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 
 import java.util.*;
@@ -54,6 +55,18 @@ public class ComposedNetworkHandler {
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null
                     //&& instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())
                     && instanceSymbol.getComponentType().getName().equals(networkStructureInformation.getSymbolReference().getName())
+                    && !networkStructureInformation.isAtomic()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isComposedNetByNetworkName(EMAComponentInstanceSymbol instanceSymbol){
+        for (NetworkStructureInformation networkStructureInformation : composedNetworks){
+            if (instanceSymbol != null //&& networkStructureInformation.getSymbolReference() != null
+                    //&& instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())
+                    && instanceSymbol.getComponentType().getName().equals(networkStructureInformation.getNetworkName())
                     && !networkStructureInformation.isAtomic()) {
                 return true;
             }
@@ -202,6 +215,46 @@ public class ComposedNetworkHandler {
         return composedNetwork;
     }
 
+    public ArrayList<ArchitectureSymbol> fetchSubnetworkArchitectureSymbols(EMAComponentInstanceSymbol instanceSymbol){
+        ArrayList<ArchitectureSymbol> architectureSymbols = new ArrayList<>();
+        ArrayList<EMAComponentInstanceSymbol> foundInstanceSymbols = new ArrayList<>();
+
+        if (instanceVault == null || instanceVault.size() == 0) return architectureSymbols;
+
+
+
+        NetworkStructureInformation networkStructureInformation = null;
+
+        for (NetworkStructureInformation net : this.composedNetworks){
+            if (instanceSymbol.getComponentType().getReferencedSymbol()
+                    .getName().equals(instanceSymbol.getComponentType().getReferencedSymbol().getName())){
+                networkStructureInformation = net;
+                for (NetworkStructureInformation subnet: networkStructureInformation.getSubNetworks()){
+                    Map<String, Collection<Symbol>> symbols = instanceSymbol.getSpannedScope().getLocalSymbols();
+                    ArrayList<Symbol> symbolArrayList = (ArrayList<Symbol>) symbols.get(subnet.getInstanceSymbolName());
+                    for (Symbol sym : symbolArrayList){
+                        EMAComponentInstanceSymbol foundInstanceSymbol = (EMAComponentInstanceSymbol) sym;
+                        if (instanceSymbol.getName().equals(networkStructureInformation.getInstanceSymbolName()));{
+                            foundInstanceSymbols.add(foundInstanceSymbol);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (EMAComponentInstanceSymbol componentInstanceSymbol : foundInstanceSymbols){
+            for (EMAComponentInstanceSymbol vaultSymbol : instanceVault){
+                if (componentInstanceSymbol.getName().equals(vaultSymbol.getName())) {
+                    Optional<ArchitectureSymbol> optArch = componentInstanceSymbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
+                    if (optArch.isPresent()) architectureSymbols.add(optArch.get());
+                }
+            }
+        }
+
+        return architectureSymbols;
+    }
+
     /*
     public Set<EMAComponentInstanceSymbol> sortComposedNetworksToEnd(Set<EMAComponentInstanceSymbol> instanceSymbols) {
         if (instanceSymbols == null) return instanceSymbols;
@@ -268,10 +321,10 @@ public class ComposedNetworkHandler {
 
         return sortedComponents;
     }
-    */
+
 
     public ArrayList<EMAComponentInstanceSymbol> getCompositionsToRepeat() {
         return this.compositionsToRepeat;
     }
-
+    */
 }
