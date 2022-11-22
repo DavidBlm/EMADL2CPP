@@ -45,7 +45,6 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private String composedNetworkFilePath = "";
 
-    private ArrayList<EMAComponentInstanceSymbol> compositionsToRepeat = new ArrayList<>();
 
 
 
@@ -78,6 +77,10 @@ public class EMADLGenerator implements EMAMGenerator {
         return emadlTaggingHandler;
     }
 
+    protected EMADLCNNHandler getEmadlCNNHandler(){
+        return this.emadlCNNHandler;
+    }
+
     protected boolean getUseDgl() { return useDgl; }
 
     protected void setUseDgl(boolean useDgl){
@@ -95,6 +98,8 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
 
+
+
     public String getGenerationTargetPath() {
         return getEmamGen().getGenerationTargetPath();
     }
@@ -107,6 +112,8 @@ public class EMADLGenerator implements EMAMGenerator {
             getEmamGen().setGenerationTargetPath(generationTargetPath);
         }
     }
+
+
 
     //TODO: CNN parsing/generation
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws IOException, TemplateException {
@@ -295,7 +302,7 @@ public class EMADLGenerator implements EMAMGenerator {
         emaComponentSymbol.getFullName();
         /* */
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath,emadlFileHandler.getInstanceVault());
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(), emadlCNNHandler.getCachedComposedArchitectureSymbols());
         composedNetworkHandler.processComponentInstances(allInstances);
 
         //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
@@ -390,26 +397,6 @@ public class EMADLGenerator implements EMAMGenerator {
     protected void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) {
         fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol));
         String lastNameWithoutArrayPart = "";
-
-        /*
-        ArrayList<EMAComponentInstanceSymbol> composedNets = new ArrayList<>();
-        ArrayList<EMAComponentInstanceSymbol> otherComponents = new ArrayList<>();
-        ArrayList<EMAComponentInstanceSymbol> sortedSymbols = new ArrayList<>();
-
-
-
-        for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()){
-            if(composedNetworkHandler.isComposedNet(instanceSymbol)) composedNets.add(instanceSymbol);
-            else otherComponents.add(instanceSymbol);
-        }
-
-        sortedSymbols.addAll(otherComponents);
-        sortedSymbols.addAll(composedNets);
-        */
-
-        //ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath);
-        //hashSet or ArrayList = composedNetworkHandler.sortComposedNetworksToEnd(componentInstanceSymbol.getSubComponents());
-
 
         for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) {
             int arrayBracketIndex = instanceSymbol.getName().indexOf("[");

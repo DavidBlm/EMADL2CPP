@@ -1,7 +1,9 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAPortArraySymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGenerator;
@@ -17,32 +19,33 @@ import java.util.*;
 
 public class NetworkComposer {
 
+    private ComposedNetworkHandler composedNetworkHandler = null;
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
-    public NetworkComposer(){
+    private ArrayList<ArchitectureSymbol> f = null;
+    private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = new LinkedHashMap<>();
+
+    public NetworkComposer(ComposedNetworkHandler composedNetworkHandler, LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols){
+        this.composedNetworkHandler = composedNetworkHandler;
+        this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
 
     }
 
-    public NetworkComposer(Set<EMAComponentInstanceSymbol> instanceVault){
+    public NetworkComposer(ComposedNetworkHandler composedNetworkHandler, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols){
+        this.composedNetworkHandler = composedNetworkHandler;
         this.instanceVault = instanceVault;
+        this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
     }
 
     public ArchitectureSymbol generateComposedNetwork(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance){
+        Log.info("Cached Architecture Symbols: " + cachedComposedArchitectureSymbols.toString(),"NETWORK_COMPOSITION");
+        ArchitectureSymbol cachedSymbol = cachedComposedArchitectureSymbols.get(fromInstance.getFullName());
+        if (cachedSymbol != null) return cachedSymbol;
 
         ArchitectureSymbol composedNet = null;
         try {
             composedNet = generateNetworkLevel(networkStructureInformation, fromInstance);
             if (composedNet != null){
-                composedNet.setComponentName(networkStructureInformation.getComponentName());
-                for (Scope scope : fromInstance.getEnclosingScope().getSubScopes()){
-                    CommonScope commonScope = (CommonScope) scope;
-                    if(commonScope.getSpanningSymbol().get().getFullName().equals(fromInstance.getFullName())){
-                        composedNet.setEnclosingScope(commonScope);
-                        break;
-                    }
-                }
-                String composedFullName = composedNet.getEnclosingScope().getSpanningSymbol().get().getFullName() + ".";
-                ArchitectureSymbol sym = (ArchitectureSymbol) composedNet.getNetworkInstructions().get(0).getEnclosingScope().getSpanningSymbol().get();
-                sym.setFullName(composedFullName);
+                cachedComposedArchitectureSymbols.put(fromInstance.getFullName(), composedNet);
             }
         } catch (Exception e){
             Log.error("Generation of composed network failed");
@@ -54,6 +57,7 @@ public class NetworkComposer {
     }
 
     public ArchitectureSymbol generateNetworkLevel(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance) throws Exception {
+        Log.info("Generating Network Level","NETWORK_COMPOSITION");
         ArrayList<NetworkStructureInformation> subnets = networkStructureInformation.getSubNetworks();
         ArrayList<ArchitectureSymbol> subnetArchSymbols = new ArrayList<>();
         if (subnets != null && subnets.size() > 0){
@@ -76,7 +80,7 @@ public class NetworkComposer {
                         && (instanceVault == null || instanceVault.size() == 0) ) return null;
                         //Optional<ArchitectureSymbol> architectureOpt = subnet.getInstances().get(0).getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                         Optional<ArchitectureSymbol> architectureOpt = fetchSubComponentInstanceArchitectureSymbol(subnet, fromInstance);
-                        Log.info("","");
+                        Log.info("ArchitectureSymbol found:"+ architectureOpt.toString() ,"NETWORK_COMPOSITION");
                         if (!architectureOpt.isPresent()){
                             //return null;
                             throw new Exception("Architecture symbol of atomic network missing");
@@ -91,12 +95,100 @@ public class NetworkComposer {
             }
 
         }
-        return mergeArchitectureSymbols(subnetArchSymbols, networkStructureInformation);
+
+        ArchitectureSymbol composedNet = mergeArchitectureSymbols(subnetArchSymbols, networkStructureInformation);
+        fixScopesOfMergedArchitectureSymbol(composedNet, networkStructureInformation, fromInstance, subnetArchSymbols);
+        return composedNet;
+    }
+
+    private void fixScopesOfMergedArchitectureSymbol(ArchitectureSymbol composedNet, NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance, ArrayList<ArchitectureSymbol> subnetArchSymbols){
+        Log.info("FIXING_SCOPES","NETWORK_COMPOSITION");
+        if (composedNet == null || subnetArchSymbols.size() < 2) return;
+
+        composedNet.setComponentName(networkStructureInformation.getComponentName());
+        for (Scope scope : fromInstance.getEnclosingScope().getSubScopes()){
+            CommonScope commonScope = (CommonScope) scope;
+            if(commonScope.getSpanningSymbol().get().getFullName().equals(fromInstance.getFullName())){
+                composedNet.setEnclosingScope(commonScope);
+                break;
+            }
+        }
+
+        String composedFullName = composedNet.getEnclosingScope().getSpanningSymbol().get().getFullName() + ".";
+        ArchitectureSymbol sym = (ArchitectureSymbol) composedNet.getNetworkInstructions().get(0).getEnclosingScope().getSpanningSymbol().get();
+        sym.setFullName(composedFullName);
+
+        MutableScope enclosingScope = composedNet.getEnclosingScope().getAsMutableScope();
+
+
+        Map<String,Collection<Symbol>> composedNetSymbols = composedNet.getEnclosingScope().getLocalSymbols();
+        ArrayList<Symbol> toRemove = new ArrayList<>();
+        for (String key : composedNetSymbols.keySet() ) {
+            ArrayList<Symbol> symbolArrayList = (ArrayList<Symbol>) composedNetSymbols.get(key);
+            for(Symbol symbol : symbolArrayList){
+                toRemove.add(symbol);
+            }
+        }
+
+        for (Symbol symbol : toRemove){
+            enclosingScope.remove(symbol);
+        }
+
+
+
+        List<CommonScope> composedNetSubScopes = (List<CommonScope>) composedNet.getEnclosingScope().getAsMutableScope().getSubScopes();
+        for (CommonScope subScope: composedNetSubScopes){
+            enclosingScope.removeSubScope(subScope);
+        }
+
+
+
+        for (int i = 0; i < subnetArchSymbols.size(); i++){
+            if (i==0){
+                composedNet.getSpannedScope().getAsMutableScope().setAstNode(subnetArchSymbols.get(i).getAstNode().get());
+                composedNet.setAstNode(subnetArchSymbols.get(i).getAstNode().get());
+            }
+
+            Map<String,Collection<Symbol>> symbols = subnetArchSymbols.get(i).getEnclosingScope().getLocalSymbols();
+            for (String key : symbols.keySet() ) {
+                ArrayList<Symbol> symbolArrayList = (ArrayList<Symbol>) symbols.get(key);
+                for(Symbol symbol : symbolArrayList){
+                    if (i == 0 ){
+                        if (symbol instanceof EMAPortInstanceSymbol && !((EMAPortInstanceSymbol) symbol).isIncoming() ){
+                            continue;
+                        } else if (symbol instanceof EMAPortArraySymbol && !((EMAPortArraySymbol) symbol).isIncoming()) {
+                            continue;
+                        }
+                    }
+
+                    if (i == subnetArchSymbols.size()-1 ){
+                        if (symbol instanceof EMAPortInstanceSymbol && ((EMAPortInstanceSymbol) symbol).isIncoming() ){
+                            continue;
+                        } else if (symbol instanceof EMAPortArraySymbol && ((EMAPortArraySymbol) symbol).isIncoming()) {
+                            continue;
+                        }
+                    }
+
+                    if (symbol instanceof ArchitectureSymbol){
+                        continue;
+                    }
+                    enclosingScope.add(symbol);
+                }
+            }
+
+            enclosingScope.add(composedNet);
+
+            List<CommonScope> subScopes = (List<CommonScope>) subnetArchSymbols.get(i).getEnclosingScope().getSubScopes();
+            for (CommonScope subScope: subScopes){
+                //enclosingScope.addSubScope(subScope);
+            }
+        }
+        Log.info("Fixed Scope", "NETWORK_COMPOSITION");
     }
 
 
     private ArchitectureSymbol mergeArchitectureSymbols(ArrayList<ArchitectureSymbol> symbols,NetworkStructureInformation networkStructureInformation) throws Exception {
-
+        Log.info("Merging Architecture Symbols","NETWORK_COMPOSITION");
         if (symbols == null || symbols.size() < 2) {
             throw new Exception("Architecture Symbol Merge error: "  + "Not enough symbols to merge (at least 2 required)");
         }
@@ -157,37 +249,10 @@ public class NetworkComposer {
         return mergedArchitecture;
     }
 
-    private boolean verifyEqualityString(ArrayList<String> list){
-        if (list.size() == 0) return true;
 
-        String current = null;
-        for (String elem:list){
-            if (current == null) current = elem;
-            else{
-                if (!elem.equals(current)) return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean verifyEqualityBoolean(ArrayList<Boolean> list){
-        if (list.size() == 0) return true;
-
-        boolean currentSet = false;
-        boolean current = false;
-        for (Boolean elem: list){
-            if (currentSet == false) {
-                currentSet = true;
-                current = elem;
-            }
-            else{
-                if (current != elem) return false;
-            }
-        }
-        return true;
-    }
 
     private ArrayList<NetworkInstructionSymbol> mergeNetworkInstructionsToSingleInstruction(ArrayList<NetworkInstructionSymbol> seperatedInstructions){
+        Log.info("Merging Network Instructions to single Instruction","NETWORK_COMPOSITION");
         if (seperatedInstructions.size() < 2) return seperatedInstructions;
 
         ArrayList<NetworkInstructionSymbol> mergedInstructions = new ArrayList<>();
@@ -217,6 +282,7 @@ public class NetworkComposer {
     }
 
     private Optional<ArchitectureSymbol> fetchSubComponentInstanceArchitectureSymbol(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance){
+        Log.info("Fetching subcomponent Architecture Symbol","NETWORK_COMPOSITION");
         Map<String, Collection<Symbol>> symbols = fromInstance.getSpannedScope().getLocalSymbols();
         ArrayList<Symbol> symbolArrayList = (ArrayList<Symbol>)symbols.get(networkStructureInformation.getInstanceSymbolName());
 
@@ -232,13 +298,13 @@ public class NetworkComposer {
 
         if (symbol != null){
             for(EMAComponentInstanceSymbol instanceSymbol : networkStructureInformation.getInstances()){
-                if (symbol.getName().equals(instanceSymbol.getName())) return instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+                if (symbol.getName().equals(instanceSymbol.getName())) return this.composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
             }
             if (symbol.getName().equals(networkStructureInformation.getInstanceSymbolName())){
                 Log.info("Fetched architecture symbol could be verified by instances of subnetwork (generator did not yet process it probably","NETWORK_COMPOSITION");
                 if (instanceVault != null){
                     for (EMAComponentInstanceSymbol instanceSymbol: instanceVault){
-                        if (symbol.getName().equals(instanceSymbol.getName())) return instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+                        if (symbol.getName().equals(instanceSymbol.getName())) return this.composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     }
                 }
                 //Optional<ArchitectureSymbol> architectureSymbol = symbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
@@ -247,5 +313,35 @@ public class NetworkComposer {
             }
         }
         return Optional.empty();
+    }
+
+    private boolean verifyEqualityString(ArrayList<String> list){
+        if (list.size() == 0) return true;
+
+        String current = null;
+        for (String elem:list){
+            if (current == null) current = elem;
+            else{
+                if (!elem.equals(current)) return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean verifyEqualityBoolean(ArrayList<Boolean> list){
+        if (list.size() == 0) return true;
+
+        boolean currentSet = false;
+        boolean current = false;
+        for (Boolean elem: list){
+            if (currentSet == false) {
+                currentSet = true;
+                current = elem;
+            }
+            else{
+                if (current != elem) return false;
+            }
+        }
+        return true;
     }
 }

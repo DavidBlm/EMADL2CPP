@@ -23,19 +23,25 @@ public class ComposedNetworkHandler {
     private ArrayList<EMAComponentInstanceSymbol> compositionsToRepeat =  new ArrayList<>();
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
 
-    public ComposedNetworkHandler(String composedNetworkFilePath) {
+    private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
+
+    public ComposedNetworkHandler(String composedNetworkFilePath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols) {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
-        this.networkComposer = new NetworkComposer();
+        this.networkComposer = new NetworkComposer(this, cachedComposedArchitectureSymbols);
         this.networkDecomposer = new NetworkDecomposer();
+        this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
     }
 
-    public ComposedNetworkHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault) {
+    public ComposedNetworkHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols) {
+        //if (instanceVault == null) throw new RuntimeException();
+
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
-        this.networkComposer = new NetworkComposer(instanceVault);
+        this.networkComposer = new NetworkComposer(this, instanceVault, cachedComposedArchitectureSymbols);
         this.networkDecomposer = new NetworkDecomposer();
         this.instanceVault = instanceVault;
+        this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
     }
 
     public String findConfigFileName(EMAComponentInstanceSymbol instanceSymbol){

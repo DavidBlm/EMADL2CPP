@@ -52,11 +52,7 @@ public class ModularTest extends AbstractSymtabTest {
                 assertFalse(true);
                 throw new RuntimeException();
             }
-
-
-
         }
-
     }
 
 
@@ -75,7 +71,7 @@ public class ModularTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         removeTrainingHash("target/modularNetworkComplex");
         String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkComplex", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args,6,false);
+        runGenerator(args,12,false);
     }
 
     @Test
@@ -83,7 +79,7 @@ public class ModularTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         removeTrainingHash("target/modularNetworkSimple");
         String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkSimple", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args,6,false);
+        runGenerator(args,12,false);
     }
 
     @Test
