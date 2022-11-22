@@ -1,4 +1,4 @@
-package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
+package de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder;
 
 import de.monticore.lang.math._symboltable.JSValue;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
@@ -15,7 +15,7 @@ import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.ParallelCan
 import java.util.ArrayList;
 import java.util.List;
 
-public class CandidateBuilder {
+public class CandidateSymbolBuilder {
     AdaNetCandidate candidate;
 
     public ArchitectureElementSymbol build(AdaNetCandidate candidate) {

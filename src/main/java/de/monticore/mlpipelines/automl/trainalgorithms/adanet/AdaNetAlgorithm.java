@@ -6,6 +6,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.StreamInstructionSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.CandidateSymbolBuilder;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.CandidateEvaluationResult;
@@ -26,18 +27,18 @@ import java.util.List;
 
 public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private final CandidateFinder candidateFinder;
-    private final CandidateBuilder candidateBuilder;
+    private final CandidateSymbolBuilder candidateBuilder;
     private boolean stopAlgorithm = false;
     private CandidateEvaluationResult bestCandidateResult;
     private ArchitectureSymbol architectureSymbol;
 
     public AdaNetAlgorithm() {
-        this.candidateBuilder = new CandidateBuilder();
+        this.candidateBuilder = new CandidateSymbolBuilder();
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
         this.candidateFinder = new CandidateFinder(componentFinder);
     }
 
-    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateBuilder candidateBuilder) {
+    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateSymbolBuilder candidateBuilder) {
         super();
         this.candidateFinder = candidateFinder;
         this.candidateBuilder = candidateBuilder;
