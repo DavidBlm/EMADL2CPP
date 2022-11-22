@@ -24,4 +24,9 @@ public class ModelLoaderTest extends TestCase {
         ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
         assertNotNull(arch);
     }
+
+    public void testLoadAdaNetStart() {
+        ArchitectureSymbol arch = ModelLoader.loadAdaNetStart();
+        assertNotNull(arch);
+    }
 }
