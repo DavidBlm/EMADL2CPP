@@ -259,15 +259,6 @@ public class EMADLGenerator implements EMAMGenerator {
         processedArchitecture = new HashMap<>();
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
 
-        /*
-        if (compositionsToRepeat != null && this.compositionsToRepeat.size() > 0){
-            for (EMAComponentInstanceSymbol instanceSymbol: compositionsToRepeat){
-                generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol, true);
-            }
-
-        }
-        */
-
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
         Log.info("Instance name: " + instanceName,"GENERATE_STRINGS");
         fileContents.addAll(emadlCNNHandler.generateCNNTrainer(allInstances, instanceName));
@@ -353,15 +344,6 @@ public class EMADLGenerator implements EMAMGenerator {
         } else {
             generateSubComponents(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
         }
-
-        /*
-        ArrayList<EMAComponentInstanceSymbol> compsToRepeat = composedNetworkHandler.getCompositionsToRepeat();
-        for (EMAComponentInstanceSymbol instanceSymbol: compsToRepeat){
-            if (!this.compositionsToRepeat.contains(instanceSymbol)){
-                this.compositionsToRepeat.add(instanceSymbol);
-            }
-        }
-        */
     }
 
 

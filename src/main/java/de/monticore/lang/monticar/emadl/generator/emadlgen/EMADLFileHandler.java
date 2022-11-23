@@ -519,23 +519,6 @@ public class EMADLFileHandler {
             Log.error("RootConfigFileError: " + e.getMessage());
 
         }
-
-        /*
-        String trainConfigFilename = "";
-        if (Files.exists(Paths.get(getModelsPath() + instanceConfigFilename + ".conf"))) {
-            trainConfigFilename = instanceConfigFilename;
-        } else if (Files.exists(Paths.get(getModelsPath() + componentConfigFilename + ".conf"))) {
-            trainConfigFilename = componentConfigFilename;
-        } else if (Files.exists(Paths.get(getModelsPath() + mainComponentConfigFilename + ".conf"))) {
-            trainConfigFilename = mainComponentConfigFilename;
-        } else {
-            return;
-        }
-
-        Log.info("Setting RootConfFileValue to: " + trainConfigFilename, "ROOT_CONFIG_FILE_SET");
-        rootConfigFileName = trainConfigFilename;
-        */
-
     }
 
     public String getConfigFilename(String mainComponentConfigFilename, String componentConfigFilename, String instanceConfigFilename) {

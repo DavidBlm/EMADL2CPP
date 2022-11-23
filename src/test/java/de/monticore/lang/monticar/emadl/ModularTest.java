@@ -32,6 +32,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void runGenerator(String[] args, int expectedFindings, boolean exceptionAllowed){
 
         try {
+            removeDirectory("model/");
             EMADLGeneratorCli.main(args);
             checkFindingsCount(expectedFindings);
 
@@ -60,7 +61,7 @@ public class ModularTest extends AbstractSymtabTest {
     @Test
     public void testEmtpyNetwork() throws IOException {
         Log.getFindings().clear();
-        removeTrainingHash("target/emptyNetwork");
+        removeDirectory("target/emptyNetwork");
         String[] args = {"-m", "src/test/resources/models/ModularMNIST/emptyNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args,0,true);
 
@@ -69,7 +70,7 @@ public class ModularTest extends AbstractSymtabTest {
     @Test
     public void testModularNetworkComplex() throws IOException {
         Log.getFindings().clear();
-        removeTrainingHash("target/modularNetworkComplex");
+        removeDirectory("target/modularNetworkComplex");
         String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkComplex", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args,12,false);
     }
@@ -77,7 +78,7 @@ public class ModularTest extends AbstractSymtabTest {
     @Test
     public void testModularNetworkSimple() throws IOException {
         Log.getFindings().clear();
-        removeTrainingHash("target/modularNetworkSimple");
+        removeDirectory("target/modularNetworkSimple");
         String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkSimple", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args,12,false);
     }
@@ -85,20 +86,20 @@ public class ModularTest extends AbstractSymtabTest {
     @Test
     public void testSingleNetwork() throws IOException {
         Log.getFindings().clear();
-        removeTrainingHash("target/singleNetwork");
+        removeDirectory("target/singleNetwork");
         String[] args = {"-m", "src/test/resources/models/ModularMNIST/singleNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args,12,false);
+        runGenerator(args,72,false);
     }
 
 
     public void removeMultipleTrainingHashes(String[] hashPaths)throws IOException{
         for (String path:hashPaths){
-            removeTrainingHash(path);
+            removeDirectory(path);
         }
 
     }
 
-    public void removeTrainingHash(String path) throws IOException{
+    public void removeDirectory(String path) throws IOException{
         if (path.equals("")) {
             Log.info("Path empty","IO_INFO");
             return;
@@ -111,7 +112,7 @@ public class ModularTest extends AbstractSymtabTest {
         }
 
         for (File file: files.listFiles()){
-            if (file.isDirectory())removeTrainingHash(file.getPath());
+            if (file.isDirectory()) removeDirectory(file.getPath());
 
             boolean success = file.delete();
             if (!success) throw new IOException("File could not be deleted:" + file.toString());
