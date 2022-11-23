@@ -1,7 +1,7 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder;
 
 import de.monticore.lang.monticar.cnnarch._ast.ASTParallelBlock;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
 import junit.framework.TestCase;
@@ -25,9 +25,8 @@ public class CandidateASTBuilderTest extends TestCase {
     @Test
     public void testBuildOutputsNotNull() {
         CandidateASTBuilder candidateASTBuilder = new CandidateASTBuilder();
-        AdaNetCandidate candidate = new AdaNetCandidate(new AdaNetComponent(3), new ArrayList<>());
-        ArchitectureElementSymbol adanetSymbol = mock(ArchitectureElementSymbol.class);
-        ASTParallelBlock adanetAst = candidateASTBuilder.build(candidate, adanetSymbol);
+        ParallelCompositeElementSymbol adanetSymbol = mock(ParallelCompositeElementSymbol.class);
+        ASTParallelBlock adanetAst = candidateASTBuilder.build(adanetSymbol);
         assertNotNull(adanetAst);
     }
 
@@ -36,9 +35,9 @@ public class CandidateASTBuilderTest extends TestCase {
         CandidateASTBuilder candidateASTBuilder = new CandidateASTBuilder();
         AdaNetCandidate candidate = new AdaNetCandidate(new AdaNetComponent(3), new ArrayList<>());
         CandidateSymbolBuilder candidateSymbolBuilder = new CandidateSymbolBuilder();
-        ArchitectureElementSymbol adanetSymbol = candidateSymbolBuilder.build(candidate);
+        ParallelCompositeElementSymbol adanetSymbol = candidateSymbolBuilder.build(candidate);
 
-        ASTParallelBlock adanetAst = candidateASTBuilder.build(candidate, adanetSymbol);
+        ASTParallelBlock adanetAst = candidateASTBuilder.build(adanetSymbol);
         assertNotNull(adanetAst);
     }
 }
