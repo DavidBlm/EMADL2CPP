@@ -1,10 +1,9 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder;
 
 import de.monticore.lang.monticar.cnnarch._ast.*;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.LayerSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.*;
+
+import java.util.List;
 
 public class CandidateASTBuilder {
     ParallelCompositeElementSymbol adanetSymbol;
@@ -37,11 +36,12 @@ public class CandidateASTBuilder {
         builder.setSymbol(symbol);
         for (ArchitectureElementSymbol element : symbol.getElements()) {
             if (element instanceof ParallelCompositeElementSymbol) {
-                ASTParallelBlock elementGroup = createASTParallelBlockForSymbol(
-                        (ParallelCompositeElementSymbol) element);
+                ParallelCompositeElementSymbol castedElement = (ParallelCompositeElementSymbol) element;
+                ASTParallelBlock elementGroup = createASTParallelBlockForSymbol(castedElement);
                 builder.addElements(elementGroup);
             } else if (element instanceof LayerSymbol) {
-                ASTLayer layer = createLayerForElement((LayerSymbol) element);
+                LayerSymbol castedElement = (LayerSymbol) element;
+                ASTLayer layer = createLayerForElement(castedElement);
                 builder.addElements(layer);
             }
         }
@@ -53,8 +53,25 @@ public class CandidateASTBuilder {
     private ASTLayer createLayerForElement(LayerSymbol element) {
         ASTLayerBuilder builder = CNNArchMill.layerBuilder();
         builder.setSymbol(element);
+        builder.setName(element.getName());
+
+        List<ArgumentSymbol> arguments = element.getArguments();
+        if (arguments != null) {
+            for (ArgumentSymbol argumentSymbol : arguments) {
+//            ASTArchArgument argumentAst = createArgument(argumentSymbol);
+//            builder.addArguments(argumentAst);
+            }
+        }
         ASTLayer ast = builder.build();
         element.setAstNode(ast);
         return ast;
     }
+
+//    private static ASTArchArgument createArgument(ArgumentSymbol symbol) {
+//        ASTArchParameterArgumentBuilder builder = CNNArchMill.archParameterArgumentBuilder();
+//        builder.setSymbol(symbol);
+//        ASTArchArgument ast = builder.build();
+//        symbol.setAstNode(ast);
+//        return ast;
+//    }
 }
