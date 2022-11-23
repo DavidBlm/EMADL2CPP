@@ -25,15 +25,18 @@ public class ComposedNetworkHandler {
 
     private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
 
-    public ComposedNetworkHandler(String composedNetworkFilePath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols) {
+    private Boolean blockComposedNetworkCheck = null;
+
+    public ComposedNetworkHandler(String composedNetworkFilePath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Boolean blockComposedNetworkCheck) {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer(this, cachedComposedArchitectureSymbols);
         this.networkDecomposer = new NetworkDecomposer();
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
+        this.blockComposedNetworkCheck = blockComposedNetworkCheck;
     }
 
-    public ComposedNetworkHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols) {
+    public ComposedNetworkHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Boolean blockComposedNetworkCheck) {
         //if (instanceVault == null) throw new RuntimeException();
 
         this.composedNetworkFilePath = composedNetworkFilePath;
@@ -42,6 +45,7 @@ public class ComposedNetworkHandler {
         this.networkDecomposer = new NetworkDecomposer();
         this.instanceVault = instanceVault;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
+        this.blockComposedNetworkCheck = blockComposedNetworkCheck;
     }
 
     public String findConfigFileName(EMAComponentInstanceSymbol instanceSymbol){
@@ -57,6 +61,10 @@ public class ComposedNetworkHandler {
 
     //TODO: Finish detection if comp net here
     public boolean isComposedNet(EMAComponentInstanceSymbol instanceSymbol){
+        if (this.blockComposedNetworkCheck == null || this.blockComposedNetworkCheck.booleanValue()){
+            //return false;
+        }
+
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null
                     //&& instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())

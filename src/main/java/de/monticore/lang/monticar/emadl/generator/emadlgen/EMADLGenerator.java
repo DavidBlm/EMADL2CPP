@@ -45,7 +45,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private String composedNetworkFilePath = "";
 
-
+    private Boolean blockComposedNetworkCheck = new Boolean(true);
 
 
     private boolean useDgl = false;
@@ -97,7 +97,13 @@ public class EMADLGenerator implements EMAMGenerator {
         return emamGen;
     }
 
+    protected boolean getBlockComposedNetworkCheck() {
+        return this.blockComposedNetworkCheck;
+    }
 
+    protected void setBlockComposedNetworkCheck(Boolean block){
+        this.blockComposedNetworkCheck = block;
+    }
 
 
     public String getGenerationTargetPath() {
@@ -292,6 +298,7 @@ public class EMADLGenerator implements EMAMGenerator {
                                      Set<EMAComponentInstanceSymbol> allInstances,
                                      TaggingResolver taggingResolver,
                                      EMAComponentInstanceSymbol componentInstanceSymbol) {
+
         emamGen.addSemantics(taggingResolver, componentInstanceSymbol);
 
         allInstances.add(componentInstanceSymbol);
@@ -302,7 +309,8 @@ public class EMADLGenerator implements EMAMGenerator {
         emaComponentSymbol.getFullName();
         /* */
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(), emadlCNNHandler.getCachedComposedArchitectureSymbols());
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
+                emadlCNNHandler.getCachedComposedArchitectureSymbols(), this.blockComposedNetworkCheck);
         composedNetworkHandler.processComponentInstances(allInstances);
 
         //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);

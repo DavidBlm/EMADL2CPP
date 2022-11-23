@@ -1,13 +1,11 @@
 package calculator;
 
 component Net3 {
-    ports in Q(0:1)^{10} dataInput,
+    ports in Q(0:1)^{10} data,
          out Q(0:1)^{10} dataOutput;
 
      implementation CNN {
-            dataInput ->
-            FullyConnected(units=10) ->
-            Softmax() ->
+            data ->
             dataOutput;
         }
 }

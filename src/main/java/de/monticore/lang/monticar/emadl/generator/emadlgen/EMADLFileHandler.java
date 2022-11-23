@@ -305,6 +305,8 @@ public class EMADLFileHandler {
 
         emadlGen.generateStrings(taggingResolver, EMAComponentSymbol, newInstanceVault, forced);
         this.instanceVault = newInstanceVault;
+
+        emadlGen.setBlockComposedNetworkCheck(new Boolean(false));
         Log.clearFindings();
 
 
@@ -327,7 +329,8 @@ public class EMADLFileHandler {
         List<FileContent> fileContentsTrainingHashes = new ArrayList<>();
         List<String> newHashes = new ArrayList<>();
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworksFilePath, this.instanceVault, emadlGen.getEmadlCNNHandler().getCachedComposedArchitectureSymbols());
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworksFilePath, this.instanceVault,
+                emadlGen.getEmadlCNNHandler().getCachedComposedArchitectureSymbols(), this.emadlGen.getBlockComposedNetworkCheck());
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
         ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);

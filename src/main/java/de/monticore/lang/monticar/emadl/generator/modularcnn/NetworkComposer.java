@@ -44,9 +44,6 @@ public class NetworkComposer {
         ArchitectureSymbol composedNet = null;
         try {
             composedNet = generateNetworkLevel(networkStructureInformation, fromInstance);
-            if (composedNet != null){
-                cachedComposedArchitectureSymbols.put(fromInstance.getFullName(), composedNet);
-            }
         } catch (Exception e){
             Log.error("Generation of composed network failed");
             e.printStackTrace();
@@ -89,7 +86,23 @@ public class NetworkComposer {
                             subnetArchSymbols.add(architectureOpt.get());
                         }
                     } else {
-                        subnetArchSymbols.add(generateNetworkLevel(subnet, fromInstance));
+
+                        EMAComponentInstanceSymbol fromSubnetInstance = null;
+
+                        Map<String, Collection<Symbol>> symbols = (Map<String, Collection<Symbol>>) fromInstance.getSpannedScope().getLocalSymbols();
+                        Collection<Symbol> compList = (Collection<Symbol>) symbols.get(subnet.getInstanceSymbolName());
+                        for (Symbol symbol : compList){
+                            if (symbol instanceof EMAComponentInstanceSymbol && symbol.getName().equals(subnet.getInstanceSymbolName())){
+                                fromSubnetInstance = (EMAComponentInstanceSymbol) symbol;
+                                break;
+                            }
+                        }
+
+                        if (fromSubnetInstance == null){
+                            throw new Exception("Could not find Instance Symbol for nested Architecture");
+                        }
+
+                        subnetArchSymbols.add(generateNetworkLevel(subnet, fromSubnetInstance));
                     }
                 }
             }
@@ -98,6 +111,11 @@ public class NetworkComposer {
 
         ArchitectureSymbol composedNet = mergeArchitectureSymbols(subnetArchSymbols, networkStructureInformation);
         fixScopesOfMergedArchitectureSymbol(composedNet, networkStructureInformation, fromInstance, subnetArchSymbols);
+
+        if (composedNet != null){
+            cachedComposedArchitectureSymbols.put(fromInstance.getFullName(), composedNet);
+        }
+
         return composedNet;
     }
 

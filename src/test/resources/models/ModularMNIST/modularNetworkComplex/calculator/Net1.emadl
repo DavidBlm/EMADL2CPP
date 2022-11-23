@@ -1,7 +1,7 @@
 package calculator;
 
 component Net1 {
-    ports in Z(0:255)^{1, 28, 28} dataInput,
+    ports in Z(0:255)^{1, 28, 28} data,
          out Q(0:1)^{10} dataOutput;
 
     implementation CNN {
@@ -11,12 +11,13 @@ component Net1 {
             Pooling(pool_type="max", kernel=(2,2), stride=(stride,stride))
         }
 
-        dataInput ->
+        data ->
         conv(kernel=5, channels=20, stride=2) ->
         conv(kernel=5, channels=50, stride=2) ->
         FullyConnected(units=500) ->
         Relu() ->
         Dropout() ->
+        FullyConnected(units=10) ->
         dataOutput;
     }
     

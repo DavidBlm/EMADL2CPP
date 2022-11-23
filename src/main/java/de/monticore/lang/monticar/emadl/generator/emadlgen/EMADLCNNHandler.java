@@ -107,7 +107,8 @@ public class EMADLCNNHandler {
         TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
 
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(), this.cachedComposedArchitectureSymbols);
+        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
+                this.cachedComposedArchitectureSymbols, this.emadlGenerator.getBlockComposedNetworkCheck());
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
         ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);

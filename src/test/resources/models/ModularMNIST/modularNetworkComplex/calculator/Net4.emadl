@@ -2,10 +2,11 @@ package calculator;
 
 component Net4 {
     ports in Q(0:1)^{10} dataInput,
-         out Q(0:1)^{10} dataOutput;
+         out Q(0:1)^{10} softmax;
 
      implementation CNN {
             dataInput ->
-            dataOutput;
+            Softmax() ->
+            softmax;
         }
 }

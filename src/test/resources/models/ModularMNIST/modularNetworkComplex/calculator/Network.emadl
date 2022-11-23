@@ -10,9 +10,9 @@ component Network {
     instance Net2 net2;
 
 
-    connect data -> net1.dataInput;
+    connect data -> net1.data;
     connect net1.dataOutput -> net2.dataInput;
-    connect net2.dataOutput -> softmax;
+    connect net2.softmax -> softmax;
 
 
 }
