@@ -18,7 +18,7 @@ import java.util.List;
 public class CandidateSymbolBuilder {
     AdaNetCandidate candidate;
 
-    public ArchitectureElementSymbol build(AdaNetCandidate candidate) {
+    public ParallelCompositeElementSymbol build(AdaNetCandidate candidate) {
         this.candidate = candidate;
         return getCandidateSymbol();
     }

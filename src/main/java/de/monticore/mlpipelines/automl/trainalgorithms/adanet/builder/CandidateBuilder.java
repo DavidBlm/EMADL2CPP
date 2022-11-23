@@ -2,10 +2,7 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder;
 
 import de.monticore.lang.monticar.cnnarch._ast.ASTArchitectureElement;
 import de.monticore.lang.monticar.cnnarch._ast.ASTStream;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.StreamInstructionSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 
@@ -14,7 +11,7 @@ import java.util.List;
 public class CandidateBuilder {
     AdaNetCandidate candidate;
     ArchitectureSymbol architecture;
-    ArchitectureElementSymbol adaNetSymbol;
+    ParallelCompositeElementSymbol adaNetSymbol;
     ASTArchitectureElement adaNetAST;
 
     public CandidateBuilder() {
@@ -29,7 +26,7 @@ public class CandidateBuilder {
         buildAST();
         setCandidateInArchitecture(adaNetSymbol);
 
-        return null;
+        return architecture;
     }
 
     private void buildSymbol() {
@@ -39,7 +36,7 @@ public class CandidateBuilder {
 
     private void buildAST() {
         CandidateASTBuilder astBuilder = new CandidateASTBuilder();
-        adaNetAST = astBuilder.build(candidate, adaNetSymbol);
+        adaNetAST = astBuilder.build(adaNetSymbol);
     }
 
     private void setCandidateInArchitecture(ArchitectureElementSymbol adaNetSymbol) {
