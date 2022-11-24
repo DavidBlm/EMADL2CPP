@@ -10,5 +10,10 @@ public class NetworkDecomposer {
         this.backend = backend;
     }
 
+    public void decomposeNetwork(){
+
+    }
+
+
 
 }
