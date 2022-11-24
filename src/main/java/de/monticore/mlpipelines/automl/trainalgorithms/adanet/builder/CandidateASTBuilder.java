@@ -163,6 +163,6 @@ public class CandidateASTBuilder {
         ASTIntLiteralBuilder builder = MathMill.intLiteralBuilder();
         int value = RationalMath.getIntValue(symbol.getValue().getRealNumber());
         builder.setSource("" + value);
-        return builder.build();
+         return builder.build();
     }
 }
