@@ -108,7 +108,7 @@ public class EMADLCNNHandler {
 
 
         ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
-                this.cachedComposedArchitectureSymbols, this.emadlGenerator.getBlockComposedNetworkCheck());
+                this.cachedComposedArchitectureSymbols, this.emadlGenerator.getBackend());
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
         ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);

@@ -305,56 +305,11 @@ public class NetworkComposer {
     private Optional<ArchitectureSymbol> fetchSubComponentInstanceArchitectureSymbol(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance){
         Log.info("Fetching subcomponent Architecture Symbol","NETWORK_COMPOSITION");
 
-        /*
-        EMAComponentInstanceSymbol fromSubnetInstance = null;
-        Map<String, Collection<Symbol>> symbols = (Map<String, Collection<Symbol>>) fromInstance.getSpannedScope().getLocalSymbols();
-        Collection<Symbol> compList = (Collection<Symbol>) symbols.get(networkStructureInformation.getInstanceSymbolName());
-        for (Symbol symbol : compList){
-            if (symbol instanceof EMAComponentInstanceSymbol && symbol.getName().equals(networkStructureInformation.getInstanceSymbolName()) && fromInstance.getFullName().equals(symbol.getPackageName())){
-                fromSubnetInstance = (EMAComponentInstanceSymbol) symbol;
-                break;
-            }
-        }
-        */
-
         EMAComponentInstanceSymbol fromSubnetInstance = findSubnetInstance(networkStructureInformation, fromInstance);
         if (fromSubnetInstance != null){
             return this.composedNetworkHandler.resolveArchitectureSymbolOfInstance(fromSubnetInstance);
         }
         return Optional.empty();
-
-        /*
-        Map<String, Collection<Symbol>> symbols = fromInstance.getSpannedScope().getLocalSymbols();
-        ArrayList<Symbol> symbolArrayList = (ArrayList<Symbol>)symbols.get(networkStructureInformation.getInstanceSymbolName());
-
-        EMAComponentInstanceSymbol symbol = null;
-
-        for (Symbol sym : symbolArrayList){
-            EMAComponentInstanceSymbol instanceSymbol = (EMAComponentInstanceSymbol) sym;
-            if (instanceSymbol.getName().equals(networkStructureInformation.getInstanceSymbolName()));{
-                symbol = instanceSymbol;
-                break;
-            }
-        }
-
-        if (symbol != null){
-            for(EMAComponentInstanceSymbol instanceSymbol : networkStructureInformation.getInstances()){
-                if (symbol.getName().equals(instanceSymbol.getName())) return this.composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
-            }
-            if (symbol.getName().equals(networkStructureInformation.getInstanceSymbolName())){
-                Log.info("Fetched architecture symbol could be verified by instances of subnetwork (generator did not yet process it probably","NETWORK_COMPOSITION");
-                if (instanceVault != null){
-                    for (EMAComponentInstanceSymbol instanceSymbol: instanceVault){
-                        if (symbol.getName().equals(instanceSymbol.getName())) return this.composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
-                    }
-                }
-                //Optional<ArchitectureSymbol> architectureSymbol = symbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
-                Optional<ArchitectureSymbol> architectureSymbol = Optional.empty();
-                return architectureSymbol;
-            }
-        }
-        return Optional.empty();
-        */
     }
 
     private EMAComponentInstanceSymbol findSubnetInstance(NetworkStructureInformation subnet, EMAComponentInstanceSymbol fromInstance){
