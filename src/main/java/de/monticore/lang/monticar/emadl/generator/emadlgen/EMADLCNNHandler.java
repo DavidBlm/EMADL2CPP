@@ -152,6 +152,8 @@ public class EMADLCNNHandler {
                     if (!composedNetworkHandler.isComposedNet(componentInstance) && composedNetworkHandler.isPartOfComposedNet(componentInstance)){
                         Log.info("Found part of composed net","COMPOSED_NET_PART");
                         continue;
+                    } else if (composedNetworkHandler.isPartOfComposedNet(componentInstance)) {
+                        continue;
                     } else {
                         String message = String.format("Missing training configuration. Could not find a file with any of the following names (only one needed): '%s.conf', '%s.conf', '%s.conf'. These files denote respectively the configuration for the single instance, the component or the whole system.",
                                 emadlFileHandler.getModelsPath() + instanceConfigFilename, emadlFileHandler.getModelsPath() + componentConfigFilename, emadlFileHandler.getModelsPath() + mainComponentConfigFilename);
