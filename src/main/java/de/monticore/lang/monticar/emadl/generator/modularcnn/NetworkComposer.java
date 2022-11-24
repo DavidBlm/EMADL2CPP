@@ -1,14 +1,10 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
-import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAPortArraySymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
-import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGenerator;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
-import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.CommonScope;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.Scope;
@@ -19,18 +15,18 @@ import java.util.*;
 
 public class NetworkComposer {
 
-    private ComposedNetworkHandler composedNetworkHandler = null;
+    private NetworkCompositionHandler networkCompositionHandler = null;
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
     private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
 
-    public NetworkComposer(ComposedNetworkHandler composedNetworkHandler, LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols){
-        this.composedNetworkHandler = composedNetworkHandler;
+    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols){
+        this.networkCompositionHandler = networkCompositionHandler;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
 
     }
 
-    public NetworkComposer(ComposedNetworkHandler composedNetworkHandler, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols){
-        this.composedNetworkHandler = composedNetworkHandler;
+    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols){
+        this.networkCompositionHandler = networkCompositionHandler;
         this.instanceVault = instanceVault;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
     }
@@ -307,7 +303,7 @@ public class NetworkComposer {
 
         EMAComponentInstanceSymbol fromSubnetInstance = findSubnetInstance(networkStructureInformation, fromInstance);
         if (fromSubnetInstance != null){
-            return this.composedNetworkHandler.resolveArchitectureSymbolOfInstance(fromSubnetInstance);
+            return this.networkCompositionHandler.resolveArchitectureSymbolOfInstance(fromSubnetInstance);
         }
         return Optional.empty();
     }

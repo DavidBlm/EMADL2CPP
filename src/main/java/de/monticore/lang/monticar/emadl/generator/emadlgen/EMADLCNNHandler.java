@@ -18,7 +18,7 @@ import de.monticore.lang.monticar.cnnarch.generator.training.TrainingConfigurati
 import de.monticore.lang.monticar.cnnarch.generator.validation.TrainedArchitectureChecker;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.ComposedNetworkHandler;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
@@ -107,11 +107,11 @@ public class EMADLCNNHandler {
         TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
 
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
+        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
                 this.cachedComposedArchitectureSymbols, this.emadlGenerator.getBackend());
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
-        ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);
+        ArrayList<EMAComponentInstanceSymbol> networks = networkCompositionHandler.processComponentInstances(allInstances);
 
         for (EMAComponentInstanceSymbol componentInstance : networks) {
 
@@ -119,7 +119,7 @@ public class EMADLCNNHandler {
             //Optional<ArchitectureSymbol> architecture = component.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
             Optional<ArchitectureSymbol> architecture = null;
 
-            architecture = composedNetworkHandler.resolveArchitectureSymbolOfReferencedSymbol(componentInstance);
+            architecture = networkCompositionHandler.resolveArchitectureSymbolOfReferencedSymbol(componentInstance);
 
             if (architecture != null && architecture.isPresent()) {
                 String mainComponentConfigFilename = mainComponentName.replaceAll("\\.", "/");
@@ -127,9 +127,9 @@ public class EMADLCNNHandler {
                 String componentConfigFilename = null;
                 String instanceConfigFilename = null;
 
-                if (composedNetworkHandler.isComposedNet(componentInstance)){
+                if (networkCompositionHandler.isComposedNet(componentInstance)){
 
-                    String rootNetworkName = composedNetworkHandler.findConfigFileName(componentInstance);
+                    String rootNetworkName = networkCompositionHandler.findConfigFileName(componentInstance);
                     if (Strings.isNullOrEmpty(rootNetworkName)) {
                         String message = String.format("(Root) network config not found");
                         Log.error(message);
@@ -149,10 +149,10 @@ public class EMADLCNNHandler {
 
                 String trainConfigFilename = emadlFileHandler.getConfigFilename(mainComponentConfigFilename, componentConfigFilename, instanceConfigFilename);
                 if (Strings.isNullOrEmpty(trainConfigFilename)) {
-                    if (!composedNetworkHandler.isComposedNet(componentInstance) && composedNetworkHandler.isPartOfComposedNet(componentInstance)){
+                    if (!networkCompositionHandler.isComposedNet(componentInstance) && networkCompositionHandler.isPartOfComposedNet(componentInstance)){
                         Log.info("Found part of composed net","COMPOSED_NET_PART");
                         continue;
-                    } else if (composedNetworkHandler.isPartOfComposedNet(componentInstance)) {
+                    } else if (networkCompositionHandler.isPartOfComposedNet(componentInstance)) {
                         continue;
                     } else {
                         String message = String.format("Missing training configuration. Could not find a file with any of the following names (only one needed): '%s.conf', '%s.conf', '%s.conf'. These files denote respectively the configuration for the single instance, the component or the whole system.",
@@ -201,7 +201,7 @@ public class EMADLCNNHandler {
                             symTabAndTaggingResolver);
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> critic = instanceSymbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
-                    Optional<ArchitectureSymbol> critic = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
+                    Optional<ArchitectureSymbol> critic = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!critic.isPresent()) {
                         String message = String.format("Resolving critic component failed. Critic component '%s' does not have a CNN implementation, but is required to have one.", fullCriticName);
                         Log.error(message);
@@ -225,7 +225,7 @@ public class EMADLCNNHandler {
                             fullDiscriminatorName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> discriminator = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
-                    Optional<ArchitectureSymbol> discriminator = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
+                    Optional<ArchitectureSymbol> discriminator = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!discriminator.isPresent()) {
                         String message = String.format("Resolving discriminator component failed. Discriminator component '%s' does not have a CNN implementation, but is required to have one.", fullDiscriminatorName);
                         Log.error(message);
@@ -250,7 +250,7 @@ public class EMADLCNNHandler {
                             fullQNetworkName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> qNetwork = instanceSymbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
-                    Optional<ArchitectureSymbol> qNetwork = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
+                    Optional<ArchitectureSymbol> qNetwork = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!qNetwork.isPresent()) {
                         String message = String.format("Resolving Q-Network component failed. Q-Network component '%s' does not have a CNN implementation, but is required to have one.", fullQNetworkName);
                         Log.error(message);
@@ -274,7 +274,7 @@ public class EMADLCNNHandler {
                             fullEncoderName, emadlTaggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> encoder = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
-                    Optional<ArchitectureSymbol> encoder = composedNetworkHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
+                    Optional<ArchitectureSymbol> encoder = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!encoder.isPresent()) {
                         String message = String.format("Resolving encoder component failed. Encoder component '%s' does not have a CNN implementation, but is required to have one.", fullEncoderName);
                         Log.error(message);

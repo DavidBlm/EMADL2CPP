@@ -8,7 +8,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.ComposedNetworkHandler;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
 import de.monticore.lang.monticar.generator.EMAMGenerator;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.MathCommandRegister;
@@ -290,13 +290,13 @@ public class EMADLGenerator implements EMAMGenerator {
         emaComponentSymbol.getFullName();
         /* */
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
+        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
                 emadlCNNHandler.getCachedComposedArchitectureSymbols(), this.getBackend());
-        composedNetworkHandler.processComponentInstances(allInstances);
+        networkCompositionHandler.processComponentInstances(allInstances);
 
         //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
         //if(composedNetworkHandler.isComposedNet(componentInstanceSymbol)) composedNetworkHandler.refreshInformation(allInstances);
-        Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfInstance(componentInstanceSymbol);
+        Optional<ArchitectureSymbol> architecture = networkCompositionHandler.resolveArchitectureSymbolOfInstance(componentInstanceSymbol);
 
 
         // set the path to AdaNet python files
@@ -321,7 +321,7 @@ public class EMADLGenerator implements EMAMGenerator {
             }
 
             //TODO: Check if useful here
-            if (!composedNetworkHandler.isPartOfComposedNet(componentInstanceSymbol)){
+            if (!networkCompositionHandler.isPartOfComposedNet(componentInstanceSymbol)){
                 emadlCNNHandler.generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             }
 

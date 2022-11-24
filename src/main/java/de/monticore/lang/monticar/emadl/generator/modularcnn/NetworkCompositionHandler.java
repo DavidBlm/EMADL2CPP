@@ -3,19 +3,15 @@ package de.monticore.lang.monticar.emadl.generator.modularcnn;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGenerator;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
 import de.monticore.lang.monticar.emadl.modularcnn.tools.ComposedNetworkFileHandler;
-import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 
 import java.util.*;
 
-public class ComposedNetworkHandler {
+public class NetworkCompositionHandler {
     private String composedNetworkFilePath;
     private ArrayList<NetworkStructureInformation> composedNetworks;
     private NetworkComposer networkComposer;
@@ -25,7 +21,7 @@ public class ComposedNetworkHandler {
     private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
 
 
-    public ComposedNetworkHandler(String composedNetworkFilePath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend) {
+    public NetworkCompositionHandler(String composedNetworkFilePath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend) {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer(this, cachedComposedArchitectureSymbols);
@@ -34,7 +30,7 @@ public class ComposedNetworkHandler {
 
     }
 
-    public ComposedNetworkHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend) {
+    public NetworkCompositionHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend) {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer(this, instanceVault, cachedComposedArchitectureSymbols);

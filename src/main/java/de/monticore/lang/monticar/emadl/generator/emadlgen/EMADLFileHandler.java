@@ -9,7 +9,7 @@ import de.monticore.lang.monticar.cnnarch.generator.DataPathConfigParser;
 import de.monticore.lang.monticar.cnnarch.generator.WeightsPathConfigParser;
 import de.monticore.lang.monticar.emadl._cocos.DataPathCocos;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.ComposedNetworkHandler;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactSymbol;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
 import de.monticore.lang.monticar.generator.FileContent;
@@ -328,14 +328,14 @@ public class EMADLFileHandler {
         List<FileContent> fileContentsTrainingHashes = new ArrayList<>();
         List<String> newHashes = new ArrayList<>();
 
-        ComposedNetworkHandler composedNetworkHandler = new ComposedNetworkHandler(this.composedNetworksFilePath, this.instanceVault,
+        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworksFilePath, this.instanceVault,
                 emadlGen.getEmadlCNNHandler().getCachedComposedArchitectureSymbols(), emadlGen.getBackend());
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
-        ArrayList<EMAComponentInstanceSymbol> networks = composedNetworkHandler.processComponentInstances(allInstances);
+        ArrayList<EMAComponentInstanceSymbol> networks = networkCompositionHandler.processComponentInstances(allInstances);
 
         for (EMAComponentInstanceSymbol componentInstance : networks) {
-            Optional<ArchitectureSymbol> architecture = composedNetworkHandler.resolveArchitectureSymbolOfInstance(componentInstance);
+            Optional<ArchitectureSymbol> architecture = networkCompositionHandler.resolveArchitectureSymbolOfInstance(componentInstance);
             //Optional<ArchitectureSymbol> architecture = componentInstance.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
             // added for future use if one wants to change the location of the AdaNet python files
 
@@ -354,7 +354,7 @@ public class EMADLFileHandler {
                 continue;
             }
 
-            if ( (!architecture.isPresent() && !composedNetworkHandler.isComposedNet(componentInstance)) || composedNetworkHandler.isPartOfComposedNet(componentInstance) ) {
+            if ( (!architecture.isPresent() && !networkCompositionHandler.isComposedNet(componentInstance)) || networkCompositionHandler.isPartOfComposedNet(componentInstance) ) {
                 continue;
             }
 
