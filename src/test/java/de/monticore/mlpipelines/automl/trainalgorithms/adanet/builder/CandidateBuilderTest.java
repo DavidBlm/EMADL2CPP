@@ -10,6 +10,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.StreamInstructionSymbol;
 import de.monticore.mlpipelines.ModelLoader;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.ParallelCompositeElementSymbolCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
 import junit.framework.TestCase;
@@ -55,5 +56,20 @@ public class CandidateBuilderTest extends TestCase {
         List<ASTArchitectureElement> astElements = astNode.getElementsList();
         assertEquals(4, astElements.size());
         assertTrue(astElements.get(1) instanceof ASTParallelBlock);
+    }
+
+    @Test
+    public void testBuildReplacesAdaNetSymbol() {
+        CandidateBuilder candidateBuilder = new CandidateBuilder();
+        ArchitectureSymbol originalArchitecture = ModelLoader.loadAdaNetBase();
+        AdaNetCandidate candidate = new AdaNetCandidate(new AdaNetComponent(1), new ArrayList<>());
+
+        ArchitectureSymbol candidateArchitecture = candidateBuilder.build(candidate, originalArchitecture);
+        StreamInstructionSymbol networkInstructionSymbol =
+                (StreamInstructionSymbol) candidateArchitecture.getNetworkInstructions().get(0);
+        SerialCompositeElementSymbol body = networkInstructionSymbol.getBody();
+        List<ArchitectureElementSymbol> symbolElements = body.getElements();
+        assertEquals(4, symbolElements.size());
+        assertTrue(symbolElements.get(1) instanceof ParallelCompositeElementSymbolCustom);
     }
 }
