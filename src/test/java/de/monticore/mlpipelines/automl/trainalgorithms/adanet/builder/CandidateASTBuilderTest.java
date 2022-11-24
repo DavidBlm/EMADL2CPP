@@ -1,6 +1,8 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder;
 
+import de.monticore.lang.monticar.cnnarch._ast.ASTLayer;
 import de.monticore.lang.monticar.cnnarch._ast.ASTParallelBlock;
+import de.monticore.lang.monticar.cnnarch._ast.ASTStream;
 import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
@@ -31,7 +33,7 @@ public class CandidateASTBuilderTest extends TestCase {
     }
 
     @Test
-    public void testBuildCreatesValidAst() {
+    public void testBuildCreatesAst() {
         CandidateASTBuilder candidateASTBuilder = new CandidateASTBuilder();
         AdaNetCandidate candidate = new AdaNetCandidate(new AdaNetComponent(3), new ArrayList<>());
         CandidateSymbolBuilder candidateSymbolBuilder = new CandidateSymbolBuilder();
