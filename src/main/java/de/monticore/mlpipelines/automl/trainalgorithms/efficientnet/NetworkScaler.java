@@ -8,6 +8,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSym
 import de.monticore.lang.monticar.types2._ast.ASTDimension;
 import de.monticore.mlpipelines.automl.helper.ArchitectureHelper;
 import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
+import de.monticore.mlpipelines.automl.trainalgorithms.ASTGenerator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,14 +65,6 @@ public class NetworkScaler {
         throw new IllegalArgumentException("Block type not supported");
     }
 
-    private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
-        ArrayList expressions = ArchitectureHelper.getExpressions(architectureElement);
-        int channelsIndex = getChannelsIndex(architectureElement.getName());
-        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
-        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
-        expression.scaleRound(this.widthFactor);
-    }
-
     private void scaleWidth() {
         List<ArchitectureElementSymbol> architectureElements = findArchitectureElements();
 
@@ -84,15 +77,24 @@ public class NetworkScaler {
         }
     }
 
+    private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
+        ArrayList expressions = ArchitectureHelper.getExpressions(architectureElement);
+        int channelsIndex = getChannelsIndex(architectureElement.getName());
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) expressions.get(channelsIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
+        expression.scaleRound(this.widthFactor);
+        ASTGenerator.createMathNumberExpression(mathNumberExpression);
+    }
+
 
     private void scaleImageResolution() {
         ASTDimension dimensions = ArchitectureHelper.getImageDimension(architecture);
         changeImageDimension(dimensions);
     }
 
-    private void changeImageDimension(ASTDimension dimensions){
+    private void changeImageDimension(ASTDimension dimensions) {
         //ASTNumberExpression channelDim = (ASTNumberExpression)dimensions.getMatrixDim(0)
-        MathNumberExpressionSymbol heightDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(1).getSymbol();
+        MathNumberExpressionSymbol heightDim = (MathNumberExpressionSymbol) dimensions.getMatrixDim(1).getSymbol();
         MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol)dimensions.getMatrixDim(2).getSymbol();
 
         MathNumberExpressionWrapper imageHeight = new MathNumberExpressionWrapper(heightDim);
@@ -119,10 +121,12 @@ public class NetworkScaler {
 
     private void scaleNetworkElementDepth(ArchitectureElementSymbol architectureElement) {
         ArrayList symbolExpressions = ArchitectureHelper.getExpressions(architectureElement);
-        int depthIndex = 3; //MathNumberExpressionSymbol at index 3 needs to be changed
-        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(depthIndex);
+        int depthIndex = 3;
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(
+                depthIndex);
         MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
         expression.scaleRound(this.depthFactor);
+        ASTGenerator.createMathNumberExpression(mathNumberExpression);
     }
 
     public ArchitectureSymbol getArchitectureSymbol() {
