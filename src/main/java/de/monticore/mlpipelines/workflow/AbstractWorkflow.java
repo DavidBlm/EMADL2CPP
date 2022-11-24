@@ -47,18 +47,19 @@ public abstract class AbstractWorkflow {
     public final void execute() throws IOException {
         // frontend
         final ASTConfLangCompilationUnit trainingConfiguration = parseTrainingConfiguration(parentModelPath + rootModelName + ".conf");
-        parsePipelineConfiguration(parentModelPath + rootModelName + "Pipeline.conf");
+        final ASTConfLangCompilationUnit pipelineConfiguration = parsePipelineConfiguration(parentModelPath + rootModelName + "Pipeline.conf");
         createSymbolTable();
 
         checkCoCos();
         validateConfigurationAgainstSchemas(); // depends on learning method
         backendSpecificValidations();
         //backend
-        calculateExecutionSemantics();
         generateBackendArtefactsIntoExperiment();
         final LearningMethod learningMethod = LearningMethod.SUPERVISED;
         createPipeline(learningMethod);
         pipeline.setConfigurationModel(trainingConfiguration);
+        pipeline.setPipelineConfiguration(pipelineConfiguration);
+        pipeline.setPipelineModelWithExecutionSemantics( calculateExecutionSemantics());
         executePipeline();
 
         //  pipeline.readresults()
@@ -94,12 +95,12 @@ public abstract class AbstractWorkflow {
     private void backendSpecificValidations() {
     }
 
-    private void calculateExecutionSemantics() throws IOException {
+    private EMAComponentInstanceSymbol calculateExecutionSemantics() throws IOException {
         //TODO get from schema
         final String pathToPipelineReferenceModel = montiAnnaContext.getPipelineReferenceModelsPath() + " PIPELINE NAME";
-        final EMAComponentInstanceSymbol pipelineReferenceModel = parsePipelineReferenceModelToEMAComponent(
+        EMAComponentInstanceSymbol pipelineReferenceModel = parsePipelineReferenceModelToEMAComponent(
                 pathToPipelineReferenceModel);
-        final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = addExecutionSemanticsToEmaComponent(
+        return addExecutionSemanticsToEmaComponent(
                 pipelineReferenceModel);
     }
 
@@ -125,7 +126,6 @@ public abstract class AbstractWorkflow {
     }
 
     public EMAComponentInstanceSymbol addExecutionSemanticsToEmaComponent(EMAComponentInstanceSymbol pipelineReferenceModel) {
-        // TODO FMU substitute tagging resolver in the Execution Semantics project
         final TaggingResolver symTab = SymtabCreator.createSymTab("src/test/resources", "src/main/resources",
                 Constants.SYNTHESIZED_COMPONENTS_ROOT);
         new ExecutionSemantics(symTab, pipelineReferenceModel).addExecutionSemantics();
