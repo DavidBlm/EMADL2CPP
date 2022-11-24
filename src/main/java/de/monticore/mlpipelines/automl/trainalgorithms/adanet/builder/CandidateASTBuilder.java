@@ -3,14 +3,19 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder;
 import de.monticore.lang.math._ast.ASTNumberExpression;
 import de.monticore.lang.math._ast.ASTNumberExpressionBuilder;
 import de.monticore.lang.math._ast.MathMill;
-import de.monticore.lang.math._symboltable.expression.MathExpressionSymbol;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._ast.*;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
+import de.monticore.literals.literals._ast.ASTIntLiteral;
+import de.monticore.literals.literals._ast.ASTIntLiteralBuilder;
+import de.monticore.mlpipelines.automl.helper.RationalMath;
+import de.monticore.numberunit._ast.ASTNumberWithInf;
+import de.monticore.numberunit._ast.ASTNumberWithInfBuilder;
+import de.monticore.numberunit._ast.ASTNumberWithUnit;
+import de.monticore.numberunit._ast.ASTNumberWithUnitBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class CandidateASTBuilder {
     ParallelCompositeElementSymbol adanetSymbol;
@@ -98,9 +103,9 @@ public class CandidateASTBuilder {
             ArchSimpleExpressionSymbol symbolCasted = (ArchSimpleExpressionSymbol) symbol;
             ASTArchExpressionBuilder builder = CNNArchMill.archExpressionBuilder();
             builder.setSymbol(symbol);
-            Optional<MathExpressionSymbol> mathExpressionSymbol = symbolCasted.getMathExpression();
-            ASTArchSimpleExpression mathExpression = createMathExpression(
-                    ArchSimpleExpressionSymbol.of(mathExpressionSymbol.orElse(null)));
+            MathNumberExpressionSymbol mathExpressionSymbol =
+                    (MathNumberExpressionSymbol) symbolCasted.getMathExpression().get();
+            ASTArchSimpleExpression mathExpression = createMathExpression(mathExpressionSymbol);
             builder.setExpression(mathExpression);
             ASTArchExpression ast = builder.build();
             symbol.setAstNode(ast);
@@ -110,12 +115,10 @@ public class CandidateASTBuilder {
         throw new UnsupportedOperationException("This type of ArchExpressionSymbol is not supported yet.");
     }
 
-    private ASTArchSimpleExpression createMathExpression(ArchSimpleExpressionSymbol symbol) {
+    private ASTArchSimpleExpression createMathExpression(MathNumberExpressionSymbol symbol) {
         ASTArchSimpleExpressionBuilder builder = CNNArchMill.archSimpleExpressionBuilder();
         builder.setSymbol(symbol);
-        MathNumberExpressionSymbol mathNumberExpressionSymbol = (MathNumberExpressionSymbol) symbol.getMathExpression()
-                .orElse(null);
-        ASTArchSimpleArithmeticExpression arithmeticExpression = createArithmeticExpression(mathNumberExpressionSymbol);
+        ASTArchSimpleArithmeticExpression arithmeticExpression = createArithmeticExpression(symbol);
         builder.setArithmeticExpression(arithmeticExpression);
         ASTArchSimpleExpression ast = builder.build();
         symbol.setAstNode(ast);
@@ -125,8 +128,8 @@ public class CandidateASTBuilder {
     private ASTArchSimpleArithmeticExpression createArithmeticExpression(MathNumberExpressionSymbol symbol) {
         ASTArchSimpleArithmeticExpressionBuilder builder = CNNArchMill.archSimpleArithmeticExpressionBuilder();
         builder.setSymbol(symbol);
-        ASTNumberExpression numberExpression = createNumberExpression(symbol.getRe);
-        builder.setExpression();
+        ASTNumberExpression numberExpression = createNumberExpression(symbol);
+        builder.setNumberExpression(numberExpression);
         ASTArchSimpleArithmeticExpression ast = builder.build();
         symbol.setAstNode(ast);
         return ast;
@@ -135,9 +138,31 @@ public class CandidateASTBuilder {
     private ASTNumberExpression createNumberExpression(MathNumberExpressionSymbol symbol) {
         ASTNumberExpressionBuilder builder = MathMill.numberExpressionBuilder();
         builder.setSymbol(symbol);
-        builder.setValue(symbol.getValue());
+        ASTNumberWithUnit numberWithUnit = createNumberWithUnit(symbol);
+        builder.setNumberWithUnit(numberWithUnit);
         ASTNumberExpression ast = builder.build();
         symbol.setAstNode(ast);
         return ast;
+    }
+
+    private ASTNumberWithUnit createNumberWithUnit(MathNumberExpressionSymbol symbol) {
+        ASTNumberWithUnitBuilder builder = MathMill.numberWithUnitBuilder();
+        ASTNumberWithInf numberWithInf = createNumberWithInf(symbol);
+        builder.setNum(numberWithInf);
+        return builder.build();
+    }
+
+    private ASTNumberWithInf createNumberWithInf(MathNumberExpressionSymbol symbol) {
+        ASTNumberWithInfBuilder builder = MathMill.numberWithInfBuilder();
+        ASTIntLiteral intLiteral = createIntLiteral(symbol);
+        builder.setNumber(intLiteral);
+        return builder.build();
+    }
+
+    private ASTIntLiteral createIntLiteral(MathNumberExpressionSymbol symbol) {
+        ASTIntLiteralBuilder builder = MathMill.intLiteralBuilder();
+        int value = RationalMath.getIntValue(symbol.getValue().getRealNumber());
+        builder.setSource("" + value);
+        return builder.build();
     }
 }
