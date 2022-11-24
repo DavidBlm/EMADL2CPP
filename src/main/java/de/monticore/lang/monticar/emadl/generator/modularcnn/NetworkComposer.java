@@ -21,8 +21,7 @@ public class NetworkComposer {
 
     private ComposedNetworkHandler composedNetworkHandler = null;
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
-    private ArrayList<ArchitectureSymbol> f = null;
-    private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = new LinkedHashMap<>();
+    private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
 
     public NetworkComposer(ComposedNetworkHandler composedNetworkHandler, LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols){
         this.composedNetworkHandler = composedNetworkHandler;
@@ -66,11 +65,19 @@ public class NetworkComposer {
                         instanceOnlyDataFlow.add(netSplit[1]);
                     }
             }
-            //networkStructureInformation.setNetworkInstancesDataFlow(instanceOnlyDataFlow);
 
             for (String dataFlowElement : instanceOnlyDataFlow){
                 for (NetworkStructureInformation subnet : subnets){
                     if (!subnet.getInstanceSymbolName().equals(dataFlowElement)) continue;
+
+                    EMAComponentInstanceSymbol fromSubnetInstance = findSubnetInstance(subnet,fromInstance);
+                    if (fromSubnetInstance == null) throw new Exception("Could not find subnet instance in instances of symbol");
+
+                    ArchitectureSymbol cachedSubnetArchSymbol = cachedComposedArchitectureSymbols.get(fromSubnetInstance.getFullName());
+                    if (cachedSubnetArchSymbol != null){
+                        subnetArchSymbols.add(cachedSubnetArchSymbol);
+                        break;
+                    }
 
                     if (subnet.isAtomic()) {
                         if ( (subnet.getInstances() == null || subnet.getInstances().size() == 0 )
@@ -84,25 +91,19 @@ public class NetworkComposer {
                         } else{
                             subnet.setComposedNetworkArchitectureSymbol(architectureOpt.get());
                             subnetArchSymbols.add(architectureOpt.get());
+                            break;
                         }
                     } else {
-
-                        EMAComponentInstanceSymbol fromSubnetInstance = null;
-
-                        Map<String, Collection<Symbol>> symbols = (Map<String, Collection<Symbol>>) fromInstance.getSpannedScope().getLocalSymbols();
-                        Collection<Symbol> compList = (Collection<Symbol>) symbols.get(subnet.getInstanceSymbolName());
-                        for (Symbol symbol : compList){
-                            if (symbol instanceof EMAComponentInstanceSymbol && symbol.getName().equals(subnet.getInstanceSymbolName())){
-                                fromSubnetInstance = (EMAComponentInstanceSymbol) symbol;
-                                break;
-                            }
-                        }
 
                         if (fromSubnetInstance == null){
                             throw new Exception("Could not find Instance Symbol for nested Architecture");
                         }
 
-                        subnetArchSymbols.add(generateNetworkLevel(subnet, fromSubnetInstance));
+                        ArchitectureSymbol subnetArchSymbol = generateNetworkLevel(subnet, fromSubnetInstance);
+                        if (subnetArchSymbol != null){
+                            subnetArchSymbols.add(subnetArchSymbol);
+                            break;
+                        }
                     }
                 }
             }
@@ -205,7 +206,7 @@ public class NetworkComposer {
     }
 
 
-    private ArchitectureSymbol mergeArchitectureSymbols(ArrayList<ArchitectureSymbol> symbols,NetworkStructureInformation networkStructureInformation) throws Exception {
+    private ArchitectureSymbol mergeArchitectureSymbols(ArrayList<ArchitectureSymbol> symbols, NetworkStructureInformation networkStructureInformation) throws Exception {
         Log.info("Merging Architecture Symbols","NETWORK_COMPOSITION");
         if (symbols == null || symbols.size() < 2) {
             throw new Exception("Architecture Symbol Merge error: "  + "Not enough symbols to merge (at least 2 required)");
@@ -264,6 +265,8 @@ public class NetworkComposer {
         mergedArchitecture.setInputs(dataFlowSymbols.get(0).getInputs());
         mergedArchitecture.setOutputs(dataFlowSymbols.get(dataFlowSymbols.size()-1).getOutputs());
 
+
+
         return mergedArchitecture;
     }
 
@@ -301,6 +304,26 @@ public class NetworkComposer {
 
     private Optional<ArchitectureSymbol> fetchSubComponentInstanceArchitectureSymbol(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance){
         Log.info("Fetching subcomponent Architecture Symbol","NETWORK_COMPOSITION");
+
+        /*
+        EMAComponentInstanceSymbol fromSubnetInstance = null;
+        Map<String, Collection<Symbol>> symbols = (Map<String, Collection<Symbol>>) fromInstance.getSpannedScope().getLocalSymbols();
+        Collection<Symbol> compList = (Collection<Symbol>) symbols.get(networkStructureInformation.getInstanceSymbolName());
+        for (Symbol symbol : compList){
+            if (symbol instanceof EMAComponentInstanceSymbol && symbol.getName().equals(networkStructureInformation.getInstanceSymbolName()) && fromInstance.getFullName().equals(symbol.getPackageName())){
+                fromSubnetInstance = (EMAComponentInstanceSymbol) symbol;
+                break;
+            }
+        }
+        */
+
+        EMAComponentInstanceSymbol fromSubnetInstance = findSubnetInstance(networkStructureInformation, fromInstance);
+        if (fromSubnetInstance != null){
+            return this.composedNetworkHandler.resolveArchitectureSymbolOfInstance(fromSubnetInstance);
+        }
+        return Optional.empty();
+
+        /*
         Map<String, Collection<Symbol>> symbols = fromInstance.getSpannedScope().getLocalSymbols();
         ArrayList<Symbol> symbolArrayList = (ArrayList<Symbol>)symbols.get(networkStructureInformation.getInstanceSymbolName());
 
@@ -331,6 +354,20 @@ public class NetworkComposer {
             }
         }
         return Optional.empty();
+        */
+    }
+
+    private EMAComponentInstanceSymbol findSubnetInstance(NetworkStructureInformation subnet, EMAComponentInstanceSymbol fromInstance){
+        EMAComponentInstanceSymbol fromSubnetInstance = null;
+        Map<String, Collection<Symbol>> symbols = (Map<String, Collection<Symbol>>) fromInstance.getSpannedScope().getLocalSymbols();
+        Collection<Symbol> compList = (Collection<Symbol>) symbols.get(subnet.getInstanceSymbolName());
+        for (Symbol symbol : compList){
+            if (symbol instanceof EMAComponentInstanceSymbol && symbol.getName().equals(subnet.getInstanceSymbolName()) && fromInstance.getFullName().equals(symbol.getPackageName())){
+                fromSubnetInstance = (EMAComponentInstanceSymbol) symbol;
+                break;
+            }
+        }
+        return fromSubnetInstance;
     }
 
     private boolean verifyEqualityString(ArrayList<String> list){
