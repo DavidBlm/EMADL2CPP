@@ -1,11 +1,11 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder;
 
-import de.monticore.lang.monticar.cnnarch._ast.ASTLayer;
-import de.monticore.lang.monticar.cnnarch._ast.ASTParallelBlock;
-import de.monticore.lang.monticar.cnnarch._ast.ASTStream;
+import de.monticore.lang.math._ast.ASTNumberExpression;
+import de.monticore.lang.monticar.cnnarch._ast.*;
 import de.monticore.lang.monticar.cnnarch._symboltable.ParallelCompositeElementSymbol;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
+import de.monticore.numberunit._ast.ASTNumberWithUnit;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
