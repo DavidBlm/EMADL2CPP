@@ -1,13 +1,17 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
+import de.monticore.lang.math._ast.ASTNumberExpression;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
+import de.monticore.lang.monticar.cnnarch._ast.ASTArchSimpleArithmeticExpression;
+import de.monticore.lang.monticar.cnnarch._ast.ASTArchSimpleExpression;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.lang.monticar.common2._ast.ASTCommonMatrixType;
 import de.monticore.lang.monticar.ts.references.MCASTTypeSymbolReference;
 import de.monticore.lang.monticar.types2._ast.ASTDimension;
 import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
+import de.monticore.numberunit._ast.ASTNumberWithUnit;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
 import junit.framework.TestCase;
@@ -117,12 +121,38 @@ public class NetworkScalerTest extends TestCase {
         List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
         ArchitectureElementSymbol residualBlock1 = architectureElements.get(2);
         ArchitectureElementSymbol residualBlock2 = architectureElements.get(4);
-        double residualBlock1Depth = getValueFromElement(residualBlock1, 3);
-        double residualBlock2Depth = getValueFromElement(residualBlock2, 3);
+        double residualBlock1Depth = getValueFromElementSymbol(residualBlock1, 3);
+        double residualBlock2Depth = getValueFromElementSymbol(residualBlock2, 3);
         double expectedDepth = 8;
 
         assertEquals(expectedDepth, residualBlock1Depth, 0.0001);
         assertEquals(expectedDepth, residualBlock2Depth, 0.0001);
+        assertEquals(expectedDepth, getValueFromElementAst(residualBlock1, 3), 0.0001);
+        assertEquals(expectedDepth, getValueFromElementAst(residualBlock2, 3), 0.0001);
+    }
+
+    private double getValueFromElementSymbol(ArchitectureElementSymbol element, int numberExpressionIndex) {
+        ArchitectureElementScope spannedScope = element.getSpannedScope();
+        ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols().get("");
+        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(numberExpressionIndex);
+        double dividend = expression.getValue().getRealNumber().getDividend().longValue();
+        double divisor = expression.getValue().getRealNumber().getDivisor().longValue();
+        return dividend / divisor;
+    }
+
+    private double getValueFromElementAst(ArchitectureElementSymbol element, int numberExpressionIndex) {
+        ArchitectureElementScope spannedScope = element.getSpannedScope();
+        ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols().get("");
+        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(numberExpressionIndex);
+        ASTArchSimpleExpression astExpression = (ASTArchSimpleExpression) expression.getAstNode().get();
+        return getValueOfExpression(astExpression);
+    }
+
+    private static double getValueOfExpression(ASTArchSimpleExpression expression) {
+        ASTArchSimpleArithmeticExpression arithmeticExpression = (ASTArchSimpleArithmeticExpression) expression.getArithmeticExpression();
+        ASTNumberExpression numberExpression = arithmeticExpression.getNumberExpression();
+        ASTNumberWithUnit numberWithUnit = numberExpression.getNumberWithUnit();
+        return numberWithUnit.getNumber().get();
     }
 
     @Test
@@ -135,12 +165,14 @@ public class NetworkScalerTest extends TestCase {
         List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
         ArchitectureElementSymbol residualBlock1 = architectureElements.get(2);
         ArchitectureElementSymbol residualBlock2 = architectureElements.get(4);
-        double residualBlock1Depth = getValueFromElement(residualBlock1, 3);
-        double residualBlock2Depth = getValueFromElement(residualBlock2, 3);
+        double residualBlock1Depth = getValueFromElementSymbol(residualBlock1, 3);
+        double residualBlock2Depth = getValueFromElementSymbol(residualBlock2, 3);
         double expectedDepth = 5;
 
         assertEquals(expectedDepth, residualBlock1Depth, 0.0001);
         assertEquals(expectedDepth, residualBlock2Depth, 0.0001);
+        assertEquals(expectedDepth, getValueFromElementAst(residualBlock1, 3), 0.0001);
+        assertEquals(expectedDepth, getValueFromElementAst(residualBlock2, 3), 0.0001);
     }
 
     @Test
@@ -153,69 +185,16 @@ public class NetworkScalerTest extends TestCase {
         List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
         ArchitectureElementSymbol residualBlock1 = architectureElements.get(2);
         ArchitectureElementSymbol residualBlock2 = architectureElements.get(4);
-        double residualBlock1Width = getValueFromElement(residualBlock1, 5);
-        double residualBlock2Width = getValueFromElement(residualBlock2, 5);
+        double residualBlock1Width = getValueFromElementSymbol(residualBlock1, 5);
+        double residualBlock2Width = getValueFromElementSymbol(residualBlock2, 5);
 
         double expectedResidualWidth1 = 96;
         double expectedResidualWidth2 = 192;
 
         assertEquals(expectedResidualWidth1, residualBlock1Width, 0.0001);
         assertEquals(expectedResidualWidth2, residualBlock2Width, 0.0001);
-    }
-
-    @Test
-    public void testScaleWidthStem() {
-        ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
-        int phi = 1;
-
-        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
-
-        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
-        ArchitectureElementSymbol stem = architectureElements.get(1);
-        double stemWidth = getValueFromElement(stem, 1);
-
-        double expectedStemWidth = 16;
-
-        assertEquals(expectedStemWidth, stemWidth, 0.0001);
-    }
-
-    @Test
-    public void testScaleWidthResidualBlocksRound() {
-        ScalingFactors scalingFactors = new ScalingFactors(1, 1.1, 1);
-        int phi = 1;
-
-        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
-
-        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
-        ArchitectureElementSymbol residualBlock1 = architectureElements.get(2);
-        ArchitectureElementSymbol residualBlock2 = architectureElements.get(4);
-        double residualBlock1Width = getValueFromElement(residualBlock1, 5);
-        double residualBlock2Width = getValueFromElement(residualBlock2, 5);
-
-        double expectedResidualWidth1 = 53;
-        double expectedResidualWidth2 = 106;
-
-        assertEquals(expectedResidualWidth1, residualBlock1Width, 0.0001);
-        assertEquals(expectedResidualWidth2, residualBlock2Width, 0.0001);
-    }
-
-    @Test
-    public void testScaleWidthReductionBlocks() {
-        ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
-        int phi = 1;
-
-        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
-
-        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
-        ArchitectureElementSymbol reductionBlock1 = architectureElements.get(3);
-        ArchitectureElementSymbol reductionBlock2 = architectureElements.get(5);
-        double reductionBlock1Width = getValueFromElement(reductionBlock1, 1);
-        double reductionBlock2Width = getValueFromElement(reductionBlock2, 1);
-        double expectedReductionWidth1 = 96;
-        double expectedReductionWidth2 = 192;
-
-        assertEquals(expectedReductionWidth1, reductionBlock1Width, 0.0001);
-        assertEquals(expectedReductionWidth2, reductionBlock2Width, 0.0001);
+        assertEquals(expectedResidualWidth1, getValueFromElementAst(residualBlock1, 5), 0.0001);
+        assertEquals(expectedResidualWidth2, getValueFromElementAst(residualBlock2, 5), 0.0001);
     }
 
     @Test
@@ -269,19 +248,70 @@ public class NetworkScalerTest extends TestCase {
         return dimensions;
     }
 
-    private List<ArchitectureElementSymbol> getElementsFromArchitecture(ArchitectureSymbol arch){
+    private List<ArchitectureElementSymbol> getElementsFromArchitecture(ArchitectureSymbol arch) {
         NetworkInstructionSymbol networkInstruction = arch.getNetworkInstructions().get(0);
         SerialCompositeElementSymbol networkInstructionBody = networkInstruction.getBody();
         List<ArchitectureElementSymbol> architectureElements = networkInstructionBody.getElements();
         return architectureElements;
     }
 
-    private double getValueFromElement(ArchitectureElementSymbol element, int numberExpressionIndex){
-        ArchitectureElementScope spannedScope  =  element.getSpannedScope();
-        ArrayList expressions = (ArrayList) spannedScope.getLocalSymbols().get("");
-        MathNumberExpressionSymbol expression = (MathNumberExpressionSymbol) expressions.get(numberExpressionIndex);
-        double dividend = expression.getValue().getRealNumber().getDividend().longValue();
-        double divisor = expression.getValue().getRealNumber().getDivisor().longValue();
-        return dividend / divisor;
+    @Test
+    public void testScaleWidthStem() {
+        ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol stem = architectureElements.get(1);
+        double stemWidth = getValueFromElementSymbol(stem, 1);
+
+        double expectedStemWidth = 16;
+
+        assertEquals(expectedStemWidth, stemWidth, 0.0001);
+        assertEquals(expectedStemWidth, getValueFromElementAst(stem, 1), 0.0001);
+    }
+
+    @Test
+    public void testScaleWidthResidualBlocksRound() {
+        ScalingFactors scalingFactors = new ScalingFactors(1, 1.1, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol residualBlock1 = architectureElements.get(2);
+        ArchitectureElementSymbol residualBlock2 = architectureElements.get(4);
+        double residualBlock1Width = getValueFromElementSymbol(residualBlock1, 5);
+        double residualBlock2Width = getValueFromElementSymbol(residualBlock2, 5);
+
+        double expectedResidualWidth1 = 53;
+        double expectedResidualWidth2 = 106;
+
+        assertEquals(expectedResidualWidth1, residualBlock1Width, 0.0001);
+        assertEquals(expectedResidualWidth2, residualBlock2Width, 0.0001);
+        assertEquals(expectedResidualWidth1, getValueFromElementAst(residualBlock1, 5), 0.0001);
+        assertEquals(expectedResidualWidth2, getValueFromElementAst(residualBlock2, 5), 0.0001);
+    }
+
+    @Test
+    public void testScaleWidthReductionBlocks() {
+        ScalingFactors scalingFactors = new ScalingFactors(1, 2, 1);
+        int phi = 1;
+
+        ArchitectureSymbol scaledArch = networkScaler.scale(architecture, scalingFactors, phi);
+
+        List<ArchitectureElementSymbol> architectureElements = getElementsFromArchitecture(scaledArch);
+        ArchitectureElementSymbol reductionBlock1 = architectureElements.get(3);
+        ArchitectureElementSymbol reductionBlock2 = architectureElements.get(5);
+        double reductionBlock1Width = getValueFromElementSymbol(reductionBlock1, 1);
+        double reductionBlock2Width = getValueFromElementSymbol(reductionBlock2, 1);
+        double expectedReductionWidth1 = 96;
+        double expectedReductionWidth2 = 192;
+
+        assertEquals(expectedReductionWidth1, reductionBlock1Width, 0.0001);
+        assertEquals(expectedReductionWidth2, reductionBlock2Width, 0.0001);
+        assertEquals(expectedReductionWidth1, getValueFromElementAst(reductionBlock1, 1), 0.0001);
+        assertEquals(expectedReductionWidth2, getValueFromElementAst(reductionBlock2, 1), 0.0001);
     }
 }
