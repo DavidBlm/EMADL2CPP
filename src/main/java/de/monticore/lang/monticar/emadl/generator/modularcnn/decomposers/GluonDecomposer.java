@@ -2,8 +2,10 @@ package de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers;
 
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 
-public interface BackendDecomposer {
+public class GluonDecomposer implements BackendDecomposer{
 
-    public void decomposeNetwork(String modelPath,  ComposedNetworkStructure composedNetworkStructure);
+    @Override
+    public void decomposeNetwork(String modelPath, ComposedNetworkStructure composedNetworkStructure) {
 
+    }
 }
