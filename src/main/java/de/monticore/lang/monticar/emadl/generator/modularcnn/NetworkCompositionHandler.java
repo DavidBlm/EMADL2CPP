@@ -4,6 +4,7 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
 import de.monticore.lang.monticar.emadl.modularcnn.tools.ComposedNetworkFileHandler;
 import de.monticore.symboltable.Symbol;
@@ -213,5 +214,9 @@ public class NetworkCompositionHandler {
         }
 
         return architectureSymbols;
+    }
+
+    public void decomposeNetwork(String modelPath, ComposedNetworkStructure composedNetworkStructure){
+        this.networkDecomposer.decomposeNetwork(modelPath,composedNetworkStructure);
     }
 }

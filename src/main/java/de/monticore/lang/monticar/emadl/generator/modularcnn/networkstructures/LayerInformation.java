@@ -36,17 +36,14 @@ public class LayerInformation {
     }
 
     public boolean isInputLayer(){
-        if (this.layerType == LayerType.INPUT && this.preceedingLayer == null && this.succeedingLayer != null) return true;
-        return false;
+        return this.layerType == LayerType.INPUT && this.preceedingLayer == null && this.succeedingLayer != null;
     }
 
     public boolean isOutputLayer(){
-        if (this.layerType == LayerType.OUTPUT && this.preceedingLayer != null && this.succeedingLayer == null) return true;
-        return false;
+        return this.layerType == LayerType.OUTPUT && this.preceedingLayer != null && this.succeedingLayer == null;
     }
 
     public boolean isDefaultLayer(){
-        if (this.layerType == LayerType.DEFAULT && this.preceedingLayer != null && this.succeedingLayer != null) return true;
-        return false;
+        return this.layerType == LayerType.DEFAULT && this.preceedingLayer != null && this.succeedingLayer != null;
     }
 }

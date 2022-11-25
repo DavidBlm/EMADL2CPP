@@ -1,6 +1,9 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.BackendDecomposer;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.GluonDecomposer;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 
 public class NetworkDecomposer {
 
@@ -10,8 +13,22 @@ public class NetworkDecomposer {
         this.backend = backend;
     }
 
-    public void decomposeNetwork(){
+    public void decomposeNetwork(String modelPath, ComposedNetworkStructure composedNetworkStructure){
+        BackendDecomposer backendDecomposer = null;
+        String backendString = Backend.getBackendString(this.backend);
+        switch (backendString){
+            case "GLUON":
+                backendDecomposer = new GluonDecomposer();
+                break;
+            default:
+                backendDecomposer = null;
+        }
 
+        if (backendDecomposer == null) {
+            throw new RuntimeException("Decomposition for current backend is not supported (yet)");
+        }
+
+        backendDecomposer.decomposeNetwork(modelPath, composedNetworkStructure);
     }
 
 

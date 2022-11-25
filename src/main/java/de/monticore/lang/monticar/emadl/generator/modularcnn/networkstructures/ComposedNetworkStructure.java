@@ -12,12 +12,18 @@ public class ComposedNetworkStructure {
     private String networkName = null;
     private String instanceSymbolName = null;
     private String componentName = null;
+    private String modelName = null;
 
     public ComposedNetworkStructure(NetworkStructureInformation networkStructureInformation){
         this.networkStructureInformation = networkStructureInformation;
         this.networkName = networkStructureInformation.getNetworkName();
         this.instanceSymbolName = networkStructureInformation.getInstanceSymbolName();
         this.componentName = networkStructureInformation.getComponentName();
+        this.modelName = null;
+    }
+
+    public String getModelName(){
+        return this.modelName;
     }
 
     public String getNetworkName() {
