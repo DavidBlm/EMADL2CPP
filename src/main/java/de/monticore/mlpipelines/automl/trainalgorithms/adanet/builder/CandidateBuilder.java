@@ -24,7 +24,7 @@ public class CandidateBuilder {
 
         buildSymbol();
         buildAST();
-        setCandidateInArchitecture(adaNetSymbol);
+        setCandidateInArchitecture();
 
         return architecture;
     }
@@ -39,7 +39,7 @@ public class CandidateBuilder {
         adaNetAST = astBuilder.build(adaNetSymbol);
     }
 
-    private void setCandidateInArchitecture(ArchitectureElementSymbol adaNetSymbol) {
+    private void setCandidateInArchitecture() {
         SerialCompositeElementSymbol body = getNetworkInstructionBody();
         List<ArchitectureElementSymbol> symbolElements = body.getElements();
         ASTStream astNode = (ASTStream) body.getAstNode().get();
