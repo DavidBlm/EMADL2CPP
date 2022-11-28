@@ -4,6 +4,8 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.AtomicNetworkStructure;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
 import de.monticore.symboltable.CommonScope;
 import de.monticore.symboltable.MutableScope;
@@ -18,17 +20,21 @@ public class NetworkComposer {
     private NetworkCompositionHandler networkCompositionHandler = null;
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
     private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
+    private ComposedNetworkStructure currentComposedNetworkStructure = null;
+    private LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures = null;
 
-    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols){
+    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols, LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures){
         this.networkCompositionHandler = networkCompositionHandler;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
+        this.composedNetworkStructures = composedNetworkStructures;
 
     }
 
-    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols){
+    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures){
         this.networkCompositionHandler = networkCompositionHandler;
         this.instanceVault = instanceVault;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
+        this.composedNetworkStructures = composedNetworkStructures;
     }
 
     public ArchitectureSymbol generateComposedNetwork(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance){
@@ -37,18 +43,23 @@ public class NetworkComposer {
         if (cachedSymbol != null) return cachedSymbol;
 
         ArchitectureSymbol composedNet = null;
+        this.currentComposedNetworkStructure = new ComposedNetworkStructure(networkStructureInformation);
         try {
-            composedNet = generateNetworkLevel(networkStructureInformation, fromInstance);
+            composedNet = generateNetworkLevel(networkStructureInformation, fromInstance,0);
+            if (composedNet != null && !composedNetworkStructures.containsKey(networkStructureInformation.getNetworkName())){
+                composedNetworkStructures.put(networkStructureInformation.getNetworkName(), this.currentComposedNetworkStructure);
+            }
         } catch (Exception e){
             Log.error("Generation of composed network failed");
             e.printStackTrace();
             throw new RuntimeException();
         }
+        this.currentComposedNetworkStructure = null;
 
         return composedNet;
     }
 
-    public ArchitectureSymbol generateNetworkLevel(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance) throws Exception {
+    public ArchitectureSymbol generateNetworkLevel(NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance, int atomicNetPositionHook) throws Exception {
         Log.info("Generating Network Level","NETWORK_COMPOSITION");
         ArrayList<NetworkStructureInformation> subnets = networkStructureInformation.getSubNetworks();
         ArrayList<ArchitectureSymbol> subnetArchSymbols = new ArrayList<>();
@@ -65,6 +76,11 @@ public class NetworkComposer {
             for (String dataFlowElement : instanceOnlyDataFlow){
                 for (NetworkStructureInformation subnet : subnets){
                     if (!subnet.getInstanceSymbolName().equals(dataFlowElement)) continue;
+                    ArrayList<AtomicNetworkStructure> currentAtomicNetworks = this.currentComposedNetworkStructure.getAtomicNetworkStructures();
+                    AtomicNetworkStructure prevAtomicNet = null;
+                    AtomicNetworkStructure succAtomicNet = null;
+
+                    allocateSurroundingAtomicNets(prevAtomicNet, succAtomicNet, atomicNetPositionHook);
 
                     EMAComponentInstanceSymbol fromSubnetInstance = findSubnetInstance(subnet,fromInstance);
                     if (fromSubnetInstance == null) throw new Exception("Could not find subnet instance in instances of symbol");
@@ -72,6 +88,9 @@ public class NetworkComposer {
                     ArchitectureSymbol cachedSubnetArchSymbol = cachedComposedArchitectureSymbols.get(fromSubnetInstance.getFullName());
                     if (cachedSubnetArchSymbol != null){
                         subnetArchSymbols.add(cachedSubnetArchSymbol);
+                        AtomicNetworkStructure atomicNetworkStructure = new AtomicNetworkStructure(subnet, cachedSubnetArchSymbol);
+                        currentAtomicNetworks.add(atomicNetworkStructure);
+                        //this.currentComposedNetworkStructure.get
                         break;
                     }
 
@@ -87,6 +106,8 @@ public class NetworkComposer {
                         } else{
                             subnet.setComposedNetworkArchitectureSymbol(architectureOpt.get());
                             subnetArchSymbols.add(architectureOpt.get());
+                            AtomicNetworkStructure atomicNetworkStructure = new AtomicNetworkStructure(subnet, architectureOpt.get());
+                            currentAtomicNetworks.add(atomicNetworkStructure);
                             break;
                         }
                     } else {
@@ -95,9 +116,11 @@ public class NetworkComposer {
                             throw new Exception("Could not find Instance Symbol for nested Architecture");
                         }
 
-                        ArchitectureSymbol subnetArchSymbol = generateNetworkLevel(subnet, fromSubnetInstance);
+                        ArchitectureSymbol subnetArchSymbol = generateNetworkLevel(subnet, fromSubnetInstance, atomicNetPositionHook );
                         if (subnetArchSymbol != null){
                             subnetArchSymbols.add(subnetArchSymbol);
+                            //AtomicNetworkStructure atomicNetworkStructure = new AtomicNetworkStructure(subnet, subnetArchSymbol);
+                            //currentAtomicNetworks.add(atomicNetworkStructure);
                             break;
                         }
                     }
@@ -114,6 +137,20 @@ public class NetworkComposer {
         }
 
         return composedNet;
+    }
+
+    private void allocateSurroundingAtomicNets(AtomicNetworkStructure previous, AtomicNetworkStructure succeeding, int hookPoint){
+        ArrayList<AtomicNetworkStructure> currentAtomicNetworks = this.currentComposedNetworkStructure.getAtomicNetworkStructures();
+        if (currentAtomicNetworks.size() == 0) return;
+
+        if (hookPoint >= 0 && hookPoint < currentAtomicNetworks.size()-1){
+            previous = currentAtomicNetworks.get(hookPoint);
+            succeeding = currentAtomicNetworks.get(hookPoint + 1);
+        } else if (hookPoint == currentAtomicNetworks.size()-1){
+            previous = currentAtomicNetworks.get(hookPoint);
+        } else {
+            throw new RuntimeException("Hookpoint out of bounds. Cannot build AtomicNetworkStructure correctly");
+        }
     }
 
     private void fixScopesOfMergedArchitectureSymbol(ArchitectureSymbol composedNet, NetworkStructureInformation networkStructureInformation, EMAComponentInstanceSymbol fromInstance, ArrayList<ArchitectureSymbol> subnetArchSymbols){

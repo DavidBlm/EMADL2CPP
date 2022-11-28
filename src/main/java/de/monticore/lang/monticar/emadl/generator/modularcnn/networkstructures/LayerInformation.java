@@ -1,14 +1,20 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures;
 
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
+
 public class LayerInformation {
     private String layerName;
     private LayerType layerType;
     private LayerInformation preceedingLayer = null;
     private LayerInformation succeedingLayer = null;
 
-    public LayerInformation(String layerName, LayerType layerType){
+    private ArchitectureElementSymbol architectureElementSymbol = null;
+
+    public LayerInformation(String layerName, LayerType layerType, ArchitectureElementSymbol architectureElementSymbol){
         this.layerName = layerName;
         this.layerType = layerType;
+        this.architectureElementSymbol = architectureElementSymbol;
     }
 
     public LayerInformation getPreceedingLayer() {

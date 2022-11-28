@@ -4,6 +4,7 @@ import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.C
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GluonDecomposer implements BackendDecomposer{
 
@@ -27,6 +28,10 @@ public class GluonDecomposer implements BackendDecomposer{
 
         splitComposedNetworkIntoAtomicNetworks(modelPath, composedNetworkStructure, networkJsonFile, paramsFile, lossNetworkJsonFile, lossParamsFile);
     }
+
+    /*
+    public void decomposeNetworks(String modelPath, HashMap<String, ComposedNetworkStructure> composedNetworkStructures) {
+    }*/
 
     private void splitComposedNetworkIntoAtomicNetworks(String modelPath, ComposedNetworkStructure composedNetworkStructure, File networkFile, File paramsFile, File lossNetworkFile, File lossParamsFile){
         splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);

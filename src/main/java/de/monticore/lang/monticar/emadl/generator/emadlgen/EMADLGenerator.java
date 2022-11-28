@@ -9,6 +9,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkDecomposer;
 import de.monticore.lang.monticar.generator.EMAMGenerator;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.MathCommandRegister;
@@ -142,6 +143,11 @@ public class EMADLGenerator implements EMAMGenerator {
         }
         processedArchitecture = null;
         Log.info("Geneator end", "GENERATION");
+
+        Log.info("Start decomposition","DECOMPOSITION");
+        NetworkDecomposer networkDecomposer = new NetworkDecomposer(getBackend());
+        networkDecomposer.decomposeNetworks(modelPath, emadlCNNHandler.getComposedNetworkStructures());
+        Log.info("End decomposition","DECOMPOSITION");
     }
 
 
@@ -291,7 +297,7 @@ public class EMADLGenerator implements EMAMGenerator {
         /* */
 
         NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
-                emadlCNNHandler.getCachedComposedArchitectureSymbols(), this.getBackend());
+                emadlCNNHandler.getCachedComposedArchitectureSymbols(), this.getBackend(), this.emadlCNNHandler.getComposedNetworkStructures());
         networkCompositionHandler.processComponentInstances(allInstances);
 
         //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);

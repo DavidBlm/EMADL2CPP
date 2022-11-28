@@ -1,7 +1,12 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures;
 
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.VariableSymbol;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
 import java.util.ArrayList;
+import java.util.List;
 
 public class AtomicNetworkStructure {
 
@@ -15,11 +20,12 @@ public class AtomicNetworkStructure {
 
 
 
-    public AtomicNetworkStructure(NetworkStructureInformation networkStructureInformation){
+    public AtomicNetworkStructure(NetworkStructureInformation networkStructureInformation, ArchitectureSymbol architectureSymbol){
         this.networkStructureInformation = networkStructureInformation;
         this.networkName = networkStructureInformation.getNetworkName();
         this.instanceSymbolName = networkStructureInformation.getInstanceSymbolName();
         this.componentName = networkStructureInformation.getComponentName();
+        processArchitectureSymbol(architectureSymbol);
     }
 
     public String getNetworkName() {
@@ -50,5 +56,40 @@ public class AtomicNetworkStructure {
     public void addBackSlicePoint(LayerInformation networkLayer){
         this.networkLayers.add(networkLayer);
         this.backSlicePoint = networkLayer;
+    }
+
+    private void processArchitectureSymbol(ArchitectureSymbol architectureSymbol){
+        List<NetworkInstructionSymbol> networkInstructions = architectureSymbol.getNetworkInstructions();
+
+        for (NetworkInstructionSymbol symbol : networkInstructions){
+
+
+            List<ArchitectureElementSymbol> elementSymbols = symbol.getBody().getElements();
+            for (int i=0; i<elementSymbols.size();i++){
+                ArchitectureElementSymbol elementSymbol = elementSymbols.get(i);
+                LayerType layerType = null;
+
+                if (elementSymbol instanceof VariableSymbol){
+                    if (i==0) layerType = LayerType.INPUT;
+                    else layerType = LayerType.OUTPUT;
+                } else {
+                    layerType = LayerType.DEFAULT;
+                }
+
+                LayerInformation layerInformation = new LayerInformation(elementSymbol.getName(), layerType, elementSymbol);
+
+                if (elementSymbol instanceof VariableSymbol){
+                    if (i==0) this.frontSlicePoint = layerInformation;
+                    else this.backSlicePoint = layerInformation;
+                }
+                if (this.networkLayers.size() > 0){
+                    this.networkLayers.get(this.networkLayers.size()-1).setSucceedingLayer(layerInformation);
+                    layerInformation.setPreceedingLayer(this.networkLayers.get(this.networkLayers.size()-1));
+                }
+
+
+                this.addNetworkLayer(layerInformation);
+            }
+        }
     }
 }

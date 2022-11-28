@@ -5,6 +5,8 @@ import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.Backend
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.GluonDecomposer;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 
+import java.util.HashMap;
+
 public class NetworkDecomposer {
 
     private Backend backend = null;
@@ -29,6 +31,13 @@ public class NetworkDecomposer {
         }
 
         backendDecomposer.decomposeNetwork(modelPath, composedNetworkStructure);
+    }
+
+    public void decomposeNetworks(String modelPath, HashMap<String, ComposedNetworkStructure> composedNetworkStructures){
+        for (String key : composedNetworkStructures.keySet()){
+            ComposedNetworkStructure composedNetworkStructure = composedNetworkStructures.get(key);
+            decomposeNetwork(modelPath,composedNetworkStructure);
+        }
     }
 
 

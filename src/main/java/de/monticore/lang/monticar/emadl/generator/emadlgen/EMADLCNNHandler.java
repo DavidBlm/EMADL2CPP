@@ -19,6 +19,7 @@ import de.monticore.lang.monticar.cnnarch.generator.validation.TrainedArchitectu
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
@@ -42,7 +43,9 @@ public class EMADLCNNHandler {
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
     private String composedNetworkFilePath;
     private Map<String, ArchitectureSymbol> processedArch;
-    private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = new LinkedHashMap<>();
+    private LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols = new LinkedHashMap<>();
+
+    private LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures = new LinkedHashMap();
 
 
 
@@ -59,10 +62,17 @@ public class EMADLCNNHandler {
 
     }
 
-    public LinkedHashMap<String,ArchitectureSymbol> getCachedComposedArchitectureSymbols() {
+    public LinkedHashMap<String, ArchitectureSymbol> getCachedComposedArchitectureSymbols() {
         return this.cachedComposedArchitectureSymbols;
     }
 
+    public LinkedHashMap<String, ComposedNetworkStructure> getComposedNetworkStructures() {
+        return this.composedNetworkStructures;
+    }
+
+    public void setComposedNetworkStructures(LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures) {
+        this.composedNetworkStructures = composedNetworkStructures;
+    }
 
 
     protected CNNArchGenerator getCnnArchGenerator() {
@@ -108,7 +118,7 @@ public class EMADLCNNHandler {
 
 
         NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
-                this.cachedComposedArchitectureSymbols, this.emadlGenerator.getBackend());
+                this.cachedComposedArchitectureSymbols, this.emadlGenerator.getBackend(), this.composedNetworkStructures);
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
         ArrayList<EMAComponentInstanceSymbol> networks = networkCompositionHandler.processComponentInstances(allInstances);

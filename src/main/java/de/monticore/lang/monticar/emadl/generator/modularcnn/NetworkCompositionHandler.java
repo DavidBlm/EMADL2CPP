@@ -18,23 +18,23 @@ public class NetworkCompositionHandler {
     private NetworkComposer networkComposer;
     private NetworkDecomposer networkDecomposer;
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
+    private LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
+    private LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures = null;
 
-    private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
 
-
-    public NetworkCompositionHandler(String composedNetworkFilePath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend) {
+    public NetworkCompositionHandler(String composedNetworkFilePath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend, LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures) {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
-        this.networkComposer = new NetworkComposer(this, cachedComposedArchitectureSymbols);
+        this.networkComposer = new NetworkComposer(this, cachedComposedArchitectureSymbols, composedNetworkStructures);
         this.networkDecomposer = new NetworkDecomposer(backend);
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
 
     }
 
-    public NetworkCompositionHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend) {
+    public NetworkCompositionHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend, LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures) {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
-        this.networkComposer = new NetworkComposer(this, instanceVault, cachedComposedArchitectureSymbols);
+        this.networkComposer = new NetworkComposer(this, instanceVault, cachedComposedArchitectureSymbols, composedNetworkStructures);
         this.networkDecomposer = new NetworkDecomposer(backend);
         this.instanceVault = instanceVault;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
