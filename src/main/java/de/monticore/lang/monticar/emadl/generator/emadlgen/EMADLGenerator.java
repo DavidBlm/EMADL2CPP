@@ -146,7 +146,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         Log.info("Start decomposition","DECOMPOSITION");
         NetworkDecomposer networkDecomposer = new NetworkDecomposer(getBackend());
-        networkDecomposer.decomposeNetworks(modelPath, emadlCNNHandler.getComposedNetworkStructures());
+        networkDecomposer.decomposeNetworks("model/", emadlCNNHandler.getComposedNetworkStructures());
         Log.info("End decomposition","DECOMPOSITION");
     }
 

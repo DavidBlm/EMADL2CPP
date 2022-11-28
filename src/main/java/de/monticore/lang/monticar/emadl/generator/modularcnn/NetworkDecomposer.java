@@ -2,7 +2,7 @@ package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.BackendDecomposer;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.GluonDecomposer;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.gluon.GluonDecomposer;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 
 import java.util.HashMap;

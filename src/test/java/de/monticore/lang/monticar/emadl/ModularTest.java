@@ -32,7 +32,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void runGenerator(String[] args, int expectedFindings, boolean exceptionAllowed){
 
         try {
-            removeDirectory("model/");
+            //removeDirectory("model/");
             EMADLGeneratorCli.main(args);
             checkFindingsCount(expectedFindings);
 
