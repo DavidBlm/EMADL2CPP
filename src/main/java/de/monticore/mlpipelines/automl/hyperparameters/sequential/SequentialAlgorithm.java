@@ -1,8 +1,8 @@
 package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 
-import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
+import de.monticore.mlpipelines.automl.hyperparameters.HyperparameterAlgorithm;
 
-public class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
+public class SequentialAlgorithm extends HyperparameterAlgorithm {
 
     // TODO: Specify datatype
     private Object currentHyperparameters;

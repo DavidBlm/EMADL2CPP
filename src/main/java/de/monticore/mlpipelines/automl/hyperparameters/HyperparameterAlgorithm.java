@@ -1,6 +1,6 @@
 package de.monticore.mlpipelines.automl.hyperparameters;
 
-public abstract class AbstractHyperparameterAlgorithm {
+public abstract class HyperparameterAlgorithm {
 
     private int currentIteration;
 

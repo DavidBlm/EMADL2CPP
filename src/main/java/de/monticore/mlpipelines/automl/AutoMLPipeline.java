@@ -3,6 +3,9 @@ package de.monticore.mlpipelines.automl;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
+import de.monticore.mlpipelines.automl.configuration.HyperparameterOptConfig;
+import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.automl.hyperparameters.HyperparameterAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
 
@@ -11,6 +14,7 @@ public class AutoMLPipeline extends Pipeline {
     private Pipeline trainPipeline;
     private ArchitectureSymbol architecture;
     private NeuralArchitectureSearch neuralArchitectureSearch;
+    private HyperparameterAlgorithm hyperparameterAlgorithm;
     private TrainAlgorithmBuilder trainAlgorithmBuilder;
 
     public AutoMLPipeline() {
@@ -18,17 +22,31 @@ public class AutoMLPipeline extends Pipeline {
     }
 
     @Override
-    public void execute(ArchitectureSymbol architecture, Configuration configuration) {
-        this.architecture = architecture;
-        this.configuration = configuration;
+    public void execute(ArchitectureSymbol originalArchitecture, Configuration configuration) {
+        executeNeuralArchitectureSearch(originalArchitecture);
+        executeHyperparameterOptimization(configuration);
+        trainPipeline.execute(architecture, configuration);
+    }
 
+    private void executeNeuralArchitectureSearch(ArchitectureSymbol originalArchitecture) {
         loadTrainAlgorithm();
-        neuralArchitectureSearch.execute(architecture);
+        architecture = neuralArchitectureSearch.execute(originalArchitecture);
+    }
+
+    private void executeHyperparameterOptimization(Configuration configuration) {
+        loadHyperparameterAlgorithm();
+        this.configuration = configuration;
+        hyperparameterAlgorithm.executeIteration();
     }
 
     public void loadTrainAlgorithm() {
-        trainAlgorithmBuilder.setConfig(configuration.getTrainAlgorithmConfig());
+        TrainAlgorithmConfig trainAlgorithmConfig = configuration.getTrainAlgorithmConfig();
+        trainAlgorithmBuilder.setConfig(trainAlgorithmConfig);
         this.neuralArchitectureSearch = trainAlgorithmBuilder.build();
+    }
+
+    private void loadHyperparameterAlgorithm() {
+        HyperparameterOptConfig hyperparameterOptConfig = configuration.getHyperparameterOptConfig();
     }
 
     public Configuration getConfiguration() {
