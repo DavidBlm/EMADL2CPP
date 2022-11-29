@@ -47,6 +47,7 @@ public class AutoMLPipeline extends Pipeline {
 
     private void loadHyperparameterAlgorithm() {
         HyperparameterOptConfig hyperparameterOptConfig = configuration.getHyperparameterOptConfig();
+        //TODO: Use HyperparameterAlgorithmBuilder to load the correct algorithm
     }
 
     public Configuration getConfiguration() {
