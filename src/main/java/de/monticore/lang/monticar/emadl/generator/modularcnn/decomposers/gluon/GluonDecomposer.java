@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.BackendDecomposer;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.AtomicNetworkStructure;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.LayerInformation;
 import de.se_rwth.commons.logging.Log;
 
 import java.io.*;
@@ -15,6 +16,14 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class GluonDecomposer implements BackendDecomposer {
+
+    ArrayList<LayerSubstitute> allowedLayerSubstitutes = new ArrayList<>();
+
+    public GluonDecomposer(){
+        LayerSubstitute reluSub = new LayerSubstitute("Relu");
+        reluSub.addSubstitute("Activation");
+        allowedLayerSubstitutes.add(reluSub);
+    }
 
     @Override
     public void decomposeNetwork(String modelPath, ComposedNetworkStructure composedNetworkStructure) {
@@ -52,16 +61,100 @@ public class GluonDecomposer implements BackendDecomposer {
         String jsonContent = readFile(file.getPath());
         Map<String, Object> contentMap = jsonToMap(jsonContent);
 
+        ArrayList<Object> nodes = (ArrayList<Object>) contentMap.get("nodes");
+        ArrayList<AtomicNetworkStructure> atomicNets = composedNetworkStructure.getAtomicNetworkStructures();
+        ArrayList<ArrayList<Map<String,Object>>> decomposedNets = new ArrayList<>();
+        int layerPointer = 0;
+
+
+        for (int i=0; i<atomicNets.size(); i++  /*int i=0, j=0; i<nodes.size() && j<atomicNets.size(); i++*/ ){
+            AtomicNetworkStructure atomicNet = atomicNets.get(i);
+            ArrayList<Map<String,Object>> atomicNodes = new ArrayList<>();
+            for (LayerInformation layer : atomicNet.getNetworkLayers()){
+                Map<String,Object> node = (Map<String, Object>) nodes.get(layerPointer);
+                String op = (String) node.get("op");
+                String name = (String) node.get("name");
+
+                if (layer.isInputLayer()){
+                    if (i==0){
+                        if (op.equals("null") && name.equals(layer.getLayerName())){
+                            atomicNodes.add(node);
+                            layerPointer++;
+                        }
+                    } else {
+                        //build new input for atomic net here
+                        continue;
+                    }
 
 
 
-        ArrayList<Map<String, Object>> decomposedContentMaps = new ArrayList<>();
-        for (AtomicNetworkStructure atomicNetworkStructure : composedNetworkStructure.getAtomicNetworkStructures()){
+
+
+                } else if (layer.isDefaultLayer()){
+
+                    boolean whileLoopEntered = false;
+                    boolean substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(),op);
+                    while(!op.equals(layer.getLayerName()) && !substituteCheck){
+                        atomicNodes.add(node);
+
+                        Map<String, Object> oldNode = node;
+
+                        node = (Map<String, Object>) nodes.get(layerPointer);
+                        op = (String) node.get("op");
+                        name = (String) node.get("name");
+
+
+                        layerPointer++;
+
+                        if (oldNode.equals(node)){
+                            node = (Map<String, Object>) nodes.get(layerPointer);
+                            op = (String) node.get("op");
+                            name = (String) node.get("name");
+                        }
+
+                        if (!whileLoopEntered) whileLoopEntered = true;
+                    }
+
+                    substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(),op);
+                    if (op.equals(layer.getLayerName()) || substituteCheck){
+                        atomicNodes.add(node);
+
+                        node = (Map<String, Object>) nodes.get(layerPointer);
+                        op = (String) node.get("op");
+                        name = (String) node.get("name");
+                        //layerPointer++;
+                    }
+
+                    if (!whileLoopEntered) layerPointer++;
+
+                } else if (layer.isOutputLayer()){
+                    if (i==atomicNets.size()-1){
+
+                    } else {
+                        //build new output for atomic net here
+                        continue;
+                    }
+
+
+
+
+
+
+                } else {
+                    throw new RuntimeException("Unknown Layer type when splitting. Type: " + layer.getLayerType().toString());
+                }
+
+            }
 
         }
+    }
 
-
-
+    private boolean checkLayerSubstitutesForMatch(String originalLayer, String layerSubs){
+        for (LayerSubstitute layerSubstitute : this.allowedLayerSubstitutes) {
+            boolean match = layerSubstitute.hasLayerSubstitute(originalLayer,layerSubs);
+            if (match) return true;
+        }
+        return false;
     }
 
     private void splitNetworkParamsFile(String modelPath, ComposedNetworkStructure composedNetworkStructure, File file){

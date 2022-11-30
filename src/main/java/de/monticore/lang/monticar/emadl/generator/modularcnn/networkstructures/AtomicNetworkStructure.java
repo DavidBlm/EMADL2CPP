@@ -1,9 +1,6 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures;
 
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
-import de.monticore.lang.monticar.cnnarch._symboltable.VariableSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,7 +70,18 @@ public class AtomicNetworkStructure {
                     if (i==0) layerType = LayerType.INPUT;
                     else layerType = LayerType.OUTPUT;
                 } else {
-                    layerType = LayerType.DEFAULT;
+                    LayerSymbol layerSymbol = (LayerSymbol) elementSymbol;
+                    if (layerSymbol.getDeclaration().getBody() != null){
+                        for (ArchitectureElementSymbol funcSymbol: layerSymbol.getDeclaration().getBody().getElements()) {
+                            LayerSymbol funcLayerSymbol = (LayerSymbol) funcSymbol;
+                            LayerInformation funcLayer = new LayerInformation(funcLayerSymbol.getName(), LayerType.DEFAULT, funcSymbol);
+                            this.addNetworkLayer(funcLayer);
+                         }
+                        continue;
+                        //layerType = LayerType.FUNCTION;
+                    } else {
+                        layerType = LayerType.DEFAULT;
+                    }
                 }
 
                 LayerInformation layerInformation = new LayerInformation(elementSymbol.getName(), layerType, elementSymbol);

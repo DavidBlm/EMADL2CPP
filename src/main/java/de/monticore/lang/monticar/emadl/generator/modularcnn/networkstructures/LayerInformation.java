@@ -42,14 +42,18 @@ public class LayerInformation {
     }
 
     public boolean isInputLayer(){
-        return this.layerType == LayerType.INPUT && this.preceedingLayer == null && this.succeedingLayer != null;
+        return this.layerType == LayerType.INPUT; //&& this.preceedingLayer == null && this.succeedingLayer != null;
     }
 
     public boolean isOutputLayer(){
-        return this.layerType == LayerType.OUTPUT && this.preceedingLayer != null && this.succeedingLayer == null;
+        return this.layerType == LayerType.OUTPUT; //&& this.preceedingLayer != null && this.succeedingLayer == null;
     }
 
     public boolean isDefaultLayer(){
-        return this.layerType == LayerType.DEFAULT && this.preceedingLayer != null && this.succeedingLayer != null;
+        return this.layerType == LayerType.DEFAULT; //&& this.preceedingLayer != null && this.succeedingLayer != null;
+    }
+
+    public boolean isFunctionLayer(){
+        return this.layerType == LayerType.FUNCTION; //&& this.preceedingLayer != null && this.succeedingLayer != null;
     }
 }
