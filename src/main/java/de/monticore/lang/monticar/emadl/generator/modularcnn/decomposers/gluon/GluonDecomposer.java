@@ -91,13 +91,18 @@ public class GluonDecomposer implements BackendDecomposer {
 
 
                 } else if (layer.isDefaultLayer()){
+                    //TODO: Fix Padding Node doubling when splitting!
 
                     boolean whileLoopEntered = false;
                     boolean substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(),op);
                     while(!op.equals(layer.getLayerName()) && !substituteCheck){
                         atomicNodes.add(node);
 
-                        Map<String, Object> oldNode = node;
+                        Map<String, Object> oldNode = null;
+                        if (layerPointer > 0){
+                            oldNode = (Map<String, Object>) nodes.get(layerPointer-1);
+                        }
+
 
                         node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
@@ -106,7 +111,7 @@ public class GluonDecomposer implements BackendDecomposer {
 
                         layerPointer++;
 
-                        if (oldNode.equals(node)){
+                        if (oldNode != null && oldNode.equals(node)){
                             node = (Map<String, Object>) nodes.get(layerPointer);
                             op = (String) node.get("op");
                             name = (String) node.get("name");
@@ -119,13 +124,16 @@ public class GluonDecomposer implements BackendDecomposer {
                     if (op.equals(layer.getLayerName()) || substituteCheck){
                         atomicNodes.add(node);
 
+                        if (!whileLoopEntered) layerPointer++;
+
                         node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
                         name = (String) node.get("name");
                         //layerPointer++;
+
                     }
 
-                    if (!whileLoopEntered) layerPointer++;
+
 
                 } else if (layer.isOutputLayer()){
                     if (i==atomicNets.size()-1){
