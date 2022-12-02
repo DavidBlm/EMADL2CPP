@@ -1,8 +1,7 @@
-package de.monticore.helper;
+package de.monticore.mlpipelines.automl.helper;
 
 import conflang._ast.ASTConfLangCompilationUnit;
 import conflang._parser.ConfLangParser;
-import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
