@@ -7,6 +7,8 @@ import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.modularcnn.compositions.NetworkStructureInformation;
 import de.monticore.lang.monticar.emadl.modularcnn.tools.ComposedNetworkFileHandler;
+import de.monticore.symboltable.CommonScope;
+import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 
@@ -115,10 +117,32 @@ public class NetworkCompositionHandler {
     }
 
     public boolean isPartOfComposedNet(EMAComponentInstanceSymbol instanceSymbol){
+        isSubnetInstanceOfComposedNet(instanceSymbol);
+
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.isInstancePartOfSubNetworks(instanceSymbol)) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    public boolean isSubnetInstanceOfComposedNet(EMAComponentInstanceSymbol instanceSymbol){
+        Scope enclosingScope = instanceSymbol.getEnclosingScope();
+        if (enclosingScope != null){
+            if (enclosingScope instanceof CommonScope) {
+                CommonScope commonScope = (CommonScope) enclosingScope;
+                Optional<EMAComponentInstanceSymbol> symbolOpt = (Optional<EMAComponentInstanceSymbol>) commonScope.getSpanningSymbol();
+                if (symbolOpt.isPresent()){
+                    EMAComponentInstanceSymbol symbol = symbolOpt.get();
+                    if (isComposedNet(symbol)){
+                        return true;
+                    } else {
+                        isSubnetInstanceOfComposedNet(symbol);
+                    }
+                }
+            }
+            return false;
         }
         return false;
     }

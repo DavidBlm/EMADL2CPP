@@ -356,6 +356,10 @@ public class EMADLFileHandler {
                 continue;
             }
 
+            if (networkCompositionHandler.isSubnetInstanceOfComposedNet(componentInstance)){
+
+            }
+
             if ( (!architecture.isPresent() && !networkCompositionHandler.isComposedNet(componentInstance)) || networkCompositionHandler.isPartOfComposedNet(componentInstance) ) {
                 continue;
             }
