@@ -87,7 +87,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testSingleNetwork() throws IOException {
         Log.getFindings().clear();
         removeDirectory("target/singleNetwork");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST/singleNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/singleNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "CAFFE2", "-c", "y"};
         runGenerator(args,72,false);
     }
 
