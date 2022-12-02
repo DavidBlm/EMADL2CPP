@@ -8,9 +8,9 @@ import torch.nn.functional as F
 
 class MySupervisedTrainer():
 
-    def __init__(self, network, trainData, schemaApi, model_dir, model_prefix):
-        self._network_ = network
-        self._schemaApi_ = schemaApi
+    def __init__(self, networkImplementation, trainData, schema_api, model_dir, model_prefix ="model"):
+        self._network_ = networkImplementation
+        self._schemaApi_ = schema_api
         self._train_loader_ = trainData
         self._model_dir_ = model_dir
         self._model_prefix_ = model_prefix

@@ -4,9 +4,9 @@ import torch.nn.functional as F
 
 class MyEvaluation():
 
-    def __init__(self, trained_model_path, test_loader, schema_api):
+    def __init__(self, trained_model_path, testData, schema_api, model_dir):
         self._trained_model_ = torch.jit.load(trained_model_path)
-        self._test_loader_ = test_loader
+        self._test_loader_ = testData
 
     def execute(self):
         test_accuracy = []

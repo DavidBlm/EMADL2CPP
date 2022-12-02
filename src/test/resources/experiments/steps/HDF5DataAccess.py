@@ -9,9 +9,9 @@ import torch.nn.functional as F
 
 class HDF5DataAccess():
 
-    def __init__(self, data_source, schemaApi):
-        self._data_source = data_source
-        self._schemaApi_ = schemaApi
+    def __init__(self, pathToDatasource, schema_api, model_dir):
+        self._data_source = pathToDatasource
+        self._schemaApi_ = schema_api
 
     def load_h5_files(self, data_path):
         if os.path.isfile(data_path):
