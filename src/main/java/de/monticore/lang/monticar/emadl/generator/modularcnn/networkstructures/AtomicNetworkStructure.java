@@ -1,7 +1,7 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
-import de.monticore.lang.monticar.emadl.modularcnn.composer.NetworkStructureInformation;
+import de.monticore.lang.monticar.emadl.modularcnn.compositions.NetworkStructureInformation;
 import java.util.ArrayList;
 import java.util.List;
 
