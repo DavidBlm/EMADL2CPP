@@ -2,17 +2,21 @@ package de.monticore.mlpipelines.configuration;
 
 import de.monticore.lang.monticar.emadl.generator.Backend;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public final class MontiAnnaContext {
-    private String parentModelPath;
+    private Path parentModelPath;
 
     private String rootModelName;
-    private static MontiAnnaContext montiAnnaConfiguration;
-    private final String pipelineReferenceModelsPath = "";
+
+    private Path pipelineReferenceModelsPath = Paths.get("src/main/resources/pipelines/");
 
     private ExperimentConfiguration experimentConfiguration;
 
     private final Backend targetBackend = Backend.PYTORCH;
 
+    private static MontiAnnaContext montiAnnaConfiguration;
     private MontiAnnaContext() {
     }
 
@@ -23,7 +27,7 @@ public final class MontiAnnaContext {
         return montiAnnaConfiguration;
     }
 
-    public String getParentModelPath() {
+    public Path getParentModelPath() {
         return parentModelPath;
     }
 
@@ -39,13 +43,17 @@ public final class MontiAnnaContext {
         return experimentConfiguration;
     }
 
-    public void initContext(final String parentModelPath, final String rootModelName, final ExperimentConfiguration experimentConfiguration) {
+    public void initContext(final Path parentModelPath, final String rootModelName, final ExperimentConfiguration experimentConfiguration) {
         getInstance().parentModelPath = parentModelPath;
         getInstance().rootModelName = rootModelName;
         getInstance().experimentConfiguration = experimentConfiguration;
     }
 
-    public String getPipelineReferenceModelsPath() {
+    public void setPipelineReferenceModelsPath(final Path pipelineReferenceModelsPath) {
+        this.pipelineReferenceModelsPath = pipelineReferenceModelsPath;
+    }
+
+    public Path getPipelineReferenceModelsPath() {
         return pipelineReferenceModelsPath;
     }
 

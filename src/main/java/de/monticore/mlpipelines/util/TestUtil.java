@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestUtil {
 
-    public static MontiAnnaContext initialiseContext(String parentModelPath, final String rootModelName, final ExperimentConfiguration experimentConfiguration1) {
+    public static MontiAnnaContext initialiseContext(Path parentModelPath, final String rootModelName, final ExperimentConfiguration experimentConfiguration1) {
         MontiAnnaContext.getInstance().initContext(parentModelPath, rootModelName, experimentConfiguration1);
         return MontiAnnaContext.getInstance();
 
