@@ -3,6 +3,9 @@ package de.monticore.lang.monticar.emadl.generator;
 
 import de.monticore.lang.monticar.cnnarch.generator.GenerationAbortedException;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
+import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
+import de.monticore.mlpipelines.configuration.MontiAnnaContext;
+import de.monticore.mlpipelines.workflow.AutonomousPipelineOrchestration;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
 import org.apache.commons.cli.*;
@@ -75,7 +78,7 @@ public class EMADLGeneratorCli {
             .build();
 
 
-    private EMADLGeneratorCli() {
+    protected EMADLGeneratorCli() {
     }
 
     public static void main(String[] args) {
@@ -119,7 +122,7 @@ public class EMADLGeneratorCli {
         System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
     }
 
-    private static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
+    static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
         CommandLine cliArgs;
         try {
             cliArgs = parser.parse(options, args);
@@ -239,4 +242,5 @@ public class EMADLGeneratorCli {
             Log.error(message);
         }
     }
+
 }
