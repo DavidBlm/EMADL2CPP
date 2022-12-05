@@ -117,14 +117,17 @@ public class NetworkCompositionHandler {
     }
 
     public boolean isPartOfComposedNet(EMAComponentInstanceSymbol instanceSymbol){
-        isSubnetInstanceOfComposedNet(instanceSymbol);
+        return isSubnetInstanceOfComposedNet(instanceSymbol);
 
+        /*
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.isInstancePartOfSubNetworks(instanceSymbol)) {
                 return true;
             }
         }
         return false;
+
+         */
     }
 
     public boolean isSubnetInstanceOfComposedNet(EMAComponentInstanceSymbol instanceSymbol){

@@ -84,12 +84,21 @@ public class ModularTest extends AbstractSymtabTest {
     }
 
     @Test
+    public void testModularNetworkSimpleMultiNet() throws IOException {
+        Log.getFindings().clear();
+        removeDirectory("target/modularNetworkSimpleMultiNet");
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkSimpleMultiNet", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        runGenerator(args,24,false);
+    }
+
+    @Test
     public void testSingleNetwork() throws IOException {
         Log.getFindings().clear();
         removeDirectory("target/singleNetwork");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST/singleNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "CAFFE2", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/singleNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args,72,false);
     }
+
 
 
     public void removeMultipleTrainingHashes(String[] hashPaths)throws IOException{
