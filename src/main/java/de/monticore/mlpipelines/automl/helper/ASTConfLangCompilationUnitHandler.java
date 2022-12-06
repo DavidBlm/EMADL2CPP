@@ -7,6 +7,7 @@ import conflangliterals._ast.ASTTypelessLiteral;
 import de.monticore.mcliterals._ast.ASTBooleanLiteral;
 import de.monticore.mcliterals._ast.ASTSignedDoubleLiteral;
 import de.monticore.mcliterals._ast.ASTSignedIntLiteral;
+import de.monticore.mcliterals._ast.ASTStringLiteral;
 
 import java.util.HashMap;
 import java.util.List;
@@ -63,10 +64,12 @@ public class ASTConfLangCompilationUnitHandler {
     private static Object getConfigurationEntryValue(ASTConfigurationEntry configurationEntry) {
         if (configurationEntry.getValue() instanceof ASTTypelessLiteral) {
             return ((ASTTypelessLiteral) configurationEntry.getValue()).getValue();
+        } else if (configurationEntry.getValue() instanceof ASTStringLiteral) {
+            return  ((ASTStringLiteral) configurationEntry.getValue()).getValue();
         } else if (configurationEntry.getValue() instanceof ASTSignedIntLiteral) {
-            return  Integer.parseInt(((ASTSignedIntLiteral) configurationEntry.getValue()).getSource());
+            return  ((ASTSignedIntLiteral) configurationEntry.getValue()).getValue();
         } else if (configurationEntry.getValue() instanceof ASTSignedDoubleLiteral) {
-            return Double.parseDouble(((ASTSignedDoubleLiteral) configurationEntry.getValue()).getSource());
+            return ((ASTSignedDoubleLiteral) configurationEntry.getValue()).getValue();
         } else if (configurationEntry.getValue() instanceof ASTBooleanLiteral) {
             return ((ASTBooleanLiteral) configurationEntry.getValue()).getValue();
         } else {
