@@ -10,10 +10,7 @@ import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.L
 import de.se_rwth.commons.logging.Log;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class GluonDecomposer implements BackendDecomposer {
 
@@ -23,6 +20,12 @@ public class GluonDecomposer implements BackendDecomposer {
         LayerSubstitute reluSub = new LayerSubstitute("Relu");
         reluSub.addSubstitute("Activation");
         allowedLayerSubstitutes.add(reluSub);
+
+        LayerSubstitute  softmaxSub = new LayerSubstitute("Softmax");
+        softmaxSub.addSubstitute("softmax");
+        allowedLayerSubstitutes.add(softmaxSub);
+
+
     }
 
     @Override
@@ -64,97 +67,74 @@ public class GluonDecomposer implements BackendDecomposer {
         ArrayList<Object> nodes = (ArrayList<Object>) contentMap.get("nodes");
         ArrayList<AtomicNetworkStructure> atomicNets = composedNetworkStructure.getAtomicNetworkStructures();
         ArrayList<ArrayList<Map<String,Object>>> decomposedNets = new ArrayList<>();
-        int layerPointer = 0;
 
 
-        for (int i=0; i<atomicNets.size(); i++  /*int i=0, j=0; i<nodes.size() && j<atomicNets.size(); i++*/ ){
+        Log.info("Start","DECOMPOSITION_JSON_SPLITTING");
+        for (int i=0, layerPointer=-1; i<atomicNets.size(); i++){
             AtomicNetworkStructure atomicNet = atomicNets.get(i);
             ArrayList<Map<String,Object>> atomicNodes = new ArrayList<>();
+            String op = null;
+            String name = null;
+
             for (LayerInformation layer : atomicNet.getNetworkLayers()){
-                Map<String,Object> node = (Map<String, Object>) nodes.get(layerPointer);
-                String op = (String) node.get("op");
-                String name = (String) node.get("name");
 
                 if (layer.isInputLayer()){
                     if (i==0){
+                        layerPointer++;
+                        Map<String,Object> node = (Map<String, Object>) nodes.get(layerPointer);
+                        op = (String) node.get("op");
+                        name = (String) node.get("name");
                         if (op.equals("null") && name.equals(layer.getLayerName())){
                             atomicNodes.add(node);
-                            layerPointer++;
                         }
                     } else {
-                        //build new input for atomic net here
-                        continue;
+                        atomicNodes.add(buildInput(layer.getLayerName()));
                     }
-
-
-
-
-
                 } else if (layer.isDefaultLayer()){
-                    //TODO: Fix Padding Node doubling when splitting!
+                    layerPointer++;
+                    Map<String,Object> node = (Map<String, Object>) nodes.get(layerPointer);
+                    op = (String) node.get("op");
+                    name = (String) node.get("name");
 
-                    boolean whileLoopEntered = false;
-                    boolean substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(),op);
-                    while(!op.equals(layer.getLayerName()) && !substituteCheck){
+                    boolean substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(), op);
+                    while (!op.equals(layer.getLayerName()) && !substituteCheck){
+
                         atomicNodes.add(node);
-
-                        Map<String, Object> oldNode = null;
-                        if (layerPointer > 0){
-                            oldNode = (Map<String, Object>) nodes.get(layerPointer-1);
-                        }
-
-
+                        layerPointer++;
                         node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
                         name = (String) node.get("name");
-
-
-                        layerPointer++;
-
-                        if (oldNode != null && oldNode.equals(node)){
-                            node = (Map<String, Object>) nodes.get(layerPointer);
-                            op = (String) node.get("op");
-                            name = (String) node.get("name");
-                        }
-
-                        if (!whileLoopEntered) whileLoopEntered = true;
                     }
 
-                    substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(),op);
+                    substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(), op);
                     if (op.equals(layer.getLayerName()) || substituteCheck){
                         atomicNodes.add(node);
-
-                        if (!whileLoopEntered) layerPointer++;
-
                         node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
                         name = (String) node.get("name");
-                        //layerPointer++;
-
                     }
-
-
 
                 } else if (layer.isOutputLayer()){
                     if (i==atomicNets.size()-1){
-
+                        layerPointer++;
+                        Map<String,Object> node = (Map<String, Object>) nodes.get(layerPointer);
+                        op = (String) node.get("op");
+                        name = (String) node.get("name");
+                        if (op.equals("_copy") && name.equals("identity0")){
+                            atomicNodes.add(node);
+                        }
                     } else {
-                        //build new output for atomic net here
-                        continue;
+                        atomicNodes.add(buildOutput());
                     }
-
-
-
-
-
-
                 } else {
                     throw new RuntimeException("Unknown Layer type when splitting. Type: " + layer.getLayerType().toString());
                 }
-
             }
-
+            decomposedNets.add(atomicNodes);
         }
+        Log.info("Done","DECOMPOSITION_JSON_SPLITTING");
+
+
     }
 
     private boolean checkLayerSubstitutesForMatch(String originalLayer, String layerSubs){
@@ -247,5 +227,22 @@ public class GluonDecomposer implements BackendDecomposer {
         }
 
         return jsonResult;
+    }
+
+    private Map<String,Object> buildInput(String inputName){
+        return buildIONode("null", inputName, new ArrayList<Object>());
+    }
+
+    private Map<String,Object> buildOutput(){
+        return buildIONode("_copy", "identity0", new ArrayList<Object>());
+    }
+
+    private Map<String,Object> buildIONode(String op, String name, ArrayList<Object> inputs){
+        Map<String,Object> ioNode = new LinkedHashMap<String,Object>();
+        ioNode.put("op", op);
+        ioNode.put("name", name);
+        ioNode.put("inputs", inputs);
+        return ioNode;
+
     }
 }
