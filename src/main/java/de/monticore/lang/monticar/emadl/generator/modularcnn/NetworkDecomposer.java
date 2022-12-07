@@ -37,7 +37,7 @@ public class NetworkDecomposer {
     public void decomposeNetworks(String modelPath, HashMap<String, NetworkStructure> composedNetworkStructures){
         for (String key : composedNetworkStructures.keySet()){
             NetworkStructure composedNetworkStructure = composedNetworkStructures.get(key);
-            decomposeNetwork(modelPath,composedNetworkStructure);
+            decomposeNetwork(modelPath, composedNetworkStructure);
         }
     }
 

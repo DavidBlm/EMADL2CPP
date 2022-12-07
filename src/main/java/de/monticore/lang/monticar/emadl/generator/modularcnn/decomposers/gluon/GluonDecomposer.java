@@ -28,8 +28,8 @@ public class GluonDecomposer implements BackendDecomposer {
     }
 
     @Override
-    public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure) {
-        ArrayList<File> fileList = scanForFiles(modelPath, composedNetworkStructure);
+    public void decomposeNetwork(String modelPath, NetworkStructure networkStructure) {
+        ArrayList<File> fileList = scanForFiles(modelPath, networkStructure);
 
         File networkJsonFile = null;
         File paramsFile = null;
@@ -45,7 +45,7 @@ public class GluonDecomposer implements BackendDecomposer {
             else if (fileName.contains("loss-0000.params")) lossParamsFile = file;
         }
 
-        splitComposedNetworkIntoAtomicNetworks(modelPath, composedNetworkStructure, networkJsonFile, paramsFile, lossNetworkJsonFile, lossParamsFile);
+        splitComposedNetworkIntoAtomicNetworks(modelPath, networkStructure, networkJsonFile, paramsFile, lossNetworkJsonFile, lossParamsFile);
     }
 
     /*
@@ -53,6 +53,8 @@ public class GluonDecomposer implements BackendDecomposer {
     }*/
 
     private void splitComposedNetworkIntoAtomicNetworks(String modelPath, NetworkStructure composedNetworkStructure, File networkFile, File paramsFile, File lossNetworkFile, File lossParamsFile){
+
+        if (networkFile == null || paramsFile == null ) return;
         splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);
         splitNetworkParamsFile(modelPath, composedNetworkStructure, paramsFile);
 
