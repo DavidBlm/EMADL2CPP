@@ -55,7 +55,8 @@ public class GluonDecomposer implements BackendDecomposer {
     private void splitComposedNetworkIntoAtomicNetworks(String modelPath, NetworkStructure composedNetworkStructure, File networkFile, File paramsFile, File lossNetworkFile, File lossParamsFile){
 
         if (networkFile == null || paramsFile == null ) return;
-        splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);
+        ArrayList<GluonRepresentation> splitGluonNets = splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);
+
         splitNetworkParamsFile(modelPath, composedNetworkStructure, paramsFile);
 
 
@@ -63,19 +64,31 @@ public class GluonDecomposer implements BackendDecomposer {
         //splitLossNetworkParamsFile(modelPath, composedNetworkStructure, lossParamsFile);
     }
 
-    private void splitNetworkJsonFile(String modelPath, NetworkStructure networkStructure, File file){
+
+
+    private ArrayList<GluonRepresentation> splitNetworkJsonFile(String modelPath, NetworkStructure networkStructure, File file){
         String jsonContent = readFile(file.getPath());
         Map<String, Object> contentMap = jsonToMap(jsonContent);
 
         ArrayList<Object> nodes = (ArrayList<Object>) contentMap.get("nodes");
+        Map<String, Object> attributes = (Map<String, Object>) contentMap.get("attrs");
         ArrayList<NetworkStructure> subNets = networkStructure.getSubNetworkStructures();
-        ArrayList<ArrayList<Map<String,Object>>> decomposedNets = new ArrayList<>();
+        //ArrayList<ArrayList<Map<String,Object>>> decomposedNets = new ArrayList<>();
+        ArrayList<GluonRepresentation> gluonNets = new ArrayList<>();
 
+        Map<String,Object> lastNode = (Map<String, Object>) nodes.get(nodes.size()-1);
+        ArrayList<Object> lastInputs = (ArrayList<Object>) lastNode.get("inputs");
+        ArrayList<Integer> lastInputIntList = (ArrayList<Integer>) lastInputs.get(0);
+        int headSize = lastInputIntList.size()-1;
+        int nodeDifference = 0;
+        int generatedNodesMalus = 0;
 
         Log.info("Start","DECOMPOSITION_JSON_SPLITTING");
         for (int i=0, layerPointer=-1; i<subNets.size(); i++){
-            de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure atomicNet = subNets.get(i);
-            ArrayList<Map<String,Object>> atomicNodes = new ArrayList<>();
+            generatedNodesMalus = 0;
+
+            NetworkStructure atomicNet = subNets.get(i);
+            ArrayList<Map<String,Object>> networkNodes = new ArrayList<>();
             String op = null;
             String name = null;
 
@@ -88,10 +101,12 @@ public class GluonDecomposer implements BackendDecomposer {
                         op = (String) node.get("op");
                         name = (String) node.get("name");
                         if (op.equals("null") && name.equals(layer.getLayerName())){
-                            atomicNodes.add(node);
+                            networkNodes.add(node);
                         }
                     } else {
-                        atomicNodes.add(buildInput(layer.getLayerName()));
+                        networkNodes.add(buildInput(layer.getLayerName()));
+                        generatedNodesMalus++;
+                        //nodeDifference--;
                     }
                 } else if (layer.isDefaultLayer()){
                     layerPointer++;
@@ -102,7 +117,7 @@ public class GluonDecomposer implements BackendDecomposer {
                     boolean substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(), op);
                     while (!op.equals(layer.getLayerName()) && !substituteCheck){
 
-                        atomicNodes.add(node);
+                        networkNodes.add(node);
                         layerPointer++;
                         node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
@@ -111,7 +126,7 @@ public class GluonDecomposer implements BackendDecomposer {
 
                     substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(), op);
                     if (op.equals(layer.getLayerName()) || substituteCheck){
-                        atomicNodes.add(node);
+                        networkNodes.add(node);
                         node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
                         name = (String) node.get("name");
@@ -124,20 +139,26 @@ public class GluonDecomposer implements BackendDecomposer {
                         op = (String) node.get("op");
                         name = (String) node.get("name");
                         if (op.equals("_copy") && name.equals("identity0")){
-                            atomicNodes.add(node);
+                            networkNodes.add(node);
                         }
                     } else {
-                        atomicNodes.add(buildOutput());
+                        networkNodes.add(buildOutput());
+                        generatedNodesMalus++;
+                        //nodeDifference--;
                     }
                 } else {
                     throw new RuntimeException("Unknown Layer type when splitting. Type: " + layer.getLayerType().toString());
                 }
             }
-            decomposedNets.add(atomicNodes);
+            //decomposedNets.add(networkNodes);
+
+            gluonNets.add(new GluonRepresentation(networkNodes, attributes, nodeDifference, headSize));
+            nodeDifference += networkNodes.size() - generatedNodesMalus;
+            if (i==0) nodeDifference--;
+            Log.info("Node diff","DECOMPOSITION_JSON_SPLITTING");
         }
         Log.info("Done","DECOMPOSITION_JSON_SPLITTING");
-
-
+        return gluonNets;
     }
 
     private boolean checkLayerSubstitutesForMatch(String originalLayer, String layerSubs){

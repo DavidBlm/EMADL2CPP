@@ -7,6 +7,10 @@ component Net4 {
      implementation CNN {
             dataInput ->
             Softmax() ->
+            Softmax() ->
+            Softmax() ->
+            Softmax() ->
+            Softmax() ->
             softmax;
         }
 }

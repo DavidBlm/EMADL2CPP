@@ -7,6 +7,9 @@ component Net3 {
      implementation CNN {
             data ->
             Softmax() ->
+            Softmax() ->
+            Softmax() ->
+            Softmax() ->
             dataOutput;
         }
 }
