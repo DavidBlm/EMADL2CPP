@@ -57,14 +57,35 @@ public class GluonDecomposer implements BackendDecomposer {
         if (networkFile == null || paramsFile == null ) return;
         ArrayList<GluonRepresentation> splitGluonNets = splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);
 
-        splitNetworkParamsFile(modelPath, composedNetworkStructure, paramsFile);
+        for (GluonRepresentation gluonNet : splitGluonNets){
+            String jsonContent = mapToJson(gluonNet.getGluonJsonRepresentation());
+            ArrayList<String> parameterLayers = gluonNet.getParameterLayerCandidates();
+
+            String decomposedNetDirectory = modelPath + composedNetworkStructure.getComponentName() + "." + gluonNet.getNetworkName() + "_decomposed";
+            File directory = new File(decomposedNetDirectory);
+
+            if (!directory.exists()){
+                directory.mkdir();
+            }
+
+            String decomposedFileName = "model_" + gluonNet.getNetworkName() + "_decomposed";
+
+            String decomposedNetPath = decomposedNetDirectory + "/" + decomposedFileName + ".json";
+            writeFile(decomposedNetPath, jsonContent);
+
+            generateNewParamsFileWithPython(decomposedNetDirectory, decomposedFileName, gluonNet.getParameterLayerCandidates(), paramsFile);
+        }
+
+        //splitNetworkParamsFile(modelPath, composedNetworkStructure, paramsFile);
 
 
         //splitLossNetworkJsonFile(modelPath, composedNetworkStructure, lossNetworkFile);
         //splitLossNetworkParamsFile(modelPath, composedNetworkStructure, lossParamsFile);
     }
 
+    private void generateNewParamsFileWithPython(String networkDirectory, String networkName, ArrayList<String> parameterLayers, File originalParamFile){
 
+        }
 
     private ArrayList<GluonRepresentation> splitNetworkJsonFile(String modelPath, NetworkStructure networkStructure, File file){
         String jsonContent = readFile(file.getPath());
@@ -87,12 +108,12 @@ public class GluonDecomposer implements BackendDecomposer {
         for (int i=0, layerPointer=-1; i<subNets.size(); i++){
             generatedNodesMalus = 0;
 
-            NetworkStructure atomicNet = subNets.get(i);
+            NetworkStructure currentNetwork = subNets.get(i);
             ArrayList<Map<String,Object>> networkNodes = new ArrayList<>();
             String op = null;
             String name = null;
 
-            for (LayerInformation layer : atomicNet.getNetworkLayers()){
+            for (LayerInformation layer : currentNetwork.getNetworkLayers()){
 
                 if (layer.isInputLayer()){
                     if (i==0){
@@ -152,12 +173,11 @@ public class GluonDecomposer implements BackendDecomposer {
             }
             //decomposedNets.add(networkNodes);
 
-            gluonNets.add(new GluonRepresentation(networkNodes, attributes, nodeDifference, headSize));
+            gluonNets.add(new GluonRepresentation(currentNetwork, networkNodes, attributes, nodeDifference, headSize));
             nodeDifference += networkNodes.size() - generatedNodesMalus;
             if (i==0) nodeDifference--;
             Log.info("Node diff","DECOMPOSITION_JSON_SPLITTING");
         }
-        Log.info("Done","DECOMPOSITION_JSON_SPLITTING");
         return gluonNets;
     }
 
@@ -199,6 +219,7 @@ public class GluonDecomposer implements BackendDecomposer {
     }
 
     private void writeFile(String path, String content){
+        File file = new File(path);
         try{
             FileWriter fileWriter = new FileWriter(path);
             fileWriter.write(content);
@@ -267,6 +288,5 @@ public class GluonDecomposer implements BackendDecomposer {
         ioNode.put("name", name);
         ioNode.put("inputs", inputs);
         return ioNode;
-
     }
 }

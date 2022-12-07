@@ -1,6 +1,7 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.gluon;
 
 import afu.org.checkerframework.checker.oigj.qual.O;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,17 +16,23 @@ public class GluonRepresentation {
     private ArrayList<ArrayList<Integer>> heads = new ArrayList<>();
     private Map<String, Object> attributes = new LinkedHashMap<>();
     private ArrayList<String> parameterLayerCandidates = new ArrayList<>();
-    Map<String, Object> jsonRepresentation = null;
+    private Map<String, Object> jsonRepresentation = null;
+    private NetworkStructure networkStructure = null;
     private int headSize = 0;
     private int nodeDifference = 0;
 
 
-    public GluonRepresentation(ArrayList<Map<String,Object>> nodes, Map<String, Object> attributes, int nodeDifference, int headSize){
+    public GluonRepresentation(NetworkStructure networkStructure, ArrayList<Map<String,Object>> nodes, Map<String, Object> attributes, int nodeDifference, int headSize){
         this.nodes = nodes;
         this.attributes = attributes;
         this.headSize = headSize;
         this.nodeDifference = nodeDifference;
+        this.networkStructure = networkStructure;
         rebuildNetworkAttributes();
+    }
+
+    public String getNetworkName(){
+        return this.networkStructure.getNetworkName();
     }
 
     public Map<String, Object> getGluonJsonRepresentation(){
