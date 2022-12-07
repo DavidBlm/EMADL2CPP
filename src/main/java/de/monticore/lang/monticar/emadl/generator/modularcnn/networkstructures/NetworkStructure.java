@@ -2,27 +2,50 @@ package de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
 import de.monticore.lang.monticar.emadl.modularcnn.compositions.NetworkStructureInformation;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class AtomicNetworkStructure {
+public class NetworkStructure {
 
+    protected NetworkStructureInformation networkStructureInformation = null;
+    protected String networkName = null;
+    protected String instanceSymbolName = null;
+    protected String componentName = null;
+    protected String modelName = null;
     private ArrayList<LayerInformation> networkLayers = new ArrayList<>();
-    private NetworkStructureInformation networkStructureInformation = null;
-    private String networkName = null;
-    private String instanceSymbolName = null;
-    private String componentName = null;
     private LayerInformation frontSlicePoint = null;
     private LayerInformation backSlicePoint = null;
 
+    private ArrayList<NetworkStructure> subNetworkStructures = new ArrayList<>();
+    private boolean atomic = false;
 
+    private boolean decompositionAllowed = false;
 
-    public AtomicNetworkStructure(NetworkStructureInformation networkStructureInformation, ArchitectureSymbol architectureSymbol){
+    public NetworkStructure(NetworkStructureInformation networkStructureInformation){
         this.networkStructureInformation = networkStructureInformation;
         this.networkName = networkStructureInformation.getNetworkName();
         this.instanceSymbolName = networkStructureInformation.getInstanceSymbolName();
         this.componentName = networkStructureInformation.getComponentName();
+        this.atomic = networkStructureInformation.isAtomic();
+        this.modelName = null;
+    }
+
+    public NetworkStructure(NetworkStructureInformation networkStructureInformation, ArchitectureSymbol architectureSymbol){
+        this(networkStructureInformation);
         processArchitectureSymbol(architectureSymbol);
+    }
+
+    public boolean isAtomic(){
+        return this.atomic;
+    }
+
+    public boolean isDecompositionAllowed(){
+        return this.decompositionAllowed;
+    }
+
+    public void setDecompositionAllowed(boolean allowed){
+        this.decompositionAllowed = allowed;
     }
 
     public String getNetworkName() {
@@ -35,6 +58,10 @@ public class AtomicNetworkStructure {
 
     public String getComponentName() {
         return componentName;
+    }
+
+    public NetworkStructureInformation getNetworkStructureInformation() {
+        return networkStructureInformation;
     }
 
     public ArrayList<LayerInformation> getNetworkLayers(){
@@ -53,6 +80,26 @@ public class AtomicNetworkStructure {
     public void addBackSlicePoint(LayerInformation networkLayer){
         this.networkLayers.add(networkLayer);
         this.backSlicePoint = networkLayer;
+    }
+
+    public ArrayList<NetworkStructure> getSubNetworkStructures() {
+        return subNetworkStructures;
+    }
+
+    public void addPrecedingSubNetwork(NetworkStructure atomicNetworkStructure){
+        this.subNetworkStructures.add(0,atomicNetworkStructure);
+    }
+
+    public void addPrecedingSubNetworks(ArrayList<NetworkStructure> atomicNetworkStructuresList){
+        this.subNetworkStructures.addAll(0,atomicNetworkStructuresList);
+    }
+
+    public void addSucceedingSubNetwork(NetworkStructure atomicNetworkStructure){
+        this.subNetworkStructures.add(atomicNetworkStructure);
+    }
+
+    public void addSucceedingSubNetworks(ArrayList<NetworkStructure> atomicNetworkStructuresList){
+        this.subNetworkStructures.addAll(atomicNetworkStructuresList);
     }
 
     private void processArchitectureSymbol(ArchitectureSymbol architectureSymbol){
@@ -76,7 +123,7 @@ public class AtomicNetworkStructure {
                             LayerSymbol funcLayerSymbol = (LayerSymbol) funcSymbol;
                             LayerInformation funcLayer = new LayerInformation(funcLayerSymbol.getName(), LayerType.DEFAULT, funcSymbol);
                             this.addNetworkLayer(funcLayer);
-                         }
+                        }
                         continue;
                         //layerType = LayerType.FUNCTION;
                     } else {

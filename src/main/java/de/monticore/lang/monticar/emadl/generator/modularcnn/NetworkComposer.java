@@ -4,8 +4,8 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.AtomicNetworkStructure;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
 import de.monticore.lang.monticar.emadl.modularcnn.compositions.NetworkStructureInformation;
 import de.monticore.symboltable.CommonScope;
 import de.monticore.symboltable.MutableScope;
@@ -20,17 +20,17 @@ public class NetworkComposer {
     private NetworkCompositionHandler networkCompositionHandler = null;
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
     private LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
-    private ComposedNetworkStructure currentComposedNetworkStructure = null;
-    private LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures = null;
+    private NetworkStructure currentComposedNetworkStructure = null;
+    private LinkedHashMap<String, NetworkStructure> composedNetworkStructures = null;
 
-    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols, LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures){
+    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols, LinkedHashMap<String, NetworkStructure> composedNetworkStructures){
         this.networkCompositionHandler = networkCompositionHandler;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
         this.composedNetworkStructures = composedNetworkStructures;
 
     }
 
-    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures){
+    public NetworkComposer(NetworkCompositionHandler networkCompositionHandler, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, LinkedHashMap<String, NetworkStructure> composedNetworkStructures){
         this.networkCompositionHandler = networkCompositionHandler;
         this.instanceVault = instanceVault;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
@@ -43,7 +43,7 @@ public class NetworkComposer {
         if (cachedSymbol != null) return cachedSymbol;
 
         ArchitectureSymbol composedNet = null;
-        this.currentComposedNetworkStructure = new ComposedNetworkStructure(networkStructureInformation);
+        this.currentComposedNetworkStructure = new NetworkStructure(networkStructureInformation);
         try {
             composedNet = generateNetworkLevel(networkStructureInformation, fromInstance,0);
             if (composedNet != null && !composedNetworkStructures.containsKey(networkStructureInformation.getNetworkName())){
@@ -76,9 +76,9 @@ public class NetworkComposer {
             for (String dataFlowElement : instanceOnlyDataFlow){
                 for (NetworkStructureInformation subnet : subnets){
                     if (!subnet.getInstanceSymbolName().equals(dataFlowElement)) continue;
-                    ArrayList<AtomicNetworkStructure> currentAtomicNetworks = this.currentComposedNetworkStructure.getAtomicNetworkStructures();
-                    AtomicNetworkStructure prevAtomicNet = null;
-                    AtomicNetworkStructure succAtomicNet = null;
+                    ArrayList<NetworkStructure> currentAtomicNetworks = this.currentComposedNetworkStructure.getSubNetworkStructures();
+                    NetworkStructure prevAtomicNet = null;
+                    NetworkStructure succAtomicNet = null;
 
                     allocateSurroundingAtomicNets(prevAtomicNet, succAtomicNet, atomicNetPositionHook);
 
@@ -88,8 +88,8 @@ public class NetworkComposer {
                     ArchitectureSymbol cachedSubnetArchSymbol = cachedComposedArchitectureSymbols.get(fromSubnetInstance.getFullName());
                     if (cachedSubnetArchSymbol != null){
                         subnetArchSymbols.add(cachedSubnetArchSymbol);
-                        AtomicNetworkStructure atomicNetworkStructure = new AtomicNetworkStructure(subnet, cachedSubnetArchSymbol);
-                        currentAtomicNetworks.add(atomicNetworkStructure);
+                        NetworkStructure networkStructure = new NetworkStructure(subnet, cachedSubnetArchSymbol);
+                        currentAtomicNetworks.add(networkStructure);
                         //this.currentComposedNetworkStructure.get
                         break;
                     }
@@ -106,8 +106,8 @@ public class NetworkComposer {
                         } else{
                             subnet.setComposedNetworkArchitectureSymbol(architectureOpt.get());
                             subnetArchSymbols.add(architectureOpt.get());
-                            AtomicNetworkStructure atomicNetworkStructure = new AtomicNetworkStructure(subnet, architectureOpt.get());
-                            currentAtomicNetworks.add(atomicNetworkStructure);
+                            NetworkStructure networkStructure = new NetworkStructure(subnet, architectureOpt.get());
+                            currentAtomicNetworks.add(networkStructure);
                             break;
                         }
                     } else {
@@ -139,8 +139,8 @@ public class NetworkComposer {
         return composedNet;
     }
 
-    private void allocateSurroundingAtomicNets(AtomicNetworkStructure previous, AtomicNetworkStructure succeeding, int hookPoint){
-        ArrayList<AtomicNetworkStructure> currentAtomicNetworks = this.currentComposedNetworkStructure.getAtomicNetworkStructures();
+    private void allocateSurroundingAtomicNets(NetworkStructure previous, NetworkStructure succeeding, int hookPoint){
+        ArrayList<NetworkStructure> currentAtomicNetworks = this.currentComposedNetworkStructure.getSubNetworkStructures();
         if (currentAtomicNetworks.size() == 0) return;
 
         if (hookPoint >= 0 && hookPoint < currentAtomicNetworks.size()-1){

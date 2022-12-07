@@ -1,12 +1,11 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.gluon;
 
-import afu.org.checkerframework.checker.oigj.qual.O;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.BackendDecomposer;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.AtomicNetworkStructure;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.LayerInformation;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
 import de.se_rwth.commons.logging.Log;
 
 import java.io.*;
@@ -29,7 +28,7 @@ public class GluonDecomposer implements BackendDecomposer {
     }
 
     @Override
-    public void decomposeNetwork(String modelPath, ComposedNetworkStructure composedNetworkStructure) {
+    public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure) {
         ArrayList<File> fileList = scanForFiles(modelPath, composedNetworkStructure);
 
         File networkJsonFile = null;
@@ -53,25 +52,27 @@ public class GluonDecomposer implements BackendDecomposer {
     public void decomposeNetworks(String modelPath, HashMap<String, ComposedNetworkStructure> composedNetworkStructures) {
     }*/
 
-    private void splitComposedNetworkIntoAtomicNetworks(String modelPath, ComposedNetworkStructure composedNetworkStructure, File networkFile, File paramsFile, File lossNetworkFile, File lossParamsFile){
+    private void splitComposedNetworkIntoAtomicNetworks(String modelPath, NetworkStructure composedNetworkStructure, File networkFile, File paramsFile, File lossNetworkFile, File lossParamsFile){
         splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);
         splitNetworkParamsFile(modelPath, composedNetworkStructure, paramsFile);
-        splitLossNetworkJsonFile(modelPath, composedNetworkStructure, lossNetworkFile);
-        splitLossNetworkParamsFile(modelPath, composedNetworkStructure, lossParamsFile);
+
+
+        //splitLossNetworkJsonFile(modelPath, composedNetworkStructure, lossNetworkFile);
+        //splitLossNetworkParamsFile(modelPath, composedNetworkStructure, lossParamsFile);
     }
 
-    private void splitNetworkJsonFile(String modelPath, ComposedNetworkStructure composedNetworkStructure, File file){
+    private void splitNetworkJsonFile(String modelPath, NetworkStructure networkStructure, File file){
         String jsonContent = readFile(file.getPath());
         Map<String, Object> contentMap = jsonToMap(jsonContent);
 
         ArrayList<Object> nodes = (ArrayList<Object>) contentMap.get("nodes");
-        ArrayList<AtomicNetworkStructure> atomicNets = composedNetworkStructure.getAtomicNetworkStructures();
+        ArrayList<NetworkStructure> subNets = networkStructure.getSubNetworkStructures();
         ArrayList<ArrayList<Map<String,Object>>> decomposedNets = new ArrayList<>();
 
 
         Log.info("Start","DECOMPOSITION_JSON_SPLITTING");
-        for (int i=0, layerPointer=-1; i<atomicNets.size(); i++){
-            AtomicNetworkStructure atomicNet = atomicNets.get(i);
+        for (int i=0, layerPointer=-1; i<subNets.size(); i++){
+            de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure atomicNet = subNets.get(i);
             ArrayList<Map<String,Object>> atomicNodes = new ArrayList<>();
             String op = null;
             String name = null;
@@ -115,7 +116,7 @@ public class GluonDecomposer implements BackendDecomposer {
                     }
 
                 } else if (layer.isOutputLayer()){
-                    if (i==atomicNets.size()-1){
+                    if (i==subNets.size()-1){
                         layerPointer++;
                         Map<String,Object> node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
@@ -145,20 +146,20 @@ public class GluonDecomposer implements BackendDecomposer {
         return false;
     }
 
-    private void splitNetworkParamsFile(String modelPath, ComposedNetworkStructure composedNetworkStructure, File file){
+    private void splitNetworkParamsFile(String modelPath, NetworkStructure composedNetworkStructure, File file){
 
     }
 
-    private void splitLossNetworkJsonFile(String modelPath, ComposedNetworkStructure composedNetworkStructure, File file){
+    private void splitLossNetworkJsonFile(String modelPath, NetworkStructure composedNetworkStructure, File file){
         String jsonContent = readFile(file.getPath());
         Map<String, Object> contentMap = jsonToMap(jsonContent);
     }
 
-    private void splitLossNetworkParamsFile(String modelPath, ComposedNetworkStructure composedNetworkStructure, File file){
+    private void splitLossNetworkParamsFile(String modelPath, NetworkStructure composedNetworkStructure, File file){
 
     }
 
-    private ArrayList<File> scanForFiles(String modelPath, ComposedNetworkStructure composedNetworkStructure){
+    private ArrayList<File> scanForFiles(String modelPath, NetworkStructure composedNetworkStructure){
         ArrayList<File> files = new ArrayList<>();
         String path = modelPath + "/" + composedNetworkStructure.getComponentName();
         File modelDirectory = new File(path);

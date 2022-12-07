@@ -20,6 +20,7 @@ import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
+import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
@@ -45,7 +46,7 @@ public class EMADLCNNHandler {
     private Map<String, ArchitectureSymbol> processedArch;
     private LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols = new LinkedHashMap<>();
 
-    private LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures = new LinkedHashMap();
+    private LinkedHashMap<String, NetworkStructure> composedNetworkStructures = new LinkedHashMap();
 
 
 
@@ -66,11 +67,11 @@ public class EMADLCNNHandler {
         return this.cachedComposedArchitectureSymbols;
     }
 
-    public LinkedHashMap<String, ComposedNetworkStructure> getComposedNetworkStructures() {
+    public LinkedHashMap<String, NetworkStructure> getComposedNetworkStructures() {
         return this.composedNetworkStructures;
     }
 
-    public void setComposedNetworkStructures(LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures) {
+    public void setComposedNetworkStructures(LinkedHashMap<String, NetworkStructure> composedNetworkStructures) {
         this.composedNetworkStructures = composedNetworkStructures;
     }
 
