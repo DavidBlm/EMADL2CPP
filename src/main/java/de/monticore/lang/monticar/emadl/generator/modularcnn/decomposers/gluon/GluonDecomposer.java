@@ -3,7 +3,6 @@ package de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.gluon;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.BackendDecomposer;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.LayerInformation;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
 import de.se_rwth.commons.logging.Log;
@@ -27,8 +26,6 @@ public class GluonDecomposer implements BackendDecomposer {
         LayerSubstitute softmaxSub = new LayerSubstitute("Softmax");
         softmaxSub.addSubstitute("softmax");
         allowedLayerSubstitutes.add(softmaxSub);
-
-
     }
 
     @Override
@@ -38,25 +35,18 @@ public class GluonDecomposer implements BackendDecomposer {
         File networkJsonFile = null;
         File paramsFile = null;
 
-        File lossNetworkJsonFile = null;
-        File lossParamsFile = null;
+
 
         for (File file : fileList) {
             String fileName = file.getName();
             if (fileName.contains("newest-symbol.json")) networkJsonFile = file;
             else if (fileName.contains("newest-0000.params")) paramsFile = file;
-            else if (fileName.contains("loss-symbol.json")) lossNetworkJsonFile = file;
-            else if (fileName.contains("loss-0000.params")) lossParamsFile = file;
         }
 
-        splitComposedNetworkIntoAtomicNetworks(modelPath, networkStructure, networkJsonFile, paramsFile, lossNetworkJsonFile, lossParamsFile);
+        splitComposedNetworkIntoAtomicNetworks(modelPath, networkStructure, networkJsonFile, paramsFile);
     }
 
-    /*
-    public void decomposeNetworks(String modelPath, HashMap<String, ComposedNetworkStructure> composedNetworkStructures) {
-    }*/
-
-    private void splitComposedNetworkIntoAtomicNetworks(String modelPath, NetworkStructure composedNetworkStructure, File networkFile, File paramsFile, File lossNetworkFile, File lossParamsFile) {
+    private void splitComposedNetworkIntoAtomicNetworks(String modelPath, NetworkStructure composedNetworkStructure, File networkFile, File paramsFile) {
 
         if (networkFile == null || paramsFile == null) return;
         ArrayList<GluonRepresentation> splitGluonNets = splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);
@@ -79,12 +69,6 @@ public class GluonDecomposer implements BackendDecomposer {
 
             generateNewParamsFileWithPython(decomposedNetDirectory, decomposedFileName, decomposedNetPath, gluonNet.getParameterLayerCandidates(), paramsFile, gluonNet);
         }
-
-        //splitNetworkParamsFile(modelPath, composedNetworkStructure, paramsFile);
-
-
-        //splitLossNetworkJsonFile(modelPath, composedNetworkStructure, lossNetworkFile);
-        //splitLossNetworkParamsFile(modelPath, composedNetworkStructure, lossParamsFile);
     }
 
     private void generateNewParamsFileWithPython(String networkDirectory, String networkName, String decomposedNetFullPath,
@@ -93,13 +77,13 @@ public class GluonDecomposer implements BackendDecomposer {
         pythonCall.add(pythonPath);
         pythonCall.add(pythonTool);
 
-        pythonCall.add("-oin");
+        pythonCall.add("-in");
         pythonCall.add(gluonNet.getNetworkStructure().getNetworkLayers().get(0).getLayerName());
 
-        pythonCall.add("-omp");
+        pythonCall.add("-mp");
         pythonCall.add(decomposedNetFullPath);
 
-        pythonCall.add("-opp");
+        pythonCall.add("-pp");
         pythonCall.add(originalParamFile.getPath());
 
         pythonCall.add("-nmd");
@@ -107,9 +91,6 @@ public class GluonDecomposer implements BackendDecomposer {
 
         pythonCall.add("-nmn");
         pythonCall.add(networkName);
-
-        //pythonCall.add("-nin");
-        //pythonCall.add("-");
 
         StringBuilder layerList = new StringBuilder();
         for (int i=0; i<parameterLayers.size(); i++){
@@ -121,8 +102,6 @@ public class GluonDecomposer implements BackendDecomposer {
 
         pythonCall.add("-pl");
         pythonCall.add(layerList.toString());
-
-
 
         ProcessBuilder pb = new ProcessBuilder(pythonCall).inheritIO();
         int exitCode = 0;
@@ -157,7 +136,6 @@ public class GluonDecomposer implements BackendDecomposer {
         ArrayList<Object> nodes = (ArrayList<Object>) contentMap.get("nodes");
         Map<String, Object> attributes = (Map<String, Object>) contentMap.get("attrs");
         ArrayList<NetworkStructure> subNets = networkStructure.getSubNetworkStructures();
-        //ArrayList<ArrayList<Map<String,Object>>> decomposedNets = new ArrayList<>();
         ArrayList<GluonRepresentation> gluonNets = new ArrayList<>();
 
         Map<String, Object> lastNode = (Map<String, Object>) nodes.get(nodes.size() - 1);
@@ -227,13 +205,11 @@ public class GluonDecomposer implements BackendDecomposer {
                     } else {
                         networkNodes.add(buildOutput());
                         generatedNodesMalus++;
-                        //nodeDifference--;
                     }
                 } else {
                     throw new RuntimeException("Unknown Layer type when splitting. Type: " + layer.getLayerType().toString());
                 }
             }
-            //decomposedNets.add(networkNodes);
 
             gluonNets.add(new GluonRepresentation(currentNetwork, networkNodes, attributes, nodeDifference, headSize));
             nodeDifference += networkNodes.size() - generatedNodesMalus;
@@ -248,19 +224,6 @@ public class GluonDecomposer implements BackendDecomposer {
             if (match) return true;
         }
         return false;
-    }
-
-    private void splitNetworkParamsFile(String modelPath, NetworkStructure composedNetworkStructure, File file) {
-
-    }
-
-    private void splitLossNetworkJsonFile(String modelPath, NetworkStructure composedNetworkStructure, File file) {
-        String jsonContent = readFile(file.getPath());
-        Map<String, Object> contentMap = jsonToMap(jsonContent);
-    }
-
-    private void splitLossNetworkParamsFile(String modelPath, NetworkStructure composedNetworkStructure, File file) {
-
     }
 
     private ArrayList<File> scanForFiles(String modelPath, NetworkStructure composedNetworkStructure) {
