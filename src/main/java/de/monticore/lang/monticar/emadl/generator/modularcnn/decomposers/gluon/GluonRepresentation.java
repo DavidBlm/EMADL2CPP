@@ -43,6 +43,10 @@ public class GluonRepresentation {
         return this.parameterLayerCandidates;
     }
 
+    public NetworkStructure getNetworkStructure(){
+        return this.networkStructure;
+    }
+
     private void rebuildNetworkAttributes(){
         fixNodeNumberRefs();
         fixNodeInputs();

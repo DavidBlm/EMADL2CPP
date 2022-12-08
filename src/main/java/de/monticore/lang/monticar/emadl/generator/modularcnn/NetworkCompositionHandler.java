@@ -29,7 +29,7 @@ public class NetworkCompositionHandler {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer(this, cachedComposedArchitectureSymbols, composedNetworkStructures);
-        this.networkDecomposer = new NetworkDecomposer(backend);
+        //this.networkDecomposer = new NetworkDecomposer(backend);
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
 
     }
@@ -38,7 +38,7 @@ public class NetworkCompositionHandler {
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer(this, instanceVault, cachedComposedArchitectureSymbols, composedNetworkStructures);
-        this.networkDecomposer = new NetworkDecomposer(backend);
+        //this.networkDecomposer = new NetworkDecomposer(backend);
         this.instanceVault = instanceVault;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
     }
@@ -244,7 +244,9 @@ public class NetworkCompositionHandler {
         return architectureSymbols;
     }
 
+    /*
     public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure){
         this.networkDecomposer.decomposeNetwork(modelPath,composedNetworkStructure);
     }
+     */
 }

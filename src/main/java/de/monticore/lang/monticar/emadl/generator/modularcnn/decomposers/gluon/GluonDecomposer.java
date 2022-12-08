@@ -14,13 +14,17 @@ import java.util.*;
 public class GluonDecomposer implements BackendDecomposer {
 
     ArrayList<LayerSubstitute> allowedLayerSubstitutes = new ArrayList<>();
+    String pythonPath = "";
+    String pythonTool = "src/main/resources/GluonParameterSplitter.py";
 
-    public GluonDecomposer(){
+    public GluonDecomposer(String pythonPath) {
+        this.pythonPath = pythonPath;
+
         LayerSubstitute reluSub = new LayerSubstitute("Relu");
         reluSub.addSubstitute("Activation");
         allowedLayerSubstitutes.add(reluSub);
 
-        LayerSubstitute  softmaxSub = new LayerSubstitute("Softmax");
+        LayerSubstitute softmaxSub = new LayerSubstitute("Softmax");
         softmaxSub.addSubstitute("softmax");
         allowedLayerSubstitutes.add(softmaxSub);
 
@@ -37,7 +41,7 @@ public class GluonDecomposer implements BackendDecomposer {
         File lossNetworkJsonFile = null;
         File lossParamsFile = null;
 
-        for (File file : fileList){
+        for (File file : fileList) {
             String fileName = file.getName();
             if (fileName.contains("newest-symbol.json")) networkJsonFile = file;
             else if (fileName.contains("newest-0000.params")) paramsFile = file;
@@ -52,19 +56,19 @@ public class GluonDecomposer implements BackendDecomposer {
     public void decomposeNetworks(String modelPath, HashMap<String, ComposedNetworkStructure> composedNetworkStructures) {
     }*/
 
-    private void splitComposedNetworkIntoAtomicNetworks(String modelPath, NetworkStructure composedNetworkStructure, File networkFile, File paramsFile, File lossNetworkFile, File lossParamsFile){
+    private void splitComposedNetworkIntoAtomicNetworks(String modelPath, NetworkStructure composedNetworkStructure, File networkFile, File paramsFile, File lossNetworkFile, File lossParamsFile) {
 
-        if (networkFile == null || paramsFile == null ) return;
+        if (networkFile == null || paramsFile == null) return;
         ArrayList<GluonRepresentation> splitGluonNets = splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);
 
-        for (GluonRepresentation gluonNet : splitGluonNets){
+        for (GluonRepresentation gluonNet : splitGluonNets) {
             String jsonContent = mapToJson(gluonNet.getGluonJsonRepresentation());
             ArrayList<String> parameterLayers = gluonNet.getParameterLayerCandidates();
 
             String decomposedNetDirectory = modelPath + composedNetworkStructure.getComponentName() + "." + gluonNet.getNetworkName() + "_decomposed";
             File directory = new File(decomposedNetDirectory);
 
-            if (!directory.exists()){
+            if (!directory.exists()) {
                 directory.mkdir();
             }
 
@@ -73,7 +77,7 @@ public class GluonDecomposer implements BackendDecomposer {
             String decomposedNetPath = decomposedNetDirectory + "/" + decomposedFileName + ".json";
             writeFile(decomposedNetPath, jsonContent);
 
-            generateNewParamsFileWithPython(decomposedNetDirectory, decomposedFileName, gluonNet.getParameterLayerCandidates(), paramsFile);
+            generateNewParamsFileWithPython(decomposedNetDirectory, decomposedFileName, decomposedNetPath, gluonNet.getParameterLayerCandidates(), paramsFile, gluonNet);
         }
 
         //splitNetworkParamsFile(modelPath, composedNetworkStructure, paramsFile);
@@ -83,11 +87,70 @@ public class GluonDecomposer implements BackendDecomposer {
         //splitLossNetworkParamsFile(modelPath, composedNetworkStructure, lossParamsFile);
     }
 
-    private void generateNewParamsFileWithPython(String networkDirectory, String networkName, ArrayList<String> parameterLayers, File originalParamFile){
+    private void generateNewParamsFileWithPython(String networkDirectory, String networkName, String decomposedNetFullPath,
+                                                 ArrayList<String> parameterLayers, File originalParamFile, GluonRepresentation gluonNet) {
+        ArrayList<String> pythonCall = new ArrayList<>();
+        pythonCall.add(pythonPath);
+        pythonCall.add(pythonTool);
 
+        pythonCall.add("-oin");
+        pythonCall.add(gluonNet.getNetworkStructure().getNetworkLayers().get(0).getLayerName());
+
+        pythonCall.add("-omp");
+        pythonCall.add(decomposedNetFullPath);
+
+        pythonCall.add("-opp");
+        pythonCall.add(originalParamFile.getPath());
+
+        pythonCall.add("-nmd");
+        pythonCall.add(networkDirectory);
+
+        pythonCall.add("-nmn");
+        pythonCall.add(networkName);
+
+        //pythonCall.add("-nin");
+        //pythonCall.add("-");
+
+        StringBuilder layerList = new StringBuilder();
+        for (int i=0; i<parameterLayers.size(); i++){
+            String layer = parameterLayers.get(i);
+            layerList.append(layer);
+
+            if  (i != parameterLayers.size()-1) layerList.append(",");
         }
 
-    private ArrayList<GluonRepresentation> splitNetworkJsonFile(String modelPath, NetworkStructure networkStructure, File file){
+        pythonCall.add("-pl");
+        pythonCall.add(layerList.toString());
+
+
+
+        ProcessBuilder pb = new ProcessBuilder(pythonCall).inheritIO();
+        int exitCode = 0;
+
+        try {
+            Process p = pb.start();
+
+            exitCode = p.waitFor();
+        } catch (IOException e) {
+            String errMsg = "IOException when writing new gluon param file with exit code: " + Integer.toString(exitCode);
+            Log.error(errMsg);
+            throw new RuntimeException(errMsg);
+        } catch (InterruptedException e) {
+            String errMsg = "Interrupted Exception when writing new gluon param file with exit code: " + Integer.toString(exitCode);
+            Log.error(errMsg);
+            throw new RuntimeException(errMsg);
+        }
+
+        if (exitCode != 0) {
+            String errMsg = "Exit code that is not 0. Exit code: " + Integer.toString(exitCode);
+            Log.error(errMsg);
+            throw new RuntimeException(errMsg);
+        } else {
+            Log.info("Wrote new params file for network " + networkName, "DECOMPOSITION");
+        }
+    }
+
+    private ArrayList<GluonRepresentation> splitNetworkJsonFile(String modelPath, NetworkStructure networkStructure, File file) {
         String jsonContent = readFile(file.getPath());
         Map<String, Object> contentMap = jsonToMap(jsonContent);
 
@@ -97,31 +160,30 @@ public class GluonDecomposer implements BackendDecomposer {
         //ArrayList<ArrayList<Map<String,Object>>> decomposedNets = new ArrayList<>();
         ArrayList<GluonRepresentation> gluonNets = new ArrayList<>();
 
-        Map<String,Object> lastNode = (Map<String, Object>) nodes.get(nodes.size()-1);
+        Map<String, Object> lastNode = (Map<String, Object>) nodes.get(nodes.size() - 1);
         ArrayList<Object> lastInputs = (ArrayList<Object>) lastNode.get("inputs");
         ArrayList<Integer> lastInputIntList = (ArrayList<Integer>) lastInputs.get(0);
-        int headSize = lastInputIntList.size()-1;
+        int headSize = lastInputIntList.size() - 1;
         int nodeDifference = 0;
         int generatedNodesMalus = 0;
 
-        Log.info("Start","DECOMPOSITION_JSON_SPLITTING");
-        for (int i=0, layerPointer=-1; i<subNets.size(); i++){
+        for (int i = 0, layerPointer = -1; i < subNets.size(); i++) {
             generatedNodesMalus = 0;
 
             NetworkStructure currentNetwork = subNets.get(i);
-            ArrayList<Map<String,Object>> networkNodes = new ArrayList<>();
+            ArrayList<Map<String, Object>> networkNodes = new ArrayList<>();
             String op = null;
             String name = null;
 
-            for (LayerInformation layer : currentNetwork.getNetworkLayers()){
+            for (LayerInformation layer : currentNetwork.getNetworkLayers()) {
 
-                if (layer.isInputLayer()){
-                    if (i==0){
+                if (layer.isInputLayer()) {
+                    if (i == 0) {
                         layerPointer++;
-                        Map<String,Object> node = (Map<String, Object>) nodes.get(layerPointer);
+                        Map<String, Object> node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
                         name = (String) node.get("name");
-                        if (op.equals("null") && name.equals(layer.getLayerName())){
+                        if (op.equals("null") && name.equals(layer.getLayerName())) {
                             networkNodes.add(node);
                         }
                     } else {
@@ -129,14 +191,14 @@ public class GluonDecomposer implements BackendDecomposer {
                         generatedNodesMalus++;
                         //nodeDifference--;
                     }
-                } else if (layer.isDefaultLayer()){
+                } else if (layer.isDefaultLayer()) {
                     layerPointer++;
-                    Map<String,Object> node = (Map<String, Object>) nodes.get(layerPointer);
+                    Map<String, Object> node = (Map<String, Object>) nodes.get(layerPointer);
                     op = (String) node.get("op");
                     name = (String) node.get("name");
 
                     boolean substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(), op);
-                    while (!op.equals(layer.getLayerName()) && !substituteCheck){
+                    while (!op.equals(layer.getLayerName()) && !substituteCheck) {
 
                         networkNodes.add(node);
                         layerPointer++;
@@ -146,20 +208,20 @@ public class GluonDecomposer implements BackendDecomposer {
                     }
 
                     substituteCheck = checkLayerSubstitutesForMatch(layer.getLayerName(), op);
-                    if (op.equals(layer.getLayerName()) || substituteCheck){
+                    if (op.equals(layer.getLayerName()) || substituteCheck) {
                         networkNodes.add(node);
                         node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
                         name = (String) node.get("name");
                     }
 
-                } else if (layer.isOutputLayer()){
-                    if (i==subNets.size()-1){
+                } else if (layer.isOutputLayer()) {
+                    if (i == subNets.size() - 1) {
                         layerPointer++;
-                        Map<String,Object> node = (Map<String, Object>) nodes.get(layerPointer);
+                        Map<String, Object> node = (Map<String, Object>) nodes.get(layerPointer);
                         op = (String) node.get("op");
                         name = (String) node.get("name");
-                        if (op.equals("_copy") && name.equals("identity0")){
+                        if (op.equals("_copy") && name.equals("identity0")) {
                             networkNodes.add(node);
                         }
                     } else {
@@ -175,42 +237,41 @@ public class GluonDecomposer implements BackendDecomposer {
 
             gluonNets.add(new GluonRepresentation(currentNetwork, networkNodes, attributes, nodeDifference, headSize));
             nodeDifference += networkNodes.size() - generatedNodesMalus;
-            if (i==0) nodeDifference--;
-            Log.info("Node diff","DECOMPOSITION_JSON_SPLITTING");
+            if (i == 0) nodeDifference--;
         }
         return gluonNets;
     }
 
-    private boolean checkLayerSubstitutesForMatch(String originalLayer, String layerSubs){
+    private boolean checkLayerSubstitutesForMatch(String originalLayer, String layerSubs) {
         for (LayerSubstitute layerSubstitute : this.allowedLayerSubstitutes) {
-            boolean match = layerSubstitute.hasLayerSubstitute(originalLayer,layerSubs);
+            boolean match = layerSubstitute.hasLayerSubstitute(originalLayer, layerSubs);
             if (match) return true;
         }
         return false;
     }
 
-    private void splitNetworkParamsFile(String modelPath, NetworkStructure composedNetworkStructure, File file){
+    private void splitNetworkParamsFile(String modelPath, NetworkStructure composedNetworkStructure, File file) {
 
     }
 
-    private void splitLossNetworkJsonFile(String modelPath, NetworkStructure composedNetworkStructure, File file){
+    private void splitLossNetworkJsonFile(String modelPath, NetworkStructure composedNetworkStructure, File file) {
         String jsonContent = readFile(file.getPath());
         Map<String, Object> contentMap = jsonToMap(jsonContent);
     }
 
-    private void splitLossNetworkParamsFile(String modelPath, NetworkStructure composedNetworkStructure, File file){
+    private void splitLossNetworkParamsFile(String modelPath, NetworkStructure composedNetworkStructure, File file) {
 
     }
 
-    private ArrayList<File> scanForFiles(String modelPath, NetworkStructure composedNetworkStructure){
+    private ArrayList<File> scanForFiles(String modelPath, NetworkStructure composedNetworkStructure) {
         ArrayList<File> files = new ArrayList<>();
         String path = modelPath + "/" + composedNetworkStructure.getComponentName();
         File modelDirectory = new File(path);
         File[] fileList = modelDirectory.listFiles();
 
-        if (fileList != null){
-            for (File file: fileList){
-                if (file.isFile()){
+        if (fileList != null) {
+            for (File file : fileList) {
+                if (file.isFile()) {
                     files.add(file);
                 }
             }
@@ -218,42 +279,43 @@ public class GluonDecomposer implements BackendDecomposer {
         return files;
     }
 
-    private void writeFile(String path, String content){
+    private void writeFile(String path, String content) {
         File file = new File(path);
-        try{
+        try {
             FileWriter fileWriter = new FileWriter(path);
             fileWriter.write(content);
             fileWriter.close();
-        } catch (IOException e){
+        } catch (IOException e) {
             Log.error("Error while writing decomposition files for GLUON backend");
             e.printStackTrace();
         }
     }
 
-    private String readFile(String path){
+    private String readFile(String path) {
         StringBuilder content = new StringBuilder();
         try {
             Scanner scanner = new Scanner(new File(path));
 
-            while (scanner.hasNextLine()){
+            while (scanner.hasNextLine()) {
                 content.append(scanner.nextLine());
             }
             scanner.close();
-        } catch (Exception e){
+        } catch (Exception e) {
             Log.error("Error while reading GLUON file");
             e.printStackTrace();
         }
         return content.toString();
     }
 
-    private Map<String,Object> jsonToMap(String jsonContent){
+    private Map<String, Object> jsonToMap(String jsonContent) {
         ObjectMapper mapper = new ObjectMapper();
-        Map<String,Object> contentMap = new HashMap<>();
-        TypeReference<HashMap<String,Object>> typeReference = new TypeReference<HashMap<String, Object>>() {};
+        Map<String, Object> contentMap = new HashMap<>();
+        TypeReference<HashMap<String, Object>> typeReference = new TypeReference<HashMap<String, Object>>() {
+        };
 
         try {
-            contentMap =  mapper.readValue(jsonContent, typeReference);
-        } catch (Exception e){
+            contentMap = mapper.readValue(jsonContent, typeReference);
+        } catch (Exception e) {
             e.printStackTrace();
             Log.error("Error while mapping json content to map");
         }
@@ -261,12 +323,12 @@ public class GluonDecomposer implements BackendDecomposer {
         return contentMap;
     }
 
-    private String mapToJson(Map<String, Object> contentMap){
+    private String mapToJson(Map<String, Object> contentMap) {
         String jsonResult = "";
         ObjectMapper mapper = new ObjectMapper();
-        try{
+        try {
             jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(contentMap);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             Log.error("Error while creating json string from map");
         }
@@ -274,16 +336,16 @@ public class GluonDecomposer implements BackendDecomposer {
         return jsonResult;
     }
 
-    private Map<String,Object> buildInput(String inputName){
+    private Map<String, Object> buildInput(String inputName) {
         return buildIONode("null", inputName, new ArrayList<Object>());
     }
 
-    private Map<String,Object> buildOutput(){
+    private Map<String, Object> buildOutput() {
         return buildIONode("_copy", "identity0", new ArrayList<Object>());
     }
 
-    private Map<String,Object> buildIONode(String op, String name, ArrayList<Object> inputs){
-        Map<String,Object> ioNode = new LinkedHashMap<String,Object>();
+    private Map<String, Object> buildIONode(String op, String name, ArrayList<Object> inputs) {
+        Map<String, Object> ioNode = new LinkedHashMap<String, Object>();
         ioNode.put("op", op);
         ioNode.put("name", name);
         ioNode.put("inputs", inputs);
