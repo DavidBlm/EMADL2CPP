@@ -19,7 +19,6 @@ import de.monticore.lang.monticar.cnnarch.generator.validation.TrainedArchitectu
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;

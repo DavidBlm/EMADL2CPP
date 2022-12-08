@@ -4,7 +4,6 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
 import de.monticore.lang.monticar.emadl.modularcnn.compositions.NetworkStructureInformation;
 import de.monticore.lang.monticar.emadl.modularcnn.tools.ComposedNetworkFileHandler;
@@ -22,7 +21,7 @@ public class NetworkCompositionHandler {
     private NetworkDecomposer networkDecomposer;
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
     private LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
-    private LinkedHashMap<String, ComposedNetworkStructure> composedNetworkStructures = null;
+    private LinkedHashMap<String, NetworkStructure> composedNetworkStructures = null;
 
 
     public NetworkCompositionHandler(String composedNetworkFilePath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend, LinkedHashMap<String, NetworkStructure> composedNetworkStructures) {

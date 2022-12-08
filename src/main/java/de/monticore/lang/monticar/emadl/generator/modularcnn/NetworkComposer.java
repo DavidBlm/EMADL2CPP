@@ -4,7 +4,6 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAPortInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.*;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
 import de.monticore.lang.monticar.emadl.modularcnn.compositions.NetworkStructureInformation;
 import de.monticore.symboltable.CommonScope;

@@ -10,7 +10,6 @@ import de.monticore.lang.monticar.cnnarch.generator.WeightsPathConfigParser;
 import de.monticore.lang.monticar.emadl._cocos.DataPathCocos;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactSymbol;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
 import de.monticore.lang.monticar.generator.FileContent;

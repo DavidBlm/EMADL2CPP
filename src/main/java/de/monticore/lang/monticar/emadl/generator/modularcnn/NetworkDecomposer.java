@@ -4,7 +4,6 @@ import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLFileHandler;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.BackendDecomposer;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.gluon.GluonDecomposer;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.ComposedNetworkStructure;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
 
 import java.util.HashMap;
