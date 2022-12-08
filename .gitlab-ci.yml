@@ -5,6 +5,7 @@ stages:
   - docker
   - linux
   - deploy
+  - pages
 
 githubjob:
   image: maven:3-jdk-8
@@ -189,3 +190,30 @@ buildDockerPyTorch:
   only:
     changes:
       - src/test/resources/docker/pytorch/**/*
+
+artifact-extraction:
+  image: ubuntu:22.04
+  stage: linux
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq openjdk-11-jre-headless python3 python3-pip git
+  script:
+    - cd extractor
+    - pip3 install -r requirements.txt
+    - python3 extract.py ${CI_JOB_TOKEN}
+  artifacts:
+    paths:
+      - extractor/output
+
+pages:
+  stage: pages
+  dependencies:
+    - artifact-extraction
+  script:
+    - mkdir .public
+    - cp -r output/html/* .public
+    - mv .public public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
