@@ -22,6 +22,7 @@ import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.Splitters;
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +46,8 @@ public class EMADLGenerator implements EMAMGenerator {
     private EMADLCNNHandler emadlCNNHandler;
 
     private String composedNetworkFilePath = "";
+
+
 
 
 
@@ -112,7 +115,6 @@ public class EMADLGenerator implements EMAMGenerator {
 
 
 
-    //TODO: CNN parsing/generation
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws IOException, TemplateException {
         Log.info("Generator start", "GENERATION");
         processedArchitecture = new HashMap<>();
@@ -120,11 +122,10 @@ public class EMADLGenerator implements EMAMGenerator {
         emadlFileHandler.setPythonPath(pythonPath);
         setUseDgl(useDgl.equals("y"));
 
-        //TODO: Check Tagging
         TaggingResolver symtab = emadlTaggingHandler.getSymTabAndTaggingResolver();
 
-        //TODO: Check component resolving
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
+        EMAComponentInstanceSymbol vaultBuildingInstance = resolveComponentInstanceSymbol(qualifiedName, symtab);
         try {
             // copy the AdaNet files to
             emadlFileHandler.copyPythonFilesFromResource("AdaNet");
@@ -132,13 +133,12 @@ public class EMADLGenerator implements EMAMGenerator {
             e.printStackTrace();
         }
 
-        //TODO: Check file generation
+        emadlFileHandler.setVaultBuildingInstance(vaultBuildingInstance);
         emadlFileHandler.generateFiles(symtab, instance, pythonPath, forced);
 
         if (doCompile) {
             if (!generateCMake) // do it either way
                 emadlFileHandler.generateCMakeFiles(instance);
-            //TODO: Check compilation
             compile();
         }
         processedArchitecture = null;
@@ -151,7 +151,6 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
 
-    //TODO: Check here how component resolution works
     public EMAComponentInstanceSymbol resolveComponentInstanceSymbol(String qualifiedName, TaggingResolver symtab) {
         String simpleName = Names.getSimpleName(qualifiedName);
         Log.info("ResolveSimpleName: " + simpleName, "RESOLVER");
@@ -160,7 +159,6 @@ public class EMADLGenerator implements EMAMGenerator {
             qualifiedName = Names.getQualifiedName(packageName, StringUtils.capitalize(simpleName));
         }
 
-        //TODO: Update resolution point of Networks
         EMAComponentSymbol component = symtab.<EMAComponentSymbol>resolve(qualifiedName, EMAComponentSymbol.KIND).orElse(null);
 
         //Resolution done here
@@ -288,6 +286,8 @@ public class EMADLGenerator implements EMAMGenerator {
 
         emamGen.addSemantics(taggingResolver, componentInstanceSymbol);
 
+        List<Finding> findings = Log.getFindings();
+
         allInstances.add(componentInstanceSymbol);
         EMAComponentSymbol emaComponentSymbol = componentInstanceSymbol.getComponentType().getReferencedSymbol();
 
@@ -308,9 +308,12 @@ public class EMADLGenerator implements EMAMGenerator {
         // set the path to AdaNet python files
         architecture.ifPresent(architectureSymbol -> {architectureSymbol.setAdaNetUtils(emadlFileHandler.getAdaNetUtils());});
         Optional<MathStatementsSymbol> mathStatements = emaComponentSymbol.getSpannedScope().resolve("MathStatements", MathStatementsSymbol.KIND);
+
         EMADLCocos.checkAll(componentInstanceSymbol);
 
+
         if (architecture.isPresent()) {
+
             emadlCNNHandler.getCnnArchGenerator().check(architecture.get());
             String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);

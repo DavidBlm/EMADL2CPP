@@ -60,7 +60,6 @@ public class NetworkCompositionHandler {
         return null;
     }
 
-    //TODO: Finish detection if comp net here
     public boolean isComposedNet(EMAComponentInstanceSymbol instanceSymbol){
 
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){

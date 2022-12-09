@@ -26,7 +26,7 @@ public class EMADLTagging {
 
     protected TaggingResolver getSymTabAndTaggingResolver() {
         BasicLibrary.extract();
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(emadlGen.getEmadlFileHandler().getCustomFilesPath(), emadlGen.getEmadlFileHandler().getPythonPath() ,emadlGen.getBackend(), emadlGen.getComposedNetworkFilePath(), emadlGen.getEmadlFileHandler()
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(emadlGen.getEmadlFileHandler().getCustomFilesPath(), emadlGen.getEmadlFileHandler().getPythonPath(), emadlGen.getBackend(), emadlGen.getComposedNetworkFilePath(), emadlGen.getEmadlFileHandler()
                         .getModelsPath(),
                 Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
     }
