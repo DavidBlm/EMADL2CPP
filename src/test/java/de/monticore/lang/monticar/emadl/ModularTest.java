@@ -37,7 +37,7 @@ public class ModularTest extends AbstractSymtabTest {
             checkFindingsCount(expectedFindings);
 
             Log.getFindings().stream().forEach(finding -> {
-                Log.info("FINDING: " +finding.toString(),"FINDINGS_LOG");
+                Log.info("FINDING: " + finding.toString(),"FINDINGS_LOG");
             });
 
         }catch (Exception e) {

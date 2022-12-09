@@ -15,6 +15,7 @@ import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -303,11 +304,15 @@ public class EMADLFileHandler {
 
         Set<EMAComponentInstanceSymbol> newInstanceVault = new HashSet<>();
 
+        List<Finding> findings = Log.getFindings();
+
         emadlGen.generateStrings(taggingResolver, EMAComponentSymbol, newInstanceVault, forced);
         this.instanceVault = newInstanceVault;
         //this.emadlGen.getEmadlCNNHandler().setComposedNetworkStructures(new LinkedHashMap<String, ComposedNetworkStructure>());
 
         Log.clearFindings();
+        Log.getFindings().addAll(findings);
+
 
 
         List<FileContent> fileContents = emadlGen.generateStrings(taggingResolver, EMAComponentSymbol, allInstances, forced);
