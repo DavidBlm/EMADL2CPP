@@ -12,6 +12,8 @@ import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class NetworkCompositionHandler {
@@ -22,24 +24,29 @@ public class NetworkCompositionHandler {
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
     private LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
     private LinkedHashMap<String, NetworkStructure> composedNetworkStructures = null;
+    private String modelPath = null;
 
 
-    public NetworkCompositionHandler(String composedNetworkFilePath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend, LinkedHashMap<String, NetworkStructure> composedNetworkStructures) {
+    public NetworkCompositionHandler(String composedNetworkFilePath, String modelPath, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend, LinkedHashMap<String, NetworkStructure> composedNetworkStructures) {
         this.composedNetworkFilePath = composedNetworkFilePath;
+        this.modelPath = modelPath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer(this, cachedComposedArchitectureSymbols, composedNetworkStructures);
         //this.networkDecomposer = new NetworkDecomposer(backend);
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
 
+
     }
 
-    public NetworkCompositionHandler(String composedNetworkFilePath, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend, LinkedHashMap<String, NetworkStructure> composedNetworkStructures) {
+    public NetworkCompositionHandler(String composedNetworkFilePath, String modelPath, Set<EMAComponentInstanceSymbol> instanceVault, LinkedHashMap<String,ArchitectureSymbol> cachedComposedArchitectureSymbols, Backend backend, LinkedHashMap<String, NetworkStructure> composedNetworkStructures) {
         this.composedNetworkFilePath = composedNetworkFilePath;
+        this.modelPath = modelPath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer(this, instanceVault, cachedComposedArchitectureSymbols, composedNetworkStructures);
         //this.networkDecomposer = new NetworkDecomposer(backend);
         this.instanceVault = instanceVault;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
+
     }
 
     public String findConfigFileName(EMAComponentInstanceSymbol instanceSymbol){
@@ -55,11 +62,6 @@ public class NetworkCompositionHandler {
 
     //TODO: Finish detection if comp net here
     public boolean isComposedNet(EMAComponentInstanceSymbol instanceSymbol){
-        //if (instanceVault == null || instanceVault.size() == 0) return false;
-
-        //if (this.blockComposedNetworkCheck == null || this.blockComposedNetworkCheck.booleanValue()){
-            //return false;
-        //}
 
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null
@@ -70,6 +72,10 @@ public class NetworkCompositionHandler {
             }
         }
         return false;
+    }
+
+    public boolean isComposedNetAndHasConfig(EMAComponentInstanceSymbol instanceSymbol){
+        return isComposedNet(instanceSymbol) && hasConfigFile(instanceSymbol,modelPath);
     }
 
     public boolean isComposedNetByNetworkName(EMAComponentInstanceSymbol instanceSymbol){
@@ -241,6 +247,22 @@ public class NetworkCompositionHandler {
         }
 
         return architectureSymbols;
+    }
+
+    private boolean hasConfigFile(EMAComponentInstanceSymbol instanceSymbol, String modelPath){
+        Log.info("Searching Config for Network: " + instanceSymbol.getName(),"NETWORK_COMPOSITION_CONFIG_SEARCH");
+
+
+        boolean configExists = false;
+
+        String fullName = instanceSymbol.getFullName().replace("\\.","/");
+
+
+        if (Files.exists(Paths.get(modelPath + fullName + ".conf")) || Files.exists(Paths.get(modelPath + fullName + "_" + instanceSymbol.getName()+ ".conf"))) {
+            configExists = true;
+        }
+
+        return configExists;
     }
 
     /*

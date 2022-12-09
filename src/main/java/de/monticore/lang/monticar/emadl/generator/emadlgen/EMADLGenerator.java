@@ -296,7 +296,7 @@ public class EMADLGenerator implements EMAMGenerator {
         emaComponentSymbol.getFullName();
         /* */
 
-        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
+        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getModelsPath(), emadlFileHandler.getInstanceVault(),
                 emadlCNNHandler.getCachedComposedArchitectureSymbols(), this.getBackend(), this.emadlCNNHandler.getComposedNetworkStructures());
         networkCompositionHandler.processComponentInstances(allInstances);
 

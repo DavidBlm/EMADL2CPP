@@ -65,6 +65,9 @@ public class NetworkComposer {
         if (subnets != null && subnets.size() > 0){
             ArrayList<String> dataFlowList = networkStructureInformation.getNetworkInstancesDataFlow();
             ArrayList<String> instanceOnlyDataFlow = new ArrayList<>();
+
+            if (dataFlowList == null) return null;
+
             for (String net : dataFlowList){
                     String[] netSplit  = net.split("\\|");
                     if (netSplit.length == 2){

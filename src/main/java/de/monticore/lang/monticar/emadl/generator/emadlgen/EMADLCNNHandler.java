@@ -117,7 +117,7 @@ public class EMADLCNNHandler {
         TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
 
 
-        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getInstanceVault(),
+        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getModelsPath(), emadlFileHandler.getInstanceVault(),
                 this.cachedComposedArchitectureSymbols, this.emadlGenerator.getBackend(), this.composedNetworkStructures);
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
@@ -159,7 +159,7 @@ public class EMADLCNNHandler {
 
                 String trainConfigFilename = emadlFileHandler.getConfigFilename(mainComponentConfigFilename, componentConfigFilename, instanceConfigFilename);
                 if (Strings.isNullOrEmpty(trainConfigFilename)) {
-                    if (!networkCompositionHandler.isComposedNet(componentInstance) && networkCompositionHandler.isPartOfComposedNet(componentInstance)){
+                    if (!networkCompositionHandler.isComposedNetAndHasConfig(componentInstance) && networkCompositionHandler.isPartOfComposedNet(componentInstance)){
                         Log.info("Found part of composed net","COMPOSED_NET_PART");
                         continue;
                     } else if (networkCompositionHandler.isPartOfComposedNet(componentInstance)) {

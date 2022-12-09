@@ -329,7 +329,7 @@ public class EMADLFileHandler {
         List<FileContent> fileContentsTrainingHashes = new ArrayList<>();
         List<String> newHashes = new ArrayList<>();
 
-        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworksFilePath, this.instanceVault,
+        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworksFilePath, getModelsPath(),this.instanceVault,
                 emadlGen.getEmadlCNNHandler().getCachedComposedArchitectureSymbols(), emadlGen.getBackend(), emadlGen.getEmadlCNNHandler().getComposedNetworkStructures());
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
