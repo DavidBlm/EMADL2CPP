@@ -18,6 +18,7 @@ component Net1 {
         Relu() ->
         Dropout() ->
         FullyConnected(units=10) ->
+        Softmax() ->
         softmax;
     }
     

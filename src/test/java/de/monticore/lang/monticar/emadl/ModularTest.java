@@ -19,18 +19,10 @@ public class ModularTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         Log.enableFailQuick(false);
 
-        /*
-        String[] hashPaths = {"target/singleNetwork","target/emptyNetwork","target/modularNetworkComplex","target/modularNetworkSimple"};
-        try {
-            removeMultipleTrainingHashes(hashPaths);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        */
     }
 
     public void runGenerator(String[] args, int expectedFindings, boolean exceptionAllowed){
-
+        removeCNNFilesFromPreviousRuns();
         try {
             //removeDirectory("model/");
             EMADLGeneratorCli.main(args);
@@ -72,7 +64,7 @@ public class ModularTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         removeDirectory("target/modularNetworkSimpleMultiNet");
         String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkSimpleMultiNet", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args,24,false);
+        runGenerator(args,14,false);
     }
 
     @Test
@@ -125,6 +117,16 @@ public class ModularTest extends AbstractSymtabTest {
 
             boolean success = file.delete();
             if (!success) throw new IOException("File could not be deleted:" + file.toString());
+        }
+    }
+
+    public void removeCNNFilesFromPreviousRuns(){
+        String[] hashPaths = {"target/singleNetwork","target/emptyNetwork","target/modularNetworkComplex","target/modularNetworkSimple"};
+        try {
+            removeMultipleTrainingHashes(hashPaths);
+            removeDirectory("model");
+        } catch (IOException e){
+            e.printStackTrace();
         }
     }
 

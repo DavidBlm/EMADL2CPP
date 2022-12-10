@@ -125,7 +125,7 @@ public class EMADLGenerator implements EMAMGenerator {
         TaggingResolver symtab = emadlTaggingHandler.getSymTabAndTaggingResolver();
 
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
-        EMAComponentInstanceSymbol vaultBuildingInstance = resolveComponentInstanceSymbol(qualifiedName, symtab);
+        //EMAComponentInstanceSymbol vaultBuildingInstance = resolveComponentInstanceSymbol(qualifiedName, symtab);
         try {
             // copy the AdaNet files to
             emadlFileHandler.copyPythonFilesFromResource("AdaNet");
@@ -133,7 +133,7 @@ public class EMADLGenerator implements EMAMGenerator {
             e.printStackTrace();
         }
 
-        emadlFileHandler.setVaultBuildingInstance(vaultBuildingInstance);
+        //emadlFileHandler.setVaultBuildingInstance(vaultBuildingInstance);
         emadlFileHandler.generateFiles(symtab, instance, pythonPath, forced);
 
         if (doCompile) {
@@ -255,7 +255,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
         Log.info("Instance name: " + instanceName,"GENERATE_STRINGS");
-        fileContents.addAll(emadlCNNHandler.generateCNNTrainer(allInstances, instanceName));
+        fileContents.addAll(emadlCNNHandler.generateCNNTrainer(allInstances, instanceName, false));
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
 
@@ -284,6 +284,7 @@ public class EMADLGenerator implements EMAMGenerator {
                                      TaggingResolver taggingResolver,
                                      EMAComponentInstanceSymbol componentInstanceSymbol) {
 
+
         emamGen.addSemantics(taggingResolver, componentInstanceSymbol);
 
         List<Finding> findings = Log.getFindings();
@@ -311,9 +312,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         EMADLCocos.checkAll(componentInstanceSymbol);
 
-
         if (architecture.isPresent()) {
-
             emadlCNNHandler.getCnnArchGenerator().check(architecture.get());
             String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
@@ -324,6 +323,7 @@ public class EMADLGenerator implements EMAMGenerator {
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(emaComponentSymbol.getFullName());
             architecture.get().setUseDgl(getUseDgl());
+
 
             if(!emadlFileHandler.getCustomFilesPath().equals("")) {
                 architecture.get().setCustomPyFilesPath(emadlFileHandler.getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());

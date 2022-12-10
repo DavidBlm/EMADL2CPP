@@ -111,7 +111,7 @@ public class EMADLCNNHandler {
         fileContents.add(new FileContent(emadlFileHandler.readResource("CNNTranslator.h", Charsets.UTF_8), "CNNTranslator.h"));
     }
 
-    protected List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName) {
+    protected List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName, boolean modularTransformationRun) {
         boolean copied = emadlFileHandler.copySchemaFilesFromResource(ROOT_SCHEMA_MODEL_PATH);
         List<FileContent> fileContents = new ArrayList<>();
         TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
@@ -191,6 +191,11 @@ public class EMADLCNNHandler {
                 Map<String,ArchitectureSymbol> processedArch = emadlGenerator.getProcessedArchitecture();
 
                 ArchitectureSymbol correspondingArchitecture = emadlGenerator.getProcessedArchitecture().get(fullConfigName);
+
+                if (modularTransformationRun && correspondingArchitecture == null) {
+                    correspondingArchitecture = architecture.get();
+                }
+
                 assert correspondingArchitecture != null : "No architecture found for train " + fullConfigName + " configuration!";
 
                 TrainingComponentsContainer trainingComponentsContainer = new TrainingComponentsContainer();

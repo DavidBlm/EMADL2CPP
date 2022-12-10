@@ -13,6 +13,11 @@ import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionH
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactSymbol;
 import de.monticore.lang.monticar.emadl.tagging.dltag.DataPathSymbol;
 import de.monticore.lang.monticar.generator.FileContent;
+import de.monticore.lang.monticar.generator.cpp.ArmadilloHelper;
+import de.monticore.lang.monticar.generator.cpp.ConversionHelper;
+import de.monticore.lang.monticar.generator.cpp.SimulatorIntegrationHelper;
+import de.monticore.lang.monticar.generator.cpp.TypesGeneratorCPP;
+import de.monticore.lang.monticar.generator.cpp.converter.TypeConverter;
 import de.monticore.lang.tagging._symboltable.TagSymbol;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.symboltable.Symbol;
@@ -205,7 +210,6 @@ public class EMADLFileHandler {
                 dataPath = "data";
             }
         }
-
         return dataPath;
     }
 
@@ -309,20 +313,15 @@ public class EMADLFileHandler {
         return f;
     }
 
-    //TODO: fix calculator_connector.h generation for singleNet without unknown layer findings
     private Set<EMAComponentInstanceSymbol> buildInstanceVault(EMAComponentInstanceSymbol emaComponentInstanceSymbol, String forced){
-        Set<EMAComponentInstanceSymbol> newInstanceVault = new HashSet<>();
-        Set<EMAComponentInstanceSymbol> newInstanceVault2 = new HashSet<>();
+        Set<EMAComponentInstanceSymbol> newInstanceVault = null;
 
-        if (this.vaultBuildingInstance != null){
-            List<Finding> findings = Log.getFindings();
-            //emadlGen.generateStrings(emadlGen.getEmadlTaggingHandler().getSymTabAndTaggingResolver(), this.vaultBuildingInstance, newInstanceVault, forced);
+        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworksFilePath, getModelsPath(), new LinkedHashMap<>(),emadlGen.getBackend(), new LinkedHashMap<>());
+        newInstanceVault = findInstancesRecursively(emaComponentInstanceSymbol, networkCompositionHandler);
 
-            NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworksFilePath, getModelsPath(), new LinkedHashMap<>(),emadlGen.getBackend(), new LinkedHashMap<>());
-            newInstanceVault = findInstancesRecursively(emaComponentInstanceSymbol, networkCompositionHandler);
-            Log.clearFindings();
-            Log.getFindings().addAll(findings);
-        }
+        String instanceName = emaComponentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
+        emadlGen.getEmadlCNNHandler().generateCNNTrainer(newInstanceVault, instanceName, true);
+
         return newInstanceVault;
     }
 
@@ -336,9 +335,9 @@ public class EMADLFileHandler {
                 if ( symWrapperList != null && symWrapperList.size() > 0 && symWrapperList.get(0) instanceof EMAComponentInstanceSymbol){
                     EMAComponentInstanceSymbol foundInstance = (EMAComponentInstanceSymbol) symWrapperList.get(0);
                     Optional<ArchitectureSymbol> architectureSymbol = networkCompositionHandler.resolveArchitectureSymbolOfInstance(foundInstance);
-                    //if (architectureSymbol.isPresent()){
-                    //instances.add(foundInstance);
-                    //}
+                    if (architectureSymbol.isPresent()){
+                    instances.add(foundInstance);
+                    }
                     instances.add(foundInstance);
                     instances.addAll(findInstancesRecursively(foundInstance, networkCompositionHandler));
                 }
@@ -350,10 +349,8 @@ public class EMADLFileHandler {
     protected List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol emaComponentSymbol, String pythonPath, String forced) throws IOException {
         Set<EMAComponentInstanceSymbol> allInstances = new HashSet<>();
 
-
-
+        //INFO: Used for information gathering to build correct architectures and C++/Python output files
         this.instanceVault = buildInstanceVault(emaComponentSymbol, forced);
-
 
         List<FileContent> fileContents = emadlGen.generateStrings(taggingResolver, emaComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();

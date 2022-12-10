@@ -10,13 +10,14 @@ component Connector {
           in Z(0:255)^{1, 28, 28} image6,
           out Z(0:1998) res;
 
+    instance Net1 net1;
     instance Network predictor1;
     instance Network predictor2;
     instance Network predictor3;
     instance Network predictor4;
     instance Network predictor5;
     instance Network predictor6;
-    instance Net1 net1;
+
     instance Calculator cal;
 
     connect image1 -> predictor1.data;
