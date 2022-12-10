@@ -18,21 +18,21 @@ public class TrainAlgorithmBuilder {
         this.config = config;
     }
 
-    public TrainAlgorithm build() {
-        TrainAlgorithm trainAlgorithm = getTrainAlgorithm();
+    public NeuralArchitectureSearch build() {
+        NeuralArchitectureSearch neuralArchitectureSearch = getTrainAlgorithm();
         Pipeline trainPipeline = getPipeline();
-        trainAlgorithm.setTrainPipeline(trainPipeline);
-        trainAlgorithm.setTrainConfiguration(config);
-        return trainAlgorithm;
+        neuralArchitectureSearch.setTrainPipeline(trainPipeline);
+        neuralArchitectureSearch.setTrainConfiguration(config);
+        return neuralArchitectureSearch;
     }
 
-    private TrainAlgorithm getTrainAlgorithm() {
+    private NeuralArchitectureSearch getTrainAlgorithm() {
         switch (config.getTrainAlgorithmName()) {
             case EfficientNet:
                 return new EfficientNet();
             case AdaNet:
                 String modelPath = "src.test.resources.models.adanet.AdaNet.emadl";
-                return new AdaNetAlgorithm(modelPath);
+                return new AdaNetAlgorithm();
             default:
                 throw new IllegalArgumentException(
                         "Train algorithm " + config.getTrainAlgorithmName() + " not supported");

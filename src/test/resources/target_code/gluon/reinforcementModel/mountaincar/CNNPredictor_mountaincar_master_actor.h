@@ -15,7 +15,7 @@ using namespace mxnet::cpp;
     
 class CNNPredictor_mountaincar_master_actor_0{
 public:
-    const std::string file_prefix = "model/mountaincar.agent.MountaincarActor/model_0_newest";
+    const std::string file_prefix = "model/mountaincar.agent.MountaincarActor/newest";
     
     //network
     const std::vector<std::string> network_input_keys = {

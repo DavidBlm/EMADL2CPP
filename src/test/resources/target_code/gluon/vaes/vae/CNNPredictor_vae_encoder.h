@@ -15,7 +15,7 @@ using namespace mxnet::cpp;
     
 class CNNPredictor_vae_encoder_0{
 public:
-    const std::string file_prefix = "model/vae.Encoder/model_0_newest";
+    const std::string file_prefix = "model/vae.Encoder/newest";
     
     //network
     const std::vector<std::string> network_input_keys = {

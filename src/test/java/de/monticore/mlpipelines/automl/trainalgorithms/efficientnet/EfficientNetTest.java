@@ -1,12 +1,16 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
+import de.monticore.mlpipelines.automl.helper.FileLoader;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -25,7 +29,7 @@ public class EfficientNetTest extends TestCase {
     @Test
     public void testTrainSets() {
         EfficientNet efficientNet = createEfficientNet();
-        ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
+        ArchitectureSymbol startNetwork = ModelLoader.loadEfficientnetB0();
         efficientNet.execute(startNetwork);
         assertEquals(0.0, efficientNet.trainedAccuracy);
         assertNotNull(efficientNet.getStartNetwork());
@@ -34,7 +38,7 @@ public class EfficientNetTest extends TestCase {
     @Test
     public void testTrainCreatesNetworkScaler(){
         EfficientNet efficientNet = createEfficientNet();
-        ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
+        ArchitectureSymbol startNetwork = ModelLoader.loadEfficientnetB0();
         efficientNet.execute(startNetwork);
         assertNotNull(efficientNet.getNetworkScaler());
     }
@@ -42,7 +46,7 @@ public class EfficientNetTest extends TestCase {
     @Test
     public void testTrainCreatesGridSearch(){
         EfficientNet efficientNet = createEfficientNet();
-        ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
+        ArchitectureSymbol startNetwork = ModelLoader.loadEfficientnetB0();
         efficientNet.execute(startNetwork);
         assertNotNull(efficientNet.getGridSearch());
     }
@@ -50,15 +54,15 @@ public class EfficientNetTest extends TestCase {
     @Test
     public void trainFindsScalingFactors(){
         EfficientNet efficientNet = createEfficientNet();
-        ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
+        ArchitectureSymbol startNetwork = ModelLoader.loadEfficientnetB0();
         efficientNet.execute(startNetwork);
         assertNotNull(efficientNet.getScalingFactors());
     }
 
     @Test
-    public void trainScalesNetwork(){
+    public void trainScalesNetwork() {
         EfficientNet efficientNet = createEfficientNet();
-        ArchitectureSymbol startNetwork = mock(ArchitectureSymbol.class);
+        ArchitectureSymbol startNetwork = ModelLoader.loadEfficientnetB0();
         NetworkScaler networkScaler = mock(NetworkScaler.class);
         efficientNet.setNetworkScaler(networkScaler);
         when(networkScaler.scale(isA(ArchitectureSymbol.class), isA(ScalingFactors.class),
@@ -67,7 +71,21 @@ public class EfficientNetTest extends TestCase {
         assertNotNull(efficientNet.getScaledArchitecture());
     }
 
-    private EfficientNet createEfficientNet(){
+    @Test
+    public void trainSavesNetwork() {
+        EfficientNet efficientNet = createEfficientNet();
+        ArchitectureSymbol startNetwork = ModelLoader.loadEfficientnetB0();
+        NetworkScaler networkScaler = mock(NetworkScaler.class);
+        efficientNet.setNetworkScaler(networkScaler);
+        when(networkScaler.scale(isA(ArchitectureSymbol.class), isA(ScalingFactors.class),
+                any(Integer.class))).thenReturn(startNetwork);
+        efficientNet.execute(startNetwork);
+        String pathString = "src/test/resources/models/efficientnet/EfficientNetB1.emadl";
+        List<String> lines = new FileLoader().loadFile(pathString);
+        assertEquals(55, lines.size());
+    }
+
+    private EfficientNet createEfficientNet() {
         Pipeline pipeline = mock(Pipeline.class);
         EfficientNetConfig config = createEfficientNetConfig();
         EfficientNet efficientNet = new EfficientNet();

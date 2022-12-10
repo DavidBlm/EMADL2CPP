@@ -2,9 +2,12 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
-import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithm;
+import de.monticore.mlpipelines.automl.helper.FileLoader;
+import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 
-public class EfficientNet extends TrainAlgorithm {
+import java.util.List;
+
+public class EfficientNet extends NeuralArchitectureSearch {
     private ScalingFactorsGridSearch gridSearch;
     private NetworkScaler networkScaler;
 
@@ -43,11 +46,13 @@ public class EfficientNet extends TrainAlgorithm {
     }
 
     @Override
-    public void execute(ArchitectureSymbol startNetwork) {
+    public ArchitectureSymbol execute(ArchitectureSymbol startNetwork) {
         setStartNetwork(startNetwork);
         createMissingObjects();
         findBestScalingFactors();
         scaleNetwork();
+        saveNetwork();
+        return scaledArchitecture;
     }
 
     private void createMissingObjects() {
@@ -66,5 +71,16 @@ public class EfficientNet extends TrainAlgorithm {
     private void scaleNetwork() {
         EfficientNetConfig config = getTrainConfiguration();
         this.scaledArchitecture = this.networkScaler.scale(getStartNetwork(), this.scalingFactors, config.getPhi());
+    }
+
+    private void saveNetwork() {
+        EfficientNetConfig config = getTrainConfiguration();
+        EfficientNetEmadlBuilder builder = new EfficientNetEmadlBuilder(this.scaledArchitecture, config);
+        List<String> emadl = builder.getEmadl();
+        String modelDirPath = "src/test/resources/models/efficientnet/";
+        String modelName = "EfficientNetB" + config.getPhi();
+        String modelFileEnding = ".emadl";
+        String pathString = modelDirPath + modelName + modelFileEnding;
+        new FileLoader().writeToFile(emadl, pathString);
     }
 }

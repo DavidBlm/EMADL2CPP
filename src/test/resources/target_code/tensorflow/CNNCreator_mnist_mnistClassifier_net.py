@@ -1,307 +1,323 @@
-# (c) https://github.com/MontiCore/monticore  
-import logging
-import os
-import errno
-import shutil
-import h5py
-import sys
+# (c) https://github.com/MontiCore/monticore
+from caffe2.python import workspace, core, utils, model_helper, brew, optimizer
+from caffe2.python.predictor import mobile_exporter
+from caffe2.proto import caffe2_pb2
 import numpy as np
-import tensorflow as tf
-from CNNDataLoader_mnist_mnistClassifier_net import CNNDataLoader_mnist_mnistClassifier_net as CNNDataLoader
+import h5py
+import math
+import datetime
+import logging
+import os, gc
+import sys
+import lmdb
 
-
-def huber_loss(y_true, y_pred):
-    return tf.losses.huber_loss(y_true, y_pred)
-
-def epe(y_true, y_pred):
-    return tf.keras.backend.mean(tf.keras.backend.sqrt(tf.keras.backend.sum(tf.keras.backend.square(y_pred - y_true), axis=[1])),axis=[1,2])
-
-
-def rmse(y_true, y_pred):
-    return tf.keras.backend.sqrt(keras.losses.mean_squared_error(y_true, y_pred))    
-
-def f1(y_true, y_pred):
-    frac1 = tf.metrics.precision(y_true, y_pred) * tf.metrics.recall(y_true, y_pred)
-    frac2 = tf.metrics.precision(y_true, y_pred) + tf.metrics.recall(y_true, y_pred)
-
-    return 2 * frac1 / frac2
-
-
-class LRScheduler:
-    def __init__(self, params):
-
-        self._decay = params["lr_decay"]
-
-        if "lr_policy" in params:
-            self._policy = params["lr_policy"]
-            logging.info("Using %s learning_rate_policy!\n\n", self._policy)
-        else:
-            self._policy = "step"
-            logging.warning("No lerning_rate_policy specified. Using step scheduler!\n\n")
-
-        if "lr_minimum" in params:
-            self._minimum = params["lr_minimum"]
-        else:
-            self._minimum = 1e-08
-
-        if "step_size" in params:    
-            self._step_size = params["step_size"]
-        else:
-            self._step_size = None
-
-
-        self.scheduler = self.get_lr_scheduler()
-
-
-    def get_lr_scheduler(self):
-
-        mapping = {
-            "fixed":        self.fixed_scheduler,
-            "step":         self.step_scheduler}
-
-        mapping_not_supported = {
-            "exp":          "exp",
-            "inv":          "inv",
-            "poly":         "poly",
-            "sigmoid":      "sigmoid"}
-
-        if self._policy in mapping:
-            return mapping[self._policy]
-        elif self._policy in mapping_not_supported:
-            #This is due to some parameters neccessery for this policies, missing in the CNNTrainLang grammar, and as the MXNET generator also only implements 
-            #the step policy at the time of implementing this, we chose to not add it for now. These policies can be added by using the respective commented out functions below
-            logging.warning("The %s learning_rate_policy is currently not supported by the keras/tensorlfow generator. \n", self._policy)
-        else:
-            logging.warning("The following learning_rate_policy is not supported by the keras/tensorflow generator: %s \n", self._policy)
-
-
-    #note that the keras callback for lr scheduling only gets called inbetween epochs, not single iterations
-    def fixed_scheduler(self, epoch_ind, old_lr):
-        return old_lr
-
-    def step_scheduler(self, epoch_ind, old_lr):
-
-        if (epoch_ind % self._step_size == 0) and epoch_ind > 0:
-            new_lr = old_lr * self._decay
-
-            if new_lr < self._minimum:
-                new_lr = self._minimum
-        
-            return new_lr
-        
-        else:
-            return old_lr
-
-    #def exp_scheduler(self, epoch_ind, old_lr):
-        #return old_lr
-
-    #def inv_scheduler(self, epoch_ind, old_lr):
-        #return old_lr
-
-    #def poly_scheduler(self, epoch_ind, old_lr):
-        #return old_lr
-
-    #def sigmoid_scheduler(self, epoch_ind, old_lr):
-        #return old_lr
-
-    
-#If clip weights for rmsProp optimizer is specified this class is needed, as the keras/ tensorflow variant of rmsProp does not support weight clipping
-class WeightClip(tf.keras.constraints.Constraint):
-    def __init__(self, clip_val=2):
-        self.clip_val = clip_val
-
-    def __call__(self, w):
-        return K.clip(w, -self.clip_val, self.clip_val)
-
-    def get_config(self):
-        return {'name': self.__class__.__name__,
-                'clip_val': self.clip_val}
-
-    
-    
 class CNNCreator_mnist_mnistClassifier_net:
-     
-    def __init__(self):
-        self.model = None
-        self._data_dir_ = "data/mnist.LeNetNetwork/"
-        self._model_dir_ = "model/mnist.LeNetNetwork/"
-        self._model_prefix_ = "model"
-        
-        self._input_names_ = ['image']
-        self._output_names_ = ['predictions_label']
-        self._output_shapes_ = [(10,)]
-        
-        self._weight_constraint_ = None
-        self._regularizer_ = None
+
+    def __init__(self, data_cleaner):
+        self.module = None
+        self._current_dir_ = os.path.join('./')
+        self._data_dir_    = os.path.join(self._current_dir_, 'data/mnist.LeNetNetwork')
+        self._model_dir_   = os.path.join(self._current_dir_, 'model', 'mnist.LeNetNetwork')
+        self._data_cleaner_ = data_cleaner
+
+        self._init_net_    = os.path.join(self._model_dir_, 'init_net.pb')
+        self._predict_net_ = os.path.join(self._model_dir_, 'predict_net.pb')
+
+    def get_total_num_iter(self, num_epoch, batch_size, dataset_size):
+        #Force floating point calculation
+        batch_size_float = float(batch_size)
+        dataset_size_float = float(dataset_size)
+
+        iterations_float = math.ceil(num_epoch*(dataset_size_float/batch_size_float))
+        iterations_int = int(iterations_float)
+
+        return iterations_int
+
+    def get_epoch_as_iter(self, num_epoch, batch_size, dataset_size):   #To print metric durint training process
+        #Force floating point calculation
+        batch_size_float = float(batch_size)
+        dataset_size_float = float(dataset_size)
+
+        epoch_float = math.ceil(dataset_size_float/batch_size_float)
+        epoch_int = int(epoch_float)
+
+        return epoch_int
+
+    def load_h5(self, _data_dir, type):
+        '''given data_dir, load data and label as np.array'''
+        data = h5py.File(os.path.join(_data_dir, type+'.h5'), "r")
+        return np.array(data["data"]), np.array(data["softmax_label"]).astype(np.int32)
+
+    # function for creating lmdb files
+    def create_db(self, data, label, path, db_type):
+
+        # check if olf data.minidb exist in path and remove if True
+        if os.path.exists(os.path.join(path, 'data.minidb')):
+            os.remove(os.path.join(path, 'data.minidb'))
+
+        # start create new data.minidb
+        db = core.C.create_db(db_type, os.path.join(path, 'data.minidb'), core.C.Mode.write)
+        transaction = db.new_transaction()
+
+        label = label.astype(np.int32)
+        for i in range(data.shape[0]):
+            feature_and_label = caffe2_pb2.TensorProtos()
+            feature_and_label.protos.extend([
+                utils.NumpyArrayToCaffe2Tensor(data[i]),
+                utils.NumpyArrayToCaffe2Tensor(label[i])
+            ])
+            transaction.put(
+                '%03d'.format(i),
+                feature_and_label.SerializeToString()
+            )        
+        # Close the transaction, and then close the db.
+        del transaction
+        del db
+
     
-    def load(self):
-        lastEpoch = 0
-        model_file = None
+    def add_input(self, model, cleaning, cleaning_params, data_imbalance, data_imbalance_params, data_type, batch_size, db, db_type, device_opts):
+        with core.DeviceScope(device_opts):
+            if not os.path.isdir(db):
+                logging.error("Data loading failure. Directory '" + os.path.abspath(db) + "' does not exist.")
+                # mkdir for db path
+                os.mkdir(db)
+                logging.info("Create path: '" + os.path.abspath(db) + "'")
+            elif not os.path.isdir(self._data_dir_):
+                logging.error("Data loading failure. Directory '" + os.path.abspath(self._data_dir_) + "' does not exist.")
+                sys.exit(1)
 
-        try:
-            os.remove(self._model_dir_ + self._model_prefix_ + ".newest.hdf5")
-        except OSError:
-            pass
+            # load h5 data and label
+            data_, label_ = self.load_h5(self._data_dir_, data_type)       
+            
+            if cleaning == 'remove':
+                # start cleaning 
+                data_, label_ = self._data_cleaner_.clean_data(data_, label_, cleaning, cleaning_params) 
+                
+                if data_imbalance == 'image_augmentation':
+                    # use data augmentation for upsampling the imbalanced dataset
+                    data_, label_ = self._data_cleaner_.image_augmentation(data_, label_, data_imbalance, data_imbalance_params) 
 
-        if os.path.isdir(self._model_dir_):
-            for file in os.listdir(self._model_dir_):
-                if ".hdf5" in file and self._model_prefix_ in file:
-                    epochStr = file.replace(".hdf5", "").replace(self._model_prefix_ + ".", "")
-                    epoch = int(epochStr)
-                    if epoch > lastEpoch:
-                        lastEpoch = epoch
-                        model_file = file
-        if model_file is None:
-            return 0
-        else:
-            logging.info("Loading checkpoint: " + model_file)
+            dataset_size = data_.shape[0]
+            print('dataset_size:', dataset_size)
 
-            self.model = tf.keras.models.load_model(self._model_dir_ + model_file)
+            # create minidb 
+            self.create_db(data_, label_, db, db_type)
 
-            return lastEpoch
+            if not os.path.isfile(os.path.join(db, 'data.minidb')):
+                logging.error("Data loading failure. Directory '" + os.path.join(db, 'data.minidb') + "' does not contain data.minidb file.")
+                sys.exit(1)
 
-    def build_optimizer(self, optimizer_name, params):
+            # load the data
+            data, label = brew.db_input(
+                model,
+                blobs_out=["data", "label"],
+                batch_size=batch_size,
+                db=os.path.join(db, 'data.minidb'),
+                db_type=db_type,
+            )
+            return data, label, dataset_size
 
-        fixed_params, lr_scheduler_params = self.translate_optimizer_param_names(params)
+    def create_model(self, model, data, device_opts, is_test):
+        with core.DeviceScope(device_opts):
 
-        if optimizer_name == "adam":
-            return tf.keras.optimizers.Adam(**fixed_params), lr_scheduler_params
-        elif optimizer_name == "sgd":
-            return tf.keras.optimizers.SGD(nesterov=False, **fixed_params), lr_scheduler_params
-        elif optimizer_name == "nag":
-            return tf.keras.optimizers.SGD(nesterov=True, **fixed_params), lr_scheduler_params
-        elif optimizer_name == "rmsprop":
-            return tf.keras.optimizers.RMSprop(**fixed_params), lr_scheduler_params
-        elif optimizer_name == "adagrad":
-            return tf.keras.optimizers.Adagrad(**fixed_params), lr_scheduler_params
-        elif optimizer_name == "adadelta":
-            return tf.keras.optimizers.Adadelta(**fixed_params), lr_scheduler_params
-        else:
-            logging.warning("Optimizer not supported by keras/tensorflow: %s \n", optimizer_name)
+            image_ = data
+            # image_, output shape: {[1,28,28]}
+            conv1_ = brew.conv(model, image_, 'conv1_', dim_in=1, dim_out=20, kernel=5, stride=1, pad=1)
+            # conv1_, output shape: {[20,28,28]}
+            pool1_ = brew.max_pool(model, conv1_, 'pool1_', kernel=2, stride=2, pad=1)
+            # pool1_, output shape: {[20,14,14]}
+            conv2_ = brew.conv(model, pool1_, 'conv2_', dim_in=20, dim_out=50, kernel=5, stride=1, pad=1)
+            # conv2_, output shape: {[50,14,14]}
+            pool2_ = brew.max_pool(model, conv2_, 'pool2_', kernel=2, stride=2, pad=1)
+            # pool2_, output shape: {[50,7,7]}
+            fc2_ = brew.fc(model, pool2_, 'fc2_', dim_in=50 * 7 * 7, dim_out=500)
+            # fc2_, output shape: {[500,1,1]}
+            relu2_ = brew.relu(model, fc2_, fc2_)
+            fc3_ = brew.fc(model, relu2_, 'fc3_', dim_in=500, dim_out=10)
+            # fc3_, output shape: {[10,1,1]}
+            predictions_ = brew.softmax(model, fc3_, 'predictions_')
 
-    def translate_optimizer_param_names(self, params):
+            return predictions_
 
-        mapping = {
-            "learning_rate":            "lr",
-            "momentum":                 "momentum",
-            "beta1":                    "beta_1",
-            "beta2":                    "beta_2",
-            "gamma1":                   "rho",
-            "gamma2":                   "momentum",
-            "centered":                 "centered",
-            "epsilon":                  "epsilon",
-            "rho":                      "rho",
-            "clip_gradient":            "clipvalue"}
 
-        mapping_lr_scheduler = {
-            "learning_rate_decay":      "lr_decay",
-            "learning_rate_policy":     "lr_policy",
-            "learning_rate_minimum":    "lr_minimum",
-            "step_size":                "step_size"}
+    # this adds the loss and optimizer
+    def add_training_operators(self, model, output, label, device_opts, loss, opt_type, base_learning_rate, policy, stepsize, epsilon, beta1, beta2, gamma, momentum) :
+        with core.DeviceScope(device_opts):
+            if loss == 'cross_entropy':
+                xent = model.LabelCrossEntropy([output, label], 'xent')
+                loss = model.AveragedLoss(xent, "loss")
+            elif loss == 'euclidean':
+                dist = model.net.SquaredL2Distance([label, output], 'dist')
+                loss = dist.AveragedLoss([], ['loss'])
 
-        fixed_params = {}
-        lr_scheduler_params = {}
-        for k in params:
-            if k == "clip_weights":
-                self._weight_constraint_ = WeightClip(params[k])
-            elif k == "weight_decay":
-                self._regularizer_ = tf.keras.regularizers.l2(params[k])
-            elif k in mapping_lr_scheduler:
-                lr_scheduler_params[mapping_lr_scheduler[k]] = params[k]
-            elif k in mapping.keys():
-                fixed_params[mapping[k]] = params[k]
+            model.AddGradientOperators([loss])
+
+            if opt_type == 'adam':
+                if policy == 'step':
+                    opt = optimizer.build_adam(model, base_learning_rate=base_learning_rate, policy=policy, stepsize=stepsize, beta1=beta1, beta2=beta2, epsilon=epsilon)
+                elif policy == 'fixed' or policy == 'inv':
+                    opt = optimizer.build_adam(model, base_learning_rate=base_learning_rate, policy=policy, beta1=beta1, beta2=beta2, epsilon=epsilon)
+                print("adam optimizer selected")
+            elif opt_type == 'sgd':
+                if policy == 'step':
+                    opt = optimizer.build_sgd(model, base_learning_rate=base_learning_rate, policy=policy, stepsize=stepsize, gamma=gamma, momentum=momentum)
+                elif policy == 'fixed' or policy == 'inv':
+                    opt = optimizer.build_sgd(model, base_learning_rate=base_learning_rate, policy=policy, gamma=gamma, momentum=momentum)
+                print("sgd optimizer selected")
+            elif opt_type == 'rmsprop':
+                if policy == 'step':
+                    opt = optimizer.build_rms_prop(model, base_learning_rate=base_learning_rate, policy=policy, stepsize=stepsize, decay=gamma, momentum=momentum, epsilon=epsilon)
+                elif policy == 'fixed' or policy == 'inv':
+                    opt = optimizer.build_rms_prop(model, base_learning_rate=base_learning_rate, policy=policy, decay=gamma, momentum=momentum, epsilon=epsilon)
+                print("rmsprop optimizer selected")
+            elif opt_type == 'adagrad':
+                if policy == 'step':
+                    opt = optimizer.build_adagrad(model, base_learning_rate=base_learning_rate, policy=policy, stepsize=stepsize, decay=gamma, epsilon=epsilon)
+                elif policy == 'fixed' or policy == 'inv':
+                    opt = optimizer.build_adagrad(model, base_learning_rate=base_learning_rate, policy=policy, decay=gamma, epsilon=epsilon)
+                print("adagrad optimizer selected")
+
+    def add_accuracy(self, model, output, label, device_opts, eval_metric):
+        with core.DeviceScope(device_opts):
+            if eval_metric == 'accuracy':
+                accuracy = brew.accuracy(model, [output, label], "accuracy")
+            elif eval_metric == 'top_k_accuracy':
+                accuracy = brew.accuracy(model, [output, label], "accuracy", top_k=3)
+            return accuracy
+
+    def train(  self, num_epoch=1000, 
+                batch_size=64, 
+                context='gpu', 
+                eval_metric='accuracy', 
+                loss='cross_entropy', 
+                opt_type='adam', 
+                base_learning_rate=0.001, 
+                weight_decay=0.001, 
+                policy='fixed', 
+                stepsize=1, 
+                epsilon=1E-8, 
+                beta1=0.9, 
+                beta2=0.999, 
+                gamma=0.999, 
+                momentum=0.9,
+                cleaning=None, 
+                cleaning_params=(None),
+                data_imbalance=None,
+                data_imbalance_params=(None)) :
+
+        if context == 'cpu':
+            device_opts = core.DeviceOption(caffe2_pb2.CPU, 0)
+            print("CPU mode selected")
+        elif context == 'gpu':
+            device_opts = core.DeviceOption(caffe2_pb2.CUDA, 0)
+            print("GPU mode selected")
+
+        workspace.ResetWorkspace(self._model_dir_)
+
+        arg_scope = {"order": "NCHW"}
+
+        # ------- Training model -------
+
+        train_model= model_helper.ModelHelper(name="train_net", arg_scope=arg_scope)
+        
+        data, label, train_dataset_size = self.add_input(train_model, cleaning, cleaning_params, data_imbalance, data_imbalance_params, data_type='train', batch_size=batch_size, db=os.path.join(self._data_dir_, 'caffe2_db', 'train_lmdb'), db_type='minidb', device_opts=device_opts)
+       
+        predictions_ = self.create_model(train_model, data, device_opts=device_opts, is_test=False)
+        self.add_training_operators(train_model, predictions_, label, device_opts, loss, opt_type, base_learning_rate, policy, stepsize, epsilon, beta1, beta2, gamma, momentum)
+        
+        if not loss == 'euclidean':
+            self.add_accuracy(train_model, predictions_, label, device_opts, eval_metric)
+        with core.DeviceScope(device_opts):
+            brew.add_weight_decay(train_model, weight_decay)
+
+        # Initialize and create the training network
+        workspace.RunNetOnce(train_model.param_init_net)
+        workspace.CreateNet(train_model.net, overwrite=True)
+
+        # Main Training Loop
+        iterations = self.get_total_num_iter(num_epoch, batch_size, train_dataset_size)
+        epoch_as_iter = self.get_epoch_as_iter(num_epoch, batch_size, train_dataset_size)
+        
+        print("\n------- Starting Training -------")
+        
+        start_date = datetime.datetime.now()
+        for i in range(iterations):
+            workspace.RunNet(train_model.net)
+            
+            if i % 50 == 0 or i % epoch_as_iter == 0:
+                if not loss == 'euclidean':
+                    print('Iter ' + str(i) + ': ' + 'Loss ' + str(workspace.FetchBlob("loss")) + ' - ' + 'Accuracy ' + str(workspace.FetchBlob('accuracy')))
+                else:
+                    print('Iter ' + str(i) + ': ' + 'Loss ' + str(workspace.FetchBlob("loss")))
+
+                current_time = datetime.datetime.now()
+                elapsed_time = current_time - start_date
+                print('Progress: ' + str(i) + '/' + str(iterations) + ', ' +'Current time spent: ' + str(elapsed_time))
+                
+        current_time = datetime.datetime.now()
+        elapsed_time = current_time - start_date
+
+        print('Progress: ' + str(iterations) + '/' + str(iterations) + '\tTraining done: Total time spent: ' + str(elapsed_time))
+
+        # ------- Testing model. -------
+        
+        print("\n------- Running Test model -------")
+        
+        test_model= model_helper.ModelHelper(name="test_net", arg_scope=arg_scope, init_params=False)
+        data, label, test_dataset_size = self.add_input(test_model, cleaning, cleaning_params, data_imbalance, data_imbalance_params, data_type='test', batch_size=batch_size, db=os.path.join(self._data_dir_, 'caffe2_db', 'test_lmdb'), db_type='minidb', device_opts=device_opts)
+        predictions_ = self.create_model(test_model, data, device_opts=device_opts, is_test=True)
+        
+        if not loss == 'euclidean':
+            self.add_accuracy(test_model, predictions_, label, device_opts, eval_metric)
+        workspace.RunNetOnce(test_model.param_init_net)
+        workspace.CreateNet(test_model.net, overwrite=True)
+
+        # Main Testing Loop
+        print('test_dataset_size=', test_dataset_size, 'batch_size=', batch_size)
+        test_accuracy = np.zeros(int(test_dataset_size/batch_size))
+        start_date = datetime.datetime.now()
+        
+        for i in range(int(test_dataset_size/batch_size)):
+            # Run a forward pass of the net on the current batch
+            workspace.RunNet(test_model.net)
+            
+            # Collect the batch accuracy from the workspace
+            if not loss == 'euclidean':
+                test_accuracy[i] = workspace.FetchBlob('accuracy')
+                print('Iter ' + str(i) + ': ' + 'Accuracy ' + str(workspace.FetchBlob("accuracy")))
             else:
-                logging.warning("The following parameter is not supported by the keras/tensorflow generator %s \n", k)          
-        return fixed_params, lr_scheduler_params
+                test_accuracy[i] = workspace.FetchBlob("loss")
+                print('Iter ' + str(i) + ': ' + 'Loss ' + str(workspace.FetchBlob("loss")))
 
-    def translate_loss_name(self, loss, num_outputs):
-        mapping = {
-            "l2":                   "mean_squared_error",
-            "l1":                   "mean_absolute_error",
-            "cross_entropy":        "sparse_categorical_crossentropy" if num_outputs > 1 else "binary_crossentropy",
-            "log_cosh":             "logcosh",
-            "hinge":                "hinge",
-            "squared_hinge":        "squared_hinge",
-            "kullback_leibler":     "kullback_leibler_divergence",
-            "huber_loss":           huber_loss,
-            "epe":                  epe}
+            current_time = datetime.datetime.now()
+            elapsed_time = current_time - start_date
+            print('Progress: ' + str(i) + '/' + str(test_dataset_size/batch_size) + ', ' +'Current time spent: ' + str(elapsed_time))
+        
+        current_time = datetime.datetime.now()
+        elapsed_time = current_time - start_date
+        print('Progress: ' + str(test_dataset_size/batch_size) + '/' + str(test_dataset_size/batch_size) + '\tTesting done: Total time spent: ' + str(elapsed_time))
+        print('Test accuracy mean: {:.9f}'.format(test_accuracy.mean()))
 
-        if loss in mapping.keys():
-        	fixed_loss = mapping[loss]
-        else:
-            logging.warning("The following loss is not supported by the keras/tensorflow generator:%s \n", k)
-        return fixed_loss
+        # ------- Deployment model. -------
+        # We simply need the main AddModel part.
+        deploy_model = model_helper.ModelHelper(name="deploy_net", arg_scope=arg_scope, init_params=False)
+        self.create_model(deploy_model, "data", device_opts, is_test=True)
 
-    def translate_eval_metric_names(self, metrics, num_outputs):
-        mapping = {
-            "accuracy":             "acc",
-            "mse":                  "mse",
-            "mae":                  "mae",
-            "rmse":                 rmse,
-            "top_k_accuracy":       "top_k_categorical_accuracy",
-            "cross_entropy":        "sparse_categorical_crossentropy" if num_outputs > 1 else "binary_crossentropy",
-            "f1":                   f1}
+        print("\n------- Saving deploy model -------")
+        self.save_net(self._init_net_, self._predict_net_, deploy_model)
 
-        fixed_metric_names = []
-        for k in metrics:
-            if k in mapping.keys():
-                fixed_metric_names.append(mapping[k])
-            elif k != []:
-                logging.warning("The following metric is not supported by the keras/tensorflow generator: %s \n", k)
-        return fixed_metric_names
+        # ------- Check Bias. -------
+        if data_imbalance_params['check_bias']:
+            data, label = self.load_h5(self._data_dir_, 'test')
+            self._data_cleaner_.check_bias(data, label, self._model_dir_, device_opts)
 
-    def train(self, batch_size=64,
-              num_epoch=10,
-              eval_metric=[],
-			  loss="cross_entropy",
-              loss_weights=None,
-              optimizer='adam',
-              optimizer_params=(('learning_rate', 0.001),),
-              load_checkpoint=True,
-              context='gpu',
-              checkpoint_period=5,
-              normalize=True,
-              onnx_export=False):
-                                
-        if context=="cpu":
-            os.environ["CUDA_VISIBLE_DEVICES2"] = '-1'
+    def save_net(self, init_net_path, predict_net_path, model):
 
-        dataLoader = CNNDataLoader(self._data_dir_, self._input_names_, self._output_names_, self._output_shapes_)
-        train_gen, test_gen, data_mean, data_std, steps_per_epoch, validation_steps = dataLoader.load_data_generators(batch_size, normalize)
-
-        if self.model== None:
-            if normalize:
-                self.construct(data_mean, data_std)
-            else:
-                self.construct()
-
-        optimizer_instance, lr_scheduler_params = self.build_optimizer(optimizer, optimizer_params)
-
-        num_outputs = self.model.layers[-1].output_shape[1]
-        metrics = self.translate_eval_metric_names([eval_metric], num_outputs)
-        tf_loss = self.translate_loss_name(loss, num_outputs)
-
-        begin_epoch = 0
-        if load_checkpoint:
-            begin_epoch = self.load()
-            if begin_epoch == 0:
-                if os.path.isdir(self._model_dir_):
-                    shutil.rmtree(self._model_dir_)
-
-                self.model.compile(
-                    optimizer=optimizer_instance,
-                    loss=tf_loss,
-                    loss_weights=loss_weights,
-                    metrics=metrics)     
-        else:
-            if os.path.isdir(self._model_dir_):
-                shutil.rmtree(self._model_dir_)
-
-            self.model.compile(
-                optimizer=optimizer_instance,
-                loss=tf_loss,
-                loss_weights=loss_weights,
-                metrics=metrics)
+        init_net, predict_net = mobile_exporter.Export(
+            workspace,
+            model.net,
+            model.params
+        )
 
         try:
             os.makedirs(self._model_dir_)
@@ -309,128 +325,39 @@ class CNNCreator_mnist_mnistClassifier_net:
             if not os.path.isdir(self._model_dir_):
                 raise
 
-        #callbacks
-        model_checkpoints_cb = tf.keras.callbacks.ModelCheckpoint(filepath=self._model_dir_ + self._model_prefix_ + "." + "{epoch:d}.hdf5", verbose=0, save_weights_only=False, period=checkpoint_period)
-
-        if "lr_decay" in lr_scheduler_params:
-            lr_scheduler = LRScheduler(lr_scheduler_params)
-            lr_scheduler_cb = tf.keras.callbacks.LearningRateScheduler(lr_scheduler.scheduler, 1)
-
-            callbacks = [model_checkpoints_cb, lr_scheduler_cb]
-        else:
-            callbacks = [model_checkpoints_cb]
-
-        self.model.fit_generator(
-            generator=train_gen,
-            validation_data=test_gen,
-            epochs=num_epoch,
-	        validation_steps = validation_steps,
-            steps_per_epoch = steps_per_epoch,
-			callbacks=callbacks) 
-
-
-        #saving curent state of model as .h5py for resuming training in python
-        tf.keras.models.save_model(self.model, self._model_dir_ + self._model_prefix_ + "." + str(num_epoch + begin_epoch) + ".hdf5")
-        tf.keras.models.save_model(self.model, self._model_dir_ + self._model_prefix_ + ".newest.hdf5")
-
-        #Saving model in .pb format for prediction in c++
-        saver = tf.train.Saver()
-        sess = tf.keras.backend.get_session()
-        save_path = saver.save(sess, self._model_dir_ + self._model_prefix_ + "_cpp_pred")
-
-        if onnx_export:
-            import onnx
-            import onnxmltools
-            onnx_model = onnxmltools.convert_keras(self.model)
-            onnx.save(onnx_model, self._model_dir_ + self._model_prefix_ + ".onnx")
-
-    def construct(self, data_mean=None, data_std=None):
-	
-        input_tensors = []
-        output_names = []
-
-                                
-#************* Start Stream 0*****************************
+        print("Save the model to init_net.pb and predict_net.pb")
         
-               
-        image_ = tf.keras.layers.Input(shape=(1,28,28), name="image_")
-        input_tensors.append(image_)      
-        
-        #We Want channels last for tensorflow
-        image_ = tf.keras.layers.Permute((2,3,1))(image_)
+        with open(predict_net_path, 'wb') as f:
+            f.write(model.net._net.SerializeToString())
+        with open(init_net_path, 'wb') as f:
+            f.write(init_net.SerializeToString())
 
-        # image_, output shape: {[28,28,1]}
+        print("Save the model to init_net.pbtxt and predict_net.pbtxt as additional information")
 
-            
-
-        if not data_mean is None:
-            assert(not data_std is None)
-
-            image_  = tf.keras.layers.Lambda(lambda x : (x - data_mean["image"])/data_std["image"])(image_)
-            image_ = tf.keras.layers.Lambda(lambda x: tf.keras.backend.stop_gradient(x))(image_)
-	
-        conv1_ = tf.keras.layers.Conv2D(20, 
-                                                 kernel_size=(5,5), 
-                                                 strides=(1,1), 
-                                                 use_bias=True,
-                                                 padding="same",
-                                                 kernel_regularizer=self._regularizer_, 
-                                                 kernel_constraint=self._weight_constraint_, 
-                                                 name="conv1_")(image_)
-        # conv1_, output shape: {[28,28,20]}
-
-        pool1_ = tf.keras.layers.MaxPool2D(pool_size = (2,2), #or element.poolsize?
-            strides = (2,2), #or element.strides?  (plural)
-            padding="same",            
-            data_format = "channels_last",
-            name="pool1_")(conv1_)
-        # pool1_, output shape: {[14,14,20]}
-
-        conv2_ = tf.keras.layers.Conv2D(50, 
-                                                 kernel_size=(5,5), 
-                                                 strides=(1,1), 
-                                                 use_bias=True,
-                                                 padding="same",
-                                                 kernel_regularizer=self._regularizer_, 
-                                                 kernel_constraint=self._weight_constraint_, 
-                                                 name="conv2_")(pool1_)
-        # conv2_, output shape: {[14,14,50]}
-
-        pool2_ = tf.keras.layers.MaxPool2D(pool_size = (2,2), #or element.poolsize?
-            strides = (2,2), #or element.strides?  (plural)
-            padding="same",            
-            data_format = "channels_last",
-            name="pool2_")(conv2_)
-        # pool2_, output shape: {[7,7,50]}
-
-        fc2_ = tf.keras.layers.Flatten()(pool2_)
-
-        fc2_ = tf.keras.layers.Dense(500,
-                                                use_bias=False,
-                                                kernel_regularizer=self._regularizer_, 
-                                                kernel_constraint=self._weight_constraint_, 
-                                                name="fc2_")(fc2_)
-
-        relu2_ = tf.keras.layers.Activation(activation = "relu", name="relu2_")(fc2_)
+        with open(init_net_path.replace('.pb','.pbtxt'), 'w') as f:
+            f.write(str(init_net))
+        with open(predict_net_path.replace('.pb','.pbtxt'), 'w') as f:
+            f.write(str(predict_net))
+        print("== Saved init_net and predict_net ==")
 
 
-        fc3_ = tf.keras.layers.Dense(10,
-                                                use_bias=False,
-                                                kernel_regularizer=self._regularizer_, 
-                                                kernel_constraint=self._weight_constraint_, 
-                                                name="fc3_")(relu2_)
+    def load_net(self, init_net_path, predict_net_path, device_opts):
+        if not os.path.isfile(init_net_path):
+            logging.error("Network loading failure. File '" + os.path.abspath(init_net_path) + "' does not exist.")
+            sys.exit(1)
+        elif not os.path.isfile(predict_net_path):
+            logging.error("Network loading failure. File '" + os.path.abspath(predict_net_path) + "' does not exist.")
+            sys.exit(1)
 
-        softmax3_ = tf.keras.layers.Softmax(name="softmax3_")(fc3_)
+        init_def = caffe2_pb2.NetDef()
+        with open(init_net_path, 'rb') as f:
+            init_def.ParseFromString(f.read())
+            init_def.device_option.CopyFrom(device_opts)
+            workspace.RunNetOnce(init_def.SerializeToString())
 
-        #Just an "Identity" layer with the appropriate output name, as if softmax is required it is generated from the Softmax.ftl template        
-        predictions_ = tf.keras.layers.Lambda(lambda x: x, name="predictions_")(softmax3_)
-        output_names.append("predictions_")
-        
-
-
-#************* End Stream 0*******************************        
-                 
-        self.model = tf.keras.models.Model(inputs=input_tensors, outputs=[predictions_])
-             
-        for i, node in enumerate(self.model.outputs):
-            tf.identity(node, name="output_" + str(i))
+        net_def = caffe2_pb2.NetDef()
+        with open(predict_net_path, 'rb') as f:
+            net_def.ParseFromString(f.read())
+            net_def.device_option.CopyFrom(device_opts)
+            workspace.CreateNet(net_def.SerializeToString(), overwrite=True)
+        print("*** Loaded init_net and predict_net ***")

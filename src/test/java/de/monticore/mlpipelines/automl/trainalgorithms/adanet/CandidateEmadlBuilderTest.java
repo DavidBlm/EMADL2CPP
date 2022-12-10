@@ -22,12 +22,12 @@ public class CandidateEmadlBuilderTest extends TestCase {
         assertNotNull(architecture);
     }
 
-    public void testCreateCandidateHas6Layers() {
+    public void testCreateCandidateHas7Layers() {
         AdaNetCandidate candidate = getAdaNetCandidate();
         CandidateEmadlBuilder candidateBuilder = new CandidateEmadlBuilder(modelPath, generatedModelPath);
         ArchitectureSymbol architecture = candidateBuilder.createArchitectureFromCandidate(candidate);
         List<ArchitectureElementSymbol> layers = getLayers(architecture);
-        assertEquals(6, layers.size());
+        assertEquals(7, layers.size());
     }
 
     private static List<ArchitectureElementSymbol> getLayers(ArchitectureSymbol architecture) {
