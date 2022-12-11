@@ -59,6 +59,19 @@ public class ASTConfLangCompilationUnitHandler {
         return compilationUnit;
     }
 
+    public static Map<String, Boolean> getAllKeys(ASTConfLangCompilationUnit compilationUnit) {
+        Map<String, Boolean> keysMap = new HashMap<>();
+        List<ASTConfigurationEntry> entries = compilationUnit.getConfiguration().getAllConfigurationEntries();
+
+        for (ASTConfigurationEntry entry: entries) {
+            String name = entry.getName();
+            boolean isNested = (entry instanceof ASTNestedConfigurationEntry);
+            keysMap.put(name, isNested);
+        }
+
+        return keysMap;
+    }
+
     private static Object getConfigurationEntryValue(Object configurationEntryValue) {
         if (configurationEntryValue instanceof ASTTypelessLiteral) {
             return ((ASTTypelessLiteral) configurationEntryValue).getValue();
@@ -110,9 +123,45 @@ public class ASTConfLangCompilationUnitHandler {
             } else {
                 ((ASTBooleanLiteral) configurationEntry.getValue()).setSource(1);
             }
+        } else if (configurationEntry.getValue() instanceof ASTRangeLiteral) {
+            List<ASTSignedLiteral> literalList = ((ASTRangeLiteral)configurationEntry.getValue()).getSignedLiteralList();
+            Class literalClass = literalList.get(0).getClass();
+            ASTSignedLiteral literal = getASTSignedLiteral(newVal, literalClass);
+            configurationEntry.setValue(literal);
         } else {
             throw new IllegalArgumentException("Cannot handle the type of value of ConfigurationEntry.");
         }
+    }
+
+    private static ASTSignedLiteral getASTSignedLiteral(Object value, Class literalClass) {
+        ASTSignedLiteral literal;
+
+        if (literalClass.equals(ASTTypelessLiteral.class)) {
+            literal = new ASTTypelessLiteral();
+            ((ASTTypelessLiteral) literal).setValue(value.toString());
+        } else if (literalClass.equals(ASTStringLiteral.class)) {
+            literal = MCLiteralsNodeFactory.createASTStringLiteral();
+            ((ASTStringLiteral) literal).setSource(value.toString());
+        } else if (literalClass.equals(ASTSignedIntLiteral.class)) {
+            literal = MCLiteralsNodeFactory.createASTSignedIntLiteral();
+            ((ASTSignedIntLiteral) literal).setSource(value.toString());
+            ((ASTSignedIntLiteral) literal).setNegative((int) value < 0);
+        } else if (literalClass.equals(ASTSignedDoubleLiteral.class)) {
+            literal = MCLiteralsNodeFactory.createASTSignedDoubleLiteral();
+            ((ASTSignedDoubleLiteral) literal).setSource(value.toString());
+            ((ASTSignedDoubleLiteral) literal).setNegative((double) value < 0.0);
+        } else if (literalClass.equals(ASTBooleanLiteral.class)) {
+            literal = MCLiteralsNodeFactory.createASTBooleanLiteral();
+            if ((boolean) value) {
+                ((ASTBooleanLiteral) literal).setSource(3);
+            } else {
+                ((ASTBooleanLiteral) literal).setSource(1);
+            }
+        } else {
+            throw new IllegalArgumentException("Cannot handle the type of value of class.");
+        }
+
+        return literal;
     }
 
 }
