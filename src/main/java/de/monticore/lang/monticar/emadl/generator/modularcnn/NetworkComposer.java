@@ -288,6 +288,7 @@ public class NetworkComposer {
         if (mergedAuxiliaryArchitecture.size() != 0){
             //TODO: Handle Auxiliary Architecture
             Log.info("Auxiliary Architecture present: " + mergedAuxiliaryArchitecture.toString(),"SYMBOL_MERGE");
+            Log.warn("Auxiliary architecture was present and is unhandled in current implementation");
         }
 
         if (mergedNetworkInstructions.size() == 0){
