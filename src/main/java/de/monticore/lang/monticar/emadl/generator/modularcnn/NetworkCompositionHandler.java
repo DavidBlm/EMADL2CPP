@@ -263,10 +263,4 @@ public class NetworkCompositionHandler {
 
         return configExists;
     }
-
-    /*
-    public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure){
-        this.networkDecomposer.decomposeNetwork(modelPath,composedNetworkStructure);
-    }
-     */
 }

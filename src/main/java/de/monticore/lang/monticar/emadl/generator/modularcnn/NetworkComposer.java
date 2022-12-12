@@ -121,8 +121,6 @@ public class NetworkComposer {
                         ArchitectureSymbol subnetArchSymbol = generateNetworkLevel(subnet, fromSubnetInstance, atomicNetPositionHook );
                         if (subnetArchSymbol != null){
                             subnetArchSymbols.add(subnetArchSymbol);
-                            //AtomicNetworkStructure atomicNetworkStructure = new AtomicNetworkStructure(subnet, subnetArchSymbol);
-                            //currentAtomicNetworks.add(atomicNetworkStructure);
                             break;
                         }
                     }
