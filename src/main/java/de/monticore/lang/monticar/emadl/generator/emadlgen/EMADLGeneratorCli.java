@@ -82,6 +82,12 @@ public class EMADLGeneratorCli {
             .hasArg(true)
             .required(false).build();
 
+    public static final Option OPTION_ALLOW_DECOMPOSITION = Option.builder("adcm")
+            .longOpt("allow-decomposition")
+            .desc("Allow decomposition of subnetworks after training")
+            .hasArg(false)
+            .required(false).build();
+
 
     private EMADLGeneratorCli() {
     }
@@ -113,6 +119,7 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_USE_DGL);
         options.addOption(OPTION_HELP);
         options.addOption(OPTION_COMPOSED_NETWORK_FILE);
+        options.addOption(OPTION_ALLOW_DECOMPOSITION);
     }
 
     private static void printHelp(){
@@ -126,6 +133,9 @@ public class EMADLGeneratorCli {
         System.err.println("\t [-c <compile>] e.g. \"y\"/\"n\"");
         System.err.println("\t [-cfp <custom file path>]");
         System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
+        System.err.println("\t [-cnf <composed network file path>] e.g. \"./CompFile\"");
+        System.err.println("\t [-adcm]");
+
     }
 
     private static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
@@ -150,11 +160,17 @@ public class EMADLGeneratorCli {
         String compile = cliArgs.getOptionValue(OPTION_COMPILE.getOpt());
         String useDgl = cliArgs.getOptionValue(OPTION_USE_DGL.getOpt());
         String composedNetworksFileName = cliArgs.getOptionValue(OPTION_COMPOSED_NETWORK_FILE.getOpt());
+        boolean allowDecompositionPresent = cliArgs.hasOption(OPTION_ALLOW_DECOMPOSITION.getOpt());
         final String DEFAULT_BACKEND = "MXNET";
         final String DEFAULT_FORCED = "UNSET";
         final String DEFAULT_COMPILE = "y";
         final String DEFAULT_USE_DGL = "n";
         final String DEFAULT_COMPOSED_NETWORKS_FILE = "ComposedNetworks";
+        boolean allowDecomposition = false;
+
+        if (allowDecompositionPresent){
+            allowDecomposition = true;
+        }
 
         if (composedNetworksFileName == null){
             composedNetworksFileName =  DEFAULT_COMPOSED_NETWORKS_FILE + "_" + rootModelName + Randomizer.timeStamp();
@@ -246,7 +262,7 @@ public class EMADLGeneratorCli {
         // end EMAM2CPP options
 
         try {
-            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl);
+            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl, allowDecomposition);
         } catch (IOException e){
             String errMsg ="io error during generation"+ e.toString();
             Log.error(errMsg);

@@ -36,7 +36,8 @@ while index < len(sys.argv):
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     network = gluon.nn.SymbolBlock.imports(modelPath, [inputName], paramsPath, ctx=ctx,
-                                           ignore_extra=True)
+                                           ignore_extra=True, allow_missing=True)
 
 if network is not None:
+    print(network.collect_params())
     network.save_parameters(newModelDirectory + "/" + newModelName + ".params")

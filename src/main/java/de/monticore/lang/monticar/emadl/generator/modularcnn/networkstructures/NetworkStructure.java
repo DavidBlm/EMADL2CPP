@@ -112,11 +112,30 @@ public class NetworkStructure {
             for (int i=0; i<elementSymbols.size();i++){
                 ArchitectureElementSymbol elementSymbol = elementSymbols.get(i);
                 LayerType layerType = null;
+                boolean parallelSymbol = false;
+                ArrayList<String> parallelNames = null;
 
                 if (elementSymbol instanceof VariableSymbol){
                     if (i==0) layerType = LayerType.INPUT;
                     else layerType = LayerType.OUTPUT;
-                } else {
+                } else if (elementSymbol instanceof ParallelCompositeElementSymbol){
+                    if (i==0) layerType = LayerType.PARALLEL_INPUT;
+                    else if (i == elementSymbols.size()-1) layerType = LayerType.PARALLEL_OUTPUT;
+                    else layerType = LayerType.PARALLEL_DEFAULT;
+
+                    parallelSymbol = true;
+                    parallelNames = new ArrayList<>();
+
+                    ParallelCompositeElementSymbol parallelCompositeElementSymbol = (ParallelCompositeElementSymbol) elementSymbol;
+
+                    for (ArchitectureElementSymbol architectureElementSymbol : parallelCompositeElementSymbol.getElements()){
+                        SerialCompositeElementSymbol serialCompositeElementSymbol = (SerialCompositeElementSymbol) architectureElementSymbol;
+                        ArrayList<ArchitectureElementSymbol> varSymbols = (ArrayList<ArchitectureElementSymbol>) serialCompositeElementSymbol.getElements();
+                        VariableSymbol varSym = (VariableSymbol) varSymbols.get(0);
+                        parallelNames.add(varSym.getName());
+                    }
+
+                } else if (elementSymbol instanceof LayerSymbol) {
                     LayerSymbol layerSymbol = (LayerSymbol) elementSymbol;
                     if (layerSymbol.getDeclaration().getBody() != null){
                         for (ArchitectureElementSymbol funcSymbol: layerSymbol.getDeclaration().getBody().getElements()) {
@@ -131,9 +150,15 @@ public class NetworkStructure {
                     }
                 }
 
-                LayerInformation layerInformation = new LayerInformation(elementSymbol.getName(), layerType, elementSymbol);
+                LayerInformation layerInformation = null;
+                if (parallelSymbol){
+                    layerInformation = new LayerInformation(parallelNames, layerType, elementSymbol);
+                } else {
+                    layerInformation = new LayerInformation(elementSymbol.getName(), layerType, elementSymbol);
+                }
 
-                if (elementSymbol instanceof VariableSymbol){
+
+                if (layerInformation.isInputLayer() || layerInformation.isOutputLayer()){
                     if (i==0) this.frontSlicePoint = layerInformation;
                     else this.backSlicePoint = layerInformation;
                 }

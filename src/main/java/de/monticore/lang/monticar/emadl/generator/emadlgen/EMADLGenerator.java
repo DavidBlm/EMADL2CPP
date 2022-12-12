@@ -115,7 +115,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
 
 
-    public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws IOException, TemplateException {
+    public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl, boolean allowDecomposition) throws IOException, TemplateException {
         Log.info("Generator start", "GENERATION");
         processedArchitecture = new HashMap<>();
         emadlFileHandler.setModelsPath( modelPath );
@@ -144,10 +144,13 @@ public class EMADLGenerator implements EMAMGenerator {
         processedArchitecture = null;
         Log.info("Geneator end", "GENERATION");
 
-        Log.info("Start decomposition","DECOMPOSITION");
-        NetworkDecomposer networkDecomposer = new NetworkDecomposer(getBackend(), emadlFileHandler);
-        networkDecomposer.decomposeNetworks("model/", emadlCNNHandler.getComposedNetworkStructures());
-        Log.info("End decomposition","DECOMPOSITION");
+        if (allowDecomposition){
+            Log.info("Start decomposition","DECOMPOSITION");
+            NetworkDecomposer networkDecomposer = new NetworkDecomposer(getBackend(), emadlFileHandler);
+            networkDecomposer.decomposeNetworks("model/", emadlCNNHandler.getComposedNetworkStructures());
+            Log.info("End decomposition","DECOMPOSITION");
+        }
+
     }
 
 

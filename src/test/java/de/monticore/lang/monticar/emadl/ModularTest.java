@@ -48,13 +48,19 @@ public class ModularTest extends AbstractSymtabTest {
         }
     }
 
-
+    @Test
+    public void testModularSentiment() throws IOException {
+        Log.getFindings().clear();
+        removeDirectory("target/modularSentiment");
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularSentiment", "-r", "sentimentanalyzer.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        runGenerator(args,3,false);
+    }
 
     @Test
     public void testEmtpyNetwork() throws IOException {
         Log.getFindings().clear();
         removeDirectory("target/emptyNetwork");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST/emptyNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/emptyNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-adcm"};
         runGenerator(args,0,true);
 
     }
@@ -63,7 +69,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testModularNetworkSimpleMultiNet() throws IOException {
         Log.getFindings().clear();
         removeDirectory("target/modularNetworkSimpleMultiNet");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkSimpleMultiNet", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkSimpleMultiNet", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-adcm"};
         runGenerator(args,14,false);
     }
 
@@ -71,7 +77,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testModularNetworkComplex() throws IOException {
         Log.getFindings().clear();
         removeDirectory("target/modularNetworkComplex");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkComplex", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkComplex", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-adcm"};
         runGenerator(args,12,false);
     }
 
@@ -79,7 +85,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testModularNetworkSimple() throws IOException {
         Log.getFindings().clear();
         removeDirectory("target/modularNetworkSimple");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkSimple", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularNetworkSimple", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-adcm"};
         runGenerator(args,12,false);
     }
 
@@ -87,7 +93,7 @@ public class ModularTest extends AbstractSymtabTest {
     public void testSingleNetwork() throws IOException {
         Log.getFindings().clear();
         removeDirectory("target/singleNetwork");
-        String[] args = {"-m", "src/test/resources/models/ModularMNIST/singleNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/singleNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-adcm"};
         runGenerator(args,12,false);
     }
 
