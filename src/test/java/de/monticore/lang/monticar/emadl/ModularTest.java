@@ -25,7 +25,6 @@ public class ModularTest extends AbstractSymtabTest {
     public void runGenerator(String[] args, int expectedFindings, boolean exceptionAllowed){
         removeCNNFilesFromPreviousRuns();
         try {
-            //removeDirectory("model/");
             EMADLGeneratorCli.main(args);
             checkFindingsCount(expectedFindings);
 
