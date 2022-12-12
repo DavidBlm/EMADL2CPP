@@ -99,6 +99,15 @@ integrationPythonWrapperTest:
     - .gitlab-ci.yml
     - README.md
 
+modularCNNTest:
+  stage: linux
+  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5
+  script:
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=ModularTest
+  except:
+    changes:
+      - .gitlab-ci.yml
+      - README.md
 
 #masterJobWindows:
 #  stage: windows
