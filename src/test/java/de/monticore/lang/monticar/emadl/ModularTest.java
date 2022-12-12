@@ -3,6 +3,7 @@ package de.monticore.lang.monticar.emadl;
 import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -53,6 +54,15 @@ public class ModularTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         removeDirectory("target/modularSentiment");
         String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularSentiment", "-r", "sentimentanalyzer.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        runGenerator(args,3,false);
+    }
+
+    @Ignore
+    @Test
+    public void testModularSentimentMultiOutput() throws IOException {
+        Log.getFindings().clear();
+        removeDirectory("target/modularSentimentMultiOutput");
+        String[] args = {"-m", "src/test/resources/models/ModularMNIST/modularSentimentMultiOutput", "-r", "sentimentanalyzer.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args,3,false);
     }
 
@@ -127,7 +137,8 @@ public class ModularTest extends AbstractSymtabTest {
     }
 
     public void removeCNNFilesFromPreviousRuns(){
-        String[] hashPaths = {"target/singleNetwork","target/emptyNetwork","target/modularNetworkComplex","target/modularNetworkSimple"};
+        String[] hashPaths = {"target/singleNetwork","target/emptyNetwork","target/modularNetworkComplex",
+                "target/modularNetworkSimple","target/modularNetworkSimpleMultiNet","target/modularSentiment", "target/calculator", "target/sentimentanalyzer"};
         try {
             removeMultipleTrainingHashes(hashPaths);
             removeDirectory("model");

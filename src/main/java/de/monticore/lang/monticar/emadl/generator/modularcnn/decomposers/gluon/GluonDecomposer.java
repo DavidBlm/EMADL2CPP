@@ -202,7 +202,7 @@ public class GluonDecomposer implements BackendDecomposer {
 
                                 boolean lastRound = false;
                                 while (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size() && !lastRound ){
-                                    if((nextOp.equals("null") || nextOp.equals(nextLayerInfo.getLayerName()) || nextOp.equals(checkLayerSubstitutesForMatch(nextLayerInfo.getLayerName(),nextOp)))){
+                                    if(nextNode != null && (nextOp.equals("null") || nextOp.equals(nextLayerInfo.getLayerName()) || nextOp.equals(checkLayerSubstitutesForMatch(nextLayerInfo.getLayerName(),nextOp)))){
                                         lastRound = true;
                                     }
 
@@ -216,8 +216,10 @@ public class GluonDecomposer implements BackendDecomposer {
 
                                         nextLayerPointer++;
                                         nextNode = (Map<String, Object>) nodes.get(nextLayerPointer);
-                                        nextOp = (String) nextNode.get("op");
-                                        nextName = (String) nextNode.get("name");
+                                        if (nextNode != null){
+                                            nextOp = (String) nextNode.get("op");
+                                            nextName = (String) nextNode.get("name");
+                                        }
                                     }
                                 }
                             }
@@ -301,7 +303,7 @@ public class GluonDecomposer implements BackendDecomposer {
 
                                 boolean lastRound = false;
                                 while (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size() && !lastRound ){
-                                    if((nextOp.equals("null") || nextOp.equals(nextLayerInfo.getLayerName()) || nextOp.equals(checkLayerSubstitutesForMatch(nextLayerInfo.getLayerName(),nextOp)))){
+                                    if(nextNode != null && (nextOp.equals("null") || nextOp.equals(nextLayerInfo.getLayerName()) || nextOp.equals(checkLayerSubstitutesForMatch(nextLayerInfo.getLayerName(),nextOp)))){
                                         lastRound = true;
                                     }
 
@@ -315,8 +317,11 @@ public class GluonDecomposer implements BackendDecomposer {
 
                                         nextLayerPointer++;
                                         nextNode = (Map<String, Object>) nodes.get(nextLayerPointer);
-                                        nextOp = (String) nextNode.get("op");
-                                        nextName = (String) nextNode.get("name");
+                                        if (nextNode != null){
+                                            nextOp = (String) nextNode.get("op");
+                                            nextName = (String) nextNode.get("name");
+                                        }
+
                                     }
                                 }
                             }
