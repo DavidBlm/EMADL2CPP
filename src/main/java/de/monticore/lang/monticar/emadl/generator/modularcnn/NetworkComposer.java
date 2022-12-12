@@ -79,10 +79,10 @@ public class NetworkComposer {
                 for (NetworkStructureInformation subnet : subnets){
                     if (!subnet.getInstanceSymbolName().equals(dataFlowElement)) continue;
                     ArrayList<NetworkStructure> currentAtomicNetworks = this.currentComposedNetworkStructure.getSubNetworkStructures();
-                    NetworkStructure prevAtomicNet = null;
-                    NetworkStructure succAtomicNet = null;
+                    NetworkStructure prevNet = null;
+                    NetworkStructure succNet = null;
 
-                    allocateSurroundingAtomicNets(prevAtomicNet, succAtomicNet, atomicNetPositionHook);
+                    allocateSurroundingAtomicNets(prevNet, succNet, atomicNetPositionHook);
 
                     EMAComponentInstanceSymbol fromSubnetInstance = findSubnetInstance(subnet,fromInstance);
                     if (fromSubnetInstance == null) throw new Exception("Could not find subnet instance in instances of symbol");
