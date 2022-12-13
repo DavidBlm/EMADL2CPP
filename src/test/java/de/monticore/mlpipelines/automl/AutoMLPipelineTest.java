@@ -2,7 +2,7 @@ package de.monticore.mlpipelines.automl;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
+import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearchBuilder;
 import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.EfficientNet;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class AutoMLPipelineTest extends TestCase {
 
     private static AutoMLPipeline getAutoMLPipeline() {
         AutoMLPipeline automl = new AutoMLPipeline();
-        TrainAlgorithmBuilder builder = mock(TrainAlgorithmBuilder.class);
+        NeuralArchitectureSearchBuilder builder = mock(NeuralArchitectureSearchBuilder.class);
         EfficientNet efficientNet = mock(EfficientNet.class);
         doReturn(null).when(efficientNet).execute(isA(ArchitectureSymbol.class));
         when(builder.build()).thenReturn(efficientNet);

@@ -7,7 +7,7 @@ import de.monticore.mlpipelines.automl.configuration.HyperparameterOptConfig;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.mlpipelines.automl.hyperparameters.HyperparameterAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
-import de.monticore.mlpipelines.automl.trainalgorithms.TrainAlgorithmBuilder;
+import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearchBuilder;
 
 public class AutoMLPipeline extends Pipeline {
     private Configuration configuration;
@@ -15,10 +15,10 @@ public class AutoMLPipeline extends Pipeline {
     private ArchitectureSymbol architecture;
     private NeuralArchitectureSearch neuralArchitectureSearch;
     private HyperparameterAlgorithm hyperparameterAlgorithm;
-    private TrainAlgorithmBuilder trainAlgorithmBuilder;
+    private NeuralArchitectureSearchBuilder neuralArchitectureSearchBuilder;
 
     public AutoMLPipeline() {
-        trainAlgorithmBuilder = new TrainAlgorithmBuilder();
+        neuralArchitectureSearchBuilder = new NeuralArchitectureSearchBuilder();
     }
 
     @Override
@@ -41,8 +41,8 @@ public class AutoMLPipeline extends Pipeline {
 
     public void loadTrainAlgorithm() {
         TrainAlgorithmConfig trainAlgorithmConfig = configuration.getTrainAlgorithmConfig();
-        trainAlgorithmBuilder.setConfig(trainAlgorithmConfig);
-        this.neuralArchitectureSearch = trainAlgorithmBuilder.build();
+        neuralArchitectureSearchBuilder.setConfig(trainAlgorithmConfig);
+        this.neuralArchitectureSearch = neuralArchitectureSearchBuilder.build();
     }
 
     private void loadHyperparameterAlgorithm() {
@@ -66,11 +66,11 @@ public class AutoMLPipeline extends Pipeline {
         return architecture;
     }
 
-    public TrainAlgorithmBuilder getTrainAlgorithmBuilder() {
-        return trainAlgorithmBuilder;
+    public NeuralArchitectureSearchBuilder getTrainAlgorithmBuilder() {
+        return neuralArchitectureSearchBuilder;
     }
 
-    public void setTrainAlgorithmBuilder(TrainAlgorithmBuilder trainAlgorithmBuilder) {
-        this.trainAlgorithmBuilder = trainAlgorithmBuilder;
+    public void setTrainAlgorithmBuilder(NeuralArchitectureSearchBuilder neuralArchitectureSearchBuilder) {
+        this.neuralArchitectureSearchBuilder = neuralArchitectureSearchBuilder;
     }
 }

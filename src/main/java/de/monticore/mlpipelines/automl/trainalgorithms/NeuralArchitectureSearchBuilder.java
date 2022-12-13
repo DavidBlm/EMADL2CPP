@@ -7,7 +7,7 @@ import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.EfficientNet
 import de.monticore.mlpipelines.python.PythonPipeline;
 
 
-public class TrainAlgorithmBuilder {
+public class NeuralArchitectureSearchBuilder {
     private final String EfficientNet = "EfficientNet";
     private final String AdaNet = "AdaNet";
     private final String PytorchPipeline = "Pytorch";
