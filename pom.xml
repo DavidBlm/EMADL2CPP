@@ -48,6 +48,7 @@
 
     <dependencies>
 
+
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
@@ -106,6 +107,13 @@
             <groupId>de.monticore.lang.monticar</groupId>
             <artifactId>embedded-montiarc-deeplearning</artifactId>
             <version>${emadl.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.monticore.lang.monticar.pretrained</groupId>
+            <artifactId>simple-pretrained</artifactId>
+            <version>1</version>
+            <classifier>pretrained</classifier>
         </dependency>
 
         <dependency>
