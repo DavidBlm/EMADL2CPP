@@ -107,7 +107,6 @@ public class NetworkCompositionHandler {
                 } else {
                     return Optional.empty();
                 }
-
             }
         }
         return Optional.empty();
