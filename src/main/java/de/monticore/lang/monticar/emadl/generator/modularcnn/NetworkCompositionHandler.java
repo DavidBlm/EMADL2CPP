@@ -59,7 +59,6 @@ public class NetworkCompositionHandler {
     }
 
     public boolean isComposedNet(EMAComponentInstanceSymbol instanceSymbol){
-
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null
                     && instanceSymbol.getComponentType().getName().equals(networkStructureInformation.getSymbolReference().getName())
