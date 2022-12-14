@@ -165,7 +165,6 @@ public class NetworkCompositionHandler {
             }
         }
 
-
         for (NetworkStructureInformation networkStructureInformation: this.composedNetworks){
             networkStructureInformation.addInstancesAndSymbolReference(componentInstances);
         }

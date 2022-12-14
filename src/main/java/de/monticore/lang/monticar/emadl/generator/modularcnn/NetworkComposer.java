@@ -92,14 +92,13 @@ public class NetworkComposer {
                         subnetArchSymbols.add(cachedSubnetArchSymbol);
                         NetworkStructure networkStructure = new NetworkStructure(subnet, cachedSubnetArchSymbol);
                         currentAtomicNetworks.add(networkStructure);
-                        //this.currentComposedNetworkStructure.get
                         break;
                     }
 
                     if (subnet.isAtomic()) {
                         if ( (subnet.getInstances() == null || subnet.getInstances().size() == 0 )
                         && (instanceVault == null || instanceVault.size() == 0) ) return null;
-                        //Optional<ArchitectureSymbol> architectureOpt = subnet.getInstances().get(0).getSpannedScope().resolve("", ArchitectureSymbol.KIND);
+
                         Optional<ArchitectureSymbol> architectureOpt = fetchSubComponentInstanceArchitectureSymbol(subnet, fromInstance);
                         Log.info("ArchitectureSymbol found:"+ architectureOpt.toString() ,"NETWORK_COMPOSITION");
                         if (!architectureOpt.isPresent()){
@@ -186,14 +185,10 @@ public class NetworkComposer {
             enclosingScope.remove(symbol);
         }
 
-
-
         List<CommonScope> composedNetSubScopes = (List<CommonScope>) composedNet.getEnclosingScope().getAsMutableScope().getSubScopes();
         for (CommonScope subScope: composedNetSubScopes){
             enclosingScope.removeSubScope(subScope);
         }
-
-
 
         for (int i = 0; i < subnetArchSymbols.size(); i++){
             if (i==0){
