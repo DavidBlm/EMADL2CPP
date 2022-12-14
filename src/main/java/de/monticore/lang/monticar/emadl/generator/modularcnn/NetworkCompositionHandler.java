@@ -32,7 +32,6 @@ public class NetworkCompositionHandler {
         this.modelPath = modelPath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer(this, cachedComposedArchitectureSymbols, composedNetworkStructures);
-        //this.networkDecomposer = new NetworkDecomposer(backend);
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
 
 
@@ -43,7 +42,6 @@ public class NetworkCompositionHandler {
         this.modelPath = modelPath;
         this.composedNetworks = loadNetworksFromFile(this.composedNetworkFilePath);
         this.networkComposer = new NetworkComposer(this, instanceVault, cachedComposedArchitectureSymbols, composedNetworkStructures);
-        //this.networkDecomposer = new NetworkDecomposer(backend);
         this.instanceVault = instanceVault;
         this.cachedComposedArchitectureSymbols = cachedComposedArchitectureSymbols;
 
@@ -64,7 +62,6 @@ public class NetworkCompositionHandler {
 
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null
-                    //&& instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())
                     && instanceSymbol.getComponentType().getName().equals(networkStructureInformation.getSymbolReference().getName())
                     && !networkStructureInformation.isAtomic()) {
                 return true;
@@ -74,13 +71,12 @@ public class NetworkCompositionHandler {
     }
 
     public boolean isComposedNetAndHasConfig(EMAComponentInstanceSymbol instanceSymbol){
-        return isComposedNet(instanceSymbol) && hasConfigFile(instanceSymbol,modelPath);
+        return isComposedNet(instanceSymbol) && hasConfigFile(instanceSymbol, modelPath);
     }
 
     public boolean isComposedNetByNetworkName(EMAComponentInstanceSymbol instanceSymbol){
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
-            if (instanceSymbol != null //&& networkStructureInformation.getSymbolReference() != null
-                    //&& instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())
+            if (instanceSymbol != null
                     && instanceSymbol.getComponentType().getName().equals(networkStructureInformation.getNetworkName())
                     && !networkStructureInformation.isAtomic()) {
                 return true;
@@ -92,7 +88,6 @@ public class NetworkCompositionHandler {
     public boolean isComposedNetBySymbolReference(EMAComponentInstanceSymbol instanceSymbol){
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null
-                    //&& instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())
                     && instanceSymbol.getComponentType().getReferencedSymbol().equals(networkStructureInformation.getSymbolReference().getReferencedSymbol())
                     && !networkStructureInformation.isAtomic()) {
                 return true;
@@ -106,8 +101,6 @@ public class NetworkCompositionHandler {
         for (NetworkStructureInformation networkStructureInformation : composedNetworks){
             if (instanceSymbol != null
                     && networkStructureInformation.getSymbolReference() != null
-                    //&& instanceSymbol.getComponentType().equals(networkStructureInformation.getSymbolReference())) {
-                    //&& instanceSymbol.getComponentType().getName().equals(networkStructureInformation.getSymbolReference().getName())) {
                     && instanceSymbol.getComponentType().getReferencedSymbol().equals(networkStructureInformation.getSymbolReference().getReferencedSymbol())) {
                 ArchitectureSymbol fetchedSymbol = composeNetwork(networkStructureInformation,instanceSymbol);
                 if (fetchedSymbol != null){
@@ -123,16 +116,6 @@ public class NetworkCompositionHandler {
 
     public boolean isPartOfComposedNet(EMAComponentInstanceSymbol instanceSymbol){
         return isSubnetInstanceOfComposedNet(instanceSymbol);
-
-        /*
-        for (NetworkStructureInformation networkStructureInformation : composedNetworks){
-            if (instanceSymbol != null && networkStructureInformation.isInstancePartOfSubNetworks(instanceSymbol)) {
-                return true;
-            }
-        }
-        return false;
-
-         */
     }
 
     public boolean isSubnetInstanceOfComposedNet(EMAComponentInstanceSymbol instanceSymbol){
@@ -156,7 +139,6 @@ public class NetworkCompositionHandler {
     }
 
     public Optional<ArchitectureSymbol> resolveArchitectureSymbolOfInstance(EMAComponentInstanceSymbol componentInstance){
-        //if (isComposedNetBySymbolReference(componentInstance)){
         if (isComposedNet(componentInstance)){
             return fetchComposedNetworkArchitectureSymbol(componentInstance);
         } else {
@@ -250,7 +232,6 @@ public class NetworkCompositionHandler {
 
     private boolean hasConfigFile(EMAComponentInstanceSymbol instanceSymbol, String modelPath){
         Log.info("Searching Config for Network: " + instanceSymbol.getName(),"NETWORK_COMPOSITION_CONFIG_SEARCH");
-
 
         boolean configExists = false;
 
