@@ -16,9 +16,9 @@ public abstract class ModularTestSetup  extends AbstractSymtabTest {
     @Before
     public void setUp() {
         // ensure an empty log
+        Log.initWARN();
         Log.getFindings().clear();
         Log.enableFailQuick(false);
-        Log.initWARN();
 
     }
 
