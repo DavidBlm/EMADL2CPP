@@ -107,7 +107,6 @@ public class NetworkStructure {
 
         for (NetworkInstructionSymbol symbol : networkInstructions){
 
-
             List<ArchitectureElementSymbol> elementSymbols = symbol.getBody().getElements();
             for (int i=0; i<elementSymbols.size();i++){
                 ArchitectureElementSymbol elementSymbol = elementSymbols.get(i);
@@ -157,7 +156,6 @@ public class NetworkStructure {
                     layerInformation = new LayerInformation(elementSymbol.getName(), layerType, elementSymbol);
                 }
 
-
                 if (layerInformation.isInputLayer() || layerInformation.isOutputLayer()){
                     if (i==0) this.frontSlicePoint = layerInformation;
                     else this.backSlicePoint = layerInformation;
@@ -166,7 +164,6 @@ public class NetworkStructure {
                     this.networkLayers.get(this.networkLayers.size()-1).setSucceedingLayer(layerInformation);
                     layerInformation.setPreceedingLayer(this.networkLayers.get(this.networkLayers.size()-1));
                 }
-
 
                 this.addNetworkLayer(layerInformation);
             }
