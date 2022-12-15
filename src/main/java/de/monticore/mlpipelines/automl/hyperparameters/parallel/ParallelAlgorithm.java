@@ -2,7 +2,7 @@ package de.monticore.mlpipelines.automl.hyperparameters.parallel;
 
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 
-public class ParallelAlgorithm extends AbstractHyperparameterAlgorithm {
+public abstract class ParallelAlgorithm extends AbstractHyperparameterAlgorithm {
 
     // TODO: Specify datatype
     private Object currentPopulation;

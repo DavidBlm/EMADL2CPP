@@ -1,5 +1,7 @@
 package de.monticore.mlpipelines.automl.hyperparameters.parallel;
 
+import conflang._ast.ASTConfLangCompilationUnit;
+
 public class DEHBAlgorithm extends ParallelAlgorithm{
     private double R;
     private double eta;
@@ -23,5 +25,15 @@ public class DEHBAlgorithm extends ParallelAlgorithm{
 
     public void top_configurations() {
         // TODO: Implement method
+    }
+
+    @Override
+    public void executeOptimizationStep(ASTConfLangCompilationUnit hyperParams, ASTConfLangCompilationUnit searchSpace, Double evalValue, String metricType) {
+
+    }
+
+    @Override
+    public ASTConfLangCompilationUnit getNewHyperparamsCandidate(ASTConfLangCompilationUnit searchSpace) {
+        return null;
     }
 }

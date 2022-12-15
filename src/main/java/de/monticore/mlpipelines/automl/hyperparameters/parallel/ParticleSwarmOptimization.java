@@ -1,5 +1,7 @@
 package de.monticore.mlpipelines.automl.hyperparameters.parallel;
 
+import conflang._ast.ASTConfLangCompilationUnit;
+
 import java.util.List;
 
 public class ParticleSwarmOptimization extends ParallelAlgorithm {
@@ -33,5 +35,15 @@ public class ParticleSwarmOptimization extends ParallelAlgorithm {
     public List updatePositions() {
         List updatedPositions = null;
         return updatedPositions;
+    }
+
+    @Override
+    public void executeOptimizationStep(ASTConfLangCompilationUnit hyperParams, ASTConfLangCompilationUnit searchSpace, Double evalValue, String metricType) {
+
+    }
+
+    @Override
+    public ASTConfLangCompilationUnit getNewHyperparamsCandidate(ASTConfLangCompilationUnit searchSpace) {
+        return null;
     }
 }
