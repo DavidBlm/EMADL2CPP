@@ -1,5 +1,8 @@
 package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 
+import conflang._ast.ASTConfLangCompilationUnit;
+import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
+
 import java.util.*;
 
 public class SimulatedAnnealing extends SequentialAlgorithm {
@@ -10,24 +13,9 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
 
     private double currEvalMetric;
 
-    private Map<String, Double> currBestHyperparams;
-    private double currBestEvalMetric;
 
-    private Map<String, Double> stepSizeMap = new HashMap<String, Double>() {{
-        put("num_epoch", 1.0);
-        put("batch_size", 2.0);
-        put("learning_rate", 0.0005);
-        put("learning_rate_decay", 0.1);
-        put("step_size", 100.0);
-        put("weight_decay", 0.01);
-    }};
-
-    private List<String> intKeyList = new ArrayList<String>() {{
-        add("num_epoch");
-        add("batch_size");
-    }};
-
-    public void executeOptimizationStep(Map<String, Double> hyperParams, Double evalValue, String metricType) {
+    @Override
+    public void executeOptimizationStep(ASTConfLangCompilationUnit hyperParams, ASTConfLangCompilationUnit searchSpace, Double evalValue, String metricType) {
         if (this.currentIteration == 0) {
             this.currBestHyperparams = hyperParams;
             this.currBestEvalMetric = evalValue;
@@ -50,19 +38,64 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
         this.decreaseTemperature();
     }
 
-    public Map<String, Double> getNewHyperparamsCandidate() {
-        Random r = new Random();
-        Map<String, Double> candidateMap = new HashMap<>();
-        for (Map.Entry<String, Double> entry : this.getCurrentHyperparameters().entrySet()) {
-            String parameterKey = entry.getKey();
-            double stepSize = this.stepSizeMap.get(parameterKey);
-            double candidateValue = entry.getValue() + (r.nextGaussian() * stepSize);
-            if (intKeyList.contains(parameterKey)) {
-                candidateValue = (int) candidateValue;
+    @Override
+    public ASTConfLangCompilationUnit getNewHyperparamsCandidate(ASTConfLangCompilationUnit searchSpace) {
+        ASTConfLangCompilationUnit currentHyperparams = this.getCurrentHyperparameters().deepClone();
+        Map<String, Boolean> params = ASTConfLangCompilationUnitHandler.getAllKeys(searchSpace);
+
+        for (Map.Entry<String, Boolean> entry : params.entrySet()) {
+            String key = entry.getKey();
+            Boolean isNested = entry.getValue();
+
+            if (isNested) {
+                currentHyperparams = this.updateNestedHyperparamsValue(searchSpace, currentHyperparams, key);
+            } else {
+                currentHyperparams = this.updateHyperparamsValue(searchSpace, currentHyperparams, key);
             }
-            candidateMap.put(entry.getKey(), candidateValue);
         }
-        return candidateMap;
+
+        return currentHyperparams;
+    }
+
+    private ASTConfLangCompilationUnit updateHyperparamsValue(ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit currentHyperparams, String key) {
+        Object searchSpaceValue = ASTConfLangCompilationUnitHandler.getValueByKey(searchSpace, key);
+        if (searchSpaceValue instanceof Map) {
+            Map<String, Object> valueMap = (Map<String, Object>) searchSpaceValue;
+            Object currentValue = ASTConfLangCompilationUnitHandler.getValueByKey(currentHyperparams, key);
+            Object newValue;
+            if (valueMap.containsKey("step_size")) {
+                newValue = this.createValueFromStep(valueMap, currentValue);
+            } else {
+                newValue = this.createValueFromRange(valueMap);
+            }
+            currentHyperparams = ASTConfLangCompilationUnitHandler.setValueForKey(currentHyperparams, key, newValue);
+        }
+
+        return currentHyperparams;
+    }
+
+    private ASTConfLangCompilationUnit updateNestedHyperparamsValue(ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit currentHyperparams, String key) {
+        Map<String, Object> configMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(searchSpace, key);
+        Map<String, Object> nestedMap = (Map<String, Object>) configMap.get("nestedMap");
+        for (Map.Entry<String, Object> nestedEntry : nestedMap.entrySet()) {
+            String nestedKey = nestedEntry.getKey();
+            Object nestedValue = nestedEntry.getValue();
+            if (nestedValue instanceof Map) {
+                Map<String, Object> currentValueMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(currentHyperparams, key);
+                Map<String, Object> currentNestedMap = (Map<String, Object>) currentValueMap.get("nestedMap");
+                Object currentValue = currentNestedMap.get(nestedKey);
+                Object newValue;
+                Map<String, Object> nestedValueMap = (Map<String, Object>) nestedValue;
+                if (nestedValueMap.containsKey("step_size")) {
+                    newValue = this.createValueFromStep(nestedValueMap, currentValue);
+                } else {
+                    newValue = this.createValueFromRange(nestedValueMap);
+                }
+                currentHyperparams = ASTConfLangCompilationUnitHandler.setNestedValueForKeys(currentHyperparams, key, nestedKey, newValue);
+            }
+        }
+
+        return currentHyperparams;
     }
 
     private boolean updateBest(double currValue, double newValue, String metricType) {
@@ -83,22 +116,6 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
 
     private void decreaseTemperature() {
         this.currentTemperature = this.initialTemperature / (this.currentIteration + 1);
-    }
-
-    public Map<String, Double> getCurrBestHyperparams() {
-        return currBestHyperparams;
-    }
-
-    public void setCurrBestHyperparams(Map<String, Double> currBestHyperparams) {
-        this.currBestHyperparams = currBestHyperparams;
-    }
-
-    public double getCurrBestEvalMetric() {
-        return currBestEvalMetric;
-    }
-
-    public void setCurrBestEvalMetric(double currBestEvalMetric) {
-        this.currBestEvalMetric = currBestEvalMetric;
     }
 
     public void setInitialTemperature(double initialTemperature) {

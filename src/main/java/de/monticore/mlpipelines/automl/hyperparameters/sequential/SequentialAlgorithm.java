@@ -1,18 +1,17 @@
 package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 
+import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 
-import java.util.Map;
+public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
 
-public class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
+    private ASTConfLangCompilationUnit currentHyperparameters;
 
-    private Map<String, Double> currentHyperparameters;
-
-    public Map<String, Double> getCurrentHyperparameters() {
+    public ASTConfLangCompilationUnit getCurrentHyperparameters() {
         return this.currentHyperparameters;
     }
 
-    public void setCurrentHyperparameters(Map<String, Double> currentHyperparameters) {
+    public void setCurrentHyperparameters(ASTConfLangCompilationUnit currentHyperparameters) {
         this.currentHyperparameters = currentHyperparameters;
     }
 }
