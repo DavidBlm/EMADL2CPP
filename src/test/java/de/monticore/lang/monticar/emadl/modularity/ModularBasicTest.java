@@ -13,7 +13,6 @@ public class ModularBasicTest extends ModularTestSetup {
     String[] hashPaths = {"target/singleNetwork","target/emptyNetwork","target/modularNetworkComplex",
             "target/modularNetworkSimple","target/modularNetworkSimpleMultiNet","target/modularSentiment", "target/calculator", "target/sentimentanalyzer"};
 
-
     @Test
     public void testEmtpyNetwork() throws IOException {
         Log.getFindings().clear();
