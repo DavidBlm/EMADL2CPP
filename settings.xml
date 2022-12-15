@@ -38,7 +38,7 @@
       <configuration>
         <httpHeaders>
           <property>
-            <name>Job-Token</name>
+            <name>Deploy-Token</name>
             <value>KJkmCZosey-A8XBES2Fy</value>
           </property>
         </httpHeaders>
