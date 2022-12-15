@@ -10,9 +10,9 @@ public class LayerSubstitute {
         this.originalLayerName = originalLayerName;
     }
 
-    public LayerSubstitute(String originalLayerName, ArrayList<String> allowedSubstitues){
+    public LayerSubstitute(String originalLayerName, ArrayList<String> allowedSubstitutes){
         this.originalLayerName = originalLayerName;
-        this.allowedSubstitues = allowedSubstitues;
+        this.allowedSubstitues = allowedSubstitutes;
     }
 
     public void addSubstitute(String sub){

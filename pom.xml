@@ -109,12 +109,21 @@
             <version>${emadl.version}</version>
         </dependency>
 
-        <!--dependency>
+        <dependency>
             <groupId>de.monticore.lang.monticar.pretrained</groupId>
             <artifactId>simple-pretrained</artifactId>
             <version>1</version>
             <classifier>pretrained</classifier>
-        </dependency-->
+        </dependency>
+
+        <dependency>
+            <groupId>de.monticore.lang.monticar.datasets</groupId>
+            <artifactId>mnist</artifactId>
+            <version>1</version>
+            <classifier>dataset</classifier>
+        </dependency>
+
+
 
         <dependency>
             <groupId>org.freemarker</groupId>

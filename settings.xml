@@ -21,14 +21,52 @@
       <password>${env.cibuild}</password>
     </server>
 
-     <server>
+    <server>
+      <id>gitlab-maven</id>
+      <configuration>
+        <httpHeaders>
+          <property>
+            <name>Deploy-Token</name>
+            <value>kbteaFBxwgwn5dZZ6CzU</value>
+          </property>
+        </httpHeaders>
+      </configuration>
+    </server>
+
+    <server>
+      <id>gitlab-maven-mnist</id>
+      <configuration>
+        <httpHeaders>
+          <property>
+            <name>Job-Token</name>
+            <value>KJkmCZosey-A8XBES2Fy</value>
+          </property>
+        </httpHeaders>
+      </configuration>
+    </server>
+
+
+    <server>
       <id>github</id>
       <username>travisbuilduser</username>
       <password>${env.travisbuilduserpassword}</password>
     </server>
+
   </servers>
 
   <mirrors>
+    <mirror>
+      <id>gitlab-maven-mnist</id>
+      <mirrorOf>gitlab-maven-mnist</mirrorOf>
+      <url>https://git.rwth-aachen.de/api/v4/projects/57999/packages/maven</url>
+    </mirror>
+
+    <mirror>
+      <id>gitlab-maven</id>
+      <mirrorOf>gitlab-maven</mirrorOf>
+      <url>https://git.rwth-aachen.de/api/v4/projects/55417/packages/maven</url>
+    </mirror>
+
     <mirror>
       <id>se-nexus</id>
       <mirrorOf>external:*</mirrorOf>
@@ -60,12 +98,27 @@
       <id>se-nexus</id>
       <repositories>
         <repository>
+          <id>gitlab-maven-mnist</id>
+          <url>https://git.rwth-aachen.de/api/v4/projects/57999/packages/maven</url>
+          <releases><enabled /></releases>
+          <snapshots><enabled /></snapshots>
+        </repository>
+        <repository>
+          <id>gitlab-maven</id>
+          <url>https://git.rwth-aachen.de/api/v4/projects/55417/packages/maven</url>
+          <releases><enabled /></releases>
+          <snapshots><enabled /></snapshots>
+        </repository>
+
+        <repository>
           <id>central</id>
           <url>http://central</url>
           <releases><enabled /></releases>
           <snapshots><enabled /></snapshots>
         </repository>
+
       </repositories>
+
       <pluginRepositories>
         <pluginRepository>
           <id>central</id>
