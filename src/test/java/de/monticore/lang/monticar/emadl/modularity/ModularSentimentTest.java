@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-@Ignore
 public class ModularSentimentTest extends ModularTestSetup{
     String[] hashPaths = {"target/singleNetwork","target/emptyNetwork","target/modularNetworkComplex",
             "target/modularNetworkSimple","target/modularNetworkSimpleMultiNet","target/modularSentiment", "target/calculator", "target/sentimentanalyzer"};
