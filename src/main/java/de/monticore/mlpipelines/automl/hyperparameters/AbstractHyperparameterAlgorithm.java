@@ -65,6 +65,7 @@ public abstract class AbstractHyperparameterAlgorithm {
             Object newValue = this.createValueFromRange((Map<String, Object>) value);
             initialHyperparams = ASTConfLangCompilationUnitHandler.setValueForKey(initialHyperparams, key, newValue);
         }
+
         return initialHyperparams;
     }
 
@@ -128,13 +129,14 @@ public abstract class AbstractHyperparameterAlgorithm {
     private boolean isInteger(Object numberObj) {
         double doubleVal = Double.parseDouble(numberObj.toString());
         int intVal = (int) doubleVal;
-        return  (doubleVal == intVal);
+        return (doubleVal == intVal);
     }
 
     private int createRandInt(int lower, int upper) {
         Random r = new Random();
         return r.nextInt((upper - lower) + 1) + lower;
     }
+
     private double createRandDouble(double lower, double upper) {
         Random r = new Random();
         return lower + (upper - lower) * r.nextDouble();

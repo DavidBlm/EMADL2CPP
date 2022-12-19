@@ -10,12 +10,14 @@ public abstract class ParallelAlgorithm extends AbstractHyperparameterAlgorithm 
 
     private List<ASTConfLangCompilationUnit> currentPopulation;
 
+    private int populationSize;
+
     private List<Double> evalValues;
 
-    public List<ASTConfLangCompilationUnit> initializePopulation(ASTConfLangCompilationUnit searchSpace, int populationSize) {
+    public List<ASTConfLangCompilationUnit> initializePopulation(ASTConfLangCompilationUnit searchSpace) {
         List<ASTConfLangCompilationUnit> hyperparamsPopulation = new ArrayList<>();
 
-        while (hyperparamsPopulation.size() < populationSize) {
+        while (hyperparamsPopulation.size() < this.populationSize) {
             ASTConfLangCompilationUnit hyperparams = this.getInitialHyperparams(searchSpace);
             if (!this.checkHyperparamsInPopulation(hyperparams, hyperparamsPopulation)) {
                 hyperparamsPopulation.add(hyperparams);
@@ -25,7 +27,7 @@ public abstract class ParallelAlgorithm extends AbstractHyperparameterAlgorithm 
         return hyperparamsPopulation;
     }
 
-    private boolean checkHyperparamsInPopulation(ASTConfLangCompilationUnit hyperparams, List<ASTConfLangCompilationUnit> population) {
+    protected boolean checkHyperparamsInPopulation(ASTConfLangCompilationUnit hyperparams, List<ASTConfLangCompilationUnit> population) {
         for (ASTConfLangCompilationUnit populationEntry : population) {
             if (populationEntry.deepEquals(hyperparams)) {
                 return true;
@@ -50,7 +52,15 @@ public abstract class ParallelAlgorithm extends AbstractHyperparameterAlgorithm 
         this.evalValues = evalValues;
     }
 
-    public abstract List<ASTConfLangCompilationUnit> getNewPopulation();
+    public int getPopulationSize() {
+        return populationSize;
+    }
+
+    public void setPopulationSize(int populationSize) {
+        this.populationSize = populationSize;
+    }
+
+    public abstract List<ASTConfLangCompilationUnit> getNewPopulation(ASTConfLangCompilationUnit searchSpace, String metricType);
 
     public abstract void executeOptimizationStep(List<ASTConfLangCompilationUnit> hyperParamsPopulation, ASTConfLangCompilationUnit searchSpace, List<Double> evalValues, String metricType);
 }
