@@ -46,4 +46,14 @@ public class ParticleSwarmOptimization extends ParallelAlgorithm {
     public ASTConfLangCompilationUnit getNewHyperparamsCandidate(ASTConfLangCompilationUnit searchSpace) {
         return null;
     }
+
+    @Override
+    public List<ASTConfLangCompilationUnit> getNewPopulation(ASTConfLangCompilationUnit searchSpace, String metricType) {
+        return null;
+    }
+
+    @Override
+    public void executeOptimizationStep(List<ASTConfLangCompilationUnit> hyperParamsPopulation, ASTConfLangCompilationUnit searchSpace, List<Double> evalValues, String metricType) {
+
+    }
 }
