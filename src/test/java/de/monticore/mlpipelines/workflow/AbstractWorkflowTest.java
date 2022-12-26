@@ -14,7 +14,7 @@ class AbstractWorkflowTest {
 
     @Test
     void generateBackendArtefactsIntoExperiment() {
-        final MontiAnnaContext montiAnnaContext = initialiseContext("src/test/resources/models/", "mnist.mnistClassifier", new ExperimentConfiguration("./target/generated-sources-emadl"));
+        final MontiAnnaContext montiAnnaContext = initialiseContext(Paths.get("src/test/resources/models/"), "mnist.mnistClassifier", new ExperimentConfiguration("./target/generated-sources-emadl"));
         final DummyWorkflow dummyWorkflow = new DummyWorkflow();
         dummyWorkflow.setMontiAnnaGenerator(new MontiAnnaGenerator(montiAnnaContext));
         dummyWorkflow.generateBackendArtefactsIntoExperiment();
