@@ -22,14 +22,14 @@ public class MontiAnnaGenerator {
 
     //TODO FMU break this down gradually with calls in the EMADLGenerator
     public void generateTargetBackendArtefacts() {
-        String[] args = {"-m", montiAnnaContext.getParentModelPath(), "-r", montiAnnaContext.getRootModelName(),
+        String[] args = {"-m", montiAnnaContext.getParentModelPath().toString(), "-r", montiAnnaContext.getRootModelName(),
                 "-o", montiAnnaContext.getExperimentConfiguration().getGenerationTargetPath(),
                 "-b", montiAnnaContext.getTargetBackend().toString(), "-f", "n", "-c", "n"};
         EMADLGeneratorCli.main(args);
     }
 
-    public void generateTrainingConfiguration(final ASTConfLangCompilationUnit configurationModel){
+    public void generateTrainingConfiguration(final ASTConfLangCompilationUnit configurationModel, final String generatedConfigurationName){
         new TemplateLinker().linkToTrainingConfigurationTemplates(configurationModel);
-        configurationGenerator.generatePythonTrainingConfiguration(configurationModel);
+        configurationGenerator.generatePythonTrainingConfiguration(configurationModel, generatedConfigurationName);
     }
 }
