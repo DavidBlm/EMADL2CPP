@@ -46,7 +46,12 @@ public class MontiAnnaCli extends EMADLGeneratorCli {
         }
 
         try {
-            redirectToNewToolchain(rootModelName, modelsDirPath, backend.get());
+            if(backend.get().equals(Backend.PYTORCH)){
+
+                redirectToNewToolchain(rootModelName, modelsDirPath, backend.get());
+                return;
+            }
+            runGenerator(cliArgs);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -54,11 +59,11 @@ public class MontiAnnaCli extends EMADLGeneratorCli {
 
     private static void redirectToNewToolchain(final String rootModelName, final Path modelsDirPath, final Backend backend) throws IOException {
         Log.warn("Redirecting for PyTorch");
-        final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("src/main/resources/experiment/configuration", "src/test/resources/experiment/steps"
+        final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("src/main/resources/experiment/configuration", "src/main/resources/experiment/steps"
                 , "target/generated-sources", "target/generated-sources/backend");
         final MontiAnnaContext montiAnnaContext = MontiAnnaContext.getInstance();
         montiAnnaContext.initContext(modelsDirPath, rootModelName, experimentConfiguration);
-        montiAnnaContext.setPipelineReferenceModelsPath(Paths.get("src/test/resources/models/pipelines"));
+        montiAnnaContext.setPipelineReferenceModelsPath(Paths.get("src/main/resources/pipelines"));
         new AutonomousPipelineOrchestration(montiAnnaContext).execute();
     }
 }

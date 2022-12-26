@@ -109,7 +109,7 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_HELP);
     }
 
-    private static void printHelp(){
+    protected static void printHelp(){
         System.err.println("Arguments:");
         System.err.println("\t -m <parent model path>");
         System.err.println("\t -r <root model including full package name>");
@@ -135,7 +135,7 @@ public class EMADLGeneratorCli {
         return cliArgs;
     }
 
-    private static void runGenerator(CommandLine cliArgs) {
+    protected static void runGenerator(CommandLine cliArgs) {
         String rootModelName = cliArgs.getOptionValue(OPTION_ROOT_MODEL.getOpt());
         String outputPath = cliArgs.getOptionValue(OPTION_OUTPUT_PATH.getOpt());
         String backendString = cliArgs.getOptionValue(OPTION_BACKEND.getOpt());
