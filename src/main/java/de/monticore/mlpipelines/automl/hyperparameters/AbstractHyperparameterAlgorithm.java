@@ -126,18 +126,42 @@ public abstract class AbstractHyperparameterAlgorithm {
         return newValue;
     }
 
-    private boolean isInteger(Object numberObj) {
-        double doubleVal = Double.parseDouble(numberObj.toString());
-        int intVal = (int) doubleVal;
-        return (doubleVal == intVal);
+    protected Object getRangeProperty(ASTConfLangCompilationUnit searchSpace, String key, String rangeType) {
+        Object rangePropObj = null;
+
+        Object valObj = ASTConfLangCompilationUnitHandler.getValueByKey(searchSpace, key);
+        if (valObj instanceof Map) {
+            Map<String, Object> rangeMap = (Map<String, Object>) valObj;
+            rangePropObj = rangeMap.get(rangeType);
+        }
+
+        return rangePropObj;
     }
 
-    private int createRandInt(int lower, int upper) {
+    protected Object getRangePropForNested(ASTConfLangCompilationUnit searchSpace, String rootKey, String nestedKey, String rangeType) {
+        Object rangePropObj = null;
+
+        Map<String, Object> valMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(searchSpace, rootKey);
+        Map<String, Object> nestedMap = (Map<String, Object>) valMap.get("nestedMap");
+        Object valObj = nestedMap.get(nestedKey);
+        if (valObj instanceof Map) {
+            Map<String, Object> rangeMap = (Map<String, Object>) valObj;
+            rangePropObj = rangeMap.get(rangeType);
+        }
+
+        return rangePropObj;
+    }
+
+    protected boolean isInteger(Object numberObj) {
+        return !numberObj.toString().contains(".");
+    }
+
+    protected int createRandInt(int lower, int upper) {
         Random r = new Random();
         return r.nextInt((upper - lower) + 1) + lower;
     }
 
-    private double createRandDouble(double lower, double upper) {
+    protected double createRandDouble(double lower, double upper) {
         Random r = new Random();
         return lower + (upper - lower) * r.nextDouble();
     }
@@ -153,9 +177,64 @@ public abstract class AbstractHyperparameterAlgorithm {
     private double createDoubleFromStep(double lower, double upper, double stepSize, double currentVal) {
         double stepDouble = this.createRandDouble(-stepSize, stepSize);
         double newValCandidate = currentVal + stepDouble;
-        double newValue = Math.max(newValCandidate, lower);
-        newValue = Math.min(newValue, upper);
+        double newValue = (double) this.keepValInRange(newValCandidate, lower, upper);
         return newValue;
+    }
+
+    protected Object addValObj(Object val1, Object val2, Object lower, Object upper) {
+        Object sum;
+        if (this.isInteger(val1) && this.isInteger(val2)) {
+            int val1Int = Integer.parseInt(val1.toString());
+            int val2Int = Integer.parseInt(val2.toString());
+            sum = val1Int + val2Int;
+        } else {
+            double val1Double = Double.parseDouble(val1.toString());
+            double val2Double = Double.parseDouble(val2.toString());
+            sum = val1Double + val2Double;
+        }
+
+        if ((lower != null) && (upper != null)) {
+            sum = this.keepValInRange(sum, lower, upper);
+        }
+
+        return sum;
+    }
+
+    protected Object subValObj(Object val1, Object val2, Object lower, Object upper) {
+        Object diff;
+        if (this.isInteger(val1) && this.isInteger(val2)) {
+            int val1Int = Integer.parseInt(val1.toString());
+            int val2Int = Integer.parseInt(val2.toString());
+            diff = val1Int - val2Int;
+        } else {
+            double val1Double = Double.parseDouble(val1.toString());
+            double val2Double = Double.parseDouble(val2.toString());
+            diff = val1Double - val2Double;
+        }
+
+        if ((lower != null) && (upper != null)) {
+            diff = this.keepValInRange(diff, lower, upper);
+        }
+
+        return diff;
+    }
+
+    private Object keepValInRange(Object val, Object lower, Object upper) {
+        Object valInRange;
+        if (this.isInteger(val) && this.isInteger(lower) && this.isInteger(upper)) {
+            int valInt = Integer.parseInt(val.toString());
+            int lowerInt = Integer.parseInt(lower.toString());
+            int upperInt = Integer.parseInt(upper.toString());
+            valInRange = Math.max(valInt, lowerInt);
+            valInRange = Math.min((Integer) valInRange, upperInt);
+        } else {
+            double valDouble = Double.parseDouble(val.toString());
+            double lowerDouble = Double.parseDouble(lower.toString());
+            double upperDouble = Double.parseDouble(upper.toString());
+            valInRange = Math.max(valDouble, lowerDouble);
+            valInRange = Math.min((double) valInRange, upperDouble);
+        }
+        return valInRange;
     }
 
     public abstract void executeOptimizationStep(ASTConfLangCompilationUnit hyperParams, ASTConfLangCompilationUnit searchSpace, Double evalValue, String metricType);
