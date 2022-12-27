@@ -165,8 +165,7 @@ public class GeneticAlgorithmTest extends TestCase {
 
     @Test
     public void testBestEvalValue() {
-        double bestEvalValue = Collections.max(evalValues);
-        assertEquals(bestEvalValue, 0.9);
+        assertEquals(geneticAlgorithm.getCurrBestEvalMetric(), 0.9);
     }
 
     @Test
