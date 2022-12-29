@@ -1,6 +1,8 @@
 package de.monticore.mlpipelines.workflow;
 
 import conflang._ast.ASTConfLangCompilationUnit;
+import conflang._symboltable.ConfLangLanguage;
+import conflang._symboltable.ConfigurationSymbol;
 import de.monticore.io.paths.ModelPath;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._ast.ASTEMACompilationUnit;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
@@ -15,6 +17,7 @@ import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.mlpipelines.backend.generation.MontiAnnaGenerator;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.pipelines.Pipeline;
+import de.monticore.mlpipelines.validation.ConfigurationValidator;
 import de.monticore.parsing.ConfigurationLanguageParser;
 import de.monticore.parsing.EMADLParser;
 import de.monticore.symbolmanagement.SymbolTableCreator;
@@ -58,15 +61,20 @@ public abstract class AbstractWorkflow {
                 getDirectoryPathSupplementFromComponentName(montiAnnaContext.getRootModelName())).toString();
         final String pathToRootModel = Paths.get(pathToModelsDirectory, rootModelName + ".emadl").toString();
         final ASTEMACompilationUnit rootEMADLComponent = new EMADLParser().parseModelOrThrowException(pathToRootModel);
-        final ModelPath modelPath = new ModelPath(Paths.get("src/main/emadl/"));
+        final ModelPath modelPath = new ModelPath(Paths.get(montiAnnaContext.getParentModelPath().toString()));
         final Scope emadlSymbolTable = SymbolTableCreator.createEMADLSymbolTable(rootEMADLComponent, new GlobalScope(modelPath, new EMADLLanguage()));
         final EMAComponentInstanceSymbol network = getNetworkTobeTrained(rootEMADLComponent, emadlSymbolTable);
-        final String fullNameReplacedWithUnderscores = network.getFullName().replace(".", "_");
-        final String pathToTrainingConfiguration = Paths.get(pathToModelsDirectory, fullNameReplacedWithUnderscores + ".conf").toString();
+        final String fullNetworkNameReplacedWithUnderscores = network.getFullName().replace(".", "_");
+        final String pathToTrainingConfiguration = Paths.get(pathToModelsDirectory, fullNetworkNameReplacedWithUnderscores + ".conf").toString();
         final ASTConfLangCompilationUnit trainingConfiguration = parseTrainingConfiguration(pathToTrainingConfiguration);
-        final String pathToPipelineConfiguration = Paths.get(pathToModelsDirectory, fullNameReplacedWithUnderscores + "_pipeline.conf").toString();
+        final Scope trainingConfigurationSymbolTable = SymbolTableCreator.createConfLangSymbolTable(trainingConfiguration, new GlobalScope(modelPath, new ConfLangLanguage()));
+        final ConfigurationSymbol trainingConfigurationSymbol = trainingConfiguration.getConfiguration().getConfigurationSymbol();
+        final String pathToPipelineConfiguration = Paths.get(pathToModelsDirectory, fullNetworkNameReplacedWithUnderscores + "_pipeline.conf").toString();
         final ASTConfLangCompilationUnit pipelineConfiguration = parsePipelineConfiguration(pathToPipelineConfiguration);
-        createSymbolTable();
+        final Scope pipelineConfigurationSymbolTable = SymbolTableCreator.createConfLangSymbolTable(trainingConfiguration, new GlobalScope(modelPath, new ConfLangLanguage()));
+
+        final ConfigurationValidator configurationValidator = new ConfigurationValidator();
+        configurationValidator.validateTrainingConfiguration(trainingConfigurationSymbol);
 
         checkCoCos();
         validateConfigurationAgainstSchemas(); // depends on learning method
@@ -81,8 +89,6 @@ public abstract class AbstractWorkflow {
         pipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
         pipeline.setNeuralNetwork(network);
         executePipeline();
-
-        //  pipeline.readresults()
     }
 
     private String getDirectoryPathSupplementFromComponentName(final String rootModelName) {
@@ -93,8 +99,6 @@ public abstract class AbstractWorkflow {
     }
 
     private static EMAComponentInstanceSymbol getNetworkTobeTrained(final ASTEMACompilationUnit rootEMADLComponent, Scope emadlSymbolTable) {
-//        final EMADynamicComponentSymbol symbol = (EMADynamicComponentSymbol) rootEMADLComponent.getComponent().getSymbol();
-//        return (ArchitectureSymbol) symbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND).orElseThrow(IllegalStateException::new);
         final String componentName = rootEMADLComponent.getComponent().getName();
         final String instanceName = componentName.substring(0, 1).toLowerCase() + componentName.substring(1);
         final EMAComponentInstanceSymbol componentInstance = (EMAComponentInstanceSymbol) emadlSymbolTable.resolve(instanceName, EMAComponentInstanceSymbol.KIND).get();
@@ -111,7 +115,6 @@ public abstract class AbstractWorkflow {
         this.pipeline.execute();
     }
 
-    //TODO separating model path from model name ?
     public ASTConfLangCompilationUnit parseTrainingConfiguration(final String pathToTrainingConfiguration)
             throws IOException {
         return new ConfigurationLanguageParser().parseModelOrThrowException(pathToTrainingConfiguration);
@@ -122,18 +125,16 @@ public abstract class AbstractWorkflow {
         return new ConfigurationLanguageParser().parseModelOrThrowException(pathToPipelineConfiguration);
     }
 
-
-    private void createSymbolTable() {
-
-    }
-
+    //TODO implement me
     private void checkCoCos() {
 
     }
 
+    //TODO implement me
     private void validateConfigurationAgainstSchemas() {
     }
 
+    //TODO implement me
     private void backendSpecificValidations() {
     }
 
@@ -145,8 +146,6 @@ public abstract class AbstractWorkflow {
         return addExecutionSemanticsToEmaComponent(
                 pipelineReferenceModel);
     }
-
-    //    public abstract void generateBackendArtefacts();
 
     public void generateBackendArtefactsIntoExperiment() {
         montiAnnaGenerator.generateTargetBackendArtefacts();
