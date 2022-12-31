@@ -77,7 +77,6 @@ public abstract class AbstractWorkflow {
         configurationValidator.validateTrainingConfiguration(trainingConfigurationSymbol);
 
         checkCoCos();
-        validateConfigurationAgainstSchemas(); // depends on learning method
         backendSpecificValidations();
         final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = calculateExecutionSemantics();
         //backend
@@ -130,9 +129,6 @@ public abstract class AbstractWorkflow {
 
     }
 
-    //TODO implement me
-    private void validateConfigurationAgainstSchemas() {
-    }
 
     //TODO implement me
     private void backendSpecificValidations() {
