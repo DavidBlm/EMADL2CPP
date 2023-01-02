@@ -53,7 +53,7 @@ public class PythonPipeline extends Pipeline {
         pipelineGenerator.setTrainingConfigurationName(trainingConfFileName);
         pipelineGenerator.setSchemaAPIName(schemaAPIScriptName);
         final String networkFullName = this.neuralNetwork.getFullName().replace(".", "_");
-        pipelineGenerator.addScriptConfiguration(ExecutionScriptConfiguration.MODEL_DIRECTORY, "./model/" + networkFullName);
+        pipelineGenerator.addScriptConfiguration(ExecutionScriptConfiguration.MODEL_DIRECTORY, "./model/mnist.LeNetNetwork/");
         pipelineGenerator.generatePipelineExecutor(pipelineConfigurationEntries, this.pipelineModelWithExecutionSemantics, scriptDependencies);
     }
 
