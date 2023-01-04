@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -36,7 +36,7 @@ public class IntegrationGluonTest extends IntegrationTest {
 
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         AbstractSymtabTest.checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -58,7 +58,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/MultipleStreams.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         checkFindingsCount(1);
     }
@@ -71,7 +71,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnencdec/Network.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnencdec.Main", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         checkFindingsCount();
     }
@@ -84,7 +84,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/rnnsearch/Network.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnsearch.Main", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         checkFindingsCount();
     }
@@ -96,7 +96,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/showAttendTell/Show_attend_tell.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         checkFindingsCount(1);
     }
@@ -109,7 +109,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/episodicMemorySimple/episodicMemorySimple.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "y"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         Log.getFindings().clear();
         deleteHashFile(Paths.get("./target/generated-sources-emadl/PreprocessingNetwork.training_hash"));
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
         checkFindingsCount(1);
     }
 
@@ -128,7 +128,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         Log.getFindings().clear();
         deleteHashFile(Paths.get("./target/generated-sources-emadl/defaultGANPreprocessing/GeneratorWithPreprocessing.training_hash"));
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         checkFindingsCount(1);
     }
@@ -140,7 +140,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/cNNCalculator/Network.training_hash"));
 
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-cfp", "src/test/resources/custom_files"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         checkFindingsCount(6);
     }

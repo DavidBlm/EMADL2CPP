@@ -33,13 +33,13 @@ import java.util.*;
 
 import static de.monticore.lang.monticar.cnnarch.generator.validation.Constants.ROOT_SCHEMA_MODEL_PATH;
 
-public class EMADLCNNHandler {
+public class CNNHandler {
 
     private CNNArchGenerator cnnArchGenerator;
     private CNNTrainGenerator cnnTrainGenerator;
-    private EMADLGenerator emadlGenerator;
-    private EMADLFileHandler emadlFileHandler;
-    private EMADLTagging emadlTaggingHandler;
+    private Generator generator;
+    private FileHandler fileHandler;
+    private Tagging taggingHandler;
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
     private String composedNetworkFilePath;
     private Map<String, ArchitectureSymbol> processedArch;
@@ -50,12 +50,12 @@ public class EMADLCNNHandler {
 
 
 
-    public EMADLCNNHandler (EMADLGenerator emadlGen, Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi, String composedNetworkFilePath ) {
-        emadlGenerator = emadlGen;
-        cnnArchGenerator = emadlGenerator.getBackend().getCNNArchGenerator();
-        cnnTrainGenerator = emadlGenerator.getBackend().getCNNTrainGenerator();
-        emadlFileHandler = emadlGenerator.getEmadlFileHandler();
-        emadlTaggingHandler = emadlGenerator.getEmadlTaggingHandler();
+    public CNNHandler(Generator emadlGen, Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi, String composedNetworkFilePath ) {
+        generator = emadlGen;
+        cnnArchGenerator = generator.getBackend().getCNNArchGenerator();
+        cnnTrainGenerator = generator.getBackend().getCNNTrainGenerator();
+        fileHandler = generator.getEmadlFileHandler();
+        taggingHandler = generator.getEmadlTaggingHandler();
         pythonWrapper = pythonWrapperApi;
         this.composedNetworkFilePath = composedNetworkFilePath;
         this.processedArch = processedArch;
@@ -85,22 +85,22 @@ public class EMADLCNNHandler {
 
         //get the components execute method
         String executeKey = "execute_" + fullName;
-        List<String> executeMethods = emadlFileHandler.getContentOf(contents, executeKey);
+        List<String> executeMethods = fileHandler.getContentOf(contents, executeKey);
         if (executeMethods.size() != 1) {
             throw new IllegalStateException("execute method of " + fullName + " not found");
         }
         String executeMethod = executeMethods.get(0);
         contents.remove(executeKey);
 
-        List<String> applyBeamSearchMethods = emadlFileHandler.getContentOf(contents, "BeamSearch_" + fullName);
+        List<String> applyBeamSearchMethods = fileHandler.getContentOf(contents, "BeamSearch_" + fullName);
         String applyBeamSearchMethod = null;
         if (applyBeamSearchMethods.size() == 1) {
             applyBeamSearchMethod = applyBeamSearchMethods.get(0);
         }
 
-        String component = emadlGenerator.getEmamGen().generateString(taggingResolver, instance, (MathStatementsSymbol) null);
+        String component = generator.getEmamGen().generateString(taggingResolver, instance, (MathStatementsSymbol) null);
         FileContent componentFileContent = new FileContent(
-                emadlGenerator.transformComponent(component, "CNNPredictor_" + fullName,
+                generator.transformComponent(component, "CNNPredictor_" + fullName,
                         applyBeamSearchMethod,
                         executeMethod,
                         architecture),
@@ -108,17 +108,17 @@ public class EMADLCNNHandler {
 
         fileContents.addAll(contents);
         fileContents.add(componentFileContent);
-        fileContents.add(new FileContent(emadlFileHandler.readResource("CNNTranslator.h", Charsets.UTF_8), "CNNTranslator.h"));
+        fileContents.add(new FileContent(fileHandler.readResource("CNNTranslator.h", Charsets.UTF_8), "CNNTranslator.h"));
     }
 
     protected List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName, boolean modularTransformationRun) {
-        boolean copied = emadlFileHandler.copySchemaFilesFromResource(ROOT_SCHEMA_MODEL_PATH);
+        boolean copied = fileHandler.copySchemaFilesFromResource(ROOT_SCHEMA_MODEL_PATH);
         List<FileContent> fileContents = new ArrayList<>();
-        TaggingResolver symTabAndTaggingResolver = emadlTaggingHandler.getSymTabAndTaggingResolver();
+        TaggingResolver symTabAndTaggingResolver = taggingHandler.getSymTabAndTaggingResolver();
 
 
-        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getModelsPath(), emadlFileHandler.getInstanceVault(),
-                this.cachedComposedArchitectureSymbols, this.emadlGenerator.getBackend(), this.composedNetworkStructures);
+        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, fileHandler.getModelsPath(), fileHandler.getInstanceVault(),
+                this.cachedComposedArchitectureSymbols, this.generator.getBackend(), this.composedNetworkStructures);
         //composedNetworkHandler.refreshInformation(allInstances);
         //Set<EMAComponentInstanceSymbol> networks = composedNetworkHandler.getSortedNetworksFromAtomicToComposed(allInstances);
         ArrayList<EMAComponentInstanceSymbol> networks = networkCompositionHandler.processComponentInstances(allInstances);
@@ -157,7 +157,7 @@ public class EMADLCNNHandler {
                     instanceConfigFilename = component.getFullName().replaceAll("\\.", "/") + "_" + component.getName();
                 }
 
-                String trainConfigFilename = emadlFileHandler.getConfigFilename(mainComponentConfigFilename, componentConfigFilename, instanceConfigFilename);
+                String trainConfigFilename = fileHandler.getConfigFilename(mainComponentConfigFilename, componentConfigFilename, instanceConfigFilename);
                 if (Strings.isNullOrEmpty(trainConfigFilename)) {
                     if (!networkCompositionHandler.isComposedNetAndHasConfig(componentInstance) && networkCompositionHandler.isPartOfComposedNet(componentInstance)){
                         Log.info("Found part of composed net","COMPOSED_NET_PART");
@@ -166,31 +166,31 @@ public class EMADLCNNHandler {
                         continue;
                     } else {
                         String message = String.format("Missing training configuration. Could not find a file with any of the following names (only one needed): '%s.conf', '%s.conf', '%s.conf'. These files denote respectively the configuration for the single instance, the component or the whole system.",
-                                emadlFileHandler.getModelsPath() + instanceConfigFilename, emadlFileHandler.getModelsPath() + componentConfigFilename, emadlFileHandler.getModelsPath() + mainComponentConfigFilename);
+                                fileHandler.getModelsPath() + instanceConfigFilename, fileHandler.getModelsPath() + componentConfigFilename, fileHandler.getModelsPath() + mainComponentConfigFilename);
                         Log.error(message);
                         throw new RuntimeException(String.format("Missing training configuration for network '%s'", mainComponentName));
                     }
 
                 }
 
-                cnnTrainGenerator.setGenerationTargetPath(emadlGenerator.getGenerationTargetPath());
+                cnnTrainGenerator.setGenerationTargetPath(generator.getGenerationTargetPath());
                 if (cnnTrainGenerator instanceof CNNTrain2Gluon) {
-                    ((CNNTrain2Gluon) cnnTrainGenerator).setRootProjectModelsDir(emadlFileHandler.getModelsPath());
+                    ((CNNTrain2Gluon) cnnTrainGenerator).setRootProjectModelsDir(fileHandler.getModelsPath());
                 }
                 List<String> names = Splitter.on("/").splitToList(trainConfigFilename);
                 trainConfigFilename = names.get(names.size() - 1);
-                Path modelPath = Paths.get(emadlFileHandler.getModelsPath() + Joiner.on("/").join(names.subList(0, names.size() - 1)));
+                Path modelPath = Paths.get(fileHandler.getModelsPath() + Joiner.on("/").join(names.subList(0, names.size() - 1)));
 
                 Log.info("Training comp: " + componentConfigFilename,"CONFIG_CNN_TRAIN");
 
                 TrainingConfiguration trainingConfiguration = cnnTrainGenerator.createTrainingConfiguration(modelPath,
-                        trainConfigFilename, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null);
+                        trainConfigFilename, copied ? Paths.get(generator.getGenerationTargetPath()) : null);
 
                 // Annotate train configuration with architecture
                 final String fullConfigName = String.join(".", names);
-                Map<String,ArchitectureSymbol> processedArch = emadlGenerator.getProcessedArchitecture();
+                Map<String,ArchitectureSymbol> processedArch = generator.getProcessedArchitecture();
 
-                ArchitectureSymbol correspondingArchitecture = emadlGenerator.getProcessedArchitecture().get(fullConfigName);
+                ArchitectureSymbol correspondingArchitecture = generator.getProcessedArchitecture().get(fullConfigName);
 
                 if (modularTransformationRun && correspondingArchitecture == null) {
                     correspondingArchitecture = architecture.get();
@@ -212,7 +212,7 @@ public class EMADLCNNHandler {
                             + fullCriticName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
                             + fullCriticName.substring(indexOfFirstNameCharacter + 1);
 
-                    EMAComponentInstanceSymbol instanceSymbol = emadlGenerator.resolveComponentInstanceSymbol(fullCriticName,
+                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(fullCriticName,
                             symTabAndTaggingResolver);
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> critic = instanceSymbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
@@ -236,8 +236,8 @@ public class EMADLCNNHandler {
                             + fullDiscriminatorName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
                             + fullDiscriminatorName.substring(indexOfFirstNameCharacter + 1);
 
-                    EMAComponentInstanceSymbol instanceSymbol = emadlGenerator.resolveComponentInstanceSymbol(
-                            fullDiscriminatorName, emadlTaggingHandler.getSymTabAndTaggingResolver());
+                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                            fullDiscriminatorName, taggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> discriminator = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     Optional<ArchitectureSymbol> discriminator = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
@@ -261,8 +261,8 @@ public class EMADLCNNHandler {
                             + fullQNetworkName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
                             + fullQNetworkName.substring(indexOfFirstNameCharacter + 1);
 
-                    EMAComponentInstanceSymbol instanceSymbol = emadlGenerator.resolveComponentInstanceSymbol(
-                            fullQNetworkName, emadlTaggingHandler.getSymTabAndTaggingResolver());
+                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                            fullQNetworkName, taggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> qNetwork = instanceSymbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
                     Optional<ArchitectureSymbol> qNetwork = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
@@ -285,8 +285,8 @@ public class EMADLCNNHandler {
                             + fullEncoderName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
                             + fullEncoderName.substring(indexOfFirstNameCharacter + 1);
 
-                    EMAComponentInstanceSymbol instanceSymbol = emadlGenerator.resolveComponentInstanceSymbol(
-                            fullEncoderName, emadlTaggingHandler.getSymTabAndTaggingResolver());
+                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                            fullEncoderName, taggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     //Optional<ArchitectureSymbol> encoder = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     Optional<ArchitectureSymbol> encoder = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
@@ -315,8 +315,8 @@ public class EMADLCNNHandler {
                             + fullRewardFunctionName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
                             + fullRewardFunctionName.substring(indexOfFirstNameCharacter + 1);
 
-                    EMAComponentInstanceSymbol instanceSymbol = emadlGenerator.resolveComponentInstanceSymbol(
-                            fullRewardFunctionName, emadlTaggingHandler.getSymTabAndTaggingResolver());
+                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                            fullRewardFunctionName, taggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     trainingComponentsContainer.setRewardFunction(instanceSymbol);
                 }
@@ -329,8 +329,8 @@ public class EMADLCNNHandler {
                             + fullPolicyFunctionName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
                             + fullPolicyFunctionName.substring(indexOfFirstNameCharacter + 1);
 
-                    EMAComponentInstanceSymbol instanceSymbol = emadlGenerator.resolveComponentInstanceSymbol(
-                            fullPolicyFunctionName, emadlTaggingHandler.getSymTabAndTaggingResolver());
+                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                            fullPolicyFunctionName, taggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
                     trainingComponentsContainer.addTrainingComponent("policy",
                             instanceSymbol.getComponentType().getReferencedSymbol());
@@ -346,21 +346,21 @@ public class EMADLCNNHandler {
                             + fullPreprocessorName.substring(indexOfFirstNameCharacter + 1);
                     String instanceName = componentInstance.getFullName().replaceAll("\\.", "_");
 
-                    TaggingResolver symtab = emadlTaggingHandler.getSymTabAndTaggingResolver();
-                    EMAComponentInstanceSymbol processor_instance = emadlGenerator.resolveComponentInstanceSymbol(fullPreprocessorName, symtab);
+                    TaggingResolver symtab = taggingHandler.getSymTabAndTaggingResolver();
+                    EMAComponentInstanceSymbol processor_instance = generator.resolveComponentInstanceSymbol(fullPreprocessorName, symtab);
                     processor_instance.setFullName("CNNPreprocessor_" + instanceName);
                     List<FileContent> processorContents = new ArrayList<>();
-                    emadlGenerator.generateComponent(processorContents, new HashSet<>(), symtab, processor_instance);
-                    emadlFileHandler.fixArmadilloImports(processorContents);
+                    generator.generateComponent(processorContents, new HashSet<>(), symtab, processor_instance);
+                    fileHandler.fixArmadilloImports(processorContents);
 
                     for (FileContent fileContent : processorContents) {
                         try {
-                            emadlGenerator.getEmamGen().generateFile(fileContent);
+                            generator.getEmamGen().generateFile(fileContent);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-                    String targetPath = emadlGenerator.getGenerationTargetPath();
+                    String targetPath = generator.getGenerationTargetPath();
                     ComponentPortInformation componentPortInformation;
                     componentPortInformation = pythonWrapper.generateAndTryBuilding(processor_instance, targetPath + "/pythonWrapper", targetPath);
                     PreprocessingComponentParameterAdapter componentParameter = new PreprocessingComponentParameterAdapter(componentPortInformation);
@@ -372,7 +372,7 @@ public class EMADLCNNHandler {
 
                 cnnTrainGenerator.setInstanceName(cnnTrainGenInstanceName);
                 List<FileContent> fileContentList = cnnTrainGenerator.generateStrings(trainingConfiguration,
-                        trainingComponentsContainer, copied ? Paths.get(emadlGenerator.getGenerationTargetPath()) : null);
+                        trainingComponentsContainer, copied ? Paths.get(generator.getGenerationTargetPath()) : null);
                 fileContents.addAll(fileContentList);
             }
         }

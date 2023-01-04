@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
@@ -77,11 +77,11 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         // The training hash is stored during the first training, so the second one is skipped
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "simpleCifar10.Cifar10Classifier", "-b", this.backend};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
         //assertTrue(Log.getFindings().isEmpty());
         
         Log.getFindings().clear();
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
         checkFindingsCount(1);
         //assertTrue(Log.getFindings().get(1).getMsg().contains("skipped"));
 
@@ -96,7 +96,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         createHashFile();
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "simpleCifar10.Cifar10Classifier", "-b", this.backend};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
         //assertTrue(Log.getFindings().size() == 1);
         //assertTrue(Log.getFindings().get(0).getMsg().contains("skipped"));
 
@@ -108,7 +108,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         // Multiple instances of the first NN are used. Only the first one should cause a training
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "instanceTestCifar.MainC", "-b", this.backend};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
         checkFindingsCount(2);
         //assertTrue(Log.getFindings().get(0).getMsg().contains("skipped"));
         deleteInstanceTestCifarHashFile();
@@ -133,7 +133,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         createHashFile();
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "simpleCifar10.Cifar10Classifier", "-b", this.backend, "-f", "y"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
         //assertTrue(Log.getFindings().isEmpty());
 
         deleteHashFile();

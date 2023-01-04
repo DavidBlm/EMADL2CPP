@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class IntegrationCaffe2Test extends IntegrationTest {
 
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "CAFFE2"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         AbstractSymtabTest.checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),

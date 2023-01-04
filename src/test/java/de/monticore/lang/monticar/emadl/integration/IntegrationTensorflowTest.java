@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class IntegrationTensorflowTest extends IntegrationTest {
 
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "TENSORFLOW"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         AbstractSymtabTest.checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -53,7 +53,7 @@ public class IntegrationTensorflowTest extends IntegrationTest {
         deleteHashFile(multipleStreamsHashFile);
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "TENSORFLOW"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
 
         checkFindingsCount();
     }

@@ -17,7 +17,7 @@ import java.util.Optional;
 
 import static de.monticore.lang.monticar.generator.cpp.GeneratorCppCli.*;
 
-public class EMADLGeneratorCli {
+public class GeneratorCli {
 
     public static final Option OPTION_OUTPUT_PATH = Option.builder("o")
             .longOpt("output-dir")
@@ -89,7 +89,7 @@ public class EMADLGeneratorCli {
             .required(false).build();
 
 
-    private EMADLGeneratorCli() {
+    private GeneratorCli() {
     }
 
     public static void main(String[] args) {
@@ -205,7 +205,7 @@ public class EMADLGeneratorCli {
             forced = DEFAULT_FORCED;
         }
 
-        EMADLGenerator generator = new EMADLGenerator(backend.get(), composedNetworksFileName);
+        Generator generator = new Generator(backend.get(), composedNetworksFileName);
 
         if (compile == null) {
             compile = DEFAULT_COMPILE;

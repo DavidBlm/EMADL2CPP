@@ -33,7 +33,7 @@ import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
 
-public class EMADLGenerator implements EMAMGenerator {
+public class Generator implements EMAMGenerator {
 
     private boolean generateCMake = false;
     private CMakeConfig cMakeConfig = new CMakeConfig("");
@@ -41,9 +41,9 @@ public class EMADLGenerator implements EMAMGenerator {
 
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
     private Backend backend;
-    private EMADLFileHandler emadlFileHandler;
-    private EMADLTagging emadlTaggingHandler;
-    private EMADLCNNHandler emadlCNNHandler;
+    private FileHandler fileHandler;
+    private Tagging taggingHandler;
+    private CNNHandler emadlCNNHandler;
 
     private String composedNetworkFilePath = "";
 
@@ -55,7 +55,7 @@ public class EMADLGenerator implements EMAMGenerator {
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
 
-    public EMADLGenerator(Backend backend, String composedNetworkFilePath) {
+    public Generator(Backend backend, String composedNetworkFilePath) {
         this.backend = backend;
         this.composedNetworkFilePath = composedNetworkFilePath;
         emamGen = new GeneratorCPP();
@@ -63,24 +63,24 @@ public class EMADLGenerator implements EMAMGenerator {
         emamGen.setGenerationTargetPath("./target/generated-sources-emadl/");
         GeneratorPythonWrapperFactory pythonWrapperFactory = new GeneratorPythonWrapperFactory();
         pythonWrapper = new GeneratorPythonWrapperStandaloneApi();
-        emadlFileHandler = new EMADLFileHandler(this, composedNetworkFilePath);
-        emadlTaggingHandler = new EMADLTagging(this);
-        emadlCNNHandler = new EMADLCNNHandler(this, processedArchitecture, pythonWrapper, this.composedNetworkFilePath);
+        fileHandler = new FileHandler(this, composedNetworkFilePath);
+        taggingHandler = new Tagging(this);
+        emadlCNNHandler = new CNNHandler(this, processedArchitecture, pythonWrapper, this.composedNetworkFilePath);
     }
 
     protected Map<String, ArchitectureSymbol> getProcessedArchitecture() {
         return this.processedArchitecture;
     }
 
-    public EMADLFileHandler getEmadlFileHandler() {
-        return emadlFileHandler;
+    public FileHandler getEmadlFileHandler() {
+        return fileHandler;
     }
 
-    protected EMADLTagging getEmadlTaggingHandler() {
-        return emadlTaggingHandler;
+    protected Tagging getEmadlTaggingHandler() {
+        return taggingHandler;
     }
 
-    protected EMADLCNNHandler getEmadlCNNHandler(){
+    protected CNNHandler getEmadlCNNHandler(){
         return this.emadlCNNHandler;
     }
 
@@ -118,27 +118,27 @@ public class EMADLGenerator implements EMAMGenerator {
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl, boolean allowDecomposition) throws IOException, TemplateException {
         Log.info("Generator start", "GENERATION");
         processedArchitecture = new HashMap<>();
-        emadlFileHandler.setModelsPath( modelPath );
-        emadlFileHandler.setPythonPath(pythonPath);
+        fileHandler.setModelsPath( modelPath );
+        fileHandler.setPythonPath(pythonPath);
         setUseDgl(useDgl.equals("y"));
 
-        TaggingResolver symtab = emadlTaggingHandler.getSymTabAndTaggingResolver();
+        TaggingResolver symtab = taggingHandler.getSymTabAndTaggingResolver();
 
         EMAComponentInstanceSymbol instance = resolveComponentInstanceSymbol(qualifiedName, symtab);
         //EMAComponentInstanceSymbol vaultBuildingInstance = resolveComponentInstanceSymbol(qualifiedName, symtab);
         try {
             // copy the AdaNet files to
-            emadlFileHandler.copyPythonFilesFromResource("AdaNet");
+            fileHandler.copyPythonFilesFromResource("AdaNet");
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
 
         //emadlFileHandler.setVaultBuildingInstance(vaultBuildingInstance);
-        emadlFileHandler.generateFiles(symtab, instance, pythonPath, forced);
+        fileHandler.generateFiles(symtab, instance, pythonPath, forced);
 
         if (doCompile) {
             if (!generateCMake) // do it either way
-                emadlFileHandler.generateCMakeFiles(instance);
+                fileHandler.generateCMakeFiles(instance);
             compile();
         }
         processedArchitecture = null;
@@ -146,7 +146,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
         if (allowDecomposition){
             Log.info("Start decomposition","DECOMPOSITION");
-            NetworkDecomposer networkDecomposer = new NetworkDecomposer(getBackend(), emadlFileHandler);
+            NetworkDecomposer networkDecomposer = new NetworkDecomposer(getBackend(), fileHandler);
             networkDecomposer.decomposeNetworks("model/", emadlCNNHandler.getComposedNetworkStructures());
             Log.info("End decomposition","DECOMPOSITION");
         }
@@ -182,7 +182,7 @@ public class EMADLGenerator implements EMAMGenerator {
     }
 
     protected void compile() throws IOException {
-        File tempScript = emadlFileHandler.createTempScript();
+        File tempScript = fileHandler.createTempScript();
         try {
             ProcessBuilder pb;
             if (!SystemUtils.IS_OS_WINDOWS)
@@ -276,7 +276,7 @@ public class EMADLGenerator implements EMAMGenerator {
             fileContents.addAll(SimulatorIntegrationHelper.getSimulatorIntegrationHelperFileContent());
         }
 
-        emadlFileHandler.fixArmadilloImports(fileContents);
+        fileHandler.fixArmadilloImports(fileContents);
 
         processedArchitecture = null;
         return fileContents;
@@ -300,7 +300,7 @@ public class EMADLGenerator implements EMAMGenerator {
         emaComponentSymbol.getFullName();
         /* */
 
-        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, emadlFileHandler.getModelsPath(), emadlFileHandler.getInstanceVault(),
+        NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworkFilePath, fileHandler.getModelsPath(), fileHandler.getInstanceVault(),
                 emadlCNNHandler.getCachedComposedArchitectureSymbols(), this.getBackend(), this.emadlCNNHandler.getComposedNetworkStructures());
         networkCompositionHandler.processComponentInstances(allInstances);
 
@@ -310,17 +310,17 @@ public class EMADLGenerator implements EMAMGenerator {
 
 
         // set the path to AdaNet python files
-        architecture.ifPresent(architectureSymbol -> {architectureSymbol.setAdaNetUtils(emadlFileHandler.getAdaNetUtils());});
+        architecture.ifPresent(architectureSymbol -> {architectureSymbol.setAdaNetUtils(fileHandler.getAdaNetUtils());});
         Optional<MathStatementsSymbol> mathStatements = emaComponentSymbol.getSpannedScope().resolve("MathStatements", MathStatementsSymbol.KIND);
 
         EMADLCocos.checkAll(componentInstanceSymbol);
 
         if (architecture.isPresent()) {
             emadlCNNHandler.getCnnArchGenerator().check(architecture.get());
-            String dPath = emadlFileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
-            String wPath = emadlFileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
-            HashMap layerPathParameterTags = emadlTaggingHandler.getLayerPathParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
-            layerPathParameterTags.putAll(emadlTaggingHandler.getLayerArtifactParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol));
+            String dPath = fileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+            String wPath = fileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
+            HashMap layerPathParameterTags = taggingHandler.getLayerPathParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+            layerPathParameterTags.putAll(taggingHandler.getLayerArtifactParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol));
             architecture.get().setDataPath(dPath);
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
@@ -328,8 +328,8 @@ public class EMADLGenerator implements EMAMGenerator {
             architecture.get().setUseDgl(getUseDgl());
 
 
-            if(!emadlFileHandler.getCustomFilesPath().equals("")) {
-                architecture.get().setCustomPyFilesPath(emadlFileHandler.getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
+            if(!fileHandler.getCustomFilesPath().equals("")) {
+                architecture.get().setCustomPyFilesPath(fileHandler.getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
             }
 
             //TODO: Check if useful here
@@ -425,7 +425,7 @@ public class EMADLGenerator implements EMAMGenerator {
 
     @Override
     public List<File> generateFiles(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) throws IOException {
-        return this.emadlFileHandler.generateFiles(taggingResolver, componentInstanceSymbol, "", "UNSET");
+        return this.fileHandler.generateFiles(taggingResolver, componentInstanceSymbol, "", "UNSET");
     }
 
     @Override

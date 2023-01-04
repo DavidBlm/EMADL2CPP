@@ -16,17 +16,17 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class EMADLTagging {
+public class Tagging {
 
-    private EMADLGenerator emadlGen;
+    private Generator emadlGen;
 
-    public EMADLTagging(EMADLGenerator emadlGen){
+    public Tagging(Generator emadlGen){
         this.emadlGen =  emadlGen;
     }
 
     protected TaggingResolver getSymTabAndTaggingResolver() {
         BasicLibrary.extract();
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(emadlGen.getEmadlFileHandler().getCustomFilesPath(), emadlGen.getEmadlFileHandler().getPythonPath(), emadlGen.getBackend(), emadlGen.getComposedNetworkFilePath(), emadlGen.getEmadlFileHandler()
+        return AbstractSymtab.createSymTabAndTaggingResolver(emadlGen.getEmadlFileHandler().getCustomFilesPath(), emadlGen.getEmadlFileHandler().getPythonPath(), emadlGen.getBackend(), emadlGen.getComposedNetworkFilePath(), emadlGen.getEmadlFileHandler()
                         .getModelsPath(),
                 Constants.SYNTHESIZED_COMPONENTS_ROOT, BasicLibrary.BASIC_LIBRARY_ROOT);
     }

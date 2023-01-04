@@ -1,7 +1,7 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLFileHandler;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.FileHandler;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.BackendDecomposer;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.gluon.GluonDecomposer;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
@@ -11,11 +11,11 @@ import java.util.HashMap;
 public class NetworkDecomposer {
 
     private Backend backend = null;
-    private EMADLFileHandler emadlFileHandler = null;
+    private FileHandler fileHandler = null;
 
-    public NetworkDecomposer(Backend backend, EMADLFileHandler emadlFileHandler){
+    public NetworkDecomposer(Backend backend, FileHandler fileHandler){
         this.backend = backend;
-        this.emadlFileHandler = emadlFileHandler;
+        this.fileHandler = fileHandler;
     }
 
     public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure){
@@ -23,7 +23,7 @@ public class NetworkDecomposer {
         String backendString = Backend.getBackendString(this.backend);
         switch (backendString){
             case "GLUON":
-                backendDecomposer = new GluonDecomposer(emadlFileHandler.getPythonPath());
+                backendDecomposer = new GluonDecomposer(fileHandler.getPythonPath());
                 break;
             default:
                 backendDecomposer = null;

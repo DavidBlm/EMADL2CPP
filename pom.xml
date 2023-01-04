@@ -207,7 +207,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli</mainClass>
+                                    <mainClass>de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

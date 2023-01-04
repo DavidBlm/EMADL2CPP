@@ -31,8 +31,8 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 
-public class EMADLAbstractSymtab {
-    public EMADLAbstractSymtab() {
+public class AbstractSymtab {
+    public AbstractSymtab() {
     }
 
     public static TaggingResolver createSymTabAndTaggingResolver(String customFilesPath, String pythonPath, Backend backend, String composedNetworksFilePath, String... modelPath) {

@@ -1,7 +1,7 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl;
 
-import de.monticore.lang.monticar.emadl.generator.emadlgen.EMADLGeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +20,6 @@ public class CustomLayerTest {
     @Test(expected = NoSuchElementException.class)
     public void NegativeCustomLayerTest (){
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-f", "n", "-c", "n"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
     }
 }
