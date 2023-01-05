@@ -18,8 +18,11 @@ public class NetworkDecomposer {
         this.fileHandler = fileHandler;
     }
 
-    public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure){
+    public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure, String[] decomposeNetworkList){
         BackendDecomposer backendDecomposer = null;
+
+        composedNetworkStructure.setDecompositionControl(decomposeNetworkList);
+
         String backendString = Backend.getBackendString(this.backend);
         switch (backendString){
             case "GLUON":
@@ -36,10 +39,10 @@ public class NetworkDecomposer {
         backendDecomposer.decomposeNetwork(modelPath, composedNetworkStructure);
     }
 
-    public void decomposeNetworks(String modelPath, HashMap<String, NetworkStructure> composedNetworkStructures){
+    public void decomposeNetworks(String modelPath, HashMap<String, NetworkStructure> composedNetworkStructures, String[] decomposeNetworkList){
         for (String key : composedNetworkStructures.keySet()){
             NetworkStructure composedNetworkStructure = composedNetworkStructures.get(key);
-            decomposeNetwork(modelPath, composedNetworkStructure);
+            decomposeNetwork(modelPath, composedNetworkStructure, decomposeNetworkList);
         }
     }
 

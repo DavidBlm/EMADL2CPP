@@ -72,6 +72,21 @@ public class NetworkStructure {
         this.networkLayers.add(networkLayer);
     }
 
+    public void setDecompositionControl(String[] allowedNetworks){
+        if (allowedNetworks == null) return;
+
+        for (int i=0; i<allowedNetworks.length; i++){
+            if (allowedNetworks[i].equals(this.networkName)) {
+                this.setDecompositionAllowed(true);
+                break;
+            }
+        }
+
+        for (NetworkStructure subnet: this.subNetworkStructures){
+            subnet.setDecompositionControl(allowedNetworks);
+        }
+    }
+
     public void addFrontSlicePoint(LayerInformation networkLayer){
         this.networkLayers.add(0,networkLayer);
         this.frontSlicePoint = networkLayer;

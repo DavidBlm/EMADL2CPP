@@ -13,6 +13,7 @@ import org.apache.commons.lang3.SystemUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static de.monticore.lang.monticar.generator.cpp.GeneratorCppCli.*;
@@ -88,6 +89,12 @@ public class GeneratorCli {
             .hasArg(false)
             .required(false).build();
 
+    public static final Option OPTION_DECOMPOSABLE_NETWORKS = Option.builder("dn")
+            .longOpt("decomposable-networks")
+            .desc("Networks that can be decomposed")
+            .hasArg(true)
+            .required(false).build();
+
 
     private GeneratorCli() {
     }
@@ -120,6 +127,7 @@ public class GeneratorCli {
         options.addOption(OPTION_HELP);
         options.addOption(OPTION_COMPOSED_NETWORK_FILE);
         options.addOption(OPTION_ALLOW_DECOMPOSITION);
+        options.addOption(OPTION_DECOMPOSABLE_NETWORKS);
     }
 
     private static void printHelp(){
@@ -135,6 +143,7 @@ public class GeneratorCli {
         System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
         System.err.println("\t [-cnf <composed network file path>] e.g. \"./CompFile\"");
         System.err.println("\t [-ad]");
+        System.err.println("\t [-dn <list of network that can be decomposed] e.g. Network,Net1,Net2");
 
     }
 
@@ -161,6 +170,15 @@ public class GeneratorCli {
         String useDgl = cliArgs.getOptionValue(OPTION_USE_DGL.getOpt());
         String composedNetworksFileName = cliArgs.getOptionValue(OPTION_COMPOSED_NETWORK_FILE.getOpt());
         boolean allowDecompositionPresent = cliArgs.hasOption(OPTION_ALLOW_DECOMPOSITION.getOpt());
+
+        String commaDecompNetworkList = null;
+        String[] decompNetworkList = null;
+        if (cliArgs.hasOption(OPTION_DECOMPOSABLE_NETWORKS.getOpt())){
+            commaDecompNetworkList = cliArgs.getOptionValue(OPTION_DECOMPOSABLE_NETWORKS.getOpt());
+            decompNetworkList = commaDecompNetworkList.split(",");
+        }
+
+
         final String DEFAULT_BACKEND = "MXNET";
         final String DEFAULT_FORCED = "UNSET";
         final String DEFAULT_COMPILE = "y";
@@ -262,7 +280,7 @@ public class GeneratorCli {
         // end EMAM2CPP options
 
         try {
-            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl, allowDecomposition);
+            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl, allowDecomposition, decompNetworkList);
         } catch (IOException e){
             String errMsg ="io error during generation"+ e.toString();
             Log.error(errMsg);
