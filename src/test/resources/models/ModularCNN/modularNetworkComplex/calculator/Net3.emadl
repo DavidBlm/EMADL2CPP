@@ -1,12 +1,14 @@
 package calculator;
 
 component Net3 {
-    ports in Q(0:1)^{10} data,
+    ports in Z(0:255)^{500} data,
          out Q(0:1)^{10} dataOutput;
 
      implementation CNN {
             data ->
-            Softmax() ->
+            Relu() ->
+            Dropout() ->
+            FullyConnected(units=10) ->
             dataOutput;
         }
 }

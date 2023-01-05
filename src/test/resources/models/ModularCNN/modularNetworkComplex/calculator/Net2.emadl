@@ -1,7 +1,7 @@
 package calculator;
 
 component Net2 {
-    ports in Q(0:1)^{10} dataInput,
+    ports in Z(0:255)^{500} dataInput,
          out Q(0:1)^{10} softmax;
 
     instance Net3 net3;
