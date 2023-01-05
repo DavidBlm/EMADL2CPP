@@ -82,7 +82,7 @@ public class GeneratorCli {
             .hasArg(true)
             .required(false).build();
 
-    public static final Option OPTION_ALLOW_DECOMPOSITION = Option.builder("adcm")
+    public static final Option OPTION_ALLOW_DECOMPOSITION = Option.builder("ad")
             .longOpt("allow-decomposition")
             .desc("Allow decomposition of subnetworks after training")
             .hasArg(false)
@@ -134,7 +134,7 @@ public class GeneratorCli {
         System.err.println("\t [-cfp <custom file path>]");
         System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
         System.err.println("\t [-cnf <composed network file path>] e.g. \"./CompFile\"");
-        System.err.println("\t [-adcm]");
+        System.err.println("\t [-ad]");
 
     }
 
