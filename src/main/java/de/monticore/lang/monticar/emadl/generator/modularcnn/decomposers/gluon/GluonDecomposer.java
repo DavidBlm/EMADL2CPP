@@ -141,7 +141,7 @@ public class GluonDecomposer implements BackendDecomposer {
 
         ArrayList<Object> nodes = (ArrayList<Object>) contentMap.get("nodes");
         Map<String, Object> attributes = (Map<String, Object>) contentMap.get("attrs");
-        ArrayList<NetworkStructure> subNets = networkStructure.getSubNetworkStructures();
+        ArrayList<NetworkStructure> subNets = networkStructure.getNetsToDecompose();
         ArrayList<GluonRepresentation> gluonNets = new ArrayList<>();
 
         Map<String, Object> lastNode = (Map<String, Object>) nodes.get(nodes.size() - 1);

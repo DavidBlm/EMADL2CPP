@@ -73,12 +73,15 @@ public class NetworkStructure {
     }
 
     public void setDecompositionControl(String[] allowedNetworks){
-        if (allowedNetworks == null) return;
+        if (allowedNetworks == null || allowedNetworks.length == 0) return;
 
         for (int i=0; i<allowedNetworks.length; i++){
-            if (allowedNetworks[i].equals(this.networkName)) {
+            if (allowedNetworks[i].equals(this.networkName) && !this.isAtomic()) {
                 this.setDecompositionAllowed(true);
                 break;
+            }
+            else {
+                this.setDecompositionAllowed(false);
             }
         }
 
@@ -97,8 +100,53 @@ public class NetworkStructure {
         this.backSlicePoint = networkLayer;
     }
 
+    public boolean hasSubnet(NetworkStructure network){
+        if (this.subNetworkStructures.size() > 0) {
+            for (int i=0; i<this.subNetworkStructures.size(); i++){
+                NetworkStructure subnet = this.subNetworkStructures.get(i);
+                if (subnet.atomic == network.atomic
+                        && subnet.getNetworkName().equals(network.getNetworkName())
+                        && subnet.getComponentName().equals(network.getComponentName())){
+                    return true;
+                } else if (subnet.hasSubnet(network)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void reassignSubnet(NetworkStructure network){
+        if (this.subNetworkStructures.size() > 0) {
+            for (int i=0; i<this.subNetworkStructures.size(); i++){
+                NetworkStructure subnet = this.subNetworkStructures.get(i);
+                if (subnet.atomic == network.atomic
+                        && subnet.getNetworkName().equals(network.getNetworkName())
+                        && subnet.getComponentName().equals(network.getComponentName())){
+                    this.subNetworkStructures.set(i,network);
+                } else if (subnet.hasSubnet(network)){
+                    subnet.reassignSubnet(network);
+                }
+            }
+        }
+    }
+
     public ArrayList<NetworkStructure> getSubNetworkStructures() {
         return subNetworkStructures;
+    }
+
+    public ArrayList<NetworkStructure> getNetsToDecompose() {
+        ArrayList<NetworkStructure> netsToDecompose = new ArrayList<>();
+        for (NetworkStructure subnet: this.subNetworkStructures){
+            if (subnet.isAtomic()){
+                netsToDecompose.add(subnet);
+            } else if (!subnet.isAtomic() && !subnet.decompositionAllowed) {
+                netsToDecompose.add(subnet);
+            } else {
+                netsToDecompose.addAll(subnet.getNetsToDecompose());
+            }
+        }
+        return netsToDecompose;
     }
 
     public void addPrecedingSubNetwork(NetworkStructure atomicNetworkStructure){

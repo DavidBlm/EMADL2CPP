@@ -175,7 +175,7 @@ public class GeneratorCli {
         String[] decompNetworkList = null;
         if (cliArgs.hasOption(OPTION_DECOMPOSABLE_NETWORKS.getOpt())){
             commaDecompNetworkList = cliArgs.getOptionValue(OPTION_DECOMPOSABLE_NETWORKS.getOpt());
-            decompNetworkList = commaDecompNetworkList.split(",");
+            decompNetworkList = commaDecompNetworkList.replaceAll(" ","").split(",");
         }
 
 

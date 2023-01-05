@@ -21,7 +21,7 @@ public class NetworkDecomposer {
     public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure, String[] decomposeNetworkList){
         BackendDecomposer backendDecomposer = null;
 
-        composedNetworkStructure.setDecompositionControl(decomposeNetworkList);
+
 
         String backendString = Backend.getBackendString(this.backend);
         switch (backendString){
@@ -40,6 +40,19 @@ public class NetworkDecomposer {
     }
 
     public void decomposeNetworks(String modelPath, HashMap<String, NetworkStructure> composedNetworkStructures, String[] decomposeNetworkList){
+        for (String key : composedNetworkStructures.keySet()){
+            NetworkStructure composedNetworkStructure = composedNetworkStructures.get(key);
+
+            if (decomposeNetworkList.length > 0) composedNetworkStructure.setDecompositionControl(decomposeNetworkList);
+
+            for (String innerKey : composedNetworkStructures.keySet()){
+                if (key.equals(innerKey)) continue;
+                NetworkStructure innerComposedNetworkStructure = composedNetworkStructures.get(innerKey);
+
+                if (composedNetworkStructure.hasSubnet(innerComposedNetworkStructure) && innerComposedNetworkStructure.isDecompositionAllowed() ) composedNetworkStructure.reassignSubnet(innerComposedNetworkStructure);
+            }
+        }
+
         for (String key : composedNetworkStructures.keySet()){
             NetworkStructure composedNetworkStructure = composedNetworkStructures.get(key);
             decomposeNetwork(modelPath, composedNetworkStructure, decomposeNetworkList);
