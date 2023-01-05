@@ -329,9 +329,11 @@ public class FileHandler {
                 if ( symWrapperList != null && symWrapperList.size() > 0 && symWrapperList.get(0) instanceof EMAComponentInstanceSymbol){
                     EMAComponentInstanceSymbol foundInstance = (EMAComponentInstanceSymbol) symWrapperList.get(0);
                     Optional<ArchitectureSymbol> architectureSymbol = networkCompositionHandler.resolveArchitectureSymbolOfInstance(foundInstance);
+
                     if (architectureSymbol.isPresent()){
-                    instances.add(foundInstance);
+                        instances.add(foundInstance);
                     }
+
                     instances.add(foundInstance);
                     instances.addAll(findInstancesRecursively(foundInstance, networkCompositionHandler));
                 }
