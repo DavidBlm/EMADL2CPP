@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class PythonPipelineTest {
 
     @Test
-    void runScript() throws InterruptedException, IOException {
+    void runScript() throws IOException {
         final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("", "", "target/generated-sources/", "");
         MontiAnnaContext.getInstance().initContext(Paths.get(""), "", experimentConfiguration);
         final Process process = new PythonPipeline(null).runScript();
