@@ -15,7 +15,7 @@ using namespace mxnet::cpp;
     
 class CNNPredictor_torcs_agent_torcsAgent_actor_0{
 public:
-    const std::string file_prefix = "model/torcs.agent.network.TorcsActor/model_0_newest";
+    const std::string file_prefix = "model/torcs.agent.network.TorcsActor/newest";
     
     //network
     const std::vector<std::string> network_input_keys = {

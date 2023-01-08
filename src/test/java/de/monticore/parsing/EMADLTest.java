@@ -12,18 +12,18 @@ class EMADLTest {
 
     @Test
     void exceptionByParsing() {
-        assertThrows(IOException.class, () -> new EMADLParser().parseModelOrThrowException("wrong path"));
+        assertThrows(IOException.class, () -> new EMADLParser().parseModelIfExists("wrong path"));
     }
 
     @Test
     void parsingEMA() throws IOException {
-        final ASTEMACompilationUnit parsedModel = (ASTEMACompilationUnit) new EMADLParser().parseModelOrThrowException("src/test/resources/models/pipeline/LinearPipeline.ema");
+        final ASTEMACompilationUnit parsedModel = (ASTEMACompilationUnit) new EMADLParser().parseModelIfExists("src/test/resources/models/pipeline/LinearPipeline.ema");
         assertEquals("LinearPipeline", parsedModel.getComponent().getName());
     }
 
     @Test
     void parsingEMADL() throws IOException {
-        final ASTEMACompilationUnit parsedModel = (ASTEMACompilationUnit) new EMADLParser().parseModelOrThrowException("src/test/resources/models/Add.emadl");
+        final ASTEMACompilationUnit parsedModel = (ASTEMACompilationUnit) new EMADLParser().parseModelIfExists("src/test/resources/models/Add.emadl");
         assertEquals("Add", parsedModel.getComponent().getName());
     }
 }
