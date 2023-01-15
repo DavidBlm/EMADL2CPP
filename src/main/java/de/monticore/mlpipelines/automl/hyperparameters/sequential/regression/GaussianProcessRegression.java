@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class GaussianProcessRegression {
 
-    private double sigma;
+    private double noise = 0;
 
     private double[][] xTrain;
 
@@ -16,19 +16,15 @@ public class GaussianProcessRegression {
     private RealVector alpha;
 
     public GaussianProcessRegression() {
-
     }
 
-    public GaussianProcessRegression(double sigma) {
-        if (sigma <= 0.0) {
-            throw new IllegalArgumentException("sigma is not positive: " + sigma);
-        } else {
-            this.sigma = sigma;
-        }
+    public GaussianProcessRegression(double noise) {
+        this.noise = noise;
     }
 
     public void fit(double[][] x, double[] y) {
-        this.gaussianKernel = this.getGaussianKernel(x, x);
+        RealMatrix noiseMatrix = MatrixUtils.createRealIdentityMatrix(x.length).scalarMultiply(Math.pow(this.noise, 2));
+        this.gaussianKernel = this.getGaussianKernel(x, x).add(noiseMatrix);
         this.alpha = this.choleskySolve(this.gaussianKernel, y);
         this.xTrain = x;
     }
