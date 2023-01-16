@@ -279,8 +279,12 @@ public class GeneratorCli {
         emamGen.setGenerateCMake(cliArgs.hasOption(OPTION_FLAG_CMAKE.getLongOpt()));
         // end EMAM2CPP options
 
+        String fullModelPath = cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()) + rootModelName;
+
         try {
+            Log.warn("Running generator for model: " + fullModelPath);
             generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl, allowDecomposition, decompNetworkList);
+            Log.warn("Generator run finished for model: " + fullModelPath);
         } catch (IOException e){
             String errMsg ="io error during generation"+ e.toString();
             Log.error(errMsg);
