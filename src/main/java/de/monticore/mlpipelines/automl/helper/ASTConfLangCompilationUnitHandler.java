@@ -144,6 +144,9 @@ public class ASTConfLangCompilationUnitHandler {
             ((ASTStringLiteral) literal).setSource(value.toString());
         } else if (literalClass.equals(ASTSignedIntLiteral.class)) {
             literal = MCLiteralsNodeFactory.createASTSignedIntLiteral();
+            if (value instanceof Double) {
+                value = ((Double) value).intValue();
+            }
             ((ASTSignedIntLiteral) literal).setSource(value.toString());
             ((ASTSignedIntLiteral) literal).setNegative((int) value < 0);
         } else if (literalClass.equals(ASTSignedDoubleLiteral.class)) {
