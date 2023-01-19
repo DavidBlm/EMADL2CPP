@@ -1,9 +1,9 @@
 package de.monticore.mlpipelines.automl.hyperparameters.sequential.regression;
 
+import com.google.common.primitives.Doubles;
 import org.apache.commons.math3.linear.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class GaussianProcessRegression {
 
@@ -88,5 +88,13 @@ public class GaussianProcessRegression {
         RealVector yVec = MatrixUtils.createRealVector(y);
         CholeskyDecomposition decomposition = new CholeskyDecomposition(K);
         return decomposition.getSolver().solve(yVec);
+    }
+
+    private List<List<Double>> returnSampledConfigs() {
+        List<List<Double>> configList = new ArrayList<>();
+        for (double[] doubles : this.xTrain) {
+            configList.add(Doubles.asList(doubles));
+        }
+        return configList;
     }
 }
