@@ -14,4 +14,13 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
     public void setCurrentHyperparameters(ASTConfLangCompilationUnit currentHyperparameters) {
         this.currentHyperparameters = currentHyperparameters;
     }
+
+    protected boolean updateBest(double currValue, double newValue, String metricType) {
+        if (metricType.equals("Accuracy")) {
+            return newValue > currValue;
+        }
+        else {
+            return newValue < currValue;
+        }
+    }
 }

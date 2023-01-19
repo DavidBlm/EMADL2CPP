@@ -98,15 +98,6 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
         return currentHyperparams;
     }
 
-    private boolean updateBest(double currValue, double newValue, String metricType) {
-        if (metricType.equals("Accuracy")) {
-            return newValue > currValue;
-        }
-        else {
-            return newValue < currValue;
-        }
-    }
-
     private boolean decideAcceptance(double evaluationMetric) {
         double diff = evaluationMetric - this.currEvalMetric;
         double criterion = Math.exp((-diff) / this.currentTemperature);

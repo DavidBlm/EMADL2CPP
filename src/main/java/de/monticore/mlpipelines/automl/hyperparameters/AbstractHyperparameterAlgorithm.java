@@ -3,6 +3,7 @@ package de.monticore.mlpipelines.automl.hyperparameters;
 import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -235,6 +236,14 @@ public abstract class AbstractHyperparameterAlgorithm {
             valInRange = Math.min((double) valInRange, upperDouble);
         }
         return valInRange;
+    }
+
+    protected double[] listToArr(List<Double> doubleList) {
+        double[] doubleArr = new double[doubleList.size()];
+        for (int i=0; i < doubleArr.length; i++) {
+            doubleArr[i] = doubleList.get(i);
+        }
+        return doubleArr;
     }
 
     public abstract void executeOptimizationStep(ASTConfLangCompilationUnit hyperParams, ASTConfLangCompilationUnit searchSpace, Double evalValue, String metricType);
