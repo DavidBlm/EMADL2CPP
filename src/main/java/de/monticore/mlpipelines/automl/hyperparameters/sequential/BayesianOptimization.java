@@ -32,7 +32,7 @@ public class BayesianOptimization extends SequentialAlgorithm {
             xSample[0] = this.listToArr(sampleList);
             Map<String, Object> predMap = gpr.predict(xSample);
             double mean = ((double[]) predMap.get("mean"))[0];
-            double cov = ((double[][]) predMap.get("mean"))[0][0];
+            double cov = ((double[][]) predMap.get("cov"))[0][0];
             eiList.add(this.calcExpectedImprovement(mean, cov, this.metricType));
         }
         return eiList;
@@ -231,9 +231,18 @@ public class BayesianOptimization extends SequentialAlgorithm {
         return valList;
     }
 
+    public int getNumRandomIter() {
+        return numRandomIter;
+    }
+
+    public void setNumRandomIter(int numRandomIter) {
+        this.numRandomIter = numRandomIter;
+    }
+
     @Override
     public ASTConfLangCompilationUnit getInitialHyperparams(ASTConfLangCompilationUnit searchSpace) {
         this.evaluatedConfigs = this.buildCandidates(searchSpace, new ArrayList<>());
+        this.evaluatedConfigs = this.evaluatedConfigs.subList(0, this.numRandomIter);
         List<Double> initConfigList = evaluatedConfigs.get(0);
         ASTConfLangCompilationUnit initialConfig = this.listToConfig(initConfigList, searchSpace);
         return initialConfig;
@@ -253,9 +262,8 @@ public class BayesianOptimization extends SequentialAlgorithm {
         }
 
         this.metricValues.add(evalValue);
-        if (this.currentIteration > this.numRandomIter) {
+        if (this.currentIteration >= this.numRandomIter) {
             this.evaluatedConfigs.add(this.compilationUnitToList(hyperParams));
-            gpr.fit(this.getConfigsArr(), this.getMetricValsArr());
         }
 
         this.executeIteration();
@@ -267,6 +275,8 @@ public class BayesianOptimization extends SequentialAlgorithm {
             List<Double> configList = this.evaluatedConfigs.get(this.currentIteration);
             return this.listToConfig(configList, searchSpace);
         } else {
+            gpr.fit(this.getConfigsArr(), this.getMetricValsArr());
+
             List<List<Double>> samples = this.buildCandidates(searchSpace, this.evaluatedConfigs);
             List<Double> eiList = this.acquisition(samples);
 
