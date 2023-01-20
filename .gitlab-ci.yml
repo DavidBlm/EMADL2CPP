@@ -210,7 +210,7 @@ pages:
     - artifact-extraction
   script:
     - mkdir .public
-    - cp -r output/html/* .public
+    - cp -r extractor/output/html/* .public
     - mv .public public
   artifacts:
     paths:
