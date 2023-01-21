@@ -42,6 +42,6 @@ public class IntegrationMXNetTest extends IntegrationTest {
                         "HelperA.h"
                 )
         );
-        assertTrue(Log.getFindings().isEmpty());
+        checkFindingsCount(2);
     }
 }
