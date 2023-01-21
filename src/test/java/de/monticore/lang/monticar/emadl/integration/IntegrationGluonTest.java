@@ -60,7 +60,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "GLUON"};
         GeneratorCli.main(args);
 
-        checkFindingsCount(1);
+        checkFindingsCount(3);
     }
 
     @Ignore
@@ -73,7 +73,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnencdec.Main", "-b", "GLUON"};
         GeneratorCli.main(args);
 
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Ignore
@@ -86,7 +86,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnsearch.Main", "-b", "GLUON"};
         GeneratorCli.main(args);
 
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
         GeneratorCli.main(args);
 
-        checkFindingsCount(1);
+        checkFindingsCount(3);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile(Paths.get("./target/generated-sources-emadl/PreprocessingNetwork.training_hash"));
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON"};
         GeneratorCli.main(args);
-        checkFindingsCount(1);
+        checkFindingsCount(3);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON"};
         GeneratorCli.main(args);
 
-        checkFindingsCount(1);
+        checkFindingsCount(3);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-cfp", "src/test/resources/custom_files"};
         GeneratorCli.main(args);
 
-        checkFindingsCount(6);
+        checkFindingsCount(8);
     }
 
     private void deleteHashFile(Path hashFile) {
