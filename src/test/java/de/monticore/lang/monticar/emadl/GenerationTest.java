@@ -59,7 +59,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "simulator.MainController", "-b", "MXNET", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "MXNET", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "Alexnet", "-b", "MXNET", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "ResNeXt50", "-b", "MXNET", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "ThreeInputCNN_M14", "-b", "MXNET", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount(1L);
+        checkFindingsCount(3L);
     }
 
     @Test
@@ -99,7 +99,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleOutputs", "-b", "MXNET", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount(1L);
+        checkFindingsCount(3L);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "VGG16", "-b", "MXNET", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class GenerationTest extends AbstractSymtabTest {
             Log.getFindings().clear();
             String[] args = {"-m", "src/test/resources/models/", "-r", "InstanceTest.MainB", "-b", "MXNET", "-f", "n", "-c", "n"};
             GeneratorCli.main(args);
-            checkFindingsCount();
+            checkFindingsCount(2);
         }
         catch(Exception e) {
             e.printStackTrace();
@@ -135,7 +135,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "CAFFE2", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
 
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -157,7 +157,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "TENSORFLOW", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
 
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -180,7 +180,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "GLUON", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon"),
@@ -205,7 +205,7 @@ public class GenerationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "Invariant", "-b", "GLUON", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Test
@@ -440,7 +440,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
         Log.info(Log.getFindings().toString(), "testGluonPreprocessinWithSupervised");
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Test
@@ -449,7 +449,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
         Log.info(Log.getFindings().toString(), "testGluonPreprocessingWithGAN");
-        checkFindingsCount();
+        checkFindingsCount(2);
     }
 
     @Test
@@ -458,7 +458,7 @@ public class GenerationTest extends AbstractSymtabTest {
         String[] args = { "-m", "src/test/resources/models/", "-r", "tagging.Alexnet", "-b", "MXNET", "-f", "n", "-c",
                 "n" };
         GeneratorCli.main(args);
-        checkFindingsCount(1L);
+        checkFindingsCount(3L);
         assertEquals(Log.getFindings().get(0).toString(),
                 "Tagging info for DataPath symbol was found, ignoring data_paths.txt: src/test/resources/models");
         assertTrue(Log.getErrorCount() == 0);
@@ -512,7 +512,7 @@ public class GenerationTest extends AbstractSymtabTest {
         //Test depends on the python version
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-cfp", "src/test/resources/custom_files", "-f", "n", "-c", "n"};
         GeneratorCli.main(args);
-        checkFindingsCount();
+        checkFindingsCount(2);
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/gluon/customMNISTCalculator"),

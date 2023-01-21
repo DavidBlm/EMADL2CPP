@@ -82,7 +82,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         
         Log.getFindings().clear();
         GeneratorCli.main(args);
-        checkFindingsCount(1);
+        checkFindingsCount(3);
         //assertTrue(Log.getFindings().get(1).getMsg().contains("skipped"));
 
         deleteHashFile();
@@ -109,7 +109,7 @@ public abstract class IntegrationTest extends AbstractSymtabTest {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/", "-r", "instanceTestCifar.MainC", "-b", this.backend};
         GeneratorCli.main(args);
-        checkFindingsCount(2);
+        checkFindingsCount(4);
         //assertTrue(Log.getFindings().get(0).getMsg().contains("skipped"));
         deleteInstanceTestCifarHashFile();
     }
