@@ -3,13 +3,14 @@ package de.monticore.mlpipelines.pipelines;
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
+
 
 class PythonPipelineTest {
 

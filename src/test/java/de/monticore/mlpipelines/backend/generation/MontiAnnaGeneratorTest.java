@@ -4,7 +4,7 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.workflow.DummyWorkflow;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Paths;

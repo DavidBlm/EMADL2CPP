@@ -4,9 +4,8 @@ import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.pipelines.PythonPipeline;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
+import org.junit.Assert;
+import org.junit.Test;
 class PythonPipelineTest {
 
     @Test
@@ -18,7 +17,7 @@ class PythonPipelineTest {
         final String schemaApiPathFromLearningMethod = pythonPipeline.createSchemaApiPathFromLearningMethod()
                 .toString();
         final String expectedPath = "src/test/resources/experiment/configuration/Supervised_Schema_API";
-        Assertions.assertEquals(expectedPath, schemaApiPathFromLearningMethod);
+        Assert.assertEquals(expectedPath, schemaApiPathFromLearningMethod);
     }
 
     //TODO implement me
