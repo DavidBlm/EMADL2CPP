@@ -60,7 +60,7 @@ public abstract class AbstractWorkflow {
         final String pathToModelsDirectory = Paths.get(montiAnnaContext.getParentModelPath().toString(),
                 getDirectoryPathSupplementFromComponentName(montiAnnaContext.getRootModelName())).toString();
         final String pathToRootModel = Paths.get(pathToModelsDirectory, rootModelName + ".emadl").toString();
-        final ASTEMACompilationUnit rootEMADLComponent = new EMADLParser().parseModelOrThrowException(pathToRootModel);
+        final ASTEMACompilationUnit rootEMADLComponent = new EMADLParser().parseModelIfExists(pathToRootModel);
         final ModelPath modelPath = new ModelPath(Paths.get(montiAnnaContext.getParentModelPath().toString()));
         final Scope emadlSymbolTable = SymbolTableCreator.createEMADLSymbolTable(rootEMADLComponent,
                 new GlobalScope(modelPath, new EMADLLanguage()));
@@ -124,12 +124,12 @@ public abstract class AbstractWorkflow {
 
     public ASTConfLangCompilationUnit parseTrainingConfiguration(final String pathToTrainingConfiguration)
             throws IOException {
-        return new ConfigurationLanguageParser().parseModelOrThrowException(pathToTrainingConfiguration);
+        return new ConfigurationLanguageParser().parseModelIfExists(pathToTrainingConfiguration);
     }
 
     public ASTConfLangCompilationUnit parsePipelineConfiguration(final String pathToPipelineConfiguration)
             throws IOException {
-        return new ConfigurationLanguageParser().parseModelOrThrowException(pathToPipelineConfiguration);
+        return new ConfigurationLanguageParser().parseModelIfExists(pathToPipelineConfiguration);
     }
 
     //TODO implement me
@@ -163,7 +163,7 @@ public abstract class AbstractWorkflow {
 
     public EMAComponentInstanceSymbol parsePipelineReferenceModelToEMAComponent(final String pathToPipeline)
             throws IOException {
-        final ASTEMACompilationUnit astemaCompilationUnit = new EMADLParser().parseModelOrThrowException(
+        final ASTEMACompilationUnit astemaCompilationUnit = new EMADLParser().parseModelIfExists(
                 pathToPipeline);
         final ModelPath modelPath = new ModelPath(Paths.get("src/test/resources/models/pipeline"));
         final Scope pipelineSymbolTable = SymbolTableCreator.createEMADLSymbolTable(astemaCompilationUnit,
