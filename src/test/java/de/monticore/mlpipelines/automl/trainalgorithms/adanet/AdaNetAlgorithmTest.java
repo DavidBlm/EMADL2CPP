@@ -1,9 +1,14 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
+import de.monticore.lang.monticar.cnnarch._symboltable.StreamInstructionSymbol;
+import de.monticore.mlpipelines.ModelLoader;
 import de.monticore.mlpipelines.Pipeline;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.ParallelCompositeElementSymbolCustom;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.CandidateEvaluationResult;
 import junit.framework.TestCase;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -23,9 +28,9 @@ public class AdaNetAlgorithmTest extends TestCase {
         assertNotNull(adaNet);
     }
 
-    @Ignore
+    @Test
     public void testGetBestCandidateResult() {
-        ArchitectureSymbol arch = mock(ArchitectureSymbol.class);
+        ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
         AdaNetAlgorithm adaNet = new AdaNetAlgorithm();
         Pipeline pipeline = mock(Pipeline.class);
         adaNet.setTrainPipeline(pipeline);
@@ -49,9 +54,9 @@ public class AdaNetAlgorithmTest extends TestCase {
         assertTrue(exceptionThrown);
     }
 
-    @Ignore
+    @Test
     public void testExecuteStopsAtFirstIteration() {
-        ArchitectureSymbol arch = mock(ArchitectureSymbol.class);
+        ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
         AdaNetAlgorithm adanet = new AdaNetAlgorithm();
         Pipeline pipeline = mock(Pipeline.class);
         when(pipeline.getTrainedAccuracy()).thenReturn(0.0f);
@@ -64,9 +69,9 @@ public class AdaNetAlgorithmTest extends TestCase {
         assertTrue(previousComponents.isEmpty());
     }
 
-    @Ignore
+    @Test
     public void testExecuteBestCandidateHasTwoCandidates() {
-        ArchitectureSymbol arch = mock(ArchitectureSymbol.class);
+        ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
         AdaNetAlgorithm adanet = new AdaNetAlgorithm();
         Pipeline pipeline = mock(Pipeline.class);
         when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
@@ -79,9 +84,9 @@ public class AdaNetAlgorithmTest extends TestCase {
         assertEquals(1, previousComponents.size());
     }
 
-    @Ignore
+    @Test
     public void testExecuteBestCandidateHasScore() {
-        ArchitectureSymbol arch = mock(ArchitectureSymbol.class);
+        ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
         AdaNetAlgorithm adanet = new AdaNetAlgorithm();
         Pipeline pipeline = mock(Pipeline.class);
         when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
@@ -91,6 +96,20 @@ public class AdaNetAlgorithmTest extends TestCase {
         CandidateEvaluationResult evaluationResult = adanet.getBestCandidateResult();
         List<AdaNetComponent> previousComponents = evaluationResult.getCandidate().getPreviousComponents();
         assertEquals(0.2f, evaluationResult.getScore());
+    }
 
+    @Test
+    public void testExecuteReplacesAdaNet() {
+        ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
+        AdaNetAlgorithm adanet = new AdaNetAlgorithm();
+        Pipeline pipeline = mock(Pipeline.class);
+        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
+        adanet.setTrainPipeline(pipeline);
+        adanet.execute(arch);
+
+        StreamInstructionSymbol networkInstructionSymbol = (StreamInstructionSymbol) arch.getNetworkInstructions()
+                .get(0);
+        List<ArchitectureElementSymbol> elements = networkInstructionSymbol.getBody().getElements();
+        assertEquals(ParallelCompositeElementSymbolCustom.class, elements.get(1).getClass());
     }
 }

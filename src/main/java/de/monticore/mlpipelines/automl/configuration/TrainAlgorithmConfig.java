@@ -10,7 +10,11 @@ public abstract class TrainAlgorithmConfig {
     public TrainAlgorithmConfig() {
     }
 
-    public TrainAlgorithmConfig(boolean saveTrainedArchitecture, String architectureSavePath, String trainAlgorithmName, String trainPipelineName) {
+    public TrainAlgorithmConfig(
+            boolean saveTrainedArchitecture,
+            String architectureSavePath,
+            String trainAlgorithmName,
+            String trainPipelineName) {
         this.saveTrainedArchitecture = saveTrainedArchitecture;
         this.architectureSavePath = architectureSavePath;
         this.trainAlgorithmName = trainAlgorithmName;

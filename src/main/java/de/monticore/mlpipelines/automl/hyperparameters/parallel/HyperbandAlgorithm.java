@@ -18,6 +18,7 @@ public class HyperbandAlgorithm extends ParallelAlgorithm {
     public void successive_halving() {
         // TODO: Implement method
     }
+
     public void validation_loss() {
         // TODO: Implement method
     }

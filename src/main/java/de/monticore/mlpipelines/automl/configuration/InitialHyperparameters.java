@@ -19,7 +19,13 @@ public class InitialHyperparameters {
     public InitialHyperparameters() {
     }
 
-    public InitialHyperparameters(int numEpochs, int batchSize, boolean normalize, String context, boolean loadCheckpoint, Hashtable<String, Object> optimizer) {
+    public InitialHyperparameters(
+            int numEpochs,
+            int batchSize,
+            boolean normalize,
+            String context,
+            boolean loadCheckpoint,
+            Hashtable<String, Object> optimizer) {
         this.numEpochs = numEpochs;
         this.batchSize = batchSize;
         this.normalize = normalize;

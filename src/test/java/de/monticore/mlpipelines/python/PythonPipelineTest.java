@@ -1,10 +1,37 @@
 package de.monticore.mlpipelines.python;
 
-import junit.framework.TestCase;
+import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
+import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
+import de.monticore.mlpipelines.configuration.MontiAnnaContext;
+import de.monticore.mlpipelines.pipelines.PythonPipeline;
+import org.junit.Assert;
+import org.junit.Test;
+class PythonPipelineTest {
 
-public class PythonPipelineTest extends TestCase {
-    public void testConstructor() {
-        PythonPipeline pythonPipeline = new PythonPipeline();
-        assertNotNull(pythonPipeline);
+    @Test
+    void createSchemaApiPathFromLearningMethod() {
+        final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration(
+                "src/test/resources/experiment/configuration", "", "", "");
+        MontiAnnaContext.getInstance().initContext(null, null, experimentConfiguration);
+        final PythonPipeline pythonPipeline = new PythonPipeline(LearningMethod.SUPERVISED);
+        final String schemaApiPathFromLearningMethod = pythonPipeline.createSchemaApiPathFromLearningMethod()
+                .toString();
+        final String expectedPath = "src/test/resources/experiment/configuration/Supervised_Schema_API";
+        Assert.assertEquals(expectedPath, schemaApiPathFromLearningMethod);
+    }
+
+    //TODO implement me
+    @Test
+    void generateTrainingConfiguration() {
+    }
+
+    //TODO implement me
+    @Test
+    void generatePipelineExecutionScript() {
+    }
+
+    //TODO implement me
+    @Test
+    void execute() {
     }
 }

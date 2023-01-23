@@ -2,24 +2,25 @@ package de.monticore.mlpipelines.automl.configuration;
 
 public class Configuration {
 
-    private PreprocessingConfig preprocessingConfig;
+    private final PreprocessingConfig preprocessingConfig;
+    private final EvaluationConfig evaluationConfig;
+    private final InitialHyperparameters initialHyperparameters;
     private HyperparameterOptConfig hyperparameterOptConfig;
-    private EvaluationConfig evaluationConfig;
-    private InitialHyperparameters initialHyperparameters;
     private TrainAlgorithmConfig trainAlgorithmConfig;
 
-    public Configuration(){
+    public Configuration() {
         this.preprocessingConfig = new PreprocessingConfig();
         this.evaluationConfig = new EvaluationConfig();
         this.initialHyperparameters = new InitialHyperparameters();
         this.trainAlgorithmConfig = new EfficientNetConfig();
     }
 
-    public Configuration(PreprocessingConfig preprocessingConfig,
-                         HyperparameterOptConfig hyperparameterOptConfig,
-                         EvaluationConfig evaluationConfig,
-                         InitialHyperparameters initialHyperparameters,
-                         TrainAlgorithmConfig trainAlgorithmConfig) {
+    public Configuration(
+            PreprocessingConfig preprocessingConfig,
+            HyperparameterOptConfig hyperparameterOptConfig,
+            EvaluationConfig evaluationConfig,
+            InitialHyperparameters initialHyperparameters,
+            TrainAlgorithmConfig trainAlgorithmConfig) {
         this.preprocessingConfig = preprocessingConfig;
         this.hyperparameterOptConfig = hyperparameterOptConfig;
         this.evaluationConfig = evaluationConfig;
@@ -46,6 +47,7 @@ public class Configuration {
     public TrainAlgorithmConfig getTrainAlgorithmConfig() {
         return trainAlgorithmConfig;
     }
+
     public void setTrainAlgorithmConfig(TrainAlgorithmConfig trainAlgorithmConfig) {
         this.trainAlgorithmConfig = trainAlgorithmConfig;
     }

@@ -4,7 +4,8 @@ import conflang._ast.ASTConfLangCompilationUnit;
 
 import java.util.List;
 
-public class DEHBAlgorithm extends ParallelAlgorithm{
+public class DEHBAlgorithm extends ParallelAlgorithm {
+
     private double R;
     private double eta;
     private double n;
@@ -17,6 +18,7 @@ public class DEHBAlgorithm extends ParallelAlgorithm{
     public void de_successive_halving() {
         // TODO: Implement method
     }
+
     public void dehb() {
         // TODO: Implement method
     }

@@ -75,7 +75,7 @@ public class EMADLGeneratorCli {
             .build();
 
 
-    private EMADLGeneratorCli() {
+    protected EMADLGeneratorCli() {
     }
 
     public static void main(String[] args) {
@@ -106,20 +106,7 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_HELP);
     }
 
-    private static void printHelp(){
-        System.err.println("Arguments:");
-        System.err.println("\t -m <parent model path>");
-        System.err.println("\t -r <root model including full package name>");
-        System.err.println("\t [-o <output directory>]  e.g. \"./target/\"");
-        System.err.println("\t [-b <used backend>]  e.g. \"MXNET\"");
-        System.err.println("\t [-f <force/prevent training>]  e.g. \"UNSET\"");
-        System.err.println("\t [-p <training path>]");
-        System.err.println("\t [-c <compile>] e.g. \"y\"/\"n\"");
-        System.err.println("\t [-cfp <custom file path>]");
-        System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
-    }
-
-    private static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
+    static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
         CommandLine cliArgs;
         try {
             cliArgs = parser.parse(options, args);
@@ -132,7 +119,20 @@ public class EMADLGeneratorCli {
         return cliArgs;
     }
 
-    private static void runGenerator(CommandLine cliArgs) {
+    protected static void printHelp() {
+        System.err.println("Arguments:");
+        System.err.println("\t -m <parent model path>");
+        System.err.println("\t -r <root model including full package name>");
+        System.err.println("\t [-o <output directory>]  e.g. \"./target/\"");
+        System.err.println("\t [-b <used backend>]  e.g. \"MXNET\"");
+        System.err.println("\t [-f <force/prevent training>]  e.g. \"UNSET\"");
+        System.err.println("\t [-p <training path>]");
+        System.err.println("\t [-c <compile>] e.g. \"y\"/\"n\"");
+        System.err.println("\t [-cfp <custom file path>]");
+        System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
+    }
+
+    protected static void runGenerator(CommandLine cliArgs) {
         String rootModelName = cliArgs.getOptionValue(OPTION_ROOT_MODEL.getOpt());
         String outputPath = cliArgs.getOptionValue(OPTION_OUTPUT_PATH.getOpt());
         String backendString = cliArgs.getOptionValue(OPTION_BACKEND.getOpt());
@@ -239,4 +239,5 @@ public class EMADLGeneratorCli {
             Log.error(message);
         }
     }
+
 }

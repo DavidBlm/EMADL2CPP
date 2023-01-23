@@ -1,10 +1,13 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
-import de.monticore.lang.monticar.cnnarch._ast.ASTArchitecture;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.CandidateBuilder;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.CandidateEvaluationResult;
 
 import java.util.List;
 
@@ -22,24 +25,27 @@ import java.util.List;
 
 public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private final CandidateFinder candidateFinder;
+    private final CandidateBuilder candidateBuilder;
     private boolean stopAlgorithm = false;
-    private final CandidateASTNodeBuilder candidateBuilder;
     private CandidateEvaluationResult bestCandidateResult;
     private ArchitectureSymbol architectureSymbol;
-    private ASTArchitecture refASTArchitecture;
 
     public AdaNetAlgorithm() {
-        this.candidateBuilder = new CandidateASTNodeBuilder();
+        this.candidateBuilder = new CandidateBuilder();
         AdaNetComponentFinder componentFinder = new AdaNetComponentFinder();
         this.candidateFinder = new CandidateFinder(componentFinder);
     }
 
-    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateASTNodeBuilder candidateBuilder) {
+    public AdaNetAlgorithm(CandidateFinder candidateFinder, CandidateBuilder candidateBuilder) {
         super();
         this.candidateFinder = candidateFinder;
         this.candidateBuilder = candidateBuilder;
     }
 
+
+    public ArchitectureSymbol getArchitectureSymbol() {
+        return architectureSymbol;
+    }
 
     public CandidateEvaluationResult getBestCandidateResult() {
         return bestCandidateResult;
@@ -49,7 +55,6 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     @Override
     public ArchitectureSymbol execute(ArchitectureSymbol startNetwork) throws IllegalStateException {
         this.architectureSymbol = startNetwork;
-        this.refASTArchitecture = (ASTArchitecture) startNetwork.getAstNode().orElse(null);
 
         if (getTrainPipeline() == null) {
             throw new IllegalStateException("Train pipeline not set");
@@ -60,6 +65,10 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
 
         setCandidateForArchitecture(bestCandidateResult.getCandidate());
         return architectureSymbol;
+    }
+
+    private void setCandidateForArchitecture(AdaNetCandidate bestCandidate) {
+        architectureSymbol = candidateBuilder.build(bestCandidate, architectureSymbol);
     }
 
     private void executeIterations() {
@@ -89,10 +98,6 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
         bestCandidateResult = bestNewCandidate;
     }
 
-    private void setCandidateForArchitecture(AdaNetCandidate bestCandidate) {
-        ASTArchitecture currentCandidate = candidateBuilder.build(refASTArchitecture, bestCandidate);
-        architectureSymbol.setAstNode(currentCandidate);
-    }
 
     private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
         setCandidateForArchitecture(candidate);
