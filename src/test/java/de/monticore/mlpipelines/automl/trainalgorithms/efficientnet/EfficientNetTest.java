@@ -27,7 +27,7 @@ public class EfficientNetTest extends TestCase {
     }
 
     @Test
-    public void testTrainSets() {
+    public void testTrainSetsAccuracy() {
         EfficientNet efficientNet = createEfficientNet();
         ArchitectureSymbol startNetwork = ModelLoader.loadEfficientnetB0();
         efficientNet.execute(startNetwork);

@@ -10,7 +10,8 @@ public class ModelLoader {
     public static ArchitectureSymbol load(String modelFolderPath, String modelName){
         Scope symTab = createSymTab(modelFolderPath);
         EMAComponentInstanceSymbol c = symTab.<EMAComponentInstanceSymbol>resolve(modelName,
-                EMAComponentInstanceSymbol.KIND).orElse(null);
+                        EMAComponentInstanceSymbol.KIND)
+                .orElse(null);
 
         ArchitectureSymbol arch = c.getSpannedScope().<ArchitectureSymbol>resolve("", ArchitectureSymbol.KIND).get();
         return arch;
@@ -19,6 +20,20 @@ public class ModelLoader {
     public static ArchitectureSymbol loadEfficientnetB0() {
         String modelFolderPath = "src/test/resources/models";
         String modelName = "efficientNetB0";
+
+        return load(modelFolderPath, modelName);
+    }
+
+    public static ArchitectureSymbol loadAdaNetBase() {
+        String modelFolderPath = "src/test/resources/models/adanet";
+        String modelName = "adaNetBase";
+
+        return load(modelFolderPath, modelName);
+    }
+
+    public static ArchitectureSymbol loadAdaNetStart() {
+        String modelFolderPath = "src/test/resources/models/adanet";
+        String modelName = "adaNetStart";
 
         return load(modelFolderPath, modelName);
     }

@@ -1,5 +1,8 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
+import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
+
 import java.util.ArrayList;
 import java.util.List;
 
