@@ -9,14 +9,16 @@
 
     <groupId>de.monticore.lang.monticar</groupId>
     <artifactId>embedded-montiarc-emadl-generator</artifactId>
-    <version>0.5.7-SNAPSHOT</version>
+    <version>0.5.8-SNAPSHOT</version>
 
     <!-- == PROJECT DEPENDENCIES ============================================= -->
     <properties>
         <!-- .. SE-Libraries .................................................. -->
         <emadl.version>0.4.7-SNAPSHOT</emadl.version>
         <CNNArch.version>0.4.11-SNAPSHOT</CNNArch.version>
-        <cnnarch-generator.version>0.4.14-SNAPSHOT</cnnarch-generator.version>
+        <schemalang.version>1.0.1-SNAPSHOT</schemalang.version>
+        <montipipes.version>0.0.1-SNAPSHOT</montipipes.version>
+        <cnnarch-generator.version>0.4.15-SNAPSHOT</cnnarch-generator.version>
         <cnnarch-mxnet-generator.version>0.4.9-SNAPSHOT</cnnarch-mxnet-generator.version>
         <cnnarch-caffe2-generator.version>0.4.9-SNAPSHOT</cnnarch-caffe2-generator.version>
         <cnnarch-tensorflow-generator.version>0.4.9-SNAPSHOT</cnnarch-tensorflow-generator.version>
@@ -68,6 +70,11 @@
             <version>${monticore-runtime.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>de.monticore.montipipes</groupId>
+            <artifactId>montipipes</artifactId>
+            <version>${montipipes.version}</version>
+        </dependency>
         <dependency>
             <groupId>de.monticore.lang.monticar</groupId>
             <artifactId>cnnarch-generator</artifactId>
@@ -259,12 +266,62 @@
         </dependency>
 
 
+        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-settings -->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-settings</artifactId>
+            <version>3.8.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>3.6.4</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-plugin-api -->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>3.8.5</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-utils -->
+        <!-- Needed to parse maven settings.xml file -->
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>3.4.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.maven.shared/maven-invoker -->
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-invoker</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-model -->
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model</artifactId>
+            <version>3.8.6</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
+
         <!-- .. Test Libraries ............................................... -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -298,7 +355,7 @@
         <dependency>
             <groupId>de.monticore.lang</groupId>
             <artifactId>schemalang</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${schemalang.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -364,7 +421,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli</mainClass>
+                                    <mainClass>de.monticore.lang.monticar.emadl.generator.MontiAnnaCli</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
@@ -403,6 +460,7 @@
                 <version>2.19.1</version>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
+                    <skipTests>true</skipTests>
                     <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
                 </configuration>
             </plugin>
