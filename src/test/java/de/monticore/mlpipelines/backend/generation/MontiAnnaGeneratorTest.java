@@ -10,7 +10,7 @@ import java.util.Arrays;
 import static de.monticore.mlpipelines.util.TestUtil.*;
 
 
-class MontiAnnaGeneratorTest extends BackendTest {
+public class MontiAnnaGeneratorTest extends BackendTest {
 
     @Test
     void pyTorchBackendArtefactsGenerationWithEMADLGenerator() {
