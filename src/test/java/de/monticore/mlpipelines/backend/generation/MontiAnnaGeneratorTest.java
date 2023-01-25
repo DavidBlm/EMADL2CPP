@@ -13,7 +13,7 @@ import static de.monticore.mlpipelines.util.TestUtil.*;
 public class MontiAnnaGeneratorTest extends BackendTest {
 
     @Test
-    void pyTorchBackendArtefactsGenerationWithEMADLGenerator() {
+    public void pyTorchBackendArtefactsGenerationWithEMADLGenerator() {
         final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("./target/generated-sources-emadl");
         final MontiAnnaContext montiAnnaContext = initialiseContext(Paths.get("src/test/resources/models/"), "mnist.mnistClassifier", experimentConfiguration);
         new MontiAnnaGenerator(montiAnnaContext).generateTargetBackendArtefacts();
