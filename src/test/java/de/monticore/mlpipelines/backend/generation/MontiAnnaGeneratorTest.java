@@ -2,7 +2,7 @@ package de.monticore.mlpipelines.backend.generation;
 
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
