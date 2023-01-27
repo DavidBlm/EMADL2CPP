@@ -1,0 +1,1 @@
+calculator.Network src/test/resources/models/ModularCNN/modularNetworkSimple/resources/training_data
