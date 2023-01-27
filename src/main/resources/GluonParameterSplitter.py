@@ -40,4 +40,4 @@ with warnings.catch_warnings():
 
 if network is not None:
     print(network.collect_params())
-    network.save_parameters(newModelDirectory + "/" + newModelName + ".params")
+    network.save_parameters(newModelDirectory + "/" + newModelName + "-0000.params")

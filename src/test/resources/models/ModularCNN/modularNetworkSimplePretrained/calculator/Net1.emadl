@@ -7,8 +7,8 @@ component Net1 {
     implementation CNN {
         data ->
         LoadNetwork(
-            networkDir="pretrainedNet1/",
-            networkPrefix="Net1-",
+            networkDir="tag:mnist_pre",
+            networkPrefix="decomp-",
             numInputs=1,
             outputShape=(1,500)
         ) ->
