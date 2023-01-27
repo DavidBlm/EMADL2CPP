@@ -40,7 +40,17 @@ with warnings.catch_warnings():
 
 if network is not None:
     print("Parameters for " + newModelName + ":")
-    print(network.collect_params())
+    #print(network.collect_params())
+    #network.load_parameters(paramsPath, ignore_extra=True, allow_missing=True)
+    #param_file_save_dir = newModelDirectory + "/" + newModelName + "-0000.params"
+    #network.save_parameters(param_file_save_dir)
+
+    file_save_dir = newModelDirectory + "/" + newModelName
+    network.export(file_save_dir)
+
     param_file_save_dir = newModelDirectory + "/" + newModelName + "-0000.params"
     network.save_parameters(param_file_save_dir)
-    print("New parameter file saved to: " + param_file_save_dir)
+    #network.save_params(param_file_save_dir)
+
+    #network.save(param_file_save_dir + "2")
+    #print("New parameter file saved to: " + param_file_save_dir)

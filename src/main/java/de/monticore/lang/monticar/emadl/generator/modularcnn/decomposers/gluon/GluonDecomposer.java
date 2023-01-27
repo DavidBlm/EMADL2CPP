@@ -70,7 +70,7 @@ public class GluonDecomposer implements BackendDecomposer {
 
             String decomposedFileName = "model_" + gluonNet.getNetworkName() + "_decomposed";
 
-            String decomposedNetPath = decomposedNetDirectory + "/" + decomposedFileName + "-symbol.json";
+            String decomposedNetPath = decomposedNetDirectory + "/" + decomposedFileName + "-old-symbol.json";
             writeFile(decomposedNetPath, jsonContent);
 
             generateNewParamsFileWithPython(decomposedNetDirectory, decomposedFileName, decomposedNetPath, gluonNet.getParameterLayerCandidates(), paramsFile, gluonNet);
