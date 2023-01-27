@@ -8,7 +8,7 @@ component Net1 {
         data ->
         LoadNetwork(
             networkDir="tag:mnist_pre",
-            networkPrefix="decomp-",
+            networkPrefix="decomposed2-",
             numInputs=1,
             outputShape=(1,500)
         ) ->
