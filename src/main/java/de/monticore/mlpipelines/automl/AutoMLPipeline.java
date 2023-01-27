@@ -1,13 +1,14 @@
 package de.monticore.mlpipelines.automl;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.mlpipelines.Pipeline;
+import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.configuration.HyperparameterOptConfig;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.mlpipelines.automl.hyperparameters.HyperparameterAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearchBuilder;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 
 public class AutoMLPipeline extends Pipeline {
     private Configuration configuration;
@@ -17,14 +18,25 @@ public class AutoMLPipeline extends Pipeline {
     private HyperparameterAlgorithm hyperparameterAlgorithm;
     private NeuralArchitectureSearchBuilder neuralArchitectureSearchBuilder;
 
-    public AutoMLPipeline() {
+    public AutoMLPipeline(final LearningMethod learningMethod) {
+        super(learningMethod);
         neuralArchitectureSearchBuilder = new NeuralArchitectureSearchBuilder();
+    }
+
+    public void setTrainPipeline(Pipeline trainPipeline) {
+        this.trainPipeline = trainPipeline;
+    }
+
+    @Override
+    public void execute() {
+
     }
 
     @Override
     public void execute(ArchitectureSymbol originalArchitecture, Configuration configuration) {
         executeNeuralArchitectureSearch(originalArchitecture);
         executeHyperparameterOptimization(configuration);
+        trainPipeline.setNeuralNetwork(architecture.get);
         trainPipeline.execute(architecture, configuration);
     }
 
