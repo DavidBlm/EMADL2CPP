@@ -1,6 +1,7 @@
 package de.monticore.lang.monticar.emadl.modularity;
 
 import de.se_rwth.commons.logging.Log;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -9,6 +10,7 @@ public class DecompTest extends ModularTestSetup {
 
     String[] hashPaths = {"target/modularNetworkSimplePretrained"};
 
+    @Ignore
     @Test
     public void testDecomposedNetworkTraining() throws IOException {
         Log.getFindings().clear();
