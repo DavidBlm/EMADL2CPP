@@ -2,17 +2,18 @@ import torch
 import torch.nn as nn
 import logging
 
+
 def translate_loss_name(loss):
     mapping = {
-        "l2":                   nn.MSELoss(),
-        "l1":                   nn.L1Loss(),
-        "cross_entropy":        nn.CrossEntropyLoss(),
-        "logistic":             nn.SoftMarginLoss(),
-        "hinge":                nn.MultiMarginLoss(),
-        "squared_hinge":        nn.MSELoss(),
-        "kullback_leibler":     nn.KLDivLoss(),
-        "softmax_cross_entropy":nn.CrossEntropyLoss(),
-        "huber_loss":           nn.HuberLoss()
+        "l2": nn.MSELoss(),
+        "l1": nn.L1Loss(),
+        "cross_entropy": nn.CrossEntropyLoss(),
+        "logistic": nn.SoftMarginLoss(),
+        "hinge": nn.MultiMarginLoss(),
+        "squared_hinge": nn.MSELoss(),
+        "kullback_leibler": nn.KLDivLoss(),
+        "softmax_cross_entropy": nn.CrossEntropyLoss(),
+        "huber_loss": nn.HuberLoss()
     }
 
     if loss in mapping.keys():
@@ -21,11 +22,12 @@ def translate_loss_name(loss):
         logging.warning("The following loss is not supported by the pytorch generator:%s \n", loss)
     return fixed_loss
 
+
 def translate_optim_name(model_param, optim_name, optim_learning_rate):
     mapping = {
-        "sgd":               torch.optim.SGD(model_param, lr=optim_learning_rate),
-        "adam":              torch.optim.Adam(model_param, lr=optim_learning_rate)
-        
+        "sgd": torch.optim.SGD(model_param, lr=optim_learning_rate),
+        "adam": torch.optim.Adam(model_param, lr=optim_learning_rate)
+
     }
 
     if optim_name in mapping.keys():

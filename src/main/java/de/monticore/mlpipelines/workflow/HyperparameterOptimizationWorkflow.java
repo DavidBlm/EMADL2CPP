@@ -55,7 +55,7 @@ public class HyperparameterOptimizationWorkflow extends AbstractWorkflow {
         // TODO: Extract metricType, criteria and numIteration from EvaluationCriteria.conf
         String metricType = "Accuracy";
         double criteria = 0.85;
-        int numIteration = 5;
+        int numIteration = 1;
 
         // TODO: Generate generic hyperparameter optimization algorithm class using Generator and conf file
         SimulatedAnnealing hyperparamsOptAlg = new SimulatedAnnealing();
