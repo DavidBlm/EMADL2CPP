@@ -4,7 +4,7 @@ package letterpred;
 
 component Network {
     ports in Z(0:255)^{1, 28, 28} data,
-         out Q(0:1)^{10} softmax;
+         out Q(0:1)^{26} softmax;
 
     instance Net1 net1;
     instance Net2 net2;
@@ -13,6 +13,4 @@ component Network {
     connect data -> net1.data;
     connect net1.dataOutput -> net2.dataInput;
     connect net2.softmax -> softmax;
-
-
 }
