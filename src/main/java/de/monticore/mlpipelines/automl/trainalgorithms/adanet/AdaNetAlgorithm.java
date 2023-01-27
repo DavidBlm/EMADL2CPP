@@ -2,7 +2,6 @@ package de.monticore.mlpipelines.automl.trainalgorithms.adanet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.AdaNetConfig;
-import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.builder.CandidateBuilder;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetCandidate;
@@ -101,9 +100,9 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
 
     private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
         setCandidateForArchitecture(candidate);
-        Configuration configuration = new Configuration();
-        this.getTrainPipeline().execute(architectureSymbol, configuration);
-        float score = this.getTrainPipeline().getTrainedAccuracy();
+        this.getTrainPipeline().execute();
+//        float score = this.getTrainPipeline().getTrainedAccuracy();
+        float score = 0;
         return new CandidateEvaluationResult(candidate, score);
     }
 

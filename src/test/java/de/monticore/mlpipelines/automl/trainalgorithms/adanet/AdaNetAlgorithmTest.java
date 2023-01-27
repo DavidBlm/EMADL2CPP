@@ -4,10 +4,10 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.StreamInstructionSymbol;
 import de.monticore.mlpipelines.ModelLoader;
-import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.custom.models.ParallelCompositeElementSymbolCustom;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.AdaNetComponent;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.models.CandidateEvaluationResult;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +16,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AdaNetAlgorithmTest extends TestCase {
@@ -59,7 +58,7 @@ public class AdaNetAlgorithmTest extends TestCase {
         ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
         AdaNetAlgorithm adanet = new AdaNetAlgorithm();
         Pipeline pipeline = mock(Pipeline.class);
-        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f);
+//        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f);
         adanet.setTrainPipeline(pipeline);
         adanet.execute(arch);
 
@@ -74,7 +73,7 @@ public class AdaNetAlgorithmTest extends TestCase {
         ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
         AdaNetAlgorithm adanet = new AdaNetAlgorithm();
         Pipeline pipeline = mock(Pipeline.class);
-        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
+//        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
         adanet.setTrainPipeline(pipeline);
         adanet.execute(arch);
 
@@ -89,7 +88,7 @@ public class AdaNetAlgorithmTest extends TestCase {
         ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
         AdaNetAlgorithm adanet = new AdaNetAlgorithm();
         Pipeline pipeline = mock(Pipeline.class);
-        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
+//        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
         adanet.setTrainPipeline(pipeline);
         adanet.execute(arch);
 
@@ -103,7 +102,7 @@ public class AdaNetAlgorithmTest extends TestCase {
         ArchitectureSymbol arch = ModelLoader.loadAdaNetBase();
         AdaNetAlgorithm adanet = new AdaNetAlgorithm();
         Pipeline pipeline = mock(Pipeline.class);
-        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
+//        when(pipeline.getTrainedAccuracy()).thenReturn(0.0f, 0.1f, 0.2f);
         adanet.setTrainPipeline(pipeline);
         adanet.execute(arch);
 

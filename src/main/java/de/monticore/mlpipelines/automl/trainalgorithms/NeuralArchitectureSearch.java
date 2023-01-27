@@ -1,8 +1,8 @@
 package de.monticore.mlpipelines.automl.trainalgorithms;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 
 public abstract class NeuralArchitectureSearch {
     public double trainedAccuracy;

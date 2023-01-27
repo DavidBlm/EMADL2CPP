@@ -5,8 +5,8 @@ import de.monticore.mlpipelines.automl.AutoMLPipeline;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.pipelines.PythonPipeline;
 
-public class AutoMLWorkflow extends AbstractWorkflow {
-    public AutoMLWorkflow(final MontiAnnaContext applicationContext) {
+public class AutoMLPipelineOrchestration extends AbstractWorkflow {
+    public AutoMLPipelineOrchestration(final MontiAnnaContext applicationContext) {
         super(applicationContext);
     }
 

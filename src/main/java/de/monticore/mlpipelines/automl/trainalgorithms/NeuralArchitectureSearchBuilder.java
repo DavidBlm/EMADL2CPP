@@ -1,10 +1,11 @@
 package de.monticore.mlpipelines.automl.trainalgorithms;
 
-import de.monticore.mlpipelines.Pipeline;
+import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.AdaNetAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.EfficientNet;
-import de.monticore.mlpipelines.python.PythonPipeline;
+import de.monticore.mlpipelines.pipelines.Pipeline;
+import de.monticore.mlpipelines.pipelines.PythonPipeline;
 
 
 public class NeuralArchitectureSearchBuilder {
@@ -41,7 +42,7 @@ public class NeuralArchitectureSearchBuilder {
 
     private Pipeline getPipeline() {
         if (PytorchPipeline.equals(config.getTrainPipelineName())) {
-            return new PythonPipeline();
+            return new PythonPipeline(LearningMethod.SUPERVISED);
         }
         throw new IllegalArgumentException("Pipeline " + config.getTrainPipelineName() + " not supported");
     }

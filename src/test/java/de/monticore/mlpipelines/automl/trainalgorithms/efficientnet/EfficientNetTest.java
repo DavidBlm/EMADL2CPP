@@ -2,9 +2,9 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.ModelLoader;
-import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;

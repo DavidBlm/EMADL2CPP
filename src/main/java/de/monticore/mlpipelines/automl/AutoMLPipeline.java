@@ -29,15 +29,11 @@ public class AutoMLPipeline extends Pipeline {
 
     @Override
     public void execute() {
-
-    }
-
-    @Override
-    public void execute(ArchitectureSymbol originalArchitecture, Configuration configuration) {
+        ArchitectureSymbol originalArchitecture = (ArchitectureSymbol) neuralNetwork.getSpannedScope();
         executeNeuralArchitectureSearch(originalArchitecture);
         executeHyperparameterOptimization(configuration);
-        trainPipeline.setNeuralNetwork(architecture.get);
-        trainPipeline.execute(architecture, configuration);
+        trainPipeline.setNeuralNetwork(neuralNetwork);
+        trainPipeline.execute();
     }
 
     private void executeNeuralArchitectureSearch(ArchitectureSymbol originalArchitecture) {
