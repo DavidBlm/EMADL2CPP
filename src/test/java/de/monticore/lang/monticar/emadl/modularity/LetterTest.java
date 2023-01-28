@@ -15,7 +15,7 @@ public class LetterTest extends ModularTestSetup {
     public void testLetterPredictor() throws IOException {
         Log.getFindings().clear();
         removeDirectory("target/modularNetworkSimpleMultiNet");
-        String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictor", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad", "-dn", "Network,Net1,Net2"};
+        String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictor", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad", "-dn", "Network"};
         runGenerator(args, hashPaths,14,false);
     }
 }

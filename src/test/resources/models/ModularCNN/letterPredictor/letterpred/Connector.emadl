@@ -8,7 +8,7 @@ component Connector {
           in Z(0:255)^{1, 28, 28} image4,
           in Z(0:255)^{1, 28, 28} image5,
           in Z(0:255)^{1, 28, 28} image6,
-          out char res;
+          out Z(0:1998) res;
 
     instance Network predictor1;
     instance Network predictor2;
