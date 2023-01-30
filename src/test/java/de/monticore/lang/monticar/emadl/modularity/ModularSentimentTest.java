@@ -13,7 +13,7 @@ public class ModularSentimentTest extends ModularTestSetup{
     @Test
     public void testModularSentiment() throws IOException {
         Log.getFindings().clear();
-        removeDirectory("target/modularSentiment");
+        removeDirectory("target/sentimentanalyzer");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/modularSentiment", "-r", "sentimentanalyzer.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args, hashPaths,5,false);
     }
@@ -21,7 +21,7 @@ public class ModularSentimentTest extends ModularTestSetup{
     @Test
     public void testSingleSentiment() throws IOException {
         Log.getFindings().clear();
-        removeDirectory("target/singleSentiment");
+        removeDirectory("target/sentimentanalyzer");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/singleSentiment", "-r", "sentimentanalyzer.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args, hashPaths,5,false);
     }
