@@ -17,6 +17,6 @@ public class LetterTest extends ModularTestSetup {
         removeDirectory("model");
         removeDirectory("target/letterpred");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictor", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad", "-dn", "Network"};
-        runGenerator(args, hashPaths,14,false);
+        runGenerator(args, hashPaths,4,false);
     }
 }
