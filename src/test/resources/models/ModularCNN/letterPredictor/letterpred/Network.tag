@@ -3,6 +3,6 @@ package letterpred;
 conforms to artifacttag.DatasetArtifactTagSchema;
 
 tags NeuronalNetwork {
- tag Network with DatasetArtifact = {artifact = de.monticore.lang.monticar.datasets:mnist:1, type = HDF5};
+ tag Network with DataPath = {path = src/test/resources/models/ModularCNN/letterPredictor/resources/training_data_letters, type = HDF5};
 }
 
