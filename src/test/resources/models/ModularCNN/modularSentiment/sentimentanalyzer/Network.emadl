@@ -7,7 +7,7 @@ component Network<Z(1:oo) n = 128>{
 		  in Z(0:oo)^{1} data_2,
           out Q(0:1)^{2} softmax;
 
-    instance Net1 net1;
+    instance Net1<128> net1;
     instance Net2 net2;
 
     connect data_0 -> net1.data_0;
