@@ -1,7 +1,7 @@
 package calculator;
 
-component Net2 {
-    ports in Z(0:255)^{500} dataInput,
+component Net2<Z(0:oo) n=500> {
+    ports in Z(0:255)^{n} dataInput,
          out Q(0:1)^{10} softmax;
 
      implementation CNN {

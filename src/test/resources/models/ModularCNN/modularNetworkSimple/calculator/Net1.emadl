@@ -1,8 +1,8 @@
 package calculator;
 
-component Net1 {
+component Net1<Z(0:oo) n=500> {
     ports in Z(0:255)^{1, 28, 28} data,
-         out Z(0:255)^{500} dataOutput;
+         out Z(0:255)^{n} dataOutput;
 
     implementation CNN {
         def conv(channels, kernel=1, stride=1){
