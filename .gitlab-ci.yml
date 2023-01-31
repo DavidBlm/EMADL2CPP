@@ -99,12 +99,23 @@ integrationPythonWrapperTest:
     - .gitlab-ci.yml
     - README.md
 
-modularCNNTest:
+modularMNISTTest:
   stage: linux
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/mxnet/190
   script:
     - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U dependency:resolve -s settings.xml
     - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=ModularBasicTest
+  except:
+    changes:
+      - .gitlab-ci.yml
+      - README.md
+
+modularCNNLetterTest:
+  stage: linux
+  image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/mxnet/190
+  script:
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U dependency:resolve -s settings.xml
+    - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=LetterTest
   except:
     changes:
       - .gitlab-ci.yml
