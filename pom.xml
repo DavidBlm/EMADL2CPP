@@ -111,7 +111,7 @@
 
         <dependency>
             <groupId>de.monticore.lang.monticar.pretrained</groupId>
-            <artifactId>bert-base</artifactId>
+            <artifactId>simple-pretrained</artifactId>
             <version>1</version>
             <classifier>pretrained</classifier>
         </dependency>
