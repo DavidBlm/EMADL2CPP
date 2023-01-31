@@ -18,4 +18,15 @@ public class LetterTest extends ModularTestSetup {
         String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictor", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad", "-dn", "Network"};
         runGenerator(args, hashPaths,3,false);
     }
+
+    @Test
+    public void testLetterPredictorSingle() throws IOException {
+        Log.getFindings().clear();
+        removeDirectory("model");
+        removeDirectory("target/letterpred");
+        String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictor", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        runGenerator(args, hashPaths,3,false);
+    }
+
+
 }

@@ -1,0 +1,1 @@
+letterpred.Network src/test/resources/models/ModularCNN/letterPredictor/resources/training_data_letters
