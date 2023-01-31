@@ -8,6 +8,14 @@
 #include <iostream>
 #include <fstream>
 
+#ifdef WINDOWS
+#include <direct.h>
+#define getCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define getCurrentDir getcwd
+#endif
+
 using namespace mxnet::cpp;
 
 // Read files to load moddel symbol and parameters
@@ -25,10 +33,17 @@ private:
     std::vector<Symbol> loss_symbol;
     std::vector<std::map<std::string, NDArray>> loss_param_map;
 
+    std::string getCurrentWorkingDir( void ) {
+        char buff[FILENAME_MAX];
+        getCurrentDir( buff, FILENAME_MAX );
+        std::string current_working_dir(buff);
+        return current_working_dir;
+    }
 
     void checkFile(std::string file_path){
         std::ifstream ifs(file_path.c_str(), std::ios::in | std::ios::binary);
         if (!ifs) {
+            std::cout << "Current path is " << getCurrentWorkingDir() << '\n';
             std::cerr << "Can't open the file. Please check " << file_path << ". \n";
             return;
         }
@@ -90,7 +105,7 @@ public:
                     query_json_path = file_prefix + "_episodic_query_net_" + std::to_string(i) + "-symbol.json";
                     query_param_path = file_prefix + "_episodic_query_net_" + std::to_string(i) + "-0000.params";
                     loadComponent(query_json_path, query_param_path, query_symbol_list, query_param_map_list);
-                    
+
                     memory_path = file_prefix + "_episodic_memory_sub_net_" + std::to_string(i) + "-0000";
                     checkFile(memory_path);
 
@@ -112,10 +127,10 @@ public:
             loadComponent(loss_json_path, loss_param_path, loss_symbol, loss_param_map);
         }
         else {
+            std::cout << "Current path is " << getCurrentWorkingDir() << '\n';
             std::cerr << "Can't open the file. Please check if " << file_prefix << "_loss-symbol.json" << "exists. \n";
         }
 
-        
         NDArray::WaitAll();
     }
 

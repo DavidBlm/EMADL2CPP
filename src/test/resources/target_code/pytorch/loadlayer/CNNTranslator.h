@@ -6,6 +6,9 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 using namespace std;
 using namespace arma;
@@ -149,6 +152,27 @@ public:
             endPos += matrixSize;
         }
         return cubeMatrix;
+    }
+
+    static icube translateImageToICube(cv::Mat img, const int slices, const int rows, const int cols) {
+        cv::Size scale(cols,rows);
+        cv::resize(img, img, scale);
+        std::cout << "== simply resize: " << img.size() << " ==" << std::endl;
+
+        size_t channels = slices;
+        size_t height = img.rows;
+        size_t width = img.cols;
+        vector<float> data(channels*height*width);
+
+        for(size_t j=0; j<height; j++){
+            for(size_t k=0; k<width; k++){
+                cv::Vec3b intensity = img.at<cv::Vec3b>(j, k);
+                for(size_t i=0; i<channels; i++){
+                    data[i*height*width + j*height + k] = (float) intensity[i];
+                }
+            }
+        }
+        return conv_to< icube >::from( translateToCube(data, vector<size_t> {channels,height,width}) );
     }
 
     template<typename T> static vector<size_t> getShape(const Col<T> &source){
