@@ -106,6 +106,19 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_HELP);
     }
 
+    protected static void printHelp(){
+        System.err.println("Arguments:");
+        System.err.println("\t -m <parent model path>");
+        System.err.println("\t -r <root model including full package name>");
+        System.err.println("\t [-o <output directory>]  e.g. \"./target/\"");
+        System.err.println("\t [-b <used backend>]  e.g. \"MXNET\"");
+        System.err.println("\t [-f <force/prevent training>]  e.g. \"UNSET\"");
+        System.err.println("\t [-p <training path>]");
+        System.err.println("\t [-c <compile>] e.g. \"y\"/\"n\"");
+        System.err.println("\t [-cfp <custom file path>]");
+        System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
+    }
+
     static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
         CommandLine cliArgs;
         try {
@@ -117,19 +130,6 @@ public class EMADLGeneratorCli {
             throw new RuntimeException("argument parsing exception: " + e.getMessage());
         }
         return cliArgs;
-    }
-
-    protected static void printHelp() {
-        System.err.println("Arguments:");
-        System.err.println("\t -m <parent model path>");
-        System.err.println("\t -r <root model including full package name>");
-        System.err.println("\t [-o <output directory>]  e.g. \"./target/\"");
-        System.err.println("\t [-b <used backend>]  e.g. \"MXNET\"");
-        System.err.println("\t [-f <force/prevent training>]  e.g. \"UNSET\"");
-        System.err.println("\t [-p <training path>]");
-        System.err.println("\t [-c <compile>] e.g. \"y\"/\"n\"");
-        System.err.println("\t [-cfp <custom file path>]");
-        System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
     }
 
     protected static void runGenerator(CommandLine cliArgs) {

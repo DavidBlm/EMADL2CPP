@@ -98,10 +98,10 @@ public enum Backend {
 
             case "CAFFE2":
                 return Optional.of(CAFFE2);
-
+                
             case "GLUON":
                 return Optional.of(GLUON);
-
+                
             case "TENSORFLOW":
                 return Optional.of(TENSORFLOW);
 
@@ -120,10 +120,10 @@ public enum Backend {
 
             case CAFFE2:
                 return "CAFFE2";
-
+                
             case GLUON:
                 return "GLUON";
-
+                
             case TENSORFLOW:
                 return "TENSORFLOW";
 

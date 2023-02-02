@@ -11,6 +11,7 @@ import de.monticore.mlpipelines.configuration.MontiAnnaContext;
  *
  */
 public class MontiAnnaGenerator {
+
     private final MontiAnnaContext montiAnnaContext;
 
     private final ConfLangGenerator configurationGenerator;

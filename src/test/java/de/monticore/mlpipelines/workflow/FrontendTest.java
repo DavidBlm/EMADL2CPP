@@ -1,6 +1,7 @@
 package de.monticore.mlpipelines.workflow;
 
 import org.junit.Test;
+
 class FrontendTest {
 
     @Test
