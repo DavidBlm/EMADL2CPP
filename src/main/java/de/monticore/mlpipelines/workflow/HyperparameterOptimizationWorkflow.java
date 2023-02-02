@@ -89,6 +89,7 @@ public class HyperparameterOptimizationWorkflow extends AbstractWorkflow {
 
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
 
+        // TODO: Implement criteria loop inside Hyperparameter Optimization Algorithm class
         // TODO: Implement also workflow for Parallel Hyperparameter Optimization Algorithms
         while(hyperparamsOptAlg.getCurrentIteration() < numIteration) {
             pipeline.setConfigurationModel(trainingConfiguration);
