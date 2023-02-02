@@ -57,6 +57,8 @@ public class GluonDecomposer implements BackendDecomposer {
         if (networkFile == null || paramsFile == null) return;
         ArrayList<GluonRepresentation> splitGluonNets = splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);
 
+        boolean reExport = true;
+
         for (GluonRepresentation gluonNet : splitGluonNets) {
             String jsonContent = mapToJson(gluonNet.getGluonJsonRepresentation());
             ArrayList<String> parameterLayers = gluonNet.getParameterLayerCandidates();
@@ -72,13 +74,14 @@ public class GluonDecomposer implements BackendDecomposer {
 
             String decomposedNetPath = decomposedNetDirectory + "/" + decomposedFileName + "-old-symbol.json";
             writeFile(decomposedNetPath, jsonContent);
-
-            generateNewParamsFileWithPython(decomposedNetDirectory, decomposedFileName, decomposedNetPath, gluonNet.getParameterLayerCandidates(), paramsFile, gluonNet);
+            //Log.warn("Running Decomposition for: " + gluonNet.getNetworkName());
+            generateNewParamsFileWithPython(decomposedNetDirectory, decomposedFileName, decomposedNetPath, gluonNet.getParameterLayerCandidates(), paramsFile, networkFile, gluonNet, reExport);
+            if (reExport) reExport = false;
         }
     }
 
     private void generateNewParamsFileWithPython(String networkDirectory, String networkName, String decomposedNetFullPath,
-                                                 ArrayList<String> parameterLayers, File originalParamFile, GluonRepresentation gluonNet) {
+                                                 ArrayList<String> parameterLayers, File originalParamFile, File originalNetworkFile, GluonRepresentation gluonNet, boolean reExport) {
         ArrayList<String> pythonCall = new ArrayList<>();
         pythonCall.add(pythonPath);
         pythonCall.add(pythonTool);
@@ -97,6 +100,13 @@ public class GluonDecomposer implements BackendDecomposer {
 
         pythonCall.add("-nmn");
         pythonCall.add(networkName);
+
+        pythonCall.add("-onp");
+        pythonCall.add(originalNetworkFile.getPath());
+
+        if (reExport){
+            //pythonCall.add("-re");
+        }
 
         StringBuilder layerList = new StringBuilder();
         for (int i=0; i<parameterLayers.size(); i++){
