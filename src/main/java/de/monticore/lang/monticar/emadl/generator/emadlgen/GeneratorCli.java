@@ -95,6 +95,12 @@ public class GeneratorCli {
             .hasArg(true)
             .required(false).build();
 
+    public static final Option OPTION_NO_DEBUG_LOG = Option.builder("ndl")
+            .longOpt("no-debug-log")
+            .desc("Debug Logging is disabled")
+            .hasArg(false)
+            .required(false).build();
+
 
     private GeneratorCli() {
     }
@@ -128,6 +134,7 @@ public class GeneratorCli {
         options.addOption(OPTION_COMPOSED_NETWORK_FILE);
         options.addOption(OPTION_ALLOW_DECOMPOSITION);
         options.addOption(OPTION_DECOMPOSABLE_NETWORKS);
+        options.addOption(OPTION_NO_DEBUG_LOG);
     }
 
     private static void printHelp(){
@@ -144,6 +151,7 @@ public class GeneratorCli {
         System.err.println("\t [-cnf <composed network file path>] e.g. \"./CompFile\"");
         System.err.println("\t [-ad]");
         System.err.println("\t [-dn <list of network that can be decomposed] e.g. Network,Net1,Net2");
+        System.err.println("\t [-ndl disable debug log");
 
     }
 
@@ -170,6 +178,11 @@ public class GeneratorCli {
         String useDgl = cliArgs.getOptionValue(OPTION_USE_DGL.getOpt());
         String composedNetworksFileName = cliArgs.getOptionValue(OPTION_COMPOSED_NETWORK_FILE.getOpt());
         boolean allowDecompositionPresent = cliArgs.hasOption(OPTION_ALLOW_DECOMPOSITION.getOpt());
+        boolean noDebugLog = cliArgs.hasOption(OPTION_NO_DEBUG_LOG.getOpt());
+
+        if (noDebugLog) {
+            Log.initWARN();
+        }
 
         String commaDecompNetworkList = null;
         String[] decompNetworkList = null;
