@@ -2,6 +2,7 @@ package de.monticore.mlpipelines.automl.hyperparameters;
 
 import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 
 import java.util.List;
 import java.util.Map;
@@ -245,6 +246,8 @@ public abstract class AbstractHyperparameterAlgorithm {
         }
         return doubleArr;
     }
+
+    public abstract void executeOptimization(Pipeline pipeline, ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit evaluationCriteria);
 
     public abstract void executeOptimizationStep(ASTConfLangCompilationUnit hyperParams, ASTConfLangCompilationUnit searchSpace, Double evalValue, String metricType);
 

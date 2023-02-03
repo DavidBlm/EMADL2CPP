@@ -1,7 +1,9 @@
 package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 
 import conflang._ast.ASTConfLangCompilationUnit;
+import de.monticore.mlpipelines.automl.emadlprinter.ASTConfLangCompilationUnitPrinter;
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 
 public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
 
@@ -22,5 +24,42 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
         else {
             return newValue < currValue;
         }
+    }
+
+    @Override
+    public void executeOptimization(Pipeline pipeline, ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit evaluationCriteria) {
+        // TODO: Extract metricType, criteria and numIteration from EvaluationCriteria.conf
+        int maxIterNum = 1;
+        String metricType = "Accuracy";
+        double criteria = 0.85;
+
+
+        ASTConfLangCompilationUnit trainingConfiguration = this.getInitialHyperparams(searchSpace);
+
+        ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
+
+        while(this.getCurrentIteration() < maxIterNum) {
+            pipeline.setConfigurationModel(trainingConfiguration);
+            pipeline.execute();
+
+            // TODO: Extract eval value from json file
+            double evalValue = Math.random();
+            // TODO: Find correct way to log current iteration and its metric result
+            System.out.println("Current Iteration: " + this.getCurrentIteration() + "; Eval Value: " + evalValue);
+            //TODO: Pretty print trainingConfiguration correctly into conf files
+            System.out.println(printer.prettyPrint(trainingConfiguration));
+            this.executeOptimizationStep(trainingConfiguration, searchSpace, evalValue, metricType);
+            trainingConfiguration = this.getNewHyperparamsCandidate(searchSpace);
+            if (evalValue >= criteria) {
+                break;
+            }
+        }
+
+        ASTConfLangCompilationUnit bestTrainingConfig = this.getCurrBestHyperparams();
+        double bestEvalValue = this.getCurrBestEvalMetric();
+
+        // TODO: Pretty print optimal trainingConfiguration correctly into conf file and print best eval value
+        System.out.println("Best Eval Value: " + bestEvalValue);
+        System.out.println(printer.prettyPrint(bestTrainingConfig));
     }
 }
