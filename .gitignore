@@ -40,5 +40,7 @@ model
 /src/test/resources/target_code/gluon/CNNDatasets_mnist_mnistClassifier_net.py
 /src/test/resources/experiment/pytorch/CNNPredictor_LeNet.h
 /src/test/resources/models/CustomNetworkMnist.emadl
+/src/test/resources/models/adanet/AdaNet.emadl
 /src/test/resources/experiment/pytorch/execute_LeNet
 /src/test/resources/experiment/pytorch/CNNCreator_LeNet.py
+__pycache__/

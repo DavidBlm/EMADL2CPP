@@ -13,6 +13,7 @@ public abstract class Pipeline {
     protected ASTConfLangCompilationUnit pipelineConfiguration;
 
     protected EMAComponentInstanceSymbol neuralNetwork;
+
     protected EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics;
 
     protected Pipeline(final LearningMethod learningMethod) {

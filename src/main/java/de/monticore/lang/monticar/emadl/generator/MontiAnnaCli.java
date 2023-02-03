@@ -43,8 +43,7 @@ public class MontiAnnaCli extends EMADLGeneratorCli {
 
         Optional<Backend> backend = Backend.getBackendFromString(backendString);
         if (!backend.isPresent()) {
-            Log.warn(
-                    "Specified backend " + backendString + " is not supported. Backend set to default value " + DEFAULT_BACKEND);
+            Log.warn("Specified backend " + backendString + " is not supported. Backend set to default value " + DEFAULT_BACKEND);
             backend = Backend.getBackendFromString(DEFAULT_BACKEND);
         }
 
@@ -61,14 +60,10 @@ public class MontiAnnaCli extends EMADLGeneratorCli {
         }
     }
 
-    private static void redirectToNewToolchain(
-            final String rootModelName,
-            final Path modelsDirPath,
-            final Backend backend) throws IOException {
+    private static void redirectToNewToolchain(final String rootModelName, final Path modelsDirPath, final Backend backend) throws IOException {
         Log.warn("Redirecting for PyTorch");
-        final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration(
-                "src/main/resources/experiment/configuration", "src/main/resources/experiment/steps"
-                , "target/generated-sources", "target/generated-sources/backend");
+        final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration("src/main/resources/experiment/configuration", "src/main/resources/experiment/steps",
+                "target/generated-sources", "target/generated-sources/backend");
         final MontiAnnaContext montiAnnaContext = MontiAnnaContext.getInstance();
         montiAnnaContext.initContext(modelsDirPath, rootModelName, experimentConfiguration);
         montiAnnaContext.setPipelineReferenceModelsPath(Paths.get("src/main/resources/pipelines"));

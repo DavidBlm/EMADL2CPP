@@ -19,9 +19,6 @@ import java.util.List;
 
 public class PythonPipeline extends Pipeline {
 
-
-    private Path pathToExecutionScript;
-
     private MontiAnnaGenerator montiAnnaGenerator;
 
     public PythonPipeline(final LearningMethod learningMethod) {
@@ -43,7 +40,6 @@ public class PythonPipeline extends Pipeline {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public void generateTrainingConfiguration() {
@@ -104,5 +100,4 @@ public class PythonPipeline extends Pipeline {
         return Paths.get(MontiAnnaContext.getInstance().getExperimentConfiguration().getPathToTrainingConfiguration(),
                 capitalisedLearningMethodName + "_Schema_API");
     }
-
 }

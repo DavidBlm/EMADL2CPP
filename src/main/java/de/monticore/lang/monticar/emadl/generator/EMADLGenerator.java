@@ -284,12 +284,16 @@ public class EMADLGenerator implements EMAMGenerator {
                 Writer streamWriter = new OutputStreamWriter(new FileOutputStream(
                         tempScript));
                 PrintWriter printWriter = new PrintWriter(streamWriter);
+                final String currentDir = System.getProperty("user.dir");
+
 
                 printWriter.println("#!/bin/bash");
                 printWriter.println("cd " + getGenerationTargetPath());
                 printWriter.println("mkdir -p build");
                 printWriter.println("cd build");
                 printWriter.println("rm -r -f *");
+                printWriter.println("pwd");
+                printWriter.println("cp -R " + currentDir + "/model .");
                 printWriter.println("cmake ..");
                 printWriter.println("make");
 

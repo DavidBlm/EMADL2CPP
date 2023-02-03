@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 public abstract class AbstractWorkflow {
+
     protected final MontiAnnaContext montiAnnaContext;
     protected MontiAnnaGenerator montiAnnaGenerator;
 
@@ -170,8 +171,7 @@ public abstract class AbstractWorkflow {
                 new GlobalScope(modelPath, new EMADLLanguage()));
         final String pipelineName = astemaCompilationUnit.getComponent().getName();
         final Optional<EMAComponentInstanceSymbol> emaInstanceComponent = pipelineSymbolTable.resolve(
-                StringTransformations.uncapitalize(pipelineName),
-                EMAComponentInstanceSymbol.KIND);
+                StringTransformations.uncapitalize(pipelineName), EMAComponentInstanceSymbol.KIND);
         return emaInstanceComponent.orElseThrow(IllegalStateException::new);
     }
 
