@@ -11,7 +11,7 @@ public class LetterTest extends ModularTestSetup {
     String[] hashPaths = {"target/letterPredictor"};
 
     @Test
-    public void testLetterPredictor() throws IOException {
+    public void testLetterPredictorModular() throws IOException {
         Log.getFindings().clear();
         removeDirectory("model");
         removeDirectory("target/letterpred");
@@ -19,12 +19,13 @@ public class LetterTest extends ModularTestSetup {
         runGenerator(args, hashPaths,3,false);
     }
 
+
     @Test
     public void testLetterPredictorSingle() throws IOException {
         Log.getFindings().clear();
         removeDirectory("model");
         removeDirectory("target/letterpred");
-        String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictor", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictorSingle", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args, hashPaths,3,false);
     }
 

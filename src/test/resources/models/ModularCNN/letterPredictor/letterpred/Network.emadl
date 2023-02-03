@@ -2,12 +2,12 @@
 package letterpred;
 
 
-component Network {
+component Network<Z(0:oo) n=26> {
     ports in Z(0:255)^{1, 28, 28} data,
-         out Q(0:1)^{26} softmax;
+         out Q(0:1)^{n} softmax;
 
     instance Net1 net1;
-    instance Net2 net2;
+    instance Net2<26> net2;
 
 
     connect data -> net1.data;
