@@ -1,12 +1,14 @@
 package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 
 import conflang._ast.ASTConfLangCompilationUnit;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.log;
+import de.monticore.mlpipelines.workflow.HyperparameterOptimizationWorkflowHyperband;
 
 
 public class HyperbandAlgorithm extends SequentialAlgorithm {
@@ -26,21 +28,31 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
     ArrayList<Double> val_loss = new ArrayList<Double>();
     private Map<String, Double> stepSizeMap ;
     private Object artifactScope;
+    private Set<ASTConfLangCompilationUnit> nConfigurations1;
+    private int n ;
+
+    public HyperbandAlgorithm() {
+        this.max_iter = 81;
+        this.eta = 3;
+        this.s_max = (int) logeta( max_iter,eta );;
+        this.B = ( s_max + 1 ) * max_iter ;
+        this.results = results;
+        this.counter = 0;
+        this.best_loss = Double.POSITIVE_INFINITY;
+        this.best_counter = -1;
+        this.n = 1;
+        HyperparameterOptimizationWorkflowHyperband as = new HyperparameterOptimizationWorkflowHyperband();
+        as.set
+
+    }
 
 
     @Override
-    public void executeOptimizationStep(ASTConfLangCompilationUnit hyperParams, ASTConfLangCompilationUnit searchSpace, Double evalValue, String metricType) {
-        max_iter = 81;
-        eta = 3;
-        s_max = (int) logeta( max_iter,eta );
-        B = ( s_max + 1 ) * max_iter ;
-        counter = 0;
-        best_loss = Double.POSITIVE_INFINITY;
-        best_counter = -1;
+    public void executeOptimizationStep(ASTConfLangCompilationUnit searchSpace, Pipeline pipeline) {
 
         for (int s = this.s_max + 1; s >0; s--) {
             // initial number of configurations
-            int n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
+            this.n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
             //initial number of iterations per config
             int r = (int) (this.max_iter * Math.pow(this.eta,( -s )));
 
@@ -57,6 +69,10 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
                 while (iterator.hasNext()) {
                     this.counter=+1;
                     ASTConfLangCompilationUnit element = iterator.next();
+                    pipeline.setTrainingConfiguration(element);
+
+                    pipeline.execute();
+
                     valLoss = validation_loss(element,n_iterations);
                     if (valLoss < this.best_loss){
                         this.best_loss = valLoss;
@@ -77,8 +93,39 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
 
         this.currBestHyperparams = bestPerformingConfiguration(results);
     }
+/*
+    @Override
+    public ASTConfLangCompilationUnit getInitialHyperparams(ASTConfLangCompilationUnit searchSpace) {
+        Set<ASTConfLangCompilationUnit> nConfigurations = new HashSet<>();
+        ASTConfLangCompilationUnit currentHyperparams;
+        for(int i=0;i<this.n;i++){
+            currentHyperparams= getHyperparams(searchSpace);
+            nConfigurations.add(currentHyperparams);
+        }
+        this.nConfigurations1 = nConfigurations;
+        // first object of the set , of this.nConfigurations1.
+        //return nConfigurations.stream().findFirst();
+        return nConfigurations;
+    }
 
+*/
+    public ASTConfLangCompilationUnit getHyperparams(ASTConfLangCompilationUnit searchSpace) {
+        ASTConfLangCompilationUnit currentHyperparams = this.getCurrentHyperparameters().deepClone();
+        Map<String, Boolean> params = ASTConfLangCompilationUnitHandler.getAllKeys(searchSpace);
 
+        for (Map.Entry<String, Boolean> entry : params.entrySet()) {
+            String key = entry.getKey();
+            Boolean isNested = entry.getValue();
+
+            if (isNested) {
+                currentHyperparams = this.updateNestedHyperparamsValue(searchSpace, currentHyperparams, key);
+            } else {
+                currentHyperparams = this.updateHyperparamsValue(searchSpace, currentHyperparams, key);
+            }
+        }
+
+        return currentHyperparams;
+    }
     private ASTConfLangCompilationUnit bestPerformingConfiguration(ArrayList<Map<String, Object>> results) {
 
         Collections.sort(results, Comparator.comparing(map -> (Comparable) map.get("loss")));
@@ -127,21 +174,7 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
     }
     @Override
     public ASTConfLangCompilationUnit getNewHyperparamsCandidate(ASTConfLangCompilationUnit searchSpace) {
-        ASTConfLangCompilationUnit currentHyperparams = this.getCurrentHyperparameters().deepClone();
-        Map<String, Boolean> params = ASTConfLangCompilationUnitHandler.getAllKeys(searchSpace);
-
-        for (Map.Entry<String, Boolean> entry : params.entrySet()) {
-            String key = entry.getKey();
-            Boolean isNested = entry.getValue();
-
-            if (isNested) {
-                currentHyperparams = this.updateNestedHyperparamsValue(searchSpace, currentHyperparams, key);
-            } else {
-                currentHyperparams = this.updateHyperparamsValue(searchSpace, currentHyperparams, key);
-            }
-        }
-
-        return currentHyperparams;
+         //return this.nConfigurations1.
     }
 
     private ASTConfLangCompilationUnit updateHyperparamsValue(ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit currentHyperparams, String key) {
