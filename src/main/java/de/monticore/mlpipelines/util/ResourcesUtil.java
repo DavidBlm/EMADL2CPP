@@ -28,9 +28,7 @@ public class ResourcesUtil {
             }
             URI uri = URI.create("jar:file:" + jarPath);
             try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
-                for (Path path : Files.walk(fs.getPath(rootSchemaModelPath))
-                        .filter(Files::isRegularFile)
-                        .collect(Collectors.toList())) {
+                for (Path path : Files.walk(fs.getPath(rootSchemaModelPath)).filter(Files::isRegularFile).collect(Collectors.toList())) {
                     if (path.toString().endsWith(".scm") || path.toString().endsWith(".ema")) {
                         Path destination = Paths.get(target_path + path);
                         Files.createDirectories(destination.getParent());

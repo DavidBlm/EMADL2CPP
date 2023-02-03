@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 
-
 class PythonPipelineTest {
 
     @Test

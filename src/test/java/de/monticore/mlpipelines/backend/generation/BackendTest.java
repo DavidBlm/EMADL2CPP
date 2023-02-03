@@ -1,4 +1,4 @@
 package de.monticore.mlpipelines.backend.generation;
 
-class BackendTest {
+public class BackendTest {
 }

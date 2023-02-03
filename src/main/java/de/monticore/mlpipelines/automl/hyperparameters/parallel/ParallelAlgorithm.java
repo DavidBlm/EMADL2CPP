@@ -1,23 +1,66 @@
 package de.monticore.mlpipelines.automl.hyperparameters.parallel;
 
-import de.monticore.mlpipelines.automl.hyperparameters.HyperparameterAlgorithm;
+import conflang._ast.ASTConfLangCompilationUnit;
+import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 
-public class ParallelAlgorithm extends HyperparameterAlgorithm {
+import java.util.ArrayList;
+import java.util.List;
 
-    // TODO: Specify datatype
-    private Object currentPopulation;
+public abstract class ParallelAlgorithm extends AbstractHyperparameterAlgorithm {
 
-    public void initializePopulation() {
-        // TODO: Implement method
+    private List<ASTConfLangCompilationUnit> currentPopulation;
+
+    private int populationSize;
+
+    private List<Double> evalValues;
+
+    public List<ASTConfLangCompilationUnit> initializePopulation(ASTConfLangCompilationUnit searchSpace) {
+        List<ASTConfLangCompilationUnit> hyperparamsPopulation = new ArrayList<>();
+
+        while (hyperparamsPopulation.size() < this.populationSize) {
+            ASTConfLangCompilationUnit hyperparams = this.getInitialHyperparams(searchSpace);
+            if (!this.checkHyperparamsInPopulation(hyperparams, hyperparamsPopulation)) {
+                hyperparamsPopulation.add(hyperparams);
+            }
+        }
+
+        return hyperparamsPopulation;
     }
 
-    // TODO: Specify datatype
-    public Object updatePopulation() {
-        Object updatedPopulation = null;
-        return updatedPopulation;
+    protected boolean checkHyperparamsInPopulation(ASTConfLangCompilationUnit hyperparams, List<ASTConfLangCompilationUnit> population) {
+        for (ASTConfLangCompilationUnit populationEntry : population) {
+            if (populationEntry.deepEquals(hyperparams)) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public Object getCurrentPopulation() {
+    public List<ASTConfLangCompilationUnit> getCurrentPopulation() {
         return this.currentPopulation;
     }
+
+    public void setCurrentPopulation(List<ASTConfLangCompilationUnit> currentPopulation) {
+        this.currentPopulation = currentPopulation;
+    }
+
+    public List<Double> getEvalValues() {
+        return evalValues;
+    }
+
+    public void setEvalValues(List<Double> evalValues) {
+        this.evalValues = evalValues;
+    }
+
+    public int getPopulationSize() {
+        return populationSize;
+    }
+
+    public void setPopulationSize(int populationSize) {
+        this.populationSize = populationSize;
+    }
+
+    public abstract List<ASTConfLangCompilationUnit> getNewPopulation(ASTConfLangCompilationUnit searchSpace, String metricType);
+
+    public abstract void executeOptimizationStep(List<ASTConfLangCompilationUnit> hyperParamsPopulation, ASTConfLangCompilationUnit searchSpace, List<Double> evalValues, String metricType);
 }

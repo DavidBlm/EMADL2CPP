@@ -1,19 +1,26 @@
 package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 
-import de.monticore.mlpipelines.automl.hyperparameters.HyperparameterAlgorithm;
+import conflang._ast.ASTConfLangCompilationUnit;
+import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 
-public class SequentialAlgorithm extends HyperparameterAlgorithm {
+public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
 
-    // TODO: Specify datatype
-    private Object currentHyperparameters;
+    private ASTConfLangCompilationUnit currentHyperparameters;
 
-    // TODO: Specify datatype
-    public Object updateHyperparams() {
-        Object updatedHyperparameters = null;
-        return updatedHyperparameters;
+    public ASTConfLangCompilationUnit getCurrentHyperparameters() {
+        return this.currentHyperparameters;
     }
 
-    public Object getCurrentHyperparameters() {
-        return this.currentHyperparameters;
+    public void setCurrentHyperparameters(ASTConfLangCompilationUnit currentHyperparameters) {
+        this.currentHyperparameters = currentHyperparameters;
+    }
+
+    protected boolean updateBest(double currValue, double newValue, String metricType) {
+        if (metricType.equals("Accuracy")) {
+            return newValue > currValue;
+        }
+        else {
+            return newValue < currValue;
+        }
     }
 }

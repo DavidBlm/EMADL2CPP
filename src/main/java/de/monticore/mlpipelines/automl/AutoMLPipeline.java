@@ -5,7 +5,7 @@ import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.configuration.HyperparameterOptConfig;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
-import de.monticore.mlpipelines.automl.hyperparameters.HyperparameterAlgorithm;
+import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearchBuilder;
 import de.monticore.mlpipelines.pipelines.Pipeline;
@@ -15,7 +15,7 @@ public class AutoMLPipeline extends Pipeline {
     private Pipeline trainPipeline;
     private ArchitectureSymbol architecture;
     private NeuralArchitectureSearch neuralArchitectureSearch;
-    private HyperparameterAlgorithm hyperparameterAlgorithm;
+    private AbstractHyperparameterAlgorithm hyperparameterAlgorithm;
     private NeuralArchitectureSearchBuilder neuralArchitectureSearchBuilder;
 
     public AutoMLPipeline(final LearningMethod learningMethod) {

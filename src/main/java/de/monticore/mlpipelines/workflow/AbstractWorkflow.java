@@ -31,10 +31,11 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 public abstract class AbstractWorkflow {
-    private final MontiAnnaContext montiAnnaContext;
+
+    protected final MontiAnnaContext montiAnnaContext;
     protected MontiAnnaGenerator montiAnnaGenerator;
 
-    private Pipeline pipeline;
+    protected Pipeline pipeline;
 
     public AbstractWorkflow(final MontiAnnaContext montiAnnaContext) {
         this.montiAnnaContext = montiAnnaContext;
@@ -54,7 +55,7 @@ public abstract class AbstractWorkflow {
         this.pipeline = pipeline;
     }
 
-    public final void execute() throws IOException {
+    public void execute() throws IOException {
         // frontend
         final String rootModelName = Names.getSimpleName(montiAnnaContext.getRootModelName());
         final String pathToModelsDirectory = Paths.get(montiAnnaContext.getParentModelPath().toString(),
@@ -98,14 +99,14 @@ public abstract class AbstractWorkflow {
         executePipeline();
     }
 
-    private String getDirectoryPathSupplementFromComponentName(final String rootModelName) {
+    protected String getDirectoryPathSupplementFromComponentName(final String rootModelName) {
         final int lastIndexOfDot = rootModelName.lastIndexOf(".");
         if (lastIndexOfDot == -1)
             return rootModelName;
         return rootModelName.substring(0, lastIndexOfDot).replace(".", "/");
     }
 
-    private static EMAComponentInstanceSymbol getNetworkTobeTrained(
+    protected static EMAComponentInstanceSymbol getNetworkTobeTrained(
             final ASTEMACompilationUnit rootEMADLComponent,
             Scope emadlSymbolTable) {
         final String componentName = rootEMADLComponent.getComponent().getName();
@@ -133,15 +134,15 @@ public abstract class AbstractWorkflow {
     }
 
     //TODO implement me
-    private void checkCoCos() {
+    protected void checkCoCos() {
 
     }
 
     //TODO implement me
-    private void backendSpecificValidations() {
+    protected void backendSpecificValidations() {
     }
 
-    private EMAComponentInstanceSymbol calculateExecutionSemantics() throws IOException {
+    protected EMAComponentInstanceSymbol calculateExecutionSemantics() throws IOException {
         //TODO get from schema
         final String pathToPipelineReferenceModel = Paths.get(
                 montiAnnaContext.getPipelineReferenceModelsPath().toString(), "LinearPipeline.ema").toString();
@@ -157,7 +158,7 @@ public abstract class AbstractWorkflow {
 
     public abstract void createPipeline(final LearningMethod learningMethod);
 
-    private void executePipeline() {
+    protected void executePipeline() {
         this.pipeline.execute();
     }
 
@@ -170,8 +171,7 @@ public abstract class AbstractWorkflow {
                 new GlobalScope(modelPath, new EMADLLanguage()));
         final String pipelineName = astemaCompilationUnit.getComponent().getName();
         final Optional<EMAComponentInstanceSymbol> emaInstanceComponent = pipelineSymbolTable.resolve(
-                StringTransformations.uncapitalize(pipelineName),
-                EMAComponentInstanceSymbol.KIND);
+                StringTransformations.uncapitalize(pipelineName), EMAComponentInstanceSymbol.KIND);
         return emaInstanceComponent.orElseThrow(IllegalStateException::new);
     }
 
