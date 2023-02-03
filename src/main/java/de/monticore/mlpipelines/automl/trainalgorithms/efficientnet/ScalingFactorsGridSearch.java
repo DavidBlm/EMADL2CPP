@@ -1,10 +1,10 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.mlpipelines.Pipeline;
 import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 
 public class ScalingFactorsGridSearch {
 
@@ -55,9 +55,9 @@ public class ScalingFactorsGridSearch {
             return;
         }
 
-        ArchitectureSymbol scaledArchitecture = this.networkScaler.scale(this.architecture, scalingFactors, this.trainConfig.getPhi());
+        this.networkScaler.scale(this.architecture, scalingFactors, this.trainConfig.getPhi());
         Configuration pipelineConfig = getConfigurationFromTrainConfig(this.trainConfig);
-        trainPipeline.execute(scaledArchitecture, pipelineConfig);
+        trainPipeline.execute();
         checkIfScalingFactorsAreBetterThanBest(scalingFactors);
     }
 
