@@ -41,4 +41,8 @@ public abstract class Pipeline {
     public void setPipelineConfiguration(final ASTConfLangCompilationUnit pipelineConfiguration) {
         this.pipelineConfiguration = pipelineConfiguration;
     }
+
+    public float getTrainedAccuracy() {
+        return 0;
+    }
 }
