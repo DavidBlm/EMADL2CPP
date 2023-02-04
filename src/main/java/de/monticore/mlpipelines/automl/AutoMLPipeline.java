@@ -9,6 +9,7 @@ import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlg
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearchBuilder;
 import de.monticore.mlpipelines.pipelines.Pipeline;
+import de.monticore.symboltable.CommonScope;
 
 public class AutoMLPipeline extends Pipeline {
     private Configuration configuration;
@@ -29,7 +30,9 @@ public class AutoMLPipeline extends Pipeline {
 
     @Override
     public void execute() {
-        ArchitectureSymbol originalArchitecture = (ArchitectureSymbol) neuralNetwork.getSpannedScope();
+        CommonScope spannedScope = (CommonScope) neuralNetwork.getSpannedScope();
+        CommonScope subScope = (CommonScope) spannedScope.getSubScopes().get(0);
+        ArchitectureSymbol originalArchitecture = (ArchitectureSymbol) subScope.getSpanningSymbol().get();
         executeNeuralArchitectureSearch(originalArchitecture);
         executeHyperparameterOptimization(configuration);
         trainPipeline.setNeuralNetwork(neuralNetwork);
