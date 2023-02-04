@@ -39,7 +39,7 @@ public class EmadlPrettyPrinterTest extends TestCase {
         EmadlPrettyPrinter printer = new EmadlPrettyPrinter();
         String[] emadl = printer.prettyPrint(arch).split("\n");
 
-        List<String> expectedEmadl = FileLoader.loadFile("src/test/resources/models/adanet/AdaNetBase.emadl");
+        List<String> expectedEmadl = FileLoader.loadFile("src/test/resources/models/adanet/AdaNetCustom.emadl");
         assertEquals(expectedEmadl.size(), emadl.length);
         for (int i = 0; i < emadl.length; i++) {
             System.out.println(emadl[i]);
