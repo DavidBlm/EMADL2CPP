@@ -20,7 +20,7 @@ public class NetworkDecomposer {
     }
 
     public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure, String[] decomposeNetworkList){
-        BackendDecomposer backendDecomposer = null;
+        BackendDecomposer backendDecomposer;
 
 
 
