@@ -6,6 +6,8 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._ast.ASTEMACompilatio
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
+import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
+import de.monticore.mlpipelines.automl.hyperparameters.HyperparamsOptAlgGenerator;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.SimulatedAnnealing;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.pipelines.PythonPipeline;
@@ -57,11 +59,10 @@ public class HyperparameterOptimizationWorkflow extends AbstractWorkflow {
 
         // Load AutoML pipeline configurations
         ASTConfLangCompilationUnit nasConf = this.getNASConfiguration(pathToModelsDirectory);
+        ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(pathToModelsDirectory,
+                "HyperparameterOpt.conf");
         ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(pathToModelsDirectory,
                 "EvaluationCriteria.conf");
-
-
-
 
         // TODO: searchSpace validation not working (fix necessary)
         //final ConfigurationValidator configurationValidator = new ConfigurationValidator();
@@ -78,7 +79,10 @@ public class HyperparameterOptimizationWorkflow extends AbstractWorkflow {
         pipeline.setNeuralNetwork(network);
 
         // TODO: Generate generic hyperparameter optimization algorithm class using Generator and conf file
-        SimulatedAnnealing hyperparamsOptAlg = new SimulatedAnnealing();
+        //SimulatedAnnealing hyperparamsOptAlg = new SimulatedAnnealing();
+        //hyperparamsOptAlg.executeOptimization(pipeline, searchSpace, evaluationCriteria);
+
+        AbstractHyperparameterAlgorithm hyperparamsOptAlg = HyperparamsOptAlgGenerator.generateAlgorithm(hyperparamsOptConf);
         hyperparamsOptAlg.executeOptimization(pipeline, searchSpace, evaluationCriteria);
     }
 

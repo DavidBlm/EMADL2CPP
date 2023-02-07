@@ -239,6 +239,14 @@ public class BayesianOptimization extends SequentialAlgorithm {
         this.numRandomIter = numRandomIter;
     }
 
+    public double getTradeOff() {
+        return tradeOff;
+    }
+
+    public void setTradeOff(double tradeOff) {
+        this.tradeOff = tradeOff;
+    }
+
     @Override
     public ASTConfLangCompilationUnit getInitialHyperparams(ASTConfLangCompilationUnit searchSpace) {
         this.evaluatedConfigs = this.buildCandidates(searchSpace, new ArrayList<>());
