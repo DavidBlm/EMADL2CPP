@@ -49,10 +49,10 @@ public class GluonDecomposer implements BackendDecomposer {
             else if (fileName.contains("newest-0000.params")) paramsFile = file;
         }
 
-        splitComposedNetworkIntoAtomicNetworks(modelPath, networkStructure, networkJsonFile, paramsFile);
+        splitComposedNetwork(modelPath, networkStructure, networkJsonFile, paramsFile);
     }
 
-    private void splitComposedNetworkIntoAtomicNetworks(String modelPath, NetworkStructure composedNetworkStructure, File networkFile, File paramsFile) {
+    private void splitComposedNetwork(String modelPath, NetworkStructure composedNetworkStructure, File networkFile, File paramsFile) {
 
         if (networkFile == null || paramsFile == null) return;
         ArrayList<GluonRepresentation> splitGluonNets = splitNetworkJsonFile(modelPath, composedNetworkStructure, networkFile);
