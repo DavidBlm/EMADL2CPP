@@ -7,6 +7,7 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instance
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.HyperbandAlgorithm;
+import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.pipelines.PythonPipeline;
 import de.monticore.parsing.EMADLParser;
 import de.monticore.symbolmanagement.SymbolTableCreator;
@@ -18,6 +19,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 public class HyperparameterOptimizationWorkflowHyperband extends AbstractWorkflow {
+    public HyperparameterOptimizationWorkflowHyperband(final MontiAnnaContext applicationContext) {
+        super(applicationContext);
+    }
 
     @Override
     public void createPipeline(LearningMethod learningMethod) {
@@ -76,37 +80,8 @@ public class HyperparameterOptimizationWorkflowHyperband extends AbstractWorkflo
         pipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
         pipeline.setNeuralNetwork(network);
 
-        hyperparamsOptAlg.executeOptimizationStep(searchSpace,pipeline);
-
-/*
-        // TODO: Extract metric value from executePipeline() method
-       // List<Double> metricValues = new ArrayList<>(Arrays.asList(0.2, 0.7, 0.6, 0.5, 0.9));
-
-        //ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
-
-        // TODO: Implement also workflow for Parallel Hyperparameter Optimization Algorithms
-        while(hyperparamsOptAlg.getCurrentIteration() < numIteration) {
-            pipeline.setConfigurationModel(trainingConfiguration);
-            executePipeline();
-
-            double evalValue = metricValues.get(hyperparamsOptAlg.getCurrentIteration());
-            // TODO: Find correct way to log current iteration and its metric result
-            System.out.println("Current Iteration: " + hyperparamsOptAlg.getCurrentIteration() + "; Eval Value: " + evalValue);
-            //TODO: Pretty print trainingConfiguration correctly into conf files
-            System.out.println(printer.prettyPrint(trainingConfiguration));
-            hyperparamsOptAlg.executeOptimizationStep(trainingConfiguration, searchSpace, evalValue, metricType);
-            trainingConfiguration = hyperparamsOptAlg.getNewHyperparamsCandidate(searchSpace);
-            if (evalValue >= criteria) {
-                break;
-            }
-        }
+        hyperparamsOptAlg.executeOptimization(pipeline, searchSpace, null);
 
 
-        ASTConfLangCompilationUnit bestTrainingConfig = hyperparamsOptAlg.getCurrBestHyperparams();
-        double bestEvalValue = hyperparamsOptAlg.getCurrBestEvalMetric();
-
-        // TODO: Pretty print optimal trainingConfiguration correctly into conf file and print best eval value
-        System.out.println("Best Eval Value: " + bestEvalValue);
-        System.out.println(printer.prettyPrint(bestTrainingConfig));*/10
     }
 }
