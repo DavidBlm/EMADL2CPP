@@ -5,6 +5,7 @@ import de.monticore.lang.monticar.emadl.generator.emadlgen.FileHandler;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.BackendDecomposer;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.gluon.GluonDecomposer;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
+import de.se_rwth.commons.logging.Log;
 
 import java.util.HashMap;
 
@@ -33,10 +34,12 @@ public class NetworkDecomposer {
         }
 
         if (backendDecomposer == null) {
-            throw new RuntimeException("Decomposition for current backend is not supported (yet)");
+            Log.warn("Decomposition for current backend is not supported (yet)");
+        } else {
+            backendDecomposer.decomposeNetwork(modelPath, composedNetworkStructure);
         }
 
-        backendDecomposer.decomposeNetwork(modelPath, composedNetworkStructure);
+
     }
 
     public void decomposeNetworks(String modelPath, HashMap<String, NetworkStructure> composedNetworkStructures, String[] decomposeNetworkList){
