@@ -47,7 +47,7 @@ public class BayesianOptimization extends SequentialAlgorithm {
             double imp = mean - this.currBestEvalMetric - this.tradeOff;
             double z = imp / std;
             double ei = imp * norm.cumulativeProbability(z) + std * norm.density(z);
-            if (metricType.equals("Accuracy")) {
+            if (metricType.equals("accuracy")) {
                 return ei;
             } else {
                 return -ei;

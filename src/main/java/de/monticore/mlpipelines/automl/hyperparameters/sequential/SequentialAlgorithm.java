@@ -2,6 +2,7 @@ package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 
 import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.emadlprinter.ASTConfLangCompilationUnitPrinter;
+import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 import de.monticore.mlpipelines.pipelines.Pipeline;
 
@@ -18,7 +19,7 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
     }
 
     protected boolean updateBest(double currValue, double newValue, String metricType) {
-        if (metricType.equals("Accuracy")) {
+        if (metricType.equals("accuracy")) {
             return newValue > currValue;
         }
         else {
@@ -28,11 +29,9 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
 
     @Override
     public void executeOptimization(Pipeline pipeline, ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit evaluationCriteria) {
-        // TODO: Extract metricType, criteria and numIteration from EvaluationCriteria.conf
-        int maxIterNum = 1;
-        String metricType = "Accuracy";
-        double criteria = 0.85;
-
+        String metricType = (String) ASTConfLangCompilationUnitHandler.getValueByKey(evaluationCriteria, "metric");
+        double criteria = (double) ASTConfLangCompilationUnitHandler.getValueByKey(evaluationCriteria, "acceptance_rate");
+        int maxIterNum = (int) ASTConfLangCompilationUnitHandler.getValueByKey(evaluationCriteria, "max_iteration_number");
 
         ASTConfLangCompilationUnit trainingConfiguration = this.getInitialHyperparams(searchSpace);
 
