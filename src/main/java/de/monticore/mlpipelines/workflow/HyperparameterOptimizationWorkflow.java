@@ -15,7 +15,9 @@ import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class HyperparameterOptimizationWorkflow extends AbstractWorkflow {
@@ -53,6 +55,14 @@ public class HyperparameterOptimizationWorkflow extends AbstractWorkflow {
         final ASTConfLangCompilationUnit pipelineConfiguration = parsePipelineConfiguration(
                 pathToPipelineConfiguration);
 
+        // Load AutoML pipeline configurations
+        ASTConfLangCompilationUnit nasConf = this.getNASConfiguration(pathToModelsDirectory);
+        ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(pathToModelsDirectory,
+                "EvaluationCriteria.conf");
+
+
+
+
         // TODO: searchSpace validation not working (fix necessary)
         //final ConfigurationValidator configurationValidator = new ConfigurationValidator();
         //configurationValidator.validateTrainingConfiguration(trainingConfigurationSymbol);
@@ -69,6 +79,21 @@ public class HyperparameterOptimizationWorkflow extends AbstractWorkflow {
 
         // TODO: Generate generic hyperparameter optimization algorithm class using Generator and conf file
         SimulatedAnnealing hyperparamsOptAlg = new SimulatedAnnealing();
-        hyperparamsOptAlg.executeOptimization(pipeline, searchSpace, null);
+        hyperparamsOptAlg.executeOptimization(pipeline, searchSpace, evaluationCriteria);
+    }
+
+    private ASTConfLangCompilationUnit getAutoMLConfiguration(String modelDirPath, String configurationName) throws IOException {
+        String pathToConfiguration = Paths.get(modelDirPath, configurationName).toString();
+        return this.parseTrainingConfiguration(pathToConfiguration);
+    }
+
+    private ASTConfLangCompilationUnit getNASConfiguration(String modelDirPath) throws IOException {
+        if (Files.exists(Paths.get(modelDirPath, "AdaNet.conf"))) {
+            return this.getAutoMLConfiguration(modelDirPath, "AdaNet.conf");
+        } else if (Files.exists(Paths.get(modelDirPath, "EfficientNet.conf"))) {
+            return this.getAutoMLConfiguration(modelDirPath, "EfficientNet.conf");
+        } else {
+            throw new FileNotFoundException("No conf file for Neural Architecture Search found.");
+        }
     }
 }
