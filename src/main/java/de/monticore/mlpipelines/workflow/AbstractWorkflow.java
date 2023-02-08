@@ -26,7 +26,9 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.StringTransformations;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
 
@@ -88,6 +90,14 @@ public abstract class AbstractWorkflow {
         checkCoCos();
         backendSpecificValidations();
         final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = calculateExecutionSemantics();
+
+        // Load AutoML pipeline configurations
+        ASTConfLangCompilationUnit nasConf = this.getNASConfiguration(pathToModelsDirectory);
+        ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(pathToModelsDirectory,
+                "HyperparameterOpt.conf");
+        ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(pathToModelsDirectory,
+                "EvaluationCriteria.conf");
+
         //backend
         generateBackendArtefactsIntoExperiment();
         final LearningMethod learningMethod = LearningMethod.SUPERVISED;
@@ -180,5 +190,20 @@ public abstract class AbstractWorkflow {
                 Constants.SYNTHESIZED_COMPONENTS_ROOT);
         new ExecutionSemantics(symTab, pipelineReferenceModel).addExecutionSemantics();
         return pipelineReferenceModel;
+    }
+
+    protected ASTConfLangCompilationUnit getAutoMLConfiguration(String modelDirPath, String configurationName) throws IOException {
+        String pathToConfiguration = Paths.get(modelDirPath, configurationName).toString();
+        return this.parseTrainingConfiguration(pathToConfiguration);
+    }
+
+    protected ASTConfLangCompilationUnit getNASConfiguration(String modelDirPath) throws IOException {
+        if (Files.exists(Paths.get(modelDirPath, "AdaNet.conf"))) {
+            return this.getAutoMLConfiguration(modelDirPath, "AdaNet.conf");
+        } else if (Files.exists(Paths.get(modelDirPath, "EfficientNet.conf"))) {
+            return this.getAutoMLConfiguration(modelDirPath, "EfficientNet.conf");
+        } else {
+            throw new FileNotFoundException("No conf file for Neural Architecture Search found.");
+        }
     }
 }

@@ -8,7 +8,6 @@ import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.lang.monticar.emadl._symboltable.EMADLLanguage;
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 import de.monticore.mlpipelines.automl.hyperparameters.HyperparamsOptAlgGenerator;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.SimulatedAnnealing;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.pipelines.PythonPipeline;
 import de.monticore.parsing.EMADLParser;
@@ -17,9 +16,7 @@ import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class HyperparameterOptimizationWorkflow extends AbstractWorkflow {
@@ -84,20 +81,5 @@ public class HyperparameterOptimizationWorkflow extends AbstractWorkflow {
 
         AbstractHyperparameterAlgorithm hyperparamsOptAlg = HyperparamsOptAlgGenerator.generateAlgorithm(hyperparamsOptConf);
         hyperparamsOptAlg.executeOptimization(pipeline, searchSpace, evaluationCriteria);
-    }
-
-    private ASTConfLangCompilationUnit getAutoMLConfiguration(String modelDirPath, String configurationName) throws IOException {
-        String pathToConfiguration = Paths.get(modelDirPath, configurationName).toString();
-        return this.parseTrainingConfiguration(pathToConfiguration);
-    }
-
-    private ASTConfLangCompilationUnit getNASConfiguration(String modelDirPath) throws IOException {
-        if (Files.exists(Paths.get(modelDirPath, "AdaNet.conf"))) {
-            return this.getAutoMLConfiguration(modelDirPath, "AdaNet.conf");
-        } else if (Files.exists(Paths.get(modelDirPath, "EfficientNet.conf"))) {
-            return this.getAutoMLConfiguration(modelDirPath, "EfficientNet.conf");
-        } else {
-            throw new FileNotFoundException("No conf file for Neural Architecture Search found.");
-        }
     }
 }
