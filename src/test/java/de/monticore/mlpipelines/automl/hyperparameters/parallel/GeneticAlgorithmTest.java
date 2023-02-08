@@ -33,7 +33,7 @@ public class GeneticAlgorithmTest extends TestCase {
 
     private List<Double> evalValues = new ArrayList<>(Arrays.asList(0.2, 0.7, 0.9, 0.5, 0.65));
 
-    private String metricType = "Accuracy";
+    private String metricType = "accuracy";
 
     @Before
     public void setup() throws IOException {
