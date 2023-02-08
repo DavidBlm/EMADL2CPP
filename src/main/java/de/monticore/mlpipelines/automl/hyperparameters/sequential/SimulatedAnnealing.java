@@ -109,6 +109,10 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
         this.currentTemperature = this.initialTemperature / (this.currentIteration + 1);
     }
 
+    public double getInitialTemperature() {
+        return initialTemperature;
+    }
+
     public void setInitialTemperature(double initialTemperature) {
         this.initialTemperature = initialTemperature;
     }
