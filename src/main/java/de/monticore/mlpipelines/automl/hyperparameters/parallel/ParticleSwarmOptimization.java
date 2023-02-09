@@ -29,7 +29,7 @@ public class ParticleSwarmOptimization extends ParallelAlgorithm {
     }
 
     private boolean checkUpdateCondition(double currVal, double newVal, String metricType) {
-        if (metricType.equals("Accuracy")) {
+        if (metricType.equals("accuracy")) {
             return currVal < newVal;
         } else {
             return currVal > newVal;
@@ -38,7 +38,7 @@ public class ParticleSwarmOptimization extends ParallelAlgorithm {
 
     private void updateGbest(String metricType) {
         double bestMetricValCandidate;
-        if (metricType.equals("Accuracy")) {
+        if (metricType.equals("accuracy")) {
             bestMetricValCandidate = Collections.max(this.pbestEvalList);
         } else {
             bestMetricValCandidate = Collections.min(this.pbestEvalList);

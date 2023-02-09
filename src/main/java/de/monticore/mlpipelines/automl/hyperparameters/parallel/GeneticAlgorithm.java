@@ -103,7 +103,7 @@ public class GeneticAlgorithm extends ParallelAlgorithm {
         List<Double> sortedEvalValues = new ArrayList<>(evalValues);
         Collections.sort(sortedEvalValues);
 
-        if (metricType.equals("Accuracy")) {
+        if (metricType.equals("accuracy")) {
             Collections.reverse(sortedEvalValues);
         }
 
@@ -213,7 +213,7 @@ public class GeneticAlgorithm extends ParallelAlgorithm {
         List<Double> sortedEvalValues = new ArrayList<>(this.getEvalValues());
         Collections.sort(sortedEvalValues);
 
-        if (metricType.equals("Accuracy")) {
+        if (metricType.equals("accuracy")) {
             Collections.reverse(sortedEvalValues);
         }
 
