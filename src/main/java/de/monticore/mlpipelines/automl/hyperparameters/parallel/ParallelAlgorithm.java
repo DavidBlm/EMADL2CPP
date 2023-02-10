@@ -2,6 +2,7 @@ package de.monticore.mlpipelines.automl.hyperparameters.parallel;
 
 import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,4 +64,9 @@ public abstract class ParallelAlgorithm extends AbstractHyperparameterAlgorithm 
     public abstract List<ASTConfLangCompilationUnit> getNewPopulation(ASTConfLangCompilationUnit searchSpace, String metricType);
 
     public abstract void executeOptimizationStep(List<ASTConfLangCompilationUnit> hyperParamsPopulation, ASTConfLangCompilationUnit searchSpace, List<Double> evalValues, String metricType);
+
+    @Override
+    public void executeOptimization(Pipeline pipeline, ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit evaluationCriteria) {
+
+    }
 }

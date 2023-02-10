@@ -30,7 +30,7 @@ public class BayesianOptimizationTest extends TestCase {
 
     private BayesianOptimization bayesianOptimization;
 
-    private String metricType = "Accuracy";
+    private String metricType = "accuracy";
 
     private double evalValue = 0.8;
 

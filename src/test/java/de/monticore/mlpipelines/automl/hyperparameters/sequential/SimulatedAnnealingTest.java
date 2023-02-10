@@ -35,7 +35,7 @@ public class SimulatedAnnealingTest extends TestCase {
 
     private double currEvalValue = 0.7;
 
-    private String metricType = "Accuracy";
+    private String metricType = "accuracy";
 
     @Before
     public void setup() throws IOException {
