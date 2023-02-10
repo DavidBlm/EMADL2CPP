@@ -2,7 +2,6 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.ModelLoader;
-import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
 import de.monticore.mlpipelines.pipelines.Pipeline;
 import junit.framework.TestCase;
@@ -87,28 +86,28 @@ public class EfficientNetTest extends TestCase {
 
     private EfficientNet createEfficientNet() {
         Pipeline pipeline = mock(Pipeline.class);
-        EfficientNetConfig config = createEfficientNetConfig();
+//        EfficientNetConfig config = createEfficientNetConfig();
         EfficientNet efficientNet = new EfficientNet();
         efficientNet.setTrainPipeline(pipeline);
-        efficientNet.setTrainConfiguration(config);
+        efficientNet.setTrainConfiguration(null);
         return efficientNet;
     }
 
-    private EfficientNetConfig createEfficientNetConfig() {
-        EfficientNetConfig config = new EfficientNetConfig();
-        config.setSaveTrainedArchitecture(false);
-        config.setArchitectureSavePath("");
-        config.setTrainAlgorithmName("EfficientNet");
-        config.setTrainPipelineName("Pytorch");
-
-        config.setFlopsConditionValue(2.0);
-        config.setMinScalingFactors(new ScalingFactors(1.0, 1.0, 1.0));
-        config.setMaxScalingFactors(new ScalingFactors(2.0, 1.4, 1.4));
-        config.setScalingFactorsStepSize(new ScalingFactors(0.1, 0.1, 0.1));
-        config.setMaximumImageWidthAndHeight(32);
-        config.setMinimumImageWidthAndHeight(8);
-        config.setPhi(1);
-
-        return config;
-    }
+//    private EfficientNetConfig createEfficientNetConfig() {
+//        ASTConfLangCompilationUnit config = new EfficientNetConfig();
+//        config.setSaveTrainedArchitecture(false);
+//        config.setArchitectureSavePath("");
+//        config.setTrainAlgorithmName("EfficientNet");
+//        config.setTrainPipelineName("Pytorch");
+//
+//        config.setFlopsConditionValue(2.0);
+//        config.setMinScalingFactors(new ScalingFactors(1.0, 1.0, 1.0));
+//        config.setMaxScalingFactors(new ScalingFactors(2.0, 1.4, 1.4));
+//        config.setScalingFactorsStepSize(new ScalingFactors(0.1, 0.1, 0.1));
+//        config.setMaximumImageWidthAndHeight(32);
+//        config.setMinimumImageWidthAndHeight(8);
+//        config.setPhi(1);
+//
+//        return config;
+//    }
 }

@@ -2,9 +2,6 @@ package de.monticore.mlpipelines.automl;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
-import de.monticore.mlpipelines.automl.configuration.Configuration;
-import de.monticore.mlpipelines.automl.configuration.HyperparameterOptConfig;
-import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearchBuilder;
@@ -12,7 +9,6 @@ import de.monticore.mlpipelines.pipelines.Pipeline;
 import de.monticore.symboltable.CommonScope;
 
 public class AutoMLPipeline extends Pipeline {
-    private Configuration configuration;
     private Pipeline trainPipeline;
     private ArchitectureSymbol architecture;
     private NeuralArchitectureSearch neuralArchitectureSearch;
@@ -30,11 +26,16 @@ public class AutoMLPipeline extends Pipeline {
 
     @Override
     public void execute() {
+        this.trainPipeline.setNeuralNetwork(neuralNetwork);
+        this.trainPipeline.setTrainingConfiguration(trainingConfiguration);
+        this.trainPipeline.setPipelineConfiguration(pipelineConfiguration);
+        this.trainPipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
+
         CommonScope spannedScope = (CommonScope) neuralNetwork.getSpannedScope();
         CommonScope subScope = (CommonScope) spannedScope.getSubScopes().get(0);
         ArchitectureSymbol originalArchitecture = (ArchitectureSymbol) subScope.getSpanningSymbol().get();
         executeNeuralArchitectureSearch(originalArchitecture);
-        executeHyperparameterOptimization(configuration);
+//        executeHyperparameterOptimization(configuration);
         trainPipeline.setNeuralNetwork(neuralNetwork);
         trainPipeline.execute();
     }
@@ -44,26 +45,23 @@ public class AutoMLPipeline extends Pipeline {
         architecture = neuralArchitectureSearch.execute(originalArchitecture);
     }
 
-    private void executeHyperparameterOptimization(Configuration configuration) {
-        loadHyperparameterAlgorithm();
-        this.configuration = configuration;
-        hyperparameterAlgorithm.executeIteration();
-    }
+//    private void executeHyperparameterOptimization(Configuration configuration) {
+//        loadHyperparameterAlgorithm();
+//        this.configuration = configuration;
+//        hyperparameterAlgorithm.executeIteration();
+//    }
 
     public void loadTrainAlgorithm() {
-        TrainAlgorithmConfig trainAlgorithmConfig = configuration.getTrainAlgorithmConfig();
-        neuralArchitectureSearchBuilder.setConfig(trainAlgorithmConfig);
+        neuralArchitectureSearchBuilder.setConfig(trainingConfiguration);
+        neuralArchitectureSearchBuilder.setTrainingPipeline(trainPipeline);
         this.neuralArchitectureSearch = neuralArchitectureSearchBuilder.build();
     }
 
-    private void loadHyperparameterAlgorithm() {
-        HyperparameterOptConfig hyperparameterOptConfig = configuration.getHyperparameterOptConfig();
-        //TODO: Use HyperparameterAlgorithmBuilder to load the correct algorithm
-    }
+//    private void loadHyperparameterAlgorithm() {
+//        HyperparameterOptConfig hyperparameterOptConfig = configuration.getHyperparameterOptConfig();
+//        //TODO: Use HyperparameterAlgorithmBuilder to load the correct algorithm
+//    }
 
-    public Configuration getConfiguration() {
-        return configuration;
-    }
 
     public Pipeline getTrainPipeline() {
         return trainPipeline;

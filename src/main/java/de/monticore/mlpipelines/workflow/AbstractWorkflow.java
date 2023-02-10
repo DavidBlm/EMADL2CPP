@@ -17,7 +17,6 @@ import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.monticore.mlpipelines.backend.generation.MontiAnnaGenerator;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.pipelines.Pipeline;
-import de.monticore.mlpipelines.validation.ConfigurationValidator;
 import de.monticore.parsing.ConfigurationLanguageParser;
 import de.monticore.parsing.EMADLParser;
 import de.monticore.symbolmanagement.SymbolTableCreator;
@@ -84,8 +83,8 @@ public abstract class AbstractWorkflow {
         final Scope pipelineConfigurationSymbolTable = SymbolTableCreator.createConfLangSymbolTable(
                 trainingConfiguration, new GlobalScope(modelPath, new ConfLangLanguage()));
 
-        final ConfigurationValidator configurationValidator = new ConfigurationValidator();
-        configurationValidator.validateTrainingConfiguration(trainingConfigurationSymbol);
+//        final ConfigurationValidator configurationValidator = new ConfigurationValidator();
+//        configurationValidator.validateTrainingConfiguration(trainingConfigurationSymbol);
 
         checkCoCos();
         backendSpecificValidations();
@@ -93,10 +92,12 @@ public abstract class AbstractWorkflow {
 
         // Load AutoML pipeline configurations
         ASTConfLangCompilationUnit nasConf = this.getNASConfiguration(pathToModelsDirectory);
-        ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(pathToModelsDirectory,
-                "HyperparameterOpt.conf");
-        ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(pathToModelsDirectory,
-                "EvaluationCriteria.conf");
+//        ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(pathToModelsDirectory,
+//                "HyperparameterOpt.conf");
+//        ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(pathToModelsDirectory,
+//                "EvaluationCriteria.conf");
+
+        trainingConfiguration.getConfiguration().addSuperConfiguration(nasConf.getConfiguration());
 
         //backend
         generateBackendArtefactsIntoExperiment();

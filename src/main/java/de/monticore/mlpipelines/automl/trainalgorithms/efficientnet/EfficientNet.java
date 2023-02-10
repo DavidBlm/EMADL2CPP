@@ -13,6 +13,7 @@ public class EfficientNet extends NeuralArchitectureSearch {
 
     private ScalingFactors scalingFactors;
     private ArchitectureSymbol scaledArchitecture;
+    private EfficientNetConfig config;
 
 
     public EfficientNet() {
@@ -47,6 +48,7 @@ public class EfficientNet extends NeuralArchitectureSearch {
 
     @Override
     public ArchitectureSymbol execute(ArchitectureSymbol startNetwork) {
+        this.config = new EfficientNetConfig(getTrainConfiguration());
         setStartNetwork(startNetwork);
         createMissingObjects();
         findBestScalingFactors();
@@ -59,7 +61,7 @@ public class EfficientNet extends NeuralArchitectureSearch {
         this.networkScaler = this.networkScaler == null ? new NetworkScaler() : this.networkScaler;
         this.gridSearch =
                 this.gridSearch == null
-                        ? new ScalingFactorsGridSearch(getStartNetwork(), getTrainConfiguration(), getTrainPipeline(),
+                        ? new ScalingFactorsGridSearch(getStartNetwork(), config, getTrainPipeline(),
                         this.networkScaler)
                         : this.gridSearch;
     }
@@ -69,12 +71,11 @@ public class EfficientNet extends NeuralArchitectureSearch {
     }
 
     private void scaleNetwork() {
-        EfficientNetConfig config = getTrainConfiguration();
         this.scaledArchitecture = this.networkScaler.scale(getStartNetwork(), this.scalingFactors, config.getPhi());
     }
 
     private void saveNetwork() {
-        EfficientNetConfig config = getTrainConfiguration();
+        EfficientNetConfig config = new EfficientNetConfig(getTrainConfiguration());
         EfficientNetEmadlBuilder builder = new EfficientNetEmadlBuilder(this.scaledArchitecture, config);
         List<String> emadl = builder.getEmadl();
         String modelDirPath = "src/test/resources/models/efficientnet/";

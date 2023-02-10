@@ -1,7 +1,10 @@
 package de.monticore.mlpipelines.automl.trainalgorithms;
 
+import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
-import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
+import de.monticore.mlpipelines.automl.helper.NasAlgorithm;
+import de.monticore.mlpipelines.automl.helper.TrainConfigKeys;
 import de.monticore.mlpipelines.automl.trainalgorithms.adanet.AdaNetAlgorithm;
 import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.EfficientNet;
 import de.monticore.mlpipelines.pipelines.Pipeline;
@@ -9,41 +12,49 @@ import de.monticore.mlpipelines.pipelines.PythonPipeline;
 
 
 public class NeuralArchitectureSearchBuilder {
-    private final String EfficientNet = "EfficientNet";
-    private final String AdaNet = "AdaNet";
     private final String PytorchPipeline = "Pytorch";
 
-    private TrainAlgorithmConfig config;
+    private ASTConfLangCompilationUnit config;
+    private Pipeline trainingPipeline;
 
-    public void setConfig(TrainAlgorithmConfig config) {
+    public void setConfig(ASTConfLangCompilationUnit config) {
         this.config = config;
     }
 
+    public void setTrainingPipeline(Pipeline trainingPipeline) {
+        this.trainingPipeline = trainingPipeline;
+    }
+
     public NeuralArchitectureSearch build() {
-        NeuralArchitectureSearch neuralArchitectureSearch = getTrainAlgorithm();
-        Pipeline trainPipeline = getPipeline();
-        neuralArchitectureSearch.setTrainPipeline(trainPipeline);
+        NeuralArchitectureSearch neuralArchitectureSearch = getNasAlgorithm();
+        neuralArchitectureSearch.setTrainPipeline(trainingPipeline);
         neuralArchitectureSearch.setTrainConfiguration(config);
         return neuralArchitectureSearch;
     }
 
-    private NeuralArchitectureSearch getTrainAlgorithm() {
-        switch (config.getTrainAlgorithmName()) {
-            case EfficientNet:
+    private NeuralArchitectureSearch getNasAlgorithm() {
+        String nasAlgorithmName = getNasAlgorithmName();
+        switch (nasAlgorithmName) {
+            case NasAlgorithm.EfficientNet:
                 return new EfficientNet();
-            case AdaNet:
+            case NasAlgorithm.AdaNet:
                 String modelPath = "src.test.resources.models.adanet.AdaNet.emadl";
                 return new AdaNetAlgorithm();
             default:
                 throw new IllegalArgumentException(
-                        "Train algorithm " + config.getTrainAlgorithmName() + " not supported");
+                        "Train algorithm " + nasAlgorithmName + " not supported");
         }
     }
 
+    private String getNasAlgorithmName() {
+        return (String) ASTConfLangCompilationUnitHandler.getValueByKey(config, TrainConfigKeys.NasAlgorithm);
+    }
+
     private Pipeline getPipeline() {
-        if (PytorchPipeline.equals(config.getTrainPipelineName())) {
+        String nasAlgorithmName = getNasAlgorithmName();
+        if (PytorchPipeline.equals(nasAlgorithmName)) {
             return new PythonPipeline(LearningMethod.SUPERVISED);
         }
-        throw new IllegalArgumentException("Pipeline " + config.getTrainPipelineName() + " not supported");
+        throw new IllegalArgumentException("Pipeline " + nasAlgorithmName + " not supported");
     }
 }

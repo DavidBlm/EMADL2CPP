@@ -4,7 +4,6 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
-import de.monticore.mlpipelines.automl.configuration.Configuration;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearchBuilder;
 import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.EfficientNet;
 import junit.framework.TestCase;

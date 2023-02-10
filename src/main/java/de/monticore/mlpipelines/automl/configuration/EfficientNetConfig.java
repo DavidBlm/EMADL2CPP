@@ -1,88 +1,104 @@
 package de.monticore.mlpipelines.automl.configuration;
 
+import conflang._ast.ASTConfLangCompilationUnit;
+import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.automl.trainalgorithms.efficientnet.ScalingFactors;
 
-public class EfficientNetConfig extends TrainAlgorithmConfig{
-    private double flopsConditionValue;
+public class EfficientNetConfig {
+    private final boolean saveTrainedArchitecture;
+    private final String architectureSavePath;
+    private final String trainAlgorithmName;
+    private final float flopsConditionValue;
+    private final ScalingFactors minScalingFactors;
+    private final ScalingFactors maxScalingFactors;
+    private final ScalingFactors scalingFactorsStepSize;
+    private final int phi;
+    private final int numClasses;
+    private int minImageWidthAndHeight;
+    private int maxImageWidthAndHeight;
 
-    private ScalingFactors minScalingFactors;
+    public EfficientNetConfig(ASTConfLangCompilationUnit config) {
+        this.saveTrainedArchitecture = (boolean) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "save_trained_architecture");
+        this.architectureSavePath = (String) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "architecture_save_path");
+        this.trainAlgorithmName = (String) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "train_algorithm_name");
+        this.flopsConditionValue = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "flops_condition_value");
 
-    private ScalingFactors maxScalingFactors;
+        float minScalingFactorsAlpha = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "min_scaling_factors_alpha");
+        float minScalingFactorsBeta = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "min_scaling_factors_beta");
+        float minScalingFactorsGamma = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "min_scaling_factors_gamma");
+        this.minScalingFactors = new ScalingFactors(minScalingFactorsAlpha, minScalingFactorsBeta,
+                minScalingFactorsGamma);
 
-    private ScalingFactors scalingFactorsStepSize;
+        float maxScalingFactorsAlpha = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "max_scaling_factors_alpha");
+        float maxScalingFactorsBeta = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "max_scaling_factors_beta");
+        float maxScalingFactorsGamma = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "max_scaling_factors_gamma");
+        this.maxScalingFactors = new ScalingFactors(maxScalingFactorsAlpha, maxScalingFactorsBeta,
+                maxScalingFactorsGamma);
 
-    private int maximumImageWidthAndHeight;
+        float scalingFactorsStepSizeAlpha = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "scaling_factors_stepsize_alpha");
+        float scalingFactorsStepSizeBeta = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "scaling_factors_stepsize_beta");
+        float scalingFactorsStepSizeGamma = (float) (double) ASTConfLangCompilationUnitHandler.getValueByKey(config,
+                "scaling_factors_stepsize_gamma");
+        this.scalingFactorsStepSize = new ScalingFactors(scalingFactorsStepSizeAlpha, scalingFactorsStepSizeBeta,
+                scalingFactorsStepSizeGamma);
 
-    private int minimumImageWidthAndHeight;
-
-    private int phi;
-    private int numberClasses;
-
-    public EfficientNetConfig() {
-
+        this.phi = (int) ASTConfLangCompilationUnitHandler.getValueByKey(config, "phi");
+        this.numClasses = 10;
     }
 
-    public double getFlopsConditionValue() {
+    public boolean isSaveTrainedArchitecture() {
+        return saveTrainedArchitecture;
+    }
+
+    public String getArchitectureSavePath() {
+        return architectureSavePath;
+    }
+
+    public String getTrainAlgorithmName() {
+        return trainAlgorithmName;
+    }
+
+    public float getFlopsConditionValue() {
         return flopsConditionValue;
-    }
-
-    public void setFlopsConditionValue(double flopsConditionValue) {
-        this.flopsConditionValue = flopsConditionValue;
     }
 
     public ScalingFactors getMinScalingFactors() {
         return minScalingFactors;
     }
 
-    public void setMinScalingFactors(ScalingFactors minScalingFactors) {
-        this.minScalingFactors = minScalingFactors;
-    }
-
     public ScalingFactors getMaxScalingFactors() {
         return maxScalingFactors;
-    }
-
-    public void setMaxScalingFactors(ScalingFactors maxScalingFactors) {
-        this.maxScalingFactors = maxScalingFactors;
     }
 
     public ScalingFactors getScalingFactorsStepSize() {
         return scalingFactorsStepSize;
     }
 
-    public void setScalingFactorsStepSize(ScalingFactors scalingFactorsStepSize) {
-        this.scalingFactorsStepSize = scalingFactorsStepSize;
+    public int getMinImageWidthAndHeight() {
+        return minImageWidthAndHeight;
     }
 
-    public int getMaximumImageWidthAndHeight() {
-        return maximumImageWidthAndHeight;
-    }
-
-    public void setMaximumImageWidthAndHeight(int maximumImageWidthAndHeight) {
-        this.maximumImageWidthAndHeight = maximumImageWidthAndHeight;
-    }
-
-    public int getMinimumImageWidthAndHeight() {
-        return minimumImageWidthAndHeight;
-    }
-
-    public void setMinimumImageWidthAndHeight(int minimumImageWidthAndHeight) {
-        this.minimumImageWidthAndHeight = minimumImageWidthAndHeight;
+    public int getMaxImageWidthAndHeight() {
+        return maxImageWidthAndHeight;
     }
 
     public int getPhi() {
         return phi;
     }
 
-    public void setPhi(int phi) {
-        this.phi = phi;
-    }
-
     public int getNumberClasses() {
-        return numberClasses;
-    }
-
-    public void setNumberClasses(int numberClasses) {
-        this.numberClasses = numberClasses;
+        return numClasses;
     }
 }
