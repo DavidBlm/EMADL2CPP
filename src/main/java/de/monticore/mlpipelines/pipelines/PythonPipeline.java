@@ -8,8 +8,10 @@ import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.montipipes.config.ExecutionScriptConfiguration;
 import de.monticore.montipipes.generators.PipelineGenerator;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +21,8 @@ import java.util.List;
 
 public class PythonPipeline extends Pipeline {
 
+    private String modelOutputDirectory = "/model/mnist.LeNetNetwork/";
+    private final String modelOutputDirectoryWithDot = "." + modelOutputDirectory;
     private MontiAnnaGenerator montiAnnaGenerator;
 
     public PythonPipeline(final LearningMethod learningMethod) {
@@ -29,17 +33,65 @@ public class PythonPipeline extends Pipeline {
         this.montiAnnaGenerator = montiAnnaGenerator;
     }
 
+    public void setModelOutputDirectory(final String modelOutputDirectory) {
+        this.modelOutputDirectory = modelOutputDirectory;
+    }
+
     @Override
     public void execute() {
         generateTrainingConfiguration();
         generatePipelineExecutionScript();
-        final InputStream process = runScript().getInputStream();
+        Process process = runScript();
+        final InputStream pythonConsoleStream = process.getInputStream();
         try {
-            String result = IOUtils.toString(process, StandardCharsets.UTF_8);
+            String result = IOUtils.toString(pythonConsoleStream, StandardCharsets.UTF_8);
+            process.waitFor();
             System.out.println(result);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public float getTrainedAccuracy() {
+        JSONObject json = getTrainingResultsAsJsonObject();
+        float accuracy = json.getFloat("accuracy");
+
+        return accuracy;
+    }
+
+    private JSONObject getTrainingResultsAsJsonObject() {
+        String generatedModelPath = MontiAnnaContext.getInstance()
+                .getExperimentConfiguration()
+                .getPathToExecutionScript();
+        String pathToOutputFile = generatedModelPath + modelOutputDirectory;
+        String fileName = getTrainingOutputFileName(pathToOutputFile);
+        String pathToFile = System.getProperty("user.dir") + "\\" + pathToOutputFile + fileName;
+
+        JSONObject json = null;
+        try {
+            FileReader reader = new FileReader(pathToFile);
+            json = new JSONObject(IOUtils.toString(reader));
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return json;
+    }
+
+    private static String getTrainingOutputFileName(String pathToOutputFile) {
+        File folder = new File(pathToOutputFile);
+        File[] listOfFiles = folder.listFiles();
+        String fileName = "";
+        for (File file : listOfFiles) {
+            if (file.isFile() && file.getName().startsWith("model_") && file.getName().endsWith(".json")) {
+                fileName = file.getName();
+                break;
+            }
+        }
+        return fileName;
     }
 
     public void generateTrainingConfiguration() {
@@ -61,7 +113,7 @@ public class PythonPipeline extends Pipeline {
         pipelineGenerator.setSchemaAPIName(schemaAPIScriptName);
         final String networkFullName = this.neuralNetwork.getFullName().replace(".", "_");
         pipelineGenerator.addScriptConfiguration(ExecutionScriptConfiguration.MODEL_DIRECTORY,
-                "./model/mnist.LeNetNetwork/");
+                modelOutputDirectoryWithDot);
         pipelineGenerator.generatePipelineExecutor(pipelineConfigurationEntries,
                 this.pipelineModelWithExecutionSemantics, scriptDependencies);
     }

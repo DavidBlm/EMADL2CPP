@@ -10,13 +10,12 @@ import java.util.List;
 public class ScalingFactorsGridSearch {
     private final int standardPhi = 1;
 
-    private final double bestAccuracy = 0;
     private final NetworkScaler networkScaler;
     private final ArchitectureSymbol architecture;
     private final Pipeline trainPipeline;
     private final EfficientNetConfig config;
     private ScalingFactors bestScalingFactors;
-    private double locBestAccuracy;
+    private double bestAccuracy;
 
     public ScalingFactorsGridSearch(
             ArchitectureSymbol architecture,
@@ -81,14 +80,15 @@ public class ScalingFactorsGridSearch {
     }
 
     private void checkIfScalingFactorsAreBetterThanBest(ScalingFactors scalingFactors) {
-        if (trainPipeline.getTrainedAccuracy() > locBestAccuracy) {
-            locBestAccuracy = trainPipeline.getTrainedAccuracy();
+        float newAccuracy = trainPipeline.getTrainedAccuracy();
+        if (trainPipeline.getTrainedAccuracy() > bestAccuracy) {
+            bestAccuracy = newAccuracy;
             bestScalingFactors = scalingFactors;
         }
     }
 
     private void initVariables() {
         this.bestScalingFactors = new ScalingFactors(1, 1, 1);
-        this.locBestAccuracy = 0;
+        this.bestAccuracy = 0;
     }
 }

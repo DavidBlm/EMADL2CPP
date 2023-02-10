@@ -42,7 +42,5 @@ public abstract class Pipeline {
         this.pipelineConfiguration = pipelineConfiguration;
     }
 
-    public float getTrainedAccuracy() {
-        return 0;
-    }
+    public abstract float getTrainedAccuracy();
 }

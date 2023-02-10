@@ -2,9 +2,11 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
+import de.monticore.mlpipelines.automl.emadlprinter.EmadlPrettyPrinter;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class EfficientNet extends NeuralArchitectureSearch {
@@ -51,10 +53,17 @@ public class EfficientNet extends NeuralArchitectureSearch {
         this.config = new EfficientNetConfig(getTrainConfiguration());
         setStartNetwork(startNetwork);
         createMissingObjects();
+        printNetwork();
         findBestScalingFactors();
         scaleNetwork();
         saveNetwork();
         return scaledArchitecture;
+    }
+
+    private void printNetwork() {
+        EmadlPrettyPrinter builder = new EmadlPrettyPrinter();
+        List<String> emadl = Arrays.asList(builder.prettyPrint(getStartNetwork()).split("\n"));
+        System.out.println("Original Network: " + emadl);
     }
 
     private void createMissingObjects() {
@@ -75,9 +84,8 @@ public class EfficientNet extends NeuralArchitectureSearch {
     }
 
     private void saveNetwork() {
-        EfficientNetConfig config = new EfficientNetConfig(getTrainConfiguration());
-        EfficientNetEmadlBuilder builder = new EfficientNetEmadlBuilder(this.scaledArchitecture, config);
-        List<String> emadl = builder.getEmadl();
+        EmadlPrettyPrinter builder = new EmadlPrettyPrinter();
+        List<String> emadl = Arrays.asList(builder.prettyPrint(scaledArchitecture).split("\n"));
         String modelDirPath = "src/test/resources/models/efficientnet/";
         String modelName = "EfficientNetB" + config.getPhi();
         String modelFileEnding = ".emadl";

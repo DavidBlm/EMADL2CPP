@@ -31,13 +31,23 @@ public class AutoMLPipeline extends Pipeline {
         this.trainPipeline.setPipelineConfiguration(pipelineConfiguration);
         this.trainPipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
 
-        CommonScope spannedScope = (CommonScope) neuralNetwork.getSpannedScope();
-        CommonScope subScope = (CommonScope) spannedScope.getSubScopes().get(0);
-        ArchitectureSymbol originalArchitecture = (ArchitectureSymbol) subScope.getSpanningSymbol().get();
+        ArchitectureSymbol originalArchitecture = getArchitectureSymbol();
         executeNeuralArchitectureSearch(originalArchitecture);
 //        executeHyperparameterOptimization(configuration);
         trainPipeline.setNeuralNetwork(neuralNetwork);
         trainPipeline.execute();
+    }
+
+    private ArchitectureSymbol getArchitectureSymbol() {
+        CommonScope spannedScope = (CommonScope) neuralNetwork.getSpannedScope();
+        CommonScope subScope = (CommonScope) spannedScope.getSubScopes().get(0);
+        ArchitectureSymbol originalArchitecture = (ArchitectureSymbol) subScope.getSpanningSymbol().get();
+        return originalArchitecture;
+    }
+
+    @Override
+    public float getTrainedAccuracy() {
+        return 0;
     }
 
     private void executeNeuralArchitectureSearch(ArchitectureSymbol originalArchitecture) {
