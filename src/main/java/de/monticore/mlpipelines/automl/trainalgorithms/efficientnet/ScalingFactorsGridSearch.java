@@ -4,7 +4,11 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.pipelines.Pipeline;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ScalingFactorsGridSearch {
+    private final int standardPhi = 1;
 
     private final double bestAccuracy = 0;
     private final NetworkScaler networkScaler;
@@ -25,9 +29,26 @@ public class ScalingFactorsGridSearch {
         this.networkScaler = networkScaler;
     }
 
-    public ScalingFactors findScalingFactors() {
+    public ScalingFactors findBestScalingFactors() {
         initVariables();
+        List<ScalingFactors> possibleScalingFactors = getPossibleScalingFactors();
 
+        for (int i = 0; i < possibleScalingFactors.size(); i++) {
+            ScalingFactors scalingFactors = possibleScalingFactors.get(i);
+            System.out.println();
+            System.out.println("Iteration " + (i + 1) + " of " + possibleScalingFactors.size());
+            System.out.println("Test these scaling factors: " + scalingFactors.toString());
+            checkScalingFactors(scalingFactors);
+        }
+
+        System.out.println();
+        System.out.println("Best scaling factors: " + bestScalingFactors.toString());
+        System.out.println("Best scalingFactors accuracy: " + bestAccuracy);
+        return bestScalingFactors;
+    }
+
+    public List<ScalingFactors> getPossibleScalingFactors() {
+        List<ScalingFactors> scalingFactors = new ArrayList<>();
         for (double gamma = config.getMinScalingFactors().gamma;
              gamma <= config.getMaxScalingFactors().gamma;
              gamma += config.getScalingFactorsStepSize().gamma) {
@@ -37,11 +58,11 @@ public class ScalingFactorsGridSearch {
                  beta += config.getScalingFactorsStepSize().beta) {
 
                 float alpha = alphaFromFlopsCondition(beta, gamma);
-                this.checkScalingFactors(new ScalingFactors(alpha, beta, gamma));
+                scalingFactors.add(new ScalingFactors(alpha, beta, gamma));
             }
         }
 
-        return bestScalingFactors;
+        return scalingFactors;
     }
 
     private float alphaFromFlopsCondition(double beta, double gamma) {
@@ -54,7 +75,7 @@ public class ScalingFactorsGridSearch {
             return;
         }
 
-        this.networkScaler.scale(this.architecture, scalingFactors, this.config.getPhi());
+        this.networkScaler.scale(this.architecture, scalingFactors, this.standardPhi);
         trainPipeline.execute();
         checkIfScalingFactorsAreBetterThanBest(scalingFactors);
     }

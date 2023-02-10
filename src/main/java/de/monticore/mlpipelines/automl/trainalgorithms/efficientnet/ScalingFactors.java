@@ -12,4 +12,12 @@ public class ScalingFactors {
         this.beta = beta;
         this.gamma = gamma;
     }
+
+    @Override
+    public String toString() {
+        //Only show with two decimal places:
+        return "alpha: " + String.format("%.2f", alpha) +
+                ", beta: " + String.format("%.2f", beta) +
+                ", gamma: " + String.format("%.2f", gamma);
+    }
 }

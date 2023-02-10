@@ -67,7 +67,7 @@ public class EfficientNet extends NeuralArchitectureSearch {
     }
 
     private void findBestScalingFactors() {
-        this.scalingFactors = this.gridSearch.findScalingFactors();
+        this.scalingFactors = this.gridSearch.findBestScalingFactors();
     }
 
     private void scaleNetwork() {
