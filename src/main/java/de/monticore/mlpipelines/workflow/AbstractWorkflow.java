@@ -92,10 +92,12 @@ public abstract class AbstractWorkflow {
 
         // Load AutoML pipeline configurations
         ASTConfLangCompilationUnit nasConf = this.getNASConfiguration(pathToModelsDirectory);
-//        ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(pathToModelsDirectory,
-//                "HyperparameterOpt.conf");
-//        ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(pathToModelsDirectory,
-//                "EvaluationCriteria.conf");
+        ASTConfLangCompilationUnit searchSpace = this.getAutoMLConfiguration(pathToModelsDirectory,
+                "SearchSpace.conf");
+        ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(pathToModelsDirectory,
+                "HyperparameterOpt.conf");
+        ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(pathToModelsDirectory,
+                "EvaluationCriteria.conf");
 
         trainingConfiguration.getConfiguration().addSuperConfiguration(nasConf.getConfiguration());
 
@@ -107,7 +109,18 @@ public abstract class AbstractWorkflow {
         pipeline.setPipelineConfiguration(pipelineConfiguration);
         pipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
         pipeline.setNeuralNetwork(network);
+        pipeline.setHyperparamsOptConf(hyperparamsOptConf);
+        pipeline.setEvaluationCriteria(evaluationCriteria);
+
+        this.setPipelineSearchSpace(trainingConfiguration, searchSpace);
+
         executePipeline();
+    }
+
+    private void setPipelineSearchSpace(ASTConfLangCompilationUnit trainingConfiguration, ASTConfLangCompilationUnit searchSpace) {
+        String trainConfigName = trainingConfiguration.getConfiguration().getName();
+        searchSpace.getConfiguration().setName(trainConfigName);
+        pipeline.setSearchSpace(searchSpace);
     }
 
     protected String getDirectoryPathSupplementFromComponentName(final String rootModelName) {
