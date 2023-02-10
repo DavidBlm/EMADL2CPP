@@ -8,8 +8,7 @@ component AdaNetCustom<Z(2:oo) classes = 10, Z(1:oo) layerWidth = 10>{
         image ->
         FullyConnected(| = 2, units=layerWidth)->
         Concatenate()->
-        FullyConnected(units=layerWidth)->
-        FullyConnected(units = 10) ->
+        FullyConnected(->=10, units=10)->
         FullyConnected(units=classes) ->
         Softmax() ->
         predictions

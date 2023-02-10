@@ -40,6 +40,7 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     }
 
     private void printArchParams(ArchitectureSymbol arch) {
+        this.printer.print("<Z(2:oo) classes = 10, Z(1:oo) layerWidth = 10>");
     }
 
 
