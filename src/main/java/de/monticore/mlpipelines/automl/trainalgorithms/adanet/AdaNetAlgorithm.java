@@ -101,9 +101,14 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
     private CandidateEvaluationResult evaluateCandidate(AdaNetCandidate candidate) {
         setCandidateForArchitecture(candidate);
         this.getTrainPipeline().execute();
-//        float score = this.getTrainPipeline().getTrainedAccuracy();
-        float score = 0;
+        float score = this.getTrainPipeline().getTrainedAccuracy();
+        removeCandidateFromArchitecture();
+
         return new CandidateEvaluationResult(candidate, score);
+    }
+
+    private void removeCandidateFromArchitecture() {
+        architectureSymbol = candidateBuilder.removeCandidateFromArchitecture(architectureSymbol);
     }
 
     private CandidateEvaluationResult selectBestCandidate(List<AdaNetCandidate> candidates) {
