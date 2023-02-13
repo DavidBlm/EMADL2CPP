@@ -201,8 +201,8 @@ public abstract class AbstractWorkflow {
     protected ASTConfLangCompilationUnit getNASConfiguration(String modelDirPath) throws IOException {
         if (Files.exists(Paths.get(modelDirPath, "AdaNet.conf"))) {
             return this.getAutoMLConfiguration(modelDirPath, "AdaNet.conf");
-        } else if (Files.exists(Paths.get(modelDirPath, "EfficientNet.conf"))) {
-            return this.getAutoMLConfiguration(modelDirPath, "EfficientNet.conf");
+        } else if (Files.exists(Paths.get(modelDirPath, "AdaNet.conf"))) {
+            return this.getAutoMLConfiguration(modelDirPath, "AdaNet.conf");
         } else {
             throw new FileNotFoundException("No conf file for Neural Architecture Search found.");
         }
