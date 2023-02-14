@@ -27,7 +27,7 @@ public class ModularBasicTest extends ModularTestSetup {
         Log.getFindings().clear();
         removeDirectory("target/modularNetworkSimpleMultiNet");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/modularNetworkSimpleMultiNet", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad", "-dn", "Network,Net2"};
-        runGenerator(args, hashPaths,16,false);
+        runGenerator(args, hashPaths,7,false);
     }
 
     @Test
@@ -35,7 +35,7 @@ public class ModularBasicTest extends ModularTestSetup {
         Log.getFindings().clear();
         removeDirectory("target/modularNetworkComplex");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/modularNetworkComplex", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad", "-dn", "Network,Net2"};
-        runGenerator(args, hashPaths,14,false);
+        runGenerator(args, hashPaths,6,false);
     }
 
     @Test
@@ -43,7 +43,7 @@ public class ModularBasicTest extends ModularTestSetup {
         Log.getFindings().clear();
         removeDirectory("target/modularNetworkSimple");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/modularNetworkSimple", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad", "-dn", "Network"};
-        runGenerator(args, hashPaths,14,false);
+        runGenerator(args, hashPaths,6,false);
     }
 
     @Test
@@ -51,6 +51,6 @@ public class ModularBasicTest extends ModularTestSetup {
         Log.getFindings().clear();
         removeDirectory("target/singleNetwork");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/singleNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad"};
-        runGenerator(args, hashPaths,14,false);
+        runGenerator(args, hashPaths,6,false);
     }
 }

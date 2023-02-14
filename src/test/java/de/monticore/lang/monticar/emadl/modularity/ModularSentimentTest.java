@@ -15,7 +15,7 @@ public class ModularSentimentTest extends ModularTestSetup{
         Log.getFindings().clear();
         removeDirectory("target/sentimentanalyzer");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/modularSentiment", "-r", "sentimentanalyzer.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args, hashPaths,5,false);
+        runGenerator(args, hashPaths,3,false);
     }
 
     @Test
@@ -23,7 +23,7 @@ public class ModularSentimentTest extends ModularTestSetup{
         Log.getFindings().clear();
         removeDirectory("target/sentimentanalyzer");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/singleSentiment", "-r", "sentimentanalyzer.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args, hashPaths,5,false);
+        runGenerator(args, hashPaths,3,false);
     }
 
     @Ignore
@@ -32,7 +32,7 @@ public class ModularSentimentTest extends ModularTestSetup{
         Log.getFindings().clear();
         removeDirectory("target/modularSentimentMultiOutput");
         String[] args = {"-m", "src/test/resources/models/ModularCNN/modularSentimentMultiOutput", "-r", "sentimentanalyzer.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
-        runGenerator(args, hashPaths,3,false);
+        runGenerator(args, hashPaths,1,false);
     }
 
 }

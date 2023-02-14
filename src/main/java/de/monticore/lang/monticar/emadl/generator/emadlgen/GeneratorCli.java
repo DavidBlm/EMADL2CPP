@@ -299,9 +299,9 @@ public class GeneratorCli {
         String fullModelPath = cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()) + rootModelName;
 
         try {
-            Log.warn("Running generator for model: " + fullModelPath);
+            //Log.warn("Running generator for model: " + fullModelPath);
             generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl, allowDecomposition, decompNetworkList);
-            Log.warn("Generator run finished for model: " + fullModelPath);
+            //Log.warn("Generator run finished for model: " + fullModelPath);
         } catch (IOException e){
             String errMsg ="io error during generation"+ e;
             Log.error(errMsg);
