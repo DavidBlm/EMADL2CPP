@@ -8,6 +8,4 @@ public interface BackendDecomposer {
 
     public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure);
 
-    //public void decomposeNetworks(String modelPath, HashMap<String, ComposedNetworkStructure> composedNetworkStructures);
-
 }
