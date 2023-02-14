@@ -6,6 +6,6 @@ import java.util.HashMap;
 
 public interface BackendDecomposer {
 
-    public void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure);
+    void decomposeNetwork(String modelPath, NetworkStructure composedNetworkStructure);
 
 }
