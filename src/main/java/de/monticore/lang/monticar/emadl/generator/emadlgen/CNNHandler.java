@@ -79,13 +79,14 @@ public class CNNHandler {
         return cnnArchGenerator;
     }
 
-    protected void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture) {
+    protected  void generateCNN(List<FileContent> fileContents, TaggingResolver taggingResolver, EMAComponentInstanceSymbol instance, ArchitectureSymbol architecture) {
         List<FileContent> contents = cnnArchGenerator.generateStrings(taggingResolver, architecture);
         String fullName = instance.getFullName().replaceAll("\\.", "_");
 
         //get the components execute method
         String executeKey = "execute_" + fullName;
-        List<String> executeMethods = fileHandler.getContentOf(contents, executeKey);
+        List<String> executeMethods = fileHandler
+                .getContentOf(contents, executeKey);
         if (executeMethods.size() != 1) {
             throw new IllegalStateException("execute method of " + fullName + " not found");
         }
@@ -98,7 +99,7 @@ public class CNNHandler {
             applyBeamSearchMethod = applyBeamSearchMethods.get(0);
         }
 
-        String component = generator.getEmamGen().generateString(taggingResolver, instance, (MathStatementsSymbol) null);
+        String component = generator.getEmamGen().generateString(taggingResolver, instance, null);
         FileContent componentFileContent = new FileContent(
                 generator.transformComponent(component, "CNNPredictor_" + fullName,
                         applyBeamSearchMethod,
@@ -215,7 +216,6 @@ public class CNNHandler {
                     EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(fullCriticName,
                             symTabAndTaggingResolver);
                     EMADLCocos.checkAll(instanceSymbol);
-                    //Optional<ArchitectureSymbol> critic = instanceSymbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
                     Optional<ArchitectureSymbol> critic = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!critic.isPresent()) {
                         String message = String.format("Resolving critic component failed. Critic component '%s' does not have a CNN implementation, but is required to have one.", fullCriticName);
@@ -239,7 +239,6 @@ public class CNNHandler {
                     EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
                             fullDiscriminatorName, taggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
-                    //Optional<ArchitectureSymbol> discriminator = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     Optional<ArchitectureSymbol> discriminator = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!discriminator.isPresent()) {
                         String message = String.format("Resolving discriminator component failed. Discriminator component '%s' does not have a CNN implementation, but is required to have one.", fullDiscriminatorName);
@@ -264,7 +263,6 @@ public class CNNHandler {
                     EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
                             fullQNetworkName, taggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
-                    //Optional<ArchitectureSymbol> qNetwork = instanceSymbol.getSpannedScope().resolve("",ArchitectureSymbol.KIND);
                     Optional<ArchitectureSymbol> qNetwork = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!qNetwork.isPresent()) {
                         String message = String.format("Resolving Q-Network component failed. Q-Network component '%s' does not have a CNN implementation, but is required to have one.", fullQNetworkName);
@@ -288,7 +286,6 @@ public class CNNHandler {
                     EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
                             fullEncoderName, taggingHandler.getSymTabAndTaggingResolver());
                     EMADLCocos.checkAll(instanceSymbol);
-                    //Optional<ArchitectureSymbol> encoder = instanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
                     Optional<ArchitectureSymbol> encoder = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
                     if (!encoder.isPresent()) {
                         String message = String.format("Resolving encoder component failed. Encoder component '%s' does not have a CNN implementation, but is required to have one.", fullEncoderName);

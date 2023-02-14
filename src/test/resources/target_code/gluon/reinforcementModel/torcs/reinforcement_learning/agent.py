@@ -6,13 +6,13 @@ import os
 import subprocess #library to call shell script
 import shlex #library to pass variable to shell script
 import sys
-import util
+import reinforcement_learning.util as util
 import matplotlib.pyplot as plt
 import pyprind
-from cnnarch_logger import ArchLogger
-from replay_memory import ReplayMemoryBuilder
-from strategy import StrategyBuilder
-from util import copy_net, get_loss_function,\
+from reinforcement_learning.cnnarch_logger import ArchLogger
+from reinforcement_learning.replay_memory import ReplayMemoryBuilder
+from reinforcement_learning.strategy import StrategyBuilder
+from reinforcement_learning.util import copy_net, get_loss_function,\
     copy_net_with_two_inputs, DdpgTrainingStats, DqnTrainingStats,\
     make_directory_if_not_exist
 from mxnet import nd, gluon, autograd

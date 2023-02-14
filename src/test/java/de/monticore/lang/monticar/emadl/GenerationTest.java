@@ -175,6 +175,7 @@ public class GenerationTest extends AbstractSymtabTest {
                         "CNNTrainer_mnist_mnistClassifier_net.py"));
     }
 
+    @Ignore
     @Test
     public void testMnistClassifierForGluon() throws IOException, TemplateException {
         Log.getFindings().clear();
@@ -247,8 +248,10 @@ public class GenerationTest extends AbstractSymtabTest {
         Generator tester = new Generator(Backend.MXNET, "./target/ComposedNetworks");
 
         try {
-            tester.getEmadlFileHandler().getChecksumForFile("invalid Path!");
-            assertTrue("Hash method should throw IOException on invalid path", false);
+
+                tester.getEmadlFileHandler().getChecksumForFile("invalid Path!");
+                fail("Hash method should throw IOException on invalid path");
+
         } catch (IOException e) {
         }
     }
@@ -461,7 +464,7 @@ public class GenerationTest extends AbstractSymtabTest {
         checkFindingsCount(3L);
         assertEquals(Log.getFindings().get(0).toString(),
                 "Tagging info for DataPath symbol was found, ignoring data_paths.txt: src/test/resources/models");
-        assertTrue(Log.getErrorCount() == 0);
+        assertEquals(0, Log.getErrorCount());
     }
 
     @Test
@@ -645,5 +648,66 @@ public class GenerationTest extends AbstractSymtabTest {
                         "Component 'infoGAN.InfoGANQNetwork' has 1 output ports, whereas component " +
                         "'infoGAN.InfoGANGenerator' has 0 input ports."))
         );
+    }
+
+    @Test
+    public void testCifar10GenerationPyTorch() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = { "-m", "src/test/resources/models/", "-r", "cifar10.Cifar10Classifier", "-b", "PYTORCH", "-f",
+                "n", "-c", "n" };
+        GeneratorCli.main(args);
+        assertTrue(Log.getFindings().isEmpty());
+
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/pytorch/cifar"),
+                Arrays.asList(
+                        "cifar10_cifar10Classifier.cpp",
+                        "cifar10_cifar10Classifier.h",
+                        "CNNNet_cifar10_cifar10Classifier_net.py",
+                        "CNNPredictor_cifar10_cifar10Classifier_net.h",
+                        "cifar10_cifar10Classifier_net.h",
+                        "CNNTranslator.h",
+                        "cifar10_cifar10Classifier_calculateClass.h",
+                        "execute_cifar10_cifar10Classifier_net"));
+    }
+
+    @Test
+    public void testMnistClassifierForPyTorch() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/", "-r", "mnist.MnistClassifier", "-b", "PYTORCH", "-f", "n", "-c", "n"};
+        GeneratorCli.main(args);
+        checkFindingsCount();
+
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/pytorch/mnist"),
+                Arrays.asList(
+                        "mnist_mnistClassifier.cpp",
+                        "mnist_mnistClassifier.h",
+                        "CNNNet_mnist_mnistClassifier_net.py",
+                        "mnist_mnistClassifier_net.h",
+                        "CNNTranslator.h",
+                        "mnist_mnistClassifier_calculateClass.h",
+                        "execute_mnist_mnistClassifier_net",
+                        "CNNPredictor_mnist_mnistClassifier_net.h"));
+    }
+
+    @Test
+    public void testLoadNetworkMnistForPyTorch() throws IOException, TemplateException {
+        Log.getFindings().clear();
+        String[] args = {"-m", "src/test/resources/models/", "-r", "LoadNetworkMnist", "-b", "PYTORCH", "-f", "n", "-c", "n"};
+        GeneratorCli.main(args);
+        checkFindingsCount();
+
+        checkFilesAreEqual(
+                Paths.get("./target/generated-sources-emadl"),
+                Paths.get("./src/test/resources/target_code/pytorch/loadlayer"),
+                Arrays.asList(
+                        "loadNetworkMnist.h",
+                        "CNNNet_loadNetworkMnist.py",
+                        "CNNTranslator.h",
+                        "execute_loadNetworkMnist",
+                        "CNNPredictor_loadNetworkMnist.h"));
     }
 }

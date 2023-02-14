@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static junit.framework.TestCase.assertTrue;
 
@@ -30,7 +31,7 @@ public class CMakeGenerationTest extends AbstractSymtabTest {
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
                 Paths.get("./src/test/resources/target_code/ipopt"),
-                Arrays.asList(
+                Collections.singletonList(
                         "CMakeLists.txt"
                 )
         );

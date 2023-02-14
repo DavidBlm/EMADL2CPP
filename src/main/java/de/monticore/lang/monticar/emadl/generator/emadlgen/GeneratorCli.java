@@ -5,6 +5,9 @@ import de.monticore.lang.monticar.cnnarch.generator.GenerationAbortedException;
 import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.modularcnn.tools.Randomizer;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
+import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
+import de.monticore.mlpipelines.configuration.MontiAnnaContext;
+import de.monticore.mlpipelines.workflow.AutonomousPipelineOrchestration;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
 import org.apache.commons.cli.*;
@@ -83,6 +86,7 @@ public class GeneratorCli {
             .hasArg(true)
             .required(false).build();
 
+
     public static final Option OPTION_ALLOW_DECOMPOSITION = Option.builder("ad")
             .longOpt("allow-decomposition")
             .desc("Allow decomposition of subnetworks after training")
@@ -102,8 +106,8 @@ public class GeneratorCli {
             .required(false).build();
 
 
-    private GeneratorCli() {
-    }
+    protected GeneratorCli() {}
+
 
     public static void main(String[] args) {
         Options options = getOptions();
@@ -137,7 +141,7 @@ public class GeneratorCli {
         options.addOption(OPTION_NO_DEBUG_LOG);
     }
 
-    private static void printHelp(){
+    protected static void printHelp(){
         System.err.println("Arguments:");
         System.err.println("\t -m <parent model path>");
         System.err.println("\t -r <root model including full package name>");
@@ -155,7 +159,7 @@ public class GeneratorCli {
 
     }
 
-    private static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
+    static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
         CommandLine cliArgs;
         try {
             cliArgs = parser.parse(options, args);
@@ -168,7 +172,7 @@ public class GeneratorCli {
         return cliArgs;
     }
 
-    private static void runGenerator(CommandLine cliArgs) {
+    protected static void runGenerator(CommandLine cliArgs) {
         String rootModelName = cliArgs.getOptionValue(OPTION_ROOT_MODEL.getOpt());
         String outputPath = cliArgs.getOptionValue(OPTION_OUTPUT_PATH.getOpt());
         String backendString = cliArgs.getOptionValue(OPTION_BACKEND.getOpt());
@@ -299,11 +303,11 @@ public class GeneratorCli {
             generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl, allowDecomposition, decompNetworkList);
             Log.warn("Generator run finished for model: " + fullModelPath);
         } catch (IOException e){
-            String errMsg ="io error during generation"+ e.toString();
+            String errMsg ="io error during generation"+ e;
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
         } catch (TemplateException e){
-            String errMsg = "template error during generation: "+ e.toString();
+            String errMsg = "template error during generation: "+ e;
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
         } catch (GenerationAbortedException e) {
@@ -311,4 +315,5 @@ public class GeneratorCli {
             Log.error(message);
         }
     }
+
 }

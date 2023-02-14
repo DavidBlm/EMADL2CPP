@@ -105,7 +105,7 @@ public class Generator implements EMAMGenerator {
     }
 
     public void setGenerationTargetPath(String generationTargetPath){
-        if (!(generationTargetPath.substring(generationTargetPath.length() - 1).equals("/"))){
+        if (!(generationTargetPath.endsWith("/"))){
             getEmamGen().setGenerationTargetPath(generationTargetPath + "/");
         }
         else {
@@ -156,7 +156,6 @@ public class Generator implements EMAMGenerator {
 
     public EMAComponentInstanceSymbol resolveComponentInstanceSymbol(String qualifiedName, TaggingResolver symtab) {
         String simpleName = Names.getSimpleName(qualifiedName);
-        Log.info("ResolveSimpleName: " + simpleName, "RESOLVER");
         if (!Character.isUpperCase(simpleName.charAt(0))) {
             String packageName = qualifiedName.substring(0, qualifiedName.length() - simpleName.length() - 1);
             qualifiedName = Names.getQualifiedName(packageName, StringUtils.capitalize(simpleName));
@@ -164,7 +163,6 @@ public class Generator implements EMAMGenerator {
 
         EMAComponentSymbol component = symtab.<EMAComponentSymbol>resolve(qualifiedName, EMAComponentSymbol.KIND).orElse(null);
 
-        //Resolution done here
         List<String> splitName = Splitters.DOT.splitToList(qualifiedName);
         String componentName = splitName.get(splitName.size() - 1);
         String instanceName = componentName.substring(0, 1).toLowerCase() + componentName.substring(1);
@@ -176,10 +174,11 @@ public class Generator implements EMAMGenerator {
         }
 
         Scope c1 = component.getEnclosingScope();
-        Optional<EMAComponentInstanceSymbol> c2 = c1.<EMAComponentInstanceSymbol>resolve(instanceName, EMAComponentInstanceSymbol.KIND);
+        Optional<EMAComponentInstanceSymbol> c2 = c1.resolve(instanceName, EMAComponentInstanceSymbol.KIND);
         EMAComponentInstanceSymbol c3 = c2.get();
         return c3;
     }
+
 
     protected void compile() throws IOException {
         File tempScript = fileHandler.createTempScript();
@@ -198,7 +197,7 @@ public class Generator implements EMAMGenerator {
                 throw new RuntimeException(errMsg);
             }
         }catch(Exception e){
-            String errMsg ="During compilation, the following error occured: '" + e.toString() + "'";
+            String errMsg ="During compilation, the following error occured: '" + e + "'";
             Log.error(errMsg);
             throw new RuntimeException(errMsg);
         } finally {
@@ -257,8 +256,9 @@ public class Generator implements EMAMGenerator {
         generateComponent(fileContents, allInstances, taggingResolver, componentInstanceSymbol);
 
         String instanceName = componentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
-        Log.info("Instance name: " + instanceName,"GENERATE_STRINGS");
-        fileContents.addAll(emadlCNNHandler.generateCNNTrainer(allInstances, instanceName, false));
+        if (!Backend.getBackendString(this.backend).equals("PYTORCH")) {
+            fileContents.addAll(emadlCNNHandler.generateCNNTrainer(allInstances, instanceName, false));
+        }
         TypesGeneratorCPP tg = new TypesGeneratorCPP();
         fileContents.addAll(tg.generateTypes(TypeConverter.getTypeSymbols()));
 
@@ -304,8 +304,6 @@ public class Generator implements EMAMGenerator {
                 emadlCNNHandler.getCachedComposedArchitectureSymbols(), this.getBackend(), this.emadlCNNHandler.getComposedNetworkStructures());
         networkCompositionHandler.processComponentInstances(allInstances);
 
-        //Optional<ArchitectureSymbol> architecture = componentInstanceSymbol.getSpannedScope().resolve("", ArchitectureSymbol.KIND);
-        //if(composedNetworkHandler.isComposedNet(componentInstanceSymbol)) composedNetworkHandler.refreshInformation(allInstances);
         Optional<ArchitectureSymbol> architecture = networkCompositionHandler.resolveArchitectureSymbolOfInstance(componentInstanceSymbol);
 
 
@@ -317,17 +315,16 @@ public class Generator implements EMAMGenerator {
 
         if (architecture.isPresent()) {
             emadlCNNHandler.getCnnArchGenerator().check(architecture.get());
-            String dPath = fileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+            List<String> dPaths = getEmadlTaggingHandler().getDataPaths(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             String wPath = fileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
             HashMap layerPathParameterTags = taggingHandler.getLayerPathParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             layerPathParameterTags.putAll(taggingHandler.getLayerArtifactParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol));
-            architecture.get().setDataPath(dPath);
+            architecture.get().setDataPaths(dPaths);
+            architecture.get().setDataPath(dPaths.get(0));
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(emaComponentSymbol.getFullName());
             architecture.get().setUseDgl(getUseDgl());
-
-
             if(!fileHandler.getCustomFilesPath().equals("")) {
                 architecture.get().setCustomPyFilesPath(fileHandler.getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
             }
@@ -387,17 +384,16 @@ public class Generator implements EMAMGenerator {
     }
 
     protected void generateSubComponents(List<FileContent> fileContents, Set<EMAComponentInstanceSymbol> allInstances, TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol) {
-        fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, (MathStatementsSymbol) null), componentInstanceSymbol));
+        fileContents.add(new FileContent(emamGen.generateString(taggingResolver, componentInstanceSymbol, null), componentInstanceSymbol));
         String lastNameWithoutArrayPart = "";
-
         for (EMAComponentInstanceSymbol instanceSymbol : componentInstanceSymbol.getSubComponents()) {
             int arrayBracketIndex = instanceSymbol.getName().indexOf("[");
             boolean generateComponentInstance = true;
             if (arrayBracketIndex != -1) {
                 generateComponentInstance = !instanceSymbol.getName().substring(0, arrayBracketIndex).equals(lastNameWithoutArrayPart);
                 lastNameWithoutArrayPart = instanceSymbol.getName().substring(0, arrayBracketIndex);
-                Log.info(lastNameWithoutArrayPart, "Without:");
-                Log.info(generateComponentInstance + "", "Bool:");
+                Log.info("Without: " + lastNameWithoutArrayPart, this.getClass().getName());
+                Log.info("Bool: " + generateComponentInstance, this.getClass().getName());
             }
             if (generateComponentInstance) {
                 generateComponent(fileContents, allInstances, taggingResolver, instanceSymbol);

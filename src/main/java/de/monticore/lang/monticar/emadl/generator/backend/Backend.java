@@ -9,6 +9,7 @@ import de.monticore.lang.monticar.cnnarch.mxnetgenerator.CNNArch2MxNet;
 import de.monticore.lang.monticar.cnnarch.mxnetgenerator.CNNTrain2MxNet;
 import de.monticore.lang.monticar.cnnarch.caffe2generator.CNNArch2Caffe2;
 import de.monticore.lang.monticar.cnnarch.caffe2generator.CNNTrain2Caffe2;
+import de.monticore.lang.monticar.cnnarch.pytorchgenerator.CNNArch2PyTorch;
 import de.monticore.lang.monticar.emadl.generator.reinforcementlearning.RewardFunctionCppGenerator;
 import de.monticore.lang.monticar.cnnarch.tensorflowgenerator.CNNArch2Tensorflow;
 import de.monticore.lang.monticar.cnnarch.tensorflowgenerator.CNNTrain2Tensorflow;
@@ -54,8 +55,8 @@ public enum Backend {
         @Override
         public CNNTrainGenerator getCNNTrainGenerator() {
             return new CNNTrain2Gluon(new RewardFunctionCppGenerator());
-		}
-	},
+        }
+    },
     TENSORFLOW{
         @Override
         public CNNArchGenerator getCNNArchGenerator() {
@@ -64,6 +65,16 @@ public enum Backend {
         @Override
         public CNNTrainGenerator getCNNTrainGenerator() {
             return new CNNTrain2Tensorflow();
+        }
+    },
+    PYTORCH{
+        @Override
+        public CNNArchGenerator getCNNArchGenerator() {
+            return new CNNArch2PyTorch();
+        }
+        @Override
+        public CNNTrainGenerator getCNNTrainGenerator() {
+            return new CNNTrain2NoBackend();
         }
     };
 
@@ -87,6 +98,9 @@ public enum Backend {
             case "TENSORFLOW":
                 return Optional.of(TENSORFLOW);
 
+            case "PYTORCH":
+                return Optional.of(PYTORCH);
+
             default:
                 return Optional.empty();
         }
@@ -105,7 +119,10 @@ public enum Backend {
                 
             case TENSORFLOW:
                 return "TENSORFLOW";
-                
+
+            case PYTORCH:
+                return "PYTORCH";
+
             default:
                 return "MXNET";
         }

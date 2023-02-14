@@ -77,7 +77,6 @@ public class AbstractSymtab {
 
         EMADLLanguage montiArcLanguage = new EMADLLanguage(customFilesPath, pythonPath, backend.getBackendString(backend).toLowerCase(), composedNetworksFilePath);
 
-
         fam.addModelingLanguage(montiArcLanguage);
         fam.addModelingLanguage(new EmbeddedMontiArcMathLanguage());
         fam.addModelingLanguage(new StreamUnitsLanguage());

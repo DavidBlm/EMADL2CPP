@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 import signal
 import sys
 import numpy as np
@@ -8,7 +8,7 @@ import time
 import os
 import mxnet as mx
 from mxnet import gluon, nd
-import cnnarch_logger
+import reinforcement_learning.cnnarch_logger as cnnarch_logger
 
 LOSS_FUNCTIONS = {
         'l1': gluon.loss.L1Loss(),

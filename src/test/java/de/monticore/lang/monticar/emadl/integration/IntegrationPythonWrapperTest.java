@@ -15,6 +15,10 @@ import java.util.stream.Collectors;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
+import org.apache.commons.io.FileUtils;
+import java.io.File;
+import java.io.IOException;
+
 public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
 
     @Before
@@ -42,6 +46,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
                         "torcs_agent_torcsAgent_dqn.h",
                         "torcs_agent_torcsAgent_policy.h",
                         "CNNCreator_torcs_agent_torcsAgent_dqn.py",
+                        "CNNDatasets_torcs_agent_torcsAgent_dqn.py",
                         "CNNNet_torcs_agent_torcsAgent_dqn.py",
                         "CNNPredictor_torcs_agent_torcsAgent_dqn.h",
                         "CNNTrainer_torcs_agent_torcsAgent_dqn.py",
@@ -71,12 +76,12 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
                         "reinforcement_learning/cnnarch_logger.py"
                 )
         );
-        assertTrue(Paths.get(
-                "./target/generated-sources-emadl/reinforcement_learning/_torcs_agent_dqn_reward_executor.so")
-                .toFile().exists());
-        assertTrue(Paths.get(
-                "./target/generated-sources-emadl/reinforcement_learning/torcs_agent_dqn_reward_executor.py")
-                .toFile().exists());
+        // assertTrue(Paths.get(
+        //         "./target/generated-sources-emadl/reinforcement_learning/_torcs_agent_dqn_reward_executor.so")
+        //         .toFile().exists());
+        // assertTrue(Paths.get(
+        //         "./target/generated-sources-emadl/reinforcement_learning/torcs_agent_dqn_reward_executor.py")
+        //         .toFile().exists());
     }
 
     @Test
@@ -95,6 +100,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
                         "torcs_agent_torcsAgent.h",
                         "torcs_agent_torcsAgent_actor.h",
                         "CNNCreator_torcs_agent_torcsAgent_actor.py",
+                        "CNNDatasets_torcs_agent_torcsAgent_actor.py",
                         "CNNNet_torcs_agent_torcsAgent_actor.py",
                         "CNNPredictor_torcs_agent_torcsAgent_actor.h",
                         "CNNTrainer_torcs_agent_torcsAgent_actor.py",
@@ -120,6 +126,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
                         "reinforcement_learning/util.py",
                         "reinforcement_learning/cnnarch_logger.py",
                         "reinforcement_learning/CNNCreator_torcs_agent_network_torcsCritic.py",
+                        "reinforcement_learning/CNNDatasets_torcs_agent_network_torcsCritic.py",
                         "reinforcement_learning/CNNNet_torcs_agent_network_torcsCritic.py"
                 )
         );

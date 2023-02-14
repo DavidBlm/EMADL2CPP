@@ -1,4 +1,4 @@
-# (c) https://github.com/MontiCore/monticore  
+# (c) https://github.com/MontiCore/monticore
 from reinforcement_learning.agent import TwinDelayedDdpgAgent
 from reinforcement_learning.util import AgentSignalHandler
 from reinforcement_learning.cnnarch_logger import ArchLogger
@@ -20,12 +20,15 @@ def resume_session(sessions_dir):
     if os.path.isdir(sessions_dir):
         regex = re.compile(r'\d\d\d\d-\d\d-\d\d-\d\d-\d\d')
         dir_content = os.listdir(sessions_dir)
-        session_files = filter(regex.search, dir_content)
+        session_files = list(filter(regex.search, dir_content))
         session_files.sort(reverse=True)
         for d in session_files:
             interrupted_session_dir = os.path.join(sessions_dir, d, '.interrupted_session')
             if os.path.isdir(interrupted_session_dir):
-                resume = raw_input('Interrupted session from {} found. Do you want to resume? (y/n) '.format(d))
+                if sys.version.strip().split(".")[0] > '2':
+                    resume = input('Interrupted session from {} found. Do you want to resume? (y/n) '.format(d))
+                else:
+                    resume = raw_input('Interrupted session from {} found. Do you want to resume? (y/n) '.format(d))
                 if resume == 'y':
                     resume_session = True
                     resume_directory = interrupted_session_dir
@@ -107,10 +110,10 @@ if __name__ == "__main__":
         'soft_target_update_rate': 0.005,
         'actor_optimizer': 'adam',
         'actor_optimizer_params': {
-            'learning_rate': 0.001},
+        'learning_rate': 0.001},
         'critic_optimizer': 'adam',
         'critic_optimizer_params': {
-            'learning_rate': 0.001},
+        'learning_rate': 0.001},
         'policy_noise': 0.2,
         'noise_clip': 0.5,
         'policy_delay': 2,
@@ -137,4 +140,4 @@ if __name__ == "__main__":
     train_successful = agent.train()
 
     if train_successful:
-        agent.export_best_network(path=actor_creator._model_dir_ + actor_creator._model_prefix_ + '_0_newest', epoch=0)
+        agent.export_best_network(path=str(actor_creator.get_model_dir(epoch=0) / 'model_0_newest'), epoch=0)

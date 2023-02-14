@@ -19,7 +19,7 @@ public class RewardFunctionCppGenerator implements RewardFunctionSourceGenerator
     @Override
     public EMAComponentInstanceSymbol resolveSymbol(TaggingResolver taggingResolver, String rootModel) {
         Optional<EMAComponentInstanceSymbol> instanceSymbol = taggingResolver
-                .<EMAComponentInstanceSymbol>resolve(rootModel, EMAComponentInstanceSymbol.KIND);
+                .resolve(rootModel, EMAComponentInstanceSymbol.KIND);
 
         if (!instanceSymbol.isPresent()) {
             Log.error("Generation of reward is not possible: Cannot resolve component instance "

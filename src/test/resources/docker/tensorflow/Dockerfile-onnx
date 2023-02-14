@@ -4,7 +4,8 @@ RUN apt-get update --allow-releaseinfo-change
 
 # install maven and tensorflow for python3
 RUN apt-get install -y apt-utils maven
-RUN pip3 install tensorflow==1.13.1
+RUN pip3 install protobuf==3.19.4
+RUN pip3 install tensorflow==1.13.1 protobuf==3.19.4
 RUN apt-get -y autoremove
 
 # install onnx related dependencies
