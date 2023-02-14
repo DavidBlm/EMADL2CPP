@@ -14,7 +14,7 @@
     <!-- == PROJECT DEPENDENCIES ============================================= -->
     <properties>
         <!-- .. SE-Libraries .................................................. -->
-        <emadl.version>0.4.10-SNAPSHOT</emadl.version>
+        <emadl.version>0.4.9-SNAPSHOT</emadl.version>
         <CNNArch.version>0.4.12-SNAPSHOT</CNNArch.version>
         <cnnarch-generator.version>0.4.17-SNAPSHOT</cnnarch-generator.version>
         <cnnarch-mxnet-generator.version>0.4.9-SNAPSHOT</cnnarch-mxnet-generator.version>
