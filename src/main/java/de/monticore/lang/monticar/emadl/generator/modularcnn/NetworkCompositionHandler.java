@@ -20,7 +20,6 @@ public class NetworkCompositionHandler {
     private String composedNetworkFilePath;
     private ArrayList<NetworkStructureInformation> composedNetworks;
     private NetworkComposer networkComposer;
-    private NetworkDecomposer networkDecomposer;
     private Set<EMAComponentInstanceSymbol> instanceVault = null;
     private LinkedHashMap<String, ArchitectureSymbol> cachedComposedArchitectureSymbols = null;
     private LinkedHashMap<String, NetworkStructure> composedNetworkStructures = null;
@@ -71,28 +70,6 @@ public class NetworkCompositionHandler {
 
     public boolean isComposedNetAndHasConfig(EMAComponentInstanceSymbol instanceSymbol){
         return isComposedNet(instanceSymbol) && hasConfigFile(instanceSymbol, modelPath);
-    }
-
-    public boolean isComposedNetByNetworkName(EMAComponentInstanceSymbol instanceSymbol){
-        for (NetworkStructureInformation networkStructureInformation : composedNetworks){
-            if (instanceSymbol != null
-                    && instanceSymbol.getComponentType().getName().equals(networkStructureInformation.getNetworkName())
-                    && !networkStructureInformation.isAtomic()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean isComposedNetBySymbolReference(EMAComponentInstanceSymbol instanceSymbol){
-        for (NetworkStructureInformation networkStructureInformation : composedNetworks){
-            if (instanceSymbol != null && networkStructureInformation.getSymbolReference() != null
-                    && instanceSymbol.getComponentType().getReferencedSymbol().equals(networkStructureInformation.getSymbolReference().getReferencedSymbol())
-                    && !networkStructureInformation.isAtomic()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public Optional<ArchitectureSymbol> constructComposedNetworkArchitectureSymbol(EMAComponentInstanceSymbol instanceSymbol){

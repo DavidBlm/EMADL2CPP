@@ -226,9 +226,11 @@ public class NetworkComposer {
             enclosingScope.add(composedNet);
 
             List<CommonScope> subScopes = (List<CommonScope>) subnetArchSymbols.get(i).getEnclosingScope().getSubScopes();
+            /*
             for (CommonScope subScope: subScopes){
-                //enclosingScope.addSubScope(subScope);
+                enclosingScope.addSubScope(subScope);
             }
+            */
         }
         Log.info("Fixed Scope", "NETWORK_COMPOSITION");
     }
