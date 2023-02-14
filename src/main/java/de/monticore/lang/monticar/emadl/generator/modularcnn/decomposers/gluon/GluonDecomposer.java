@@ -9,15 +9,21 @@ import de.se_rwth.commons.logging.Log;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class GluonDecomposer implements BackendDecomposer {
 
     ArrayList<LayerSubstitute> allowedLayerSubstitutes = new ArrayList<>();
     String pythonPath = "";
-    String pythonTool = "src/main/resources/GluonParameterSplitter.py";
+    String pythonTool = "target/GluonParameterSplitter.py";
 
     public GluonDecomposer(String pythonPath) {
         this.pythonPath = pythonPath;
+
+        rebuildPythonScript();
+
+        String toolCheck = null;
 
         LayerSubstitute reluSub = new LayerSubstitute("Relu");
         reluSub.addSubstitute("Activation");
@@ -34,13 +40,19 @@ public class GluonDecomposer implements BackendDecomposer {
 
     }
 
+    public void listFilesUsingJavaIO(String dir) {
+        Log.warn(Stream.of(new File(dir).listFiles())
+                .filter(file -> !file.isDirectory())
+                .map(File::getName)
+                .collect(Collectors.toSet()).toString());
+    }
+
     @Override
     public void decomposeNetwork(String modelPath, NetworkStructure networkStructure) {
         ArrayList<File> fileList = scanForFiles(modelPath, networkStructure);
 
         File networkJsonFile = null;
         File paramsFile = null;
-
 
 
         for (File file : fileList) {
@@ -104,16 +116,16 @@ public class GluonDecomposer implements BackendDecomposer {
         pythonCall.add("-onp");
         pythonCall.add(originalNetworkFile.getPath());
 
-        if (reExport){
+        if (reExport) {
             //pythonCall.add("-re");
         }
 
         StringBuilder layerList = new StringBuilder();
-        for (int i=0; i<parameterLayers.size(); i++){
+        for (int i = 0; i < parameterLayers.size(); i++) {
             String layer = parameterLayers.get(i);
             layerList.append(layer);
 
-            if  (i != parameterLayers.size()-1) layerList.append(",");
+            if (i != parameterLayers.size() - 1) layerList.append(",");
         }
 
         pythonCall.add("-pl");
@@ -169,12 +181,12 @@ public class GluonDecomposer implements BackendDecomposer {
             String op = null;
             String name = null;
 
-            for (int j=0;j< currentNetwork.getNetworkLayers().size();j++) {
+            for (int j = 0; j < currentNetwork.getNetworkLayers().size(); j++) {
                 LayerInformation layer = currentNetwork.getNetworkLayers().get(j);
 
                 if (layer.isInputLayer()) {
                     if (i == 0) {
-                        if (layer.isParallel()){
+                        if (layer.isParallel()) {
                             layerPointer++;
                             Map<String, Object> node = (Map<String, Object>) nodes.get(layerPointer);
                             op = (String) node.get("op");
@@ -185,11 +197,11 @@ public class GluonDecomposer implements BackendDecomposer {
 
                             int nextLayerPointer = layerPointer + 1;
                             int nextLayerInformationPointer = j + 1;
-                            if (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size()){
+                            if (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size()) {
 
 
                                 while (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size()
-                                        && processedNullOps < allowedNullOps ){
+                                        && processedNullOps < allowedNullOps) {
                                     if (op.equals("null") && layer.parallelNamesContain(name)) {
                                         networkNodes.add(node);
                                         processedNullOps++;
@@ -209,10 +221,9 @@ public class GluonDecomposer implements BackendDecomposer {
                                 LayerInformation nextLayerInfo = currentNetwork.getNetworkLayers().get(nextLayerInformationPointer);
 
 
-
                                 boolean lastRound = false;
-                                while (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size() && !lastRound ){
-                                    if(nextNode != null && (nextOp.equals("null") || nextOp.equals(nextLayerInfo.getLayerName()) || nextOp.equals(checkLayerSubstitutesForMatch(nextLayerInfo.getLayerName(),nextOp)))){
+                                while (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size() && !lastRound) {
+                                    if (nextNode != null && (nextOp.equals("null") || nextOp.equals(nextLayerInfo.getLayerName()) || nextOp.equals(checkLayerSubstitutesForMatch(nextLayerInfo.getLayerName(), nextOp)))) {
                                         lastRound = true;
                                     }
 
@@ -226,7 +237,7 @@ public class GluonDecomposer implements BackendDecomposer {
 
                                         nextLayerPointer++;
                                         nextNode = (Map<String, Object>) nodes.get(nextLayerPointer);
-                                        if (nextNode != null){
+                                        if (nextNode != null) {
                                             nextOp = (String) nextNode.get("op");
                                             nextName = (String) nextNode.get("name");
                                         }
@@ -275,7 +286,7 @@ public class GluonDecomposer implements BackendDecomposer {
 
                 } else if (layer.isOutputLayer()) {
                     if (i == subNets.size() - 1) {
-                        if (layer.isParallel()){
+                        if (layer.isParallel()) {
                             layerPointer++;
                             Map<String, Object> node = (Map<String, Object>) nodes.get(layerPointer);
                             op = (String) node.get("op");
@@ -286,11 +297,11 @@ public class GluonDecomposer implements BackendDecomposer {
 
                             int nextLayerPointer = layerPointer + 1;
                             int nextLayerInformationPointer = j + 1;
-                            if (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size()){
+                            if (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size()) {
 
 
                                 while (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size()
-                                        && processedNullOps < allowedNullOps ){
+                                        && processedNullOps < allowedNullOps) {
                                     if (op.equals("null") && layer.parallelNamesContain(name)) {
                                         networkNodes.add(node);
                                         processedNullOps++;
@@ -310,10 +321,9 @@ public class GluonDecomposer implements BackendDecomposer {
                                 LayerInformation nextLayerInfo = currentNetwork.getNetworkLayers().get(nextLayerInformationPointer);
 
 
-
                                 boolean lastRound = false;
-                                while (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size() && !lastRound ){
-                                    if(nextNode != null && (nextOp.equals("null") || nextOp.equals(nextLayerInfo.getLayerName()) || nextOp.equals(checkLayerSubstitutesForMatch(nextLayerInfo.getLayerName(),nextOp)))){
+                                while (nextLayerPointer < nodes.size() && nextLayerInformationPointer < currentNetwork.getNetworkLayers().size() && !lastRound) {
+                                    if (nextNode != null && (nextOp.equals("null") || nextOp.equals(nextLayerInfo.getLayerName()) || nextOp.equals(checkLayerSubstitutesForMatch(nextLayerInfo.getLayerName(), nextOp)))) {
                                         lastRound = true;
                                     }
 
@@ -327,7 +337,7 @@ public class GluonDecomposer implements BackendDecomposer {
 
                                         nextLayerPointer++;
                                         nextNode = (Map<String, Object>) nodes.get(nextLayerPointer);
-                                        if (nextNode != null){
+                                        if (nextNode != null) {
                                             nextOp = (String) nextNode.get("op");
                                             nextName = (String) nextNode.get("name");
                                         }
@@ -456,5 +466,21 @@ public class GluonDecomposer implements BackendDecomposer {
         ioNode.put("name", name);
         ioNode.put("inputs", inputs);
         return ioNode;
+    }
+
+    private void rebuildPythonScript() {
+        BufferedReader b = new BufferedReader(new InputStreamReader(this.getClass().getClassLoader().getResourceAsStream("GluonParameterSplitter.py")));
+        String line = null;
+        try {
+            FileWriter fw = new FileWriter("target/GluonParameterSplitter.py");
+            line = b.readLine();
+            while (line != null) {
+                fw.write(line + "\n");
+                line = b.readLine();
+            }
+            fw.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
