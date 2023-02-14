@@ -9,7 +9,7 @@
 
     <groupId>de.monticore.lang.monticar</groupId>
     <artifactId>embedded-montiarc-emadl-generator</artifactId>
-    <version>0.5.7-SNAPSHOT</version>
+    <version>0.5.12-SNAPSHOT</version>
 
     <!-- == PROJECT DEPENDENCIES ============================================= -->
     <properties>
