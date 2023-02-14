@@ -1,7 +1,6 @@
 /* (c) https://github.com/MontiCore/monticore */
 package letterpred;
 
-
 component Network<Z(0:oo) n=26> {
     ports in Z(0:255)^{1, 28, 28} data,
          out Q(0:1)^{n} softmax;
