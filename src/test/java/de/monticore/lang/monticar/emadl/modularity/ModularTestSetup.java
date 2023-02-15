@@ -73,7 +73,7 @@ public abstract class ModularTestSetup  extends AbstractSymtabTest {
             for (StackTraceElement element:stackTraceElements){
                 trace.append(element.toString()).append("\n");
             }
-            Log.info(trace.toString(),"MODULAR_TEST_EXCEPTION");
+            Log.error("MODULAR_TEST_EXCEPTION: " + trace.toString());
 
             if (!exceptionAllowed) {
                 assertFalse(true);
