@@ -10,8 +10,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ModularBasicTest extends ModularTestSetup {
-    String[] hashPaths = {"target/singleNetwork","target/emptyNetwork","target/modularNetworkComplex",
-            "target/modularNetworkSimple","target/modularNetworkSimpleMultiNet","target/modularSentiment", "target/calculator", "target/sentimentanalyzer"};
+    String[] hashPaths = {"target/hashes"};
 
     @Test
     public void testEmtpyNetwork() throws IOException {

@@ -93,7 +93,7 @@ modularMNISTTest:
   script:
     - ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime
     - dpkg-reconfigure --frontend noninteractive tzdata
-    - apt update && apt install libopencv-dev python3-opencv libopenblas-dev liblapack-dev -y
+    - apt update && apt install libopencv-dev python3-opencv libopenblas-dev liblapack-dev tzdata -y
     - ln /usr/bin/python3 /usr/bin/python -f
     - python -m pip install -U pip
     - python -m pip install scikit-image
