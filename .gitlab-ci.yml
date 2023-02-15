@@ -91,8 +91,8 @@ modularMNISTTest:
   stage: linux
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/mxnet/190
   script:
-    - apt update && apt install libopencv-dev python3-opencv libopenblas-dev liblapack-dev -y
     - DEBIAN_FRONTEND=noninteractive apt -y install tzdata
+    - apt update && apt install libopencv-dev python3-opencv libopenblas-dev liblapack-dev -y
     - ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime
     - dpkg-reconfigure --frontend noninteractive tzdata
     - ln /usr/bin/python3 /usr/bin/python -f
