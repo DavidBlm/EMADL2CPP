@@ -26,8 +26,8 @@
       <configuration>
         <httpHeaders>
           <property>
-            <name>Deploy-Token</name>
-            <value>kbteaFBxwgwn5dZZ6CzU</value>
+            <name>Job-Token</name>
+            <value>${env.CI_JOB_TOKEN}</value>
           </property>
         </httpHeaders>
       </configuration>
@@ -38,8 +38,8 @@
       <configuration>
         <httpHeaders>
           <property>
-            <name>Deploy-Token</name>
-            <value>KJkmCZosey-A8XBES2Fy</value>
+            <name>Job-Token</name>
+            <value>${env.CI_JOB_TOKEN}</value>
           </property>
         </httpHeaders>
       </configuration>

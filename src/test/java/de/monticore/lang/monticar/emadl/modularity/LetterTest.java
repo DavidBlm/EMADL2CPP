@@ -15,7 +15,7 @@ public class LetterTest extends ModularTestSetup {
         Log.getFindings().clear();
         removeDirectory("model");
         removeDirectory("target/letterpred");
-        String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictor", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad", "-dn", "Network"};
+        String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictor", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y",  "-f", "n"};
         runGenerator(args, hashPaths,1,false);
     }
 
@@ -25,7 +25,7 @@ public class LetterTest extends ModularTestSetup {
         Log.getFindings().clear();
         removeDirectory("model");
         removeDirectory("target/letterpred");
-        String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictorSingle", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
+        String[] args = {"-m", "src/test/resources/models/ModularCNN/letterPredictorSingle", "-r", "letterpred.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-f", "n"};
         runGenerator(args, hashPaths,1,false);
     }
 
