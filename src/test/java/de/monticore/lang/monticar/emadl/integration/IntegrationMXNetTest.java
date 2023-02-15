@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class IntegrationMXNetTest extends IntegrationTest {
         Log.getFindings().clear();
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "MXNET"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         AbstractSymtabTest.checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -42,6 +42,6 @@ public class IntegrationMXNetTest extends IntegrationTest {
                         "HelperA.h"
                 )
         );
-        checkFindingsCount(2);
+        assertTrue(Log.getFindings().isEmpty());
     }
 }

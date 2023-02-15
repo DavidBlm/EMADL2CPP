@@ -4,7 +4,7 @@ package de.monticore.lang.monticar.emadl;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.emadl._parser.EMADLParser;
-import de.monticore.lang.monticar.emadl.generator.backend.Backend;
+import de.monticore.lang.monticar.emadl.generator.Backend;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class SymtabTest extends AbstractSymtabTest {
 
     @Test
     public void testCustomMNISTCalculator(){
-        Scope symTab = createSymTab("src/test/resources/custom_files", "", Backend.GLUON,"./target/ComposedNetworks", "src/test/resources/models/customMNISTCalculator");
+        Scope symTab = createSymTab("src/test/resources/custom_files", "", Backend.GLUON, "src/test/resources/models/customMNISTCalculator");
         EMAComponentSymbol a = symTab.<EMAComponentSymbol>resolve("cNNCalculator.Connector", EMAComponentSymbol.KIND).orElse(null);
         assertNotNull(a);
     }
