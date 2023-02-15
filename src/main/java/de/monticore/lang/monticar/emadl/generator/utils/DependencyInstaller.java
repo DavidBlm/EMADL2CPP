@@ -28,7 +28,7 @@ public class DependencyInstaller {
         try {
             InvocationRequest request = new DefaultInvocationRequest();
             //request.setGoals(Collections.singletonList("dependency:resolve"));
-            request.setGoals(Arrays.asList("dependency:get","-s","settings.xml"));
+            request.setGoals(Arrays.asList("dependency:resolve","-s","settings.xml"));
 
             Properties properties = new Properties();
             properties.setProperty("groupId", groupId);
