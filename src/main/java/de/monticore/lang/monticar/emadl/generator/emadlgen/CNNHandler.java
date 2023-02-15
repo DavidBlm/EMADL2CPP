@@ -112,7 +112,7 @@ public class CNNHandler {
         fileContents.add(new FileContent(fileHandler.readResource("CNNTranslator.h", Charsets.UTF_8), "CNNTranslator.h"));
     }
 
-    protected List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName, boolean modularTransformationRun) {
+    protected List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName) {
         boolean copied = fileHandler.copySchemaFilesFromResource(ROOT_SCHEMA_MODEL_PATH);
         List<FileContent> fileContents = new ArrayList<>();
         TaggingResolver symTabAndTaggingResolver = taggingHandler.getSymTabAndTaggingResolver();
@@ -132,7 +132,7 @@ public class CNNHandler {
 
             architecture = networkCompositionHandler.resolveArchitectureSymbolOfReferencedSymbol(componentInstance);
 
-            if (!modularTransformationRun){
+
 
             if (architecture != null && architecture.isPresent()) {
                 String mainComponentConfigFilename = mainComponentName.replaceAll("\\.", "/");
@@ -195,7 +195,7 @@ public class CNNHandler {
 
                 ArchitectureSymbol correspondingArchitecture = generator.getProcessedArchitecture().get(fullConfigName);
 
-                if (modularTransformationRun && correspondingArchitecture == null) {
+                if (correspondingArchitecture == null) {
                     correspondingArchitecture = architecture.get();
                 }
 
@@ -376,9 +376,6 @@ public class CNNHandler {
                         List<FileContent> fileContentList = cnnTrainGenerator.generateStrings(trainingConfiguration,
                                 trainingComponentsContainer, copied ? Paths.get(generator.getGenerationTargetPath()) : null);
                         fileContents.addAll(fileContentList);
-                }
-
-
             }
         }
 

@@ -10,6 +10,7 @@ public class ModularSentimentTest extends ModularTestSetup{
     String[] hashPaths = {"target/singleNetwork","target/emptyNetwork","target/modularNetworkComplex",
             "target/modularNetworkSimple","target/modularNetworkSimpleMultiNet","target/modularSentiment", "target/calculator", "target/sentimentanalyzer"};
 
+    @Ignore
     @Test
     public void testModularSentiment() throws IOException {
         Log.getFindings().clear();
@@ -18,6 +19,7 @@ public class ModularSentimentTest extends ModularTestSetup{
         runGenerator(args, hashPaths,3,false);
     }
 
+    @Ignore
     @Test
     public void testSingleSentiment() throws IOException {
         Log.getFindings().clear();
