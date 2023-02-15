@@ -204,173 +204,177 @@ public class CNNHandler {
                         new ArchitectureAdapter(correspondingArchitecture));
                 TrainedArchitectureChecker.checkComponents(trainingConfiguration, trainingComponentsContainer);
 
-                // Resolve critic network if critic is present
-                Optional<String> criticName = trainingConfiguration.getCritic();
-                if (criticName.isPresent()) {
-                    String fullCriticName = criticName.get();
-                    int indexOfFirstNameCharacter = fullCriticName.lastIndexOf('.') + 1;
-                    fullCriticName = fullCriticName.substring(0, indexOfFirstNameCharacter)
-                            + fullCriticName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
-                            + fullCriticName.substring(indexOfFirstNameCharacter + 1);
+                if (!modularTransformationRun){
+                    // Resolve critic network if critic is present
+                    Optional<String> criticName = trainingConfiguration.getCritic();
+                    if (criticName.isPresent()) {
+                        String fullCriticName = criticName.get();
+                        int indexOfFirstNameCharacter = fullCriticName.lastIndexOf('.') + 1;
+                        fullCriticName = fullCriticName.substring(0, indexOfFirstNameCharacter)
+                                + fullCriticName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                                + fullCriticName.substring(indexOfFirstNameCharacter + 1);
 
-                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(fullCriticName,
-                            symTabAndTaggingResolver);
-                    EMADLCocos.checkAll(instanceSymbol);
-                    Optional<ArchitectureSymbol> critic = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
-                    if (!critic.isPresent()) {
-                        String message = String.format("Resolving critic component failed. Critic component '%s' does not have a CNN implementation, but is required to have one.", fullCriticName);
-                        Log.error(message);
-                        throw new RuntimeException(message);
-                    }
-                    ArchitectureSymbol architectureSymbol = critic.get();
-                    architectureSymbol.setComponentName(fullCriticName);
-                    trainingComponentsContainer.setCriticNetwork(new ArchitectureAdapter(architectureSymbol));
-                }
-
-                // Resolve discriminator network if discriminator is present
-                Optional<String> discriminatorName = trainingConfiguration.getDiscriminatorName();
-                if (discriminatorName.isPresent()) {
-                    String fullDiscriminatorName = discriminatorName.get();
-                    int indexOfFirstNameCharacter = fullDiscriminatorName.lastIndexOf('.') + 1;
-                    fullDiscriminatorName = fullDiscriminatorName.substring(0, indexOfFirstNameCharacter)
-                            + fullDiscriminatorName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
-                            + fullDiscriminatorName.substring(indexOfFirstNameCharacter + 1);
-
-                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
-                            fullDiscriminatorName, taggingHandler.getSymTabAndTaggingResolver());
-                    EMADLCocos.checkAll(instanceSymbol);
-                    Optional<ArchitectureSymbol> discriminator = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
-                    if (!discriminator.isPresent()) {
-                        String message = String.format("Resolving discriminator component failed. Discriminator component '%s' does not have a CNN implementation, but is required to have one.", fullDiscriminatorName);
-                        Log.error(message);
-                        throw new RuntimeException(message);
-                    }
-                    ArchitectureSymbol architectureSymbol = discriminator.get();
-                    architectureSymbol.setComponentName(fullDiscriminatorName);
-                    trainingComponentsContainer.setDiscriminatorNetwork(
-                            new ArchitectureAdapter(architectureSymbol));
-                }
-
-                // Resolve QNetwork if present
-                Optional<String> qNetworkName = trainingConfiguration.getQNetwork();
-                if (qNetworkName.isPresent()) {
-                    String fullQNetworkName =  qNetworkName.get();
-                    int indexOfFirstNameCharacter = fullQNetworkName.lastIndexOf('.') + 1;
-                    fullQNetworkName = fullQNetworkName.substring(0, indexOfFirstNameCharacter)
-                            + fullQNetworkName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
-                            + fullQNetworkName.substring(indexOfFirstNameCharacter + 1);
-
-                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
-                            fullQNetworkName, taggingHandler.getSymTabAndTaggingResolver());
-                    EMADLCocos.checkAll(instanceSymbol);
-                    Optional<ArchitectureSymbol> qNetwork = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
-                    if (!qNetwork.isPresent()) {
-                        String message = String.format("Resolving Q-Network component failed. Q-Network component '%s' does not have a CNN implementation, but is required to have one.", fullQNetworkName);
-                        Log.error(message);
-                        throw new RuntimeException(message);
-                    }
-                    ArchitectureSymbol architectureSymbol = qNetwork.get();
-                    architectureSymbol.setComponentName(fullQNetworkName);
-                    trainingComponentsContainer.setQNetwork(new ArchitectureAdapter(architectureSymbol));
-                }
-
-                // Resolve encoder network if present
-                Optional<String> encoderName = trainingConfiguration.getEncoderName();
-                if (encoderName.isPresent()) {
-                    String fullEncoderName = encoderName.get();
-                    int indexOfFirstNameCharacter = fullEncoderName.lastIndexOf('.') + 1;
-                    fullEncoderName = fullEncoderName.substring(0, indexOfFirstNameCharacter)
-                            + fullEncoderName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
-                            + fullEncoderName.substring(indexOfFirstNameCharacter + 1);
-
-                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
-                            fullEncoderName, taggingHandler.getSymTabAndTaggingResolver());
-                    EMADLCocos.checkAll(instanceSymbol);
-                    Optional<ArchitectureSymbol> encoder = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
-                    if (!encoder.isPresent()) {
-                        String message = String.format("Resolving encoder component failed. Encoder component '%s' does not have a CNN implementation, but is required to have one.", fullEncoderName);
-                        Log.error(message);
-                        throw new RuntimeException(message);
-                    }
-                    ArchitectureSymbol architectureSymbol = encoder.get();
-                    architectureSymbol.setComponentName(fullEncoderName);
-                    trainingComponentsContainer.setEncoderNetwork(
-                            new ArchitectureAdapter(architectureSymbol));
-
-                    ArchitectureAdapter decoder = trainingComponentsContainer.getTrainedArchitecture().get();
-                    ArchitectureSymbol decoderArchitectureSymbol = decoder.getArchitectureSymbol();
-
-                    encoder.get().setAuxiliaryArchitecture(decoderArchitectureSymbol);
-
-                }
-
-                Optional<String> rewardFunctionNameOpt = trainingConfiguration.getRewardFunctionName();
-                if (rewardFunctionNameOpt.isPresent()) {
-                    String fullRewardFunctionName =  rewardFunctionNameOpt.get();
-                    int indexOfFirstNameCharacter = fullRewardFunctionName.lastIndexOf('.') + 1;
-                    fullRewardFunctionName = fullRewardFunctionName.substring(0, indexOfFirstNameCharacter)
-                            + fullRewardFunctionName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
-                            + fullRewardFunctionName.substring(indexOfFirstNameCharacter + 1);
-
-                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
-                            fullRewardFunctionName, taggingHandler.getSymTabAndTaggingResolver());
-                    EMADLCocos.checkAll(instanceSymbol);
-                    trainingComponentsContainer.setRewardFunction(instanceSymbol);
-                }
-
-                Optional<String> policyFunctionNameOpt = trainingConfiguration.getPolicyFunctionName();
-                if (policyFunctionNameOpt.isPresent()) {
-                    String fullPolicyFunctionName =  policyFunctionNameOpt.get();
-                    int indexOfFirstNameCharacter = fullPolicyFunctionName.lastIndexOf('.') + 1;
-                    fullPolicyFunctionName = fullPolicyFunctionName.substring(0, indexOfFirstNameCharacter)
-                            + fullPolicyFunctionName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
-                            + fullPolicyFunctionName.substring(indexOfFirstNameCharacter + 1);
-
-                    EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
-                            fullPolicyFunctionName, taggingHandler.getSymTabAndTaggingResolver());
-                    EMADLCocos.checkAll(instanceSymbol);
-                    trainingComponentsContainer.addTrainingComponent("policy",
-                            instanceSymbol.getComponentType().getReferencedSymbol());
-                }
-
-                Optional<String> preprocessor = trainingConfiguration.getPreprocessor();
-                if (preprocessor.isPresent()) {
-                    String fullPreprocessorName = preprocessor.get();
-
-                    int indexOfFirstNameCharacter = fullPreprocessorName.lastIndexOf('.') + 1;
-                    fullPreprocessorName = fullPreprocessorName.substring(0, indexOfFirstNameCharacter)
-                            + fullPreprocessorName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
-                            + fullPreprocessorName.substring(indexOfFirstNameCharacter + 1);
-                    String instanceName = componentInstance.getFullName().replaceAll("\\.", "_");
-
-                    TaggingResolver symtab = taggingHandler.getSymTabAndTaggingResolver();
-                    EMAComponentInstanceSymbol processor_instance = generator.resolveComponentInstanceSymbol(fullPreprocessorName, symtab);
-                    processor_instance.setFullName("CNNPreprocessor_" + instanceName);
-                    List<FileContent> processorContents = new ArrayList<>();
-                    generator.generateComponent(processorContents, new HashSet<>(), symtab, processor_instance);
-                    fileHandler.fixArmadilloImports(processorContents);
-
-                    for (FileContent fileContent : processorContents) {
-                        try {
-                            generator.getEmamGen().generateFile(fileContent);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(fullCriticName,
+                                symTabAndTaggingResolver);
+                        EMADLCocos.checkAll(instanceSymbol);
+                        Optional<ArchitectureSymbol> critic = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
+                        if (!critic.isPresent()) {
+                            String message = String.format("Resolving critic component failed. Critic component '%s' does not have a CNN implementation, but is required to have one.", fullCriticName);
+                            Log.error(message);
+                            throw new RuntimeException(message);
                         }
+                        ArchitectureSymbol architectureSymbol = critic.get();
+                        architectureSymbol.setComponentName(fullCriticName);
+                        trainingComponentsContainer.setCriticNetwork(new ArchitectureAdapter(architectureSymbol));
                     }
-                    String targetPath = generator.getGenerationTargetPath();
-                    ComponentPortInformation componentPortInformation;
-                    componentPortInformation = pythonWrapper.generateAndTryBuilding(processor_instance, targetPath + "/pythonWrapper", targetPath);
-                    PreprocessingComponentParameterAdapter componentParameter = new PreprocessingComponentParameterAdapter(componentPortInformation);
-                    PreprocessingPortChecker.check(componentParameter);
-                    trainingComponentsContainer.setPreprocessingComponentParameter(componentParameter);
+
+                    // Resolve discriminator network if discriminator is present
+                    Optional<String> discriminatorName = trainingConfiguration.getDiscriminatorName();
+                    if (discriminatorName.isPresent()) {
+                        String fullDiscriminatorName = discriminatorName.get();
+                        int indexOfFirstNameCharacter = fullDiscriminatorName.lastIndexOf('.') + 1;
+                        fullDiscriminatorName = fullDiscriminatorName.substring(0, indexOfFirstNameCharacter)
+                                + fullDiscriminatorName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                                + fullDiscriminatorName.substring(indexOfFirstNameCharacter + 1);
+
+                        EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                                fullDiscriminatorName, taggingHandler.getSymTabAndTaggingResolver());
+                        EMADLCocos.checkAll(instanceSymbol);
+                        Optional<ArchitectureSymbol> discriminator = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
+                        if (!discriminator.isPresent()) {
+                            String message = String.format("Resolving discriminator component failed. Discriminator component '%s' does not have a CNN implementation, but is required to have one.", fullDiscriminatorName);
+                            Log.error(message);
+                            throw new RuntimeException(message);
+                        }
+                        ArchitectureSymbol architectureSymbol = discriminator.get();
+                        architectureSymbol.setComponentName(fullDiscriminatorName);
+                        trainingComponentsContainer.setDiscriminatorNetwork(
+                                new ArchitectureAdapter(architectureSymbol));
+                    }
+
+                    // Resolve QNetwork if present
+                    Optional<String> qNetworkName = trainingConfiguration.getQNetwork();
+                    if (qNetworkName.isPresent()) {
+                        String fullQNetworkName =  qNetworkName.get();
+                        int indexOfFirstNameCharacter = fullQNetworkName.lastIndexOf('.') + 1;
+                        fullQNetworkName = fullQNetworkName.substring(0, indexOfFirstNameCharacter)
+                                + fullQNetworkName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                                + fullQNetworkName.substring(indexOfFirstNameCharacter + 1);
+
+                        EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                                fullQNetworkName, taggingHandler.getSymTabAndTaggingResolver());
+                        EMADLCocos.checkAll(instanceSymbol);
+                        Optional<ArchitectureSymbol> qNetwork = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
+                        if (!qNetwork.isPresent()) {
+                            String message = String.format("Resolving Q-Network component failed. Q-Network component '%s' does not have a CNN implementation, but is required to have one.", fullQNetworkName);
+                            Log.error(message);
+                            throw new RuntimeException(message);
+                        }
+                        ArchitectureSymbol architectureSymbol = qNetwork.get();
+                        architectureSymbol.setComponentName(fullQNetworkName);
+                        trainingComponentsContainer.setQNetwork(new ArchitectureAdapter(architectureSymbol));
+                    }
+
+                    // Resolve encoder network if present
+                    Optional<String> encoderName = trainingConfiguration.getEncoderName();
+                    if (encoderName.isPresent()) {
+                        String fullEncoderName = encoderName.get();
+                        int indexOfFirstNameCharacter = fullEncoderName.lastIndexOf('.') + 1;
+                        fullEncoderName = fullEncoderName.substring(0, indexOfFirstNameCharacter)
+                                + fullEncoderName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                                + fullEncoderName.substring(indexOfFirstNameCharacter + 1);
+
+                        EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                                fullEncoderName, taggingHandler.getSymTabAndTaggingResolver());
+                        EMADLCocos.checkAll(instanceSymbol);
+                        Optional<ArchitectureSymbol> encoder = networkCompositionHandler.resolveArchitectureSymbolOfInstance(instanceSymbol);
+                        if (!encoder.isPresent()) {
+                            String message = String.format("Resolving encoder component failed. Encoder component '%s' does not have a CNN implementation, but is required to have one.", fullEncoderName);
+                            Log.error(message);
+                            throw new RuntimeException(message);
+                        }
+                        ArchitectureSymbol architectureSymbol = encoder.get();
+                        architectureSymbol.setComponentName(fullEncoderName);
+                        trainingComponentsContainer.setEncoderNetwork(
+                                new ArchitectureAdapter(architectureSymbol));
+
+                        ArchitectureAdapter decoder = trainingComponentsContainer.getTrainedArchitecture().get();
+                        ArchitectureSymbol decoderArchitectureSymbol = decoder.getArchitectureSymbol();
+
+                        encoder.get().setAuxiliaryArchitecture(decoderArchitectureSymbol);
+
+                    }
+
+                    Optional<String> rewardFunctionNameOpt = trainingConfiguration.getRewardFunctionName();
+                    if (rewardFunctionNameOpt.isPresent()) {
+                        String fullRewardFunctionName =  rewardFunctionNameOpt.get();
+                        int indexOfFirstNameCharacter = fullRewardFunctionName.lastIndexOf('.') + 1;
+                        fullRewardFunctionName = fullRewardFunctionName.substring(0, indexOfFirstNameCharacter)
+                                + fullRewardFunctionName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                                + fullRewardFunctionName.substring(indexOfFirstNameCharacter + 1);
+
+                        EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                                fullRewardFunctionName, taggingHandler.getSymTabAndTaggingResolver());
+                        EMADLCocos.checkAll(instanceSymbol);
+                        trainingComponentsContainer.setRewardFunction(instanceSymbol);
+                    }
+
+                    Optional<String> policyFunctionNameOpt = trainingConfiguration.getPolicyFunctionName();
+                    if (policyFunctionNameOpt.isPresent()) {
+                        String fullPolicyFunctionName =  policyFunctionNameOpt.get();
+                        int indexOfFirstNameCharacter = fullPolicyFunctionName.lastIndexOf('.') + 1;
+                        fullPolicyFunctionName = fullPolicyFunctionName.substring(0, indexOfFirstNameCharacter)
+                                + fullPolicyFunctionName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                                + fullPolicyFunctionName.substring(indexOfFirstNameCharacter + 1);
+
+                        EMAComponentInstanceSymbol instanceSymbol = generator.resolveComponentInstanceSymbol(
+                                fullPolicyFunctionName, taggingHandler.getSymTabAndTaggingResolver());
+                        EMADLCocos.checkAll(instanceSymbol);
+                        trainingComponentsContainer.addTrainingComponent("policy",
+                                instanceSymbol.getComponentType().getReferencedSymbol());
+                    }
+
+                    Optional<String> preprocessor = trainingConfiguration.getPreprocessor();
+                    if (preprocessor.isPresent()) {
+                        String fullPreprocessorName = preprocessor.get();
+
+                        int indexOfFirstNameCharacter = fullPreprocessorName.lastIndexOf('.') + 1;
+                        fullPreprocessorName = fullPreprocessorName.substring(0, indexOfFirstNameCharacter)
+                                + fullPreprocessorName.substring(indexOfFirstNameCharacter, indexOfFirstNameCharacter + 1).toUpperCase()
+                                + fullPreprocessorName.substring(indexOfFirstNameCharacter + 1);
+                        String instanceName = componentInstance.getFullName().replaceAll("\\.", "_");
+
+                        TaggingResolver symtab = taggingHandler.getSymTabAndTaggingResolver();
+                        EMAComponentInstanceSymbol processor_instance = generator.resolveComponentInstanceSymbol(fullPreprocessorName, symtab);
+                        processor_instance.setFullName("CNNPreprocessor_" + instanceName);
+                        List<FileContent> processorContents = new ArrayList<>();
+                        generator.generateComponent(processorContents, new HashSet<>(), symtab, processor_instance);
+                        fileHandler.fixArmadilloImports(processorContents);
+
+                        for (FileContent fileContent : processorContents) {
+                            try {
+                                generator.getEmamGen().generateFile(fileContent);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        String targetPath = generator.getGenerationTargetPath();
+                        ComponentPortInformation componentPortInformation;
+                        componentPortInformation = pythonWrapper.generateAndTryBuilding(processor_instance, targetPath + "/pythonWrapper", targetPath);
+                        PreprocessingComponentParameterAdapter componentParameter = new PreprocessingComponentParameterAdapter(componentPortInformation);
+                        PreprocessingPortChecker.check(componentParameter);
+                        trainingComponentsContainer.setPreprocessingComponentParameter(componentParameter);
+                    }
+
+                    String cnnTrainGenInstanceName = componentInstance.getFullName().replaceAll("\\.", "_");
+
+                    cnnTrainGenerator.setInstanceName(cnnTrainGenInstanceName);
+                        List<FileContent> fileContentList = cnnTrainGenerator.generateStrings(trainingConfiguration,
+                                trainingComponentsContainer, copied ? Paths.get(generator.getGenerationTargetPath()) : null);
+                        fileContents.addAll(fileContentList);
                 }
 
-                String cnnTrainGenInstanceName = componentInstance.getFullName().replaceAll("\\.", "_");
 
-                cnnTrainGenerator.setInstanceName(cnnTrainGenInstanceName);
-                List<FileContent> fileContentList = cnnTrainGenerator.generateStrings(trainingConfiguration,
-                        trainingComponentsContainer, copied ? Paths.get(generator.getGenerationTargetPath()) : null);
-                fileContents.addAll(fileContentList);
             }
         }
 
