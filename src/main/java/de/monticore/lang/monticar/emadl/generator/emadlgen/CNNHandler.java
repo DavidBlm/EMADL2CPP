@@ -132,6 +132,8 @@ public class CNNHandler {
 
             architecture = networkCompositionHandler.resolveArchitectureSymbolOfReferencedSymbol(componentInstance);
 
+            if (!modularTransformationRun){
+
             if (architecture != null && architecture.isPresent()) {
                 String mainComponentConfigFilename = mainComponentName.replaceAll("\\.", "/");
 
@@ -199,7 +201,7 @@ public class CNNHandler {
 
                 assert correspondingArchitecture != null : "No architecture found for train " + fullConfigName + " configuration!";
 
-                if (!modularTransformationRun){
+
 
                 TrainingComponentsContainer trainingComponentsContainer = new TrainingComponentsContainer();
                 trainingComponentsContainer.setTrainedArchitecture(trainingConfiguration,

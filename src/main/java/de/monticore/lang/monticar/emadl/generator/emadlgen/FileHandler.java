@@ -38,6 +38,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static de.monticore.lang.monticar.cnnarch.generator.validation.Constants.ROOT_SCHEMA_MODEL_PATH;
+
 public class FileHandler {
 
     private Generator emadlGen;
@@ -319,8 +321,13 @@ public class FileHandler {
         NetworkCompositionHandler networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworksFilePath, getModelsPath(), new LinkedHashMap<>(),emadlGen.getBackend(), new LinkedHashMap<>());
         newInstanceVault = findInstancesRecursively(emaComponentInstanceSymbol, networkCompositionHandler);
 
-        String instanceName = emaComponentInstanceSymbol.getComponentType().getFullName().replaceAll("\\.", "_");
-        emadlGen.getEmadlCNNHandler().generateCNNTrainer(newInstanceVault, instanceName, true);
+        networkCompositionHandler = new NetworkCompositionHandler(this.composedNetworksFilePath, getModelsPath(), newInstanceVault,
+                emadlGen.getEmadlCNNHandler().getCachedComposedArchitectureSymbols(), this.emadlGen.getBackend(), emadlGen.getEmadlCNNHandler().getComposedNetworkStructures());
+        ArrayList<EMAComponentInstanceSymbol> processedInstances = networkCompositionHandler.processComponentInstances(newInstanceVault);
+
+        for (EMAComponentInstanceSymbol instanceSymbol : processedInstances){
+            networkCompositionHandler.resolveArchitectureSymbolOfReferencedSymbol(instanceSymbol);
+        }
 
         return newInstanceVault;
     }
