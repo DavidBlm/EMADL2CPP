@@ -199,12 +199,14 @@ public class CNNHandler {
 
                 assert correspondingArchitecture != null : "No architecture found for train " + fullConfigName + " configuration!";
 
+                if (!modularTransformationRun){
+
                 TrainingComponentsContainer trainingComponentsContainer = new TrainingComponentsContainer();
                 trainingComponentsContainer.setTrainedArchitecture(trainingConfiguration,
                         new ArchitectureAdapter(correspondingArchitecture));
                 TrainedArchitectureChecker.checkComponents(trainingConfiguration, trainingComponentsContainer);
 
-                if (!modularTransformationRun){
+
                     // Resolve critic network if critic is present
                     Optional<String> criticName = trainingConfiguration.getCritic();
                     if (criticName.isPresent()) {
