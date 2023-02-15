@@ -1,8 +1,8 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl;
 
-import de.monticore.lang.monticar.emadl.generator.Backend;
-import de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab;
+import de.monticore.lang.monticar.emadl.generator.backend.Backend;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.AbstractSymtab;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
@@ -20,12 +20,13 @@ import static org.junit.Assert.assertTrue;
 public class AbstractSymtabTest {
 
     protected static TaggingResolver createSymTab(String... modelPath) {
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(modelPath);
+        return AbstractSymtab.createSymTabAndTaggingResolver(modelPath);
     }
 
-    protected static TaggingResolver createSymTab(String customFilesPath, String pythonPath, Backend backend, String... modelPath){
-        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(customFilesPath, pythonPath, backend, modelPath);
+    protected static TaggingResolver createSymTab(String customFilesPath, String pythonPath, Backend backend, String composedNetworkFilePath, String... modelPath){
+        return AbstractSymtab.createSymTabAndTaggingResolver(customFilesPath, pythonPath, backend, composedNetworkFilePath, modelPath);
     }
+
 
     public static void checkFilesAreEqual(Path generationPath, Path resultsPath, List<String> fileNames) {
         for (String fileName : fileNames){

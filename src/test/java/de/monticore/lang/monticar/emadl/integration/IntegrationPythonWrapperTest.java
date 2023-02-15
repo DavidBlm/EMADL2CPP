@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
@@ -33,7 +33,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
         assumeFalse(System.getProperty("os.name").toLowerCase().startsWith("win"));
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/reinforcementModel", "-r", "torcs.agent.TorcsAgent", "-b", "GLUON", "-f", "n", "-c", "n"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
         assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -88,7 +88,7 @@ public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
     public void testTorcsTD3() {
         Log.getFindings().clear();
         String[] args = {"-m", "src/test/resources/models/reinforcementModel/torcs_td3", "-r", "torcs.agent.TorcsAgent", "-b", "GLUON", "-f", "n", "-c", "n"};
-        EMADLGeneratorCli.main(args);
+        GeneratorCli.main(args);
         assertTrue(Log.getFindings().stream().filter(Finding::isError).collect(Collectors.toList()).isEmpty());        
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
