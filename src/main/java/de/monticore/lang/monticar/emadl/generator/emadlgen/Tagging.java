@@ -45,7 +45,6 @@ public class Tagging {
 
     protected HashMap getLayerPathParameterTags(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
         List<TagSymbol> instanceTags = new LinkedList<>();
-
         boolean isChildComponent = instance.getEnclosingComponent().isPresent();
 
         if (isChildComponent) {
@@ -76,7 +75,6 @@ public class Tagging {
 
     protected HashMap getLayerArtifactParameterTags(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance){
         List<TagSymbol> instanceTags = new LinkedList<>();
-
         boolean isChildComponent = instance.getEnclosingComponent().isPresent();
 
         if (isChildComponent) {
@@ -108,7 +106,6 @@ public class Tagging {
 
     protected List<String> getDataPaths(TaggingResolver taggingResolver, EMAComponentSymbol component, EMAComponentInstanceSymbol instance) {
         List<TagSymbol> instanceTags = new LinkedList<>();
-
         boolean isChildComponent = instance.getEnclosingComponent().isPresent();
 
         if (isChildComponent) {

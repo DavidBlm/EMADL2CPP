@@ -316,28 +316,30 @@ public class Generator implements EMAMGenerator {
         if (architecture.isPresent()) {
             emadlCNNHandler.getCnnArchGenerator().check(architecture.get());
             List<String> dPaths = getEmadlTaggingHandler().getDataPaths(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+            //String dPath = fileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             String wPath = fileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
             HashMap layerPathParameterTags = taggingHandler.getLayerPathParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             layerPathParameterTags.putAll(taggingHandler.getLayerArtifactParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol));
             architecture.get().setDataPaths(dPaths);
             architecture.get().setDataPath(dPaths.get(0));
+            //architecture.get().setDataPath(dPath);
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(emaComponentSymbol.getFullName());
             architecture.get().setUseDgl(getUseDgl());
+
             if(!fileHandler.getCustomFilesPath().equals("")) {
                 architecture.get().setCustomPyFilesPath(fileHandler.getCustomFilesPath() + "python/" + Backend.getBackendString(this.backend).toLowerCase());
             }
 
-            //TODO: Check if useful here
             if (!networkCompositionHandler.isPartOfComposedNet(componentInstanceSymbol)){
                 emadlCNNHandler.generateCNN(fileContents, taggingResolver, componentInstanceSymbol, architecture.get());
             }
 
-
             if (processedArchitecture != null) {
                 processedArchitecture.put(architecture.get().getComponentName(), architecture.get());
             }
+
         } else if (mathStatements.isPresent()){
             generateMathComponent(fileContents, taggingResolver, componentInstanceSymbol, mathStatements.get());
         } else {

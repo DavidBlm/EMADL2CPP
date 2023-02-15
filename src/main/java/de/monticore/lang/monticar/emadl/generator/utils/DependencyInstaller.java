@@ -27,7 +27,8 @@ public class DependencyInstaller {
     public static void installDependency(String groupId, String artifactId, String version) {
         try {
             InvocationRequest request = new DefaultInvocationRequest();
-            request.setGoals(Collections.singletonList("dependency:get"));
+            //request.setGoals(Collections.singletonList("dependency:resolve"));
+            request.setGoals(Arrays.asList("dependency:get","-s","settings.xml"));
 
             Properties properties = new Properties();
             properties.setProperty("groupId", groupId);
