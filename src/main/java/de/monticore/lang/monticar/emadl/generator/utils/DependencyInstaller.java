@@ -28,7 +28,8 @@ public class DependencyInstaller {
         try {
             InvocationRequest request = new DefaultInvocationRequest();
             //request.setGoals(Collections.singletonList("dependency:resolve"));
-            request.setGoals(Arrays.asList("dependency:resolve","-s","settings.xml"));
+            request.setGoals(Arrays.asList("dependency:get"));
+            request.setUserSettingsFile(new File("settings.xml"));
 
             Properties properties = new Properties();
             properties.setProperty("groupId", groupId);
@@ -41,6 +42,7 @@ public class DependencyInstaller {
             Invoker invoker = new DefaultInvoker();
             invoker.execute(request);
         } catch (MavenInvocationException e){
+            Log.error("Dependency Resolving Exception:" + e.getStackTrace().toString());
             throw new RuntimeException("Error resolving the maven dataset artifact " + groupId + ":" + artifactId + ":" + version);
         }
     }
