@@ -30,7 +30,6 @@ public class DependencyInstaller {
     public static void installDependency(String groupId, String artifactId, String version) {
         try {
             InvocationRequest request = new DefaultInvocationRequest();
-            //request.setGoals(Collections.singletonList("dependency:resolve"));
             request.setGoals(Arrays.asList("dependency:get"));
             request.setUserSettingsFile(new File("settings.xml"));
 
@@ -45,18 +44,7 @@ public class DependencyInstaller {
             Invoker invoker = new DefaultInvoker();
             invoker.execute(request);
         } catch (MavenInvocationException e){
-
-            //Log.error("Dependency Resolving Exception:" + e.getStackTrace().toString());
-            //Log.info(e.toString(),"MODULAR_TEST_EXCEPTION");
-
-            StackTraceElement[] stackTraceElements = e.getStackTrace();
-            StringBuilder trace = new StringBuilder("Stack trace: \n");
-            for (StackTraceElement element:stackTraceElements){
-                trace.append(element.toString()).append("\n");
-            }
-
-            //Log.error("Dependency Resolving Exception: " + trace.toString());
-
+            Log.info("Dependency Installation Error Stacktrace: " + e.getMessage() ,"DEPENDENCY_INSTALLATION");
             //throw new RuntimeException("Error resolving the maven dataset artifact " + groupId + ":" + artifactId + ":" + version);
         }
     }

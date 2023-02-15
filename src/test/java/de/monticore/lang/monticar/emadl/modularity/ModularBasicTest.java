@@ -15,9 +15,8 @@ public class ModularBasicTest extends ModularTestSetup {
     @Test
     public void testEmtpyNetwork() throws IOException {
         Log.getFindings().clear();
-        String[] args = {"-m", "src/test/resources/models/ModularCNN/emptyNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y", "-ad"};
+        String[] args = {"-m", "src/test/resources/models/ModularCNN/emptyNetwork", "-r", "calculator.Connector", "-o", "target", "-b", "GLUON", "-c", "y"};
         runGenerator(args, hashPaths,0,true);
-
     }
 
     @Test
