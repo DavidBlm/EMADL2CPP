@@ -347,12 +347,15 @@ public class NetworkComposer {
         EMAComponentInstanceSymbol fromSubnetInstance = null;
         Map<String, Collection<Symbol>> symbols = (Map<String, Collection<Symbol>>) fromInstance.getSpannedScope().getLocalSymbols();
         Collection<Symbol> compList = (Collection<Symbol>) symbols.get(subnet.getInstanceSymbolName());
-        for (Symbol symbol : compList){
-            if (symbol instanceof EMAComponentInstanceSymbol && symbol.getName().equals(subnet.getInstanceSymbolName()) && fromInstance.getFullName().equals(symbol.getPackageName())){
-                fromSubnetInstance = (EMAComponentInstanceSymbol) symbol;
-                break;
+        if (compList != null) {
+            for (Symbol symbol : compList){
+                if (symbol instanceof EMAComponentInstanceSymbol && symbol.getName().equals(subnet.getInstanceSymbolName()) && fromInstance.getFullName().equals(symbol.getPackageName())){
+                    fromSubnetInstance = (EMAComponentInstanceSymbol) symbol;
+                    break;
+                }
             }
         }
+
         return fromSubnetInstance;
     }
 

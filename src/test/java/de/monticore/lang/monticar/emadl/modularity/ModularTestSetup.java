@@ -50,6 +50,7 @@ public abstract class ModularTestSetup  extends AbstractSymtabTest {
     public void removeCNNFilesFromPreviousRuns(String[] hashPaths){
         try {
             removeMultipleTrainingHashes(hashPaths);
+            removeDirectory("target/hashes");
             removeDirectory("model");
         } catch (IOException e){
             e.printStackTrace();

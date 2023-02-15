@@ -91,6 +91,12 @@ modularMNISTTest:
   stage: linux
   image: registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/mxnet/190
   script:
+    - ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+    - dpkg-reconfigure --frontend noninteractive tzdata
+    - apt update && apt install libopencv-dev python3-opencv libopenblas-dev liblapack-dev -y
+    - ln /usr/bin/python3 /usr/bin/python -f
+    - python -m pip install -U pip
+    - python -m pip install scikit-image
     - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U dependency:resolve -s settings.xml
     - mvn -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -B -U clean install --settings settings.xml -Dtest=ModularBasicTest
   except:

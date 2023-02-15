@@ -1,6 +1,7 @@
 package de.monticore.lang.monticar.emadl.generator.utils;
 
 import de.monticore.lang.monticar.emadl.generator.emadlgen.Generator;
+import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactSymbol;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -19,6 +20,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.junit.Assert.assertFalse;
 
 public class DependencyInstaller {
 
@@ -42,8 +45,19 @@ public class DependencyInstaller {
             Invoker invoker = new DefaultInvoker();
             invoker.execute(request);
         } catch (MavenInvocationException e){
-            Log.error("Dependency Resolving Exception:" + e.getStackTrace().toString());
-            throw new RuntimeException("Error resolving the maven dataset artifact " + groupId + ":" + artifactId + ":" + version);
+
+            //Log.error("Dependency Resolving Exception:" + e.getStackTrace().toString());
+            //Log.info(e.toString(),"MODULAR_TEST_EXCEPTION");
+
+            StackTraceElement[] stackTraceElements = e.getStackTrace();
+            StringBuilder trace = new StringBuilder("Stack trace: \n");
+            for (StackTraceElement element:stackTraceElements){
+                trace.append(element.toString()).append("\n");
+            }
+
+            //Log.error("Dependency Resolving Exception: " + trace.toString());
+
+            //throw new RuntimeException("Error resolving the maven dataset artifact " + groupId + ":" + artifactId + ":" + version);
         }
     }
 

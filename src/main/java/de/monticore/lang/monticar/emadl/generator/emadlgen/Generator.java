@@ -316,13 +316,22 @@ public class Generator implements EMAMGenerator {
         if (architecture.isPresent()) {
             emadlCNNHandler.getCnnArchGenerator().check(architecture.get());
             List<String> dPaths = getEmadlTaggingHandler().getDataPaths(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
-            //String dPath = fileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+            //
             String wPath = fileHandler.getWeightsPath(emaComponentSymbol, componentInstanceSymbol);
             HashMap layerPathParameterTags = taggingHandler.getLayerPathParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
             layerPathParameterTags.putAll(taggingHandler.getLayerArtifactParameterTags(taggingResolver, emaComponentSymbol, componentInstanceSymbol));
             architecture.get().setDataPaths(dPaths);
-            architecture.get().setDataPath(dPaths.get(0));
-            //architecture.get().setDataPath(dPath);
+
+            if (dPaths.size() > 0){
+                architecture.get().setDataPath(dPaths.get(0));
+            } else {
+                //Fallback
+                String dPath = fileHandler.getDataPath(taggingResolver, emaComponentSymbol, componentInstanceSymbol);
+                if (dPath == null || dPath.equals("")) throw new RuntimeException("Data Path empty. Maven Dependency install and fallback to old method both failed");
+
+                architecture.get().setDataPath(dPath);
+            }
+
             architecture.get().setWeightsPath(wPath);
             architecture.get().processLayerPathParameterTags(layerPathParameterTags);
             architecture.get().setComponentName(emaComponentSymbol.getFullName());
