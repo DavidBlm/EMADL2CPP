@@ -3,7 +3,7 @@ package de.monticore.lang.monticar.emadl.generator;
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.util.ResourcesUtil;
-import de.monticore.mlpipelines.workflow.HyperparameterOptimizationWorkflowHyperband;
+import de.monticore.mlpipelines.workflow.HyperparameterOptimizationWorkflow;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -72,7 +72,7 @@ public class HyperparamsOptCli extends EMADLGeneratorCli {
         final MontiAnnaContext montiAnnaContext = MontiAnnaContext.getInstance();
         montiAnnaContext.initContext(modelsDirPath, rootModelName, experimentConfiguration);
         montiAnnaContext.setPipelineReferenceModelsPath(Paths.get("src/main/resources/pipelines"));
-        //new HyperparameterOptimizationWorkflow(montiAnnaContext).execute();
-        new HyperparameterOptimizationWorkflowHyperband(montiAnnaContext).execute();
+        new HyperparameterOptimizationWorkflow(montiAnnaContext).execute();
+        //new HyperparameterOptimizationWorkflowHyperband(montiAnnaContext).execute();
     }
 }

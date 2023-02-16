@@ -5,6 +5,7 @@ import conflang._parser.ConfLangParser;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.GeneticAlgorithm;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.ParticleSwarmOptimization;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.BayesianOptimization;
+import de.monticore.mlpipelines.automl.hyperparameters.sequential.HyperbandAlgorithm;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.SimulatedAnnealing;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -39,7 +40,13 @@ public class HyperparamsOptAlgGeneratorTest extends TestCase {
 
     @Test
     public void testGenerateHyperband() throws IOException {
-        // TODO: Add test for Hyperband
+        AbstractHyperparameterAlgorithm hyperparameterAlgorithm = this.getAlgObjByName("Hyperband");
+        assertTrue(hyperparameterAlgorithm instanceof HyperbandAlgorithm);
+
+        HyperbandAlgorithm ha = (HyperbandAlgorithm) hyperparameterAlgorithm;
+        assertEquals(ha.getMaxIter(), 81);
+        assertEquals(ha.getEta(), 3);
+        assertEquals(ha.getSkipLast(),1);
     }
 
     @Test

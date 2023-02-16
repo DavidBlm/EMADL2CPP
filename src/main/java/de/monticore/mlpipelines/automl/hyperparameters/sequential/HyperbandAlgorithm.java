@@ -1,6 +1,7 @@
 package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 
 import conflang._ast.ASTConfLangCompilationUnit;
+import de.monticore.mlpipelines.automl.emadlprinter.ASTConfLangCompilationUnitPrinter;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.pipelines.Pipeline;
 
@@ -11,14 +12,10 @@ import static java.lang.Math.log;
 
 
 public class HyperbandAlgorithm extends SequentialAlgorithm {
-
-    private double max_iter ;
-    private double eta;
-
-    // private double
+    private int max_iter ;
+    private int eta;
     private int s_max;
     private double B ;
-
     ArrayList<Map<String, Object>> results = new ArrayList<>();
    // private int counter;
     private double best_loss;
@@ -26,19 +23,13 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
     private double validation_loss;
     ArrayList<Double> val_loss = new ArrayList<Double>();
     private int skipLast;
-
-
     @Override
     public void executeOptimization( Pipeline pipeline, ASTConfLangCompilationUnit searchSpace,ASTConfLangCompilationUnit evaluationCriteria) {
-        this.max_iter = 81;
-        this.eta = 3;
         this.s_max = (int) logeta( this.max_iter,eta );
         this.B = ( this.s_max + 1 ) * this.max_iter ;
-        //this.results = results;
-       // this.counter = 0;
         this.best_loss = Double.POSITIVE_INFINITY;
         this.best_counter = -1;
-        this.skipLast=0;
+        this.skipLast=1;
         int counter =0;
 
         for (int s = this.s_max; s >=0; s--) {
@@ -49,50 +40,54 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
             Set<ASTConfLangCompilationUnit> nConfigurations = getFullSetOfNewHyperparamsCandidate(searchSpace, n);
             Double valLoss;
             Map<ASTConfLangCompilationUnit, Double> map = new HashMap<>();
-            Map<String,Object> result = new HashMap<>();
 
             for (int i = 0; i<=s-(skipLast); i++) {
                 int n_configs = (int) (n * Math.pow(this.eta, ( -i )));
                 int n_iterations = (int) (r * Math.pow(this.eta, i));
                 Iterator<ASTConfLangCompilationUnit> iterator = nConfigurations.iterator();
                 while (iterator.hasNext()) {
+                    long totalTime=0;
+                    Map<String,Object> result = new HashMap<>();
                     counter++;
                     ASTConfLangCompilationUnit element = iterator.next();
                     ASTConfLangCompilationUnitHandler.setValueForKey(element, "num_epoch", n_iterations);
-                    //pipeline.setTrainingConfiguration(element);
-                    //pipeline.execute();
+                    if(pipeline != null) {
+                        long startTime = System.currentTimeMillis();
+                        pipeline.setTrainingConfiguration(element);
+                        pipeline.execute();
+                        long endTime = System.currentTimeMillis();
+                        totalTime = endTime - startTime;
+                    }
                     valLoss = validation_loss();
-                    if (valLoss < this.best_loss){
+                    /*if (valLoss < this.best_loss){
                         this.best_loss = valLoss;
                         this.best_counter = counter;
-                    }
+                    }*/
                     result.put("counter",counter);
                     result.put("params",element);
-                    result.put("interations",n_iterations);
+                    result.put("interations/epoch",n_iterations);
                     result.put("loss",valLoss);
+                    result.put("time",totalTime);
                     map.put(element,valLoss);
                     System.out.println(counter);
+                    if(!result.isEmpty()) {
+                        this.results.add(result);
+                    }
                 }
-
                 nConfigurations = top_configurations(map,n_configs,eta);
             }
-            if(!result.isEmpty()) {
-                this.results.add(result);
-            }
-           
         }
 
         this.currBestHyperparams = bestPerformingConfiguration(results);
         System.out.println(this.results);
-        System.out.println(currBestHyperparams);
-        System.out.println(this.best_loss);
+        ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
+        System.out.println(printer.prettyPrint(currBestHyperparams));
     }
 
     @Override
     public void executeOptimizationStep(ASTConfLangCompilationUnit hyperParams, ASTConfLangCompilationUnit searchSpace, Double evalValue, String metricType) {
 
     }
-
 
     private ASTConfLangCompilationUnit bestPerformingConfiguration(ArrayList<Map<String, Object>> results) {
 
@@ -108,7 +103,7 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
     public double validation_loss() {
         Random rd = new Random();
         double loss = rd.nextDouble();
-        //dry run the training pipeline
+        //TODO read the loss from json
         return loss;
     }
 
@@ -206,5 +201,12 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
         double r = this.max_iter * Math.pow(this.eta, -(s) );
         return r;
     }
+    public void setMaxIter(int maxIter) { this.max_iter = maxIter;  }
+    public void setEta(int eta) { this.eta = eta;   }
+    public void setSkipLast(int skipLast){ this.skipLast = skipLast;}
+
+    public int getMaxIter() { return max_iter;  }
+    public int getEta() {  return eta;   }
+    public int getSkipLast(){return skipLast ;}
 
 }
