@@ -11,7 +11,6 @@ component AdaNetCustom<Z(2:oo) classes = 10, Z(1:oo) layerWidth = 10>{
 
         image ->
         adanet() ->
-        FullyConnected(->=2, units=10)->
         FullyConnected(units=classes) ->
         Softmax() ->
         predictions

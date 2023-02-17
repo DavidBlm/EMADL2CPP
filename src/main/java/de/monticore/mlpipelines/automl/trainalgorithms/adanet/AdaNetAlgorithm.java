@@ -70,7 +70,6 @@ public class AdaNetAlgorithm extends NeuralArchitectureSearch {
         printArchitecture(architectureSymbol);
         return architectureSymbol;
     }
-
     private void setCandidateForArchitecture(AdaNetCandidate bestCandidate) {
         architectureSymbol = candidateBuilder.build(bestCandidate, architectureSymbol);
     }
