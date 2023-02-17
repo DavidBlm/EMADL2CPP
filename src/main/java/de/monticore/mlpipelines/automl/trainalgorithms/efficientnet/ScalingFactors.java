@@ -2,10 +2,10 @@ package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
 public class ScalingFactors {
 
-    public double alpha;
+    public double alpha;  //depth
 
-    public double beta;
-    public double gamma;
+    public double beta; //width
+    public double gamma; //resolution
 
     public ScalingFactors(double alpha, double beta, double gamma) {
         this.alpha = alpha;

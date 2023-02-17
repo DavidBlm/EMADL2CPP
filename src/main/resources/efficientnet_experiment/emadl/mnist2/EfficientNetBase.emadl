@@ -8,25 +8,25 @@ component EfficientNetBase<Z(2:oo) classes = 10>{
         def stem(channels){
             Convolution(kernel=(3,3), channels=channels, stride=(2, 2), padding="same") ->
             BatchNorm() ->
-            LeakyRelu()
+            Relu()
         }
 
         def conv(channels){
             Convolution(kernel=(3,3), channels=channels, stride=(1, 1), padding="same") ->
             BatchNorm() ->
-            LeakyRelu()
+            Relu()
         }
 
         def reductionConv(channels){
             Convolution(kernel=(3,3), channels=channels, stride=(2, 2), padding="same") ->
             BatchNorm() ->
-            LeakyRelu()
+            Relu()
         }
 
         def residualBlock(channels){
             conv(channels=channels) ->
             conv(channels=channels) ->
-            LeakyRelu()
+            Relu()
         }
 
         def reductionBlock(channels){
