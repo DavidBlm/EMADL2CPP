@@ -12,7 +12,7 @@ class MySupervisedTrainer():
         self._schemaApi_ = schema_api
         self._train_loader_ = trainData
         self._model_dir_ = model_dir
-        self._model_prefix_ = model_prefix
+        self.model_prefix = model_prefix
 
     def execute(self):
         criterion = translate_loss_name(self._schemaApi_.get_loss_value())
@@ -57,15 +57,6 @@ class MySupervisedTrainer():
         print(
             f'Training Loss and accuracy after  {num_epoch} epochs,  Loss:{epoch_loss:.4f} , Accuracy:{100 * epoch_accuracy:.2f}%')
 
-        content = {
-            'epoch': str(num_epoch + begin_epoch),
-            'loss': epoch_loss,
-            'accuracy': epoch_accuracy
-        }
-        results_path = self._model_dir_ + (self._model_prefix_ + "_" + str(num_epoch + begin_epoch) + ".json")
-        json_object = json.dumps(content, indent=4)
-        with open(results_path, "w") as outfile:
-            outfile.write(json_object)
 
         # Saving model in .pt format for prediction in c++
         model_scripted = torch.jit.script(self._network_)  # Export to TorchScript
