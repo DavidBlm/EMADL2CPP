@@ -7,6 +7,7 @@ import de.monticore.mlpipelines.backend.generation.MontiAnnaGenerator;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.montipipes.config.ExecutionScriptConfiguration;
 import de.monticore.montipipes.generators.PipelineGenerator;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -71,6 +72,7 @@ public class PythonPipeline extends Pipeline {
     public void execute() {
         generateTrainingConfiguration();
         generatePipelineExecutionScript();
+        addPythonScriptsToTarget();
         final InputStream process = runScript().getInputStream();
         try {
             String result = IOUtils.toString(process, StandardCharsets.UTF_8);
@@ -92,6 +94,21 @@ public class PythonPipeline extends Pipeline {
         } catch (IOException e) {
             throw new RuntimeException("Pipeline execution has aborted", e);
         }
+    }
+
+    private void addPythonScriptsToTarget() {
+        String classDir = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        String stepsDir = classDir + "experiments/steps";
+        String schemaDir = classDir + "experiments/schema_apis";
+        String targetDir = "target/generated-sources/";
+
+        try {
+            FileUtils.copyDirectory(new File(stepsDir), new File(targetDir + "steps"));
+            FileUtils.copyDirectory(new File(schemaDir), new File(targetDir + "schema_apis"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }
