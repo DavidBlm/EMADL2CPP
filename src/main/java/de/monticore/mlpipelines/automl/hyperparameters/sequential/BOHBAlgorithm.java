@@ -8,11 +8,10 @@ import de.monticore.mlpipelines.pipelines.Pipeline;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.Math.log;
 
-
-public class HyperbandAlgorithm extends SequentialAlgorithm {
-    private int max_iter ;
+public class BOHBAlgorithm extends HyperbandAlgorithm {
+    private int bMin ;
+    private int bMax ;
     private int eta;
     private int s_max;
     private double B ;
@@ -22,10 +21,11 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
     private double validation_loss;
     ArrayList<Double> val_loss = new ArrayList<Double>();
     private int skipLast;
+    private int max_iter;
     @Override
     public void executeOptimization( Pipeline pipeline, ASTConfLangCompilationUnit searchSpace,ASTConfLangCompilationUnit evaluationCriteria) {
-        this.s_max = (int) logeta( this.max_iter,eta );
-        this.B = ( this.s_max + 1 ) * this.max_iter ;
+        this.s_max = (int) logeta( this.bMax,this.bMin );
+        //this.B = ( this.s_max + 1 ) * this.max_iter ;
         this.best_loss = Double.POSITIVE_INFINITY;
         this.best_counter = -1;
         this.skipLast=1;
@@ -188,10 +188,10 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
 
         return currentHyperparams;
     }
-
-    public double logeta(double x, double y) {
-        return log(x) / log(y);
-    }
+/*
+    public double logeta(double x, double eta) {
+        return log(x) / log(eta);
+    }*/
     public int getConfigurationCount(int s) {
         int n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
         return n;
