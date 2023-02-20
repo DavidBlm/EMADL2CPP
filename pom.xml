@@ -16,12 +16,12 @@
         <!-- .. SE-Libraries .................................................. -->
         <emadl.version>0.4.9-SNAPSHOT</emadl.version>
         <CNNArch.version>0.4.12-SNAPSHOT</CNNArch.version>
-        <cnnarch-generator.version>0.4.15-SNAPSHOT</cnnarch-generator.version>
+        <cnnarch-generator.version>0.4.17-SNAPSHOT</cnnarch-generator.version>
         <cnnarch-mxnet-generator.version>0.4.9-SNAPSHOT</cnnarch-mxnet-generator.version>
         <cnnarch-caffe2-generator.version>0.4.9-SNAPSHOT</cnnarch-caffe2-generator.version>
         <cnnarch-tensorflow-generator.version>0.4.9-SNAPSHOT</cnnarch-tensorflow-generator.version>
         <cnnarch-pytorch-generator.version>0.0.1-SNAPSHOT</cnnarch-pytorch-generator.version>
-        <cnnarch-gluon-generator.version>0.5.4-SNAPSHOT</cnnarch-gluon-generator.version>
+        <cnnarch-gluon-generator.version>0.5.6-SNAPSHOT</cnnarch-gluon-generator.version>
         <monticore-runtime.version>5.0.1</monticore-runtime.version>
         <schemalang.version>1.0.1-SNAPSHOT</schemalang.version>
         <montipipes.version>0.0.1-SNAPSHOT</montipipes.version>
