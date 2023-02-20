@@ -35,7 +35,7 @@ public class ASTConfLangCompilationUnitPrinterTest extends TestCase {
     }
 
     public void testPrettyPrintEfficientNetConf() {
-        this.prettyPrinterGeneralTest("AdaNet.conf");
+        this.prettyPrinterGeneralTest("EfficientNet.conf");
     }
 
     public void testPrettyPrintEvaluationCriteriaConf() {

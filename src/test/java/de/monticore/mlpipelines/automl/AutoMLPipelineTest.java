@@ -25,8 +25,6 @@ public class AutoMLPipelineTest extends TestCase {
     @Ignore("Needs some other code to work")
     public void testTrainLoadsArchitecture() {
         AutoMLPipeline automl = getAutoMLPipeline();
-        ArchitectureSymbol architecture = new ArchitectureSymbol();
-        Configuration configuration = new Configuration();
         automl.setNeuralNetwork(mock(EMAComponentInstanceSymbol.class));
         automl.setConfigurationModel(mock(ASTConfLangCompilationUnit.class));
         automl.setTrainingConfiguration(mock(ASTConfLangCompilationUnit.class));
