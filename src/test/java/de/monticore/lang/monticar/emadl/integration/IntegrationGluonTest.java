@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -37,7 +36,7 @@ public class IntegrationGluonTest extends IntegrationTest {
 
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "GLUON"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         AbstractSymtabTest.checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),
@@ -60,7 +59,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "GLUON"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         checkFindingsCount(1);
     }
@@ -73,7 +72,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnencdec.Main", "-b", "GLUON"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         checkFindingsCount();
     }
@@ -86,7 +85,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models", "-r", "rnnsearch.Main", "-b", "GLUON"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         checkFindingsCount();
     }
@@ -99,7 +98,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models", "-r", "showAttendTell.Main", "-b", "GLUON"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         checkFindingsCount(1);
     }
@@ -112,7 +111,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models", "-r", "episodicMemorySimple.Network", "-b", "GLUON", "-f", "y"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
     }
 
     @Test
@@ -121,7 +120,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         Log.getFindings().clear();
         deleteHashFile();
         String[] args = {"-m", "src/test/resources/models/", "-r", "PreprocessingNetwork", "-b", "GLUON"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
         checkFindingsCount(1);
     }
 
@@ -131,7 +130,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         Log.getFindings().clear();
         deleteHashFile();
         String[] args = {"-m", "src/test/resources/models/ganModel", "-r", "defaultGANPreprocessing.GeneratorWithPreprocessing", "-b", "GLUON"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         checkFindingsCount(1);
     }
@@ -143,7 +142,7 @@ public class IntegrationGluonTest extends IntegrationTest {
         deleteHashFile();
 
         String[] args = {"-m", "src/test/resources/models/customMNISTCalculator", "-r", "cNNCalculator.Connector", "-b", "GLUON", "-cfp", "src/test/resources/custom_files"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         checkFindingsCount(6);
     }

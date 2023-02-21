@@ -1,13 +1,9 @@
 /* (c) https://github.com/MontiCore/monticore */
-package de.monticore.lang.monticar.emadl.generator.emadlgen;
+package de.monticore.lang.monticar.emadl.generator;
 
 import de.monticore.lang.monticar.cnnarch.generator.GenerationAbortedException;
-import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.modularcnn.tools.Randomizer;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
-import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
-import de.monticore.mlpipelines.configuration.MontiAnnaContext;
-import de.monticore.mlpipelines.workflow.AutonomousPipelineOrchestration;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
 import org.apache.commons.cli.*;
@@ -16,12 +12,11 @@ import org.apache.commons.lang3.SystemUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static de.monticore.lang.monticar.generator.cpp.GeneratorCppCli.*;
 
-public class GeneratorCli {
+public class EMADLGeneratorCli {
 
     public static final Option OPTION_OUTPUT_PATH = Option.builder("o")
             .longOpt("output-dir")
@@ -106,7 +101,7 @@ public class GeneratorCli {
             .required(false).build();
 
 
-    protected GeneratorCli() {}
+    protected EMADLGeneratorCli() {}
 
 
     public static void main(String[] args) {
@@ -240,7 +235,7 @@ public class GeneratorCli {
             forced = DEFAULT_FORCED;
         }
 
-        Generator generator = new Generator(backend.get(), composedNetworksFileName);
+        EMADLGenerator generator = new EMADLGenerator(backend.get(), composedNetworksFileName);
 
         if (compile == null) {
             compile = DEFAULT_COMPILE;

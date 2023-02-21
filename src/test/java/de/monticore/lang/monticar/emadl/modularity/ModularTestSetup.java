@@ -1,7 +1,7 @@
 package de.monticore.lang.monticar.emadl.modularity;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 
@@ -60,7 +60,7 @@ public abstract class ModularTestSetup  extends AbstractSymtabTest {
     public void runGenerator(String[] args, String[] hashPaths, int expectedFindings, boolean exceptionAllowed){
         removeCNNFilesFromPreviousRuns(hashPaths);
         try {
-            GeneratorCli.main(args);
+            EMADLGeneratorCli.main(args);
             checkFindingsCount(expectedFindings);
 
             Log.getFindings().stream().forEach(finding -> {

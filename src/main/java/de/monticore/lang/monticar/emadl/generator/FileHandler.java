@@ -1,4 +1,4 @@
-package de.monticore.lang.monticar.emadl.generator.emadlgen;
+package de.monticore.lang.monticar.emadl.generator;
 
 import com.google.common.io.Resources;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
@@ -8,7 +8,6 @@ import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.DataPathConfigParser;
 import de.monticore.lang.monticar.cnnarch.generator.WeightsPathConfigParser;
 import de.monticore.lang.monticar.emadl._cocos.DataPathCocos;
-import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
 import de.monticore.lang.monticar.emadl.generator.utils.ChecksumGenerator;
 import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactSymbol;
@@ -38,11 +37,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import static de.monticore.lang.monticar.cnnarch.generator.validation.Constants.ROOT_SCHEMA_MODEL_PATH;
-
 public class FileHandler {
 
-    private Generator emadlGen;
+    private EMADLGenerator emadlGen;
 
     private String adaNetUtils = "./src/main/resources/AdaNet/";
     private String modelsPath;
@@ -56,7 +53,7 @@ public class FileHandler {
     private EMAComponentInstanceSymbol vaultBuildingInstance = null;
 
 
-    public FileHandler(Generator emadlGen, String composedNetworksFilePath){
+    public FileHandler(EMADLGenerator emadlGen, String composedNetworksFilePath){
         this.emadlGen =  emadlGen;
         this.composedNetworksFilePath = composedNetworksFilePath;
     }
@@ -364,7 +361,7 @@ public class FileHandler {
         List<FileContent> fileContents = emadlGen.generateStrings(taggingResolver, emaComponentSymbol, allInstances, forced);
         List<File> generatedFiles = new ArrayList<>();
 
-        Log.info("Generating adapters ...", Generator.class.getName());
+        Log.info("Generating adapters ...", EMADLGenerator.class.getName());
         emadlGen.getEmamGen().generateAdapters(fileContents, emaComponentSymbol);
 
         for (FileContent fileContent : fileContents) {

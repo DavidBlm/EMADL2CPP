@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package de.monticore.lang.monticar.emadl.generator.backend;
+package de.monticore.lang.monticar.emadl.generator;
 
         import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
         import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;

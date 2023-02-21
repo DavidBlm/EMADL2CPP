@@ -1,5 +1,5 @@
 /* (c) https://github.com/MontiCore/monticore */
-package de.monticore.lang.monticar.emadl.generator.emadlgen;
+package de.monticore.lang.monticar.emadl.generator;
 
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
@@ -7,7 +7,6 @@ import de.monticore.lang.math._symboltable.MathStatementsSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
-import de.monticore.lang.monticar.emadl.generator.backend.Backend;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkDecomposer;
 import de.monticore.lang.monticar.generator.EMAMGenerator;
@@ -33,7 +32,7 @@ import java.net.URISyntaxException;
 import java.nio.file.*;
 import java.util.*;
 
-public class Generator implements EMAMGenerator {
+public class EMADLGenerator implements EMAMGenerator {
 
     private boolean generateCMake = false;
     private CMakeConfig cMakeConfig = new CMakeConfig("");
@@ -55,7 +54,7 @@ public class Generator implements EMAMGenerator {
     private Map<String, ArchitectureSymbol> processedArchitecture;
 
 
-    public Generator(Backend backend, String composedNetworkFilePath) {
+    public EMADLGenerator(Backend backend, String composedNetworkFilePath) {
         this.backend = backend;
         this.composedNetworkFilePath = composedNetworkFilePath;
         emamGen = new GeneratorCPP();

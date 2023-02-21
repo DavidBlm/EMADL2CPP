@@ -3,7 +3,7 @@ package de.monticore.mlpipelines.backend.generation;
 import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.lang.monticar.cnnarch.generator.generation.ConfLangGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.transformation.TemplateLinker;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 
 /***
@@ -25,7 +25,7 @@ public class MontiAnnaGenerator {
         String[] args = {"-m", montiAnnaContext.getParentModelPath().toString(), "-r", montiAnnaContext.getRootModelName(),
                 "-o", montiAnnaContext.getExperimentConfiguration().getGenerationTargetPath(),
                 "-b", montiAnnaContext.getTargetBackend().toString(), "-f", "n", "-c", "n"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
     }
 
     public void generateTrainingConfiguration(final ASTConfLangCompilationUnit configurationModel, final String generatedConfigurationName){

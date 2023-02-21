@@ -1,10 +1,10 @@
 package de.monticore.lang.monticar.emadl.generator.modularcnn;
 
-import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.FileHandler;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.BackendDecomposer;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.decomposers.gluon.GluonDecomposer;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
+import de.monticore.lang.monticar.cnnarch.generator.decomposition.BackendDecomposer;
+import de.monticore.lang.monticar.cnnarch.generator.decomposition.NetworkStructure;
+import de.monticore.lang.monticar.cnnarch.gluongenerator.decomposition.GluonDecomposer;
+import de.monticore.lang.monticar.emadl.generator.Backend;
+import de.monticore.lang.monticar.emadl.generator.FileHandler;
 import de.se_rwth.commons.logging.Log;
 
 import java.util.HashMap;

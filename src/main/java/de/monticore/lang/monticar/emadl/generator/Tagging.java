@@ -1,4 +1,4 @@
-package de.monticore.lang.monticar.emadl.generator.emadlgen;
+package de.monticore.lang.monticar.emadl.generator;
 
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
@@ -30,9 +30,9 @@ import java.util.stream.Stream;
 
 public class Tagging {
 
-    private Generator emadlGen;
+    private EMADLGenerator emadlGen;
 
-    public Tagging(Generator emadlGen){
+    public Tagging(EMADLGenerator emadlGen){
         this.emadlGen =  emadlGen;
     }
 

@@ -1,13 +1,10 @@
 package de.monticore.lang.monticar.emadl.generator.utils;
 
-import de.monticore.lang.monticar.emadl.generator.emadlgen.Generator;
-import de.monticore.lang.monticar.emadl.tagging.artifacttag.DatasetArtifactSymbol;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
 import org.apache.maven.shared.invoker.*;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 

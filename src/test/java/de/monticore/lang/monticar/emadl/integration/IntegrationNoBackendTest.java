@@ -2,7 +2,7 @@
 package de.monticore.lang.monticar.emadl.integration;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class IntegrationNoBackendTest extends AbstractSymtabTest {
         String[] args = {"-m", "src/test/resources/models/", "-r", "MultipleStreams", "-b", "NONE"};
 
         try {
-            GeneratorCli.main(args);
+            EMADLGeneratorCli.main(args);
         }catch (Exception e){
             // We should have an exception.
             threwException = true;
@@ -46,7 +46,7 @@ public class IntegrationNoBackendTest extends AbstractSymtabTest {
 
 
         String[] args = {"-m", "src/test/resources/models/", "-r", "Add", "-b", "NONE"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),

@@ -1,4 +1,4 @@
-package de.monticore.lang.monticar.emadl.generator.emadlgen;
+package de.monticore.lang.monticar.emadl.generator;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
@@ -6,11 +6,11 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
-import de.monticore.lang.math._symboltable.MathStatementsSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.CNNTrainGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.annotations.ArchitectureAdapter;
+import de.monticore.lang.monticar.cnnarch.generator.decomposition.NetworkStructure;
 import de.monticore.lang.monticar.cnnarch.generator.preprocessing.PreprocessingComponentParameterAdapter;
 import de.monticore.lang.monticar.cnnarch.generator.preprocessing.PreprocessingPortChecker;
 import de.monticore.lang.monticar.cnnarch.generator.training.TrainingComponentsContainer;
@@ -19,7 +19,7 @@ import de.monticore.lang.monticar.cnnarch.generator.validation.TrainedArchitectu
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
-import de.monticore.lang.monticar.emadl.generator.modularcnn.networkstructures.NetworkStructure;
+
 import de.monticore.lang.monticar.generator.FileContent;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
@@ -37,7 +37,7 @@ public class CNNHandler {
 
     private CNNArchGenerator cnnArchGenerator;
     private CNNTrainGenerator cnnTrainGenerator;
-    private Generator generator;
+    private EMADLGenerator generator;
     private FileHandler fileHandler;
     private Tagging taggingHandler;
     private GeneratorPythonWrapperStandaloneApi pythonWrapper;
@@ -50,7 +50,7 @@ public class CNNHandler {
 
 
 
-    public CNNHandler(Generator emadlGen, Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi, String composedNetworkFilePath ) {
+    public CNNHandler(EMADLGenerator emadlGen, Map<String, ArchitectureSymbol> processedArch, GeneratorPythonWrapperStandaloneApi pythonWrapperApi, String composedNetworkFilePath ) {
         generator = emadlGen;
         cnnArchGenerator = generator.getBackend().getCNNArchGenerator();
         cnnTrainGenerator = generator.getBackend().getCNNTrainGenerator();

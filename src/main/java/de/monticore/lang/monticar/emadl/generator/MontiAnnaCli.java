@@ -1,7 +1,5 @@
-package de.monticore.lang.monticar.emadl.generator.emadlgen;
+package de.monticore.lang.monticar.emadl.generator;
 
-import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
 import de.monticore.mlpipelines.util.ResourcesUtil;
@@ -16,13 +14,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 import static de.monticore.lang.monticar.cnnarch.generator.validation.Constants.ROOT_SCHEMA_MODEL_PATH;
 import static de.monticore.lang.monticar.generator.cpp.GeneratorCppCli.OPTION_MODELS_PATH;
 import static de.monticore.lang.monticar.generator.cpp.GeneratorCppCli.OPTION_ROOT_MODEL;
 
-public class MontiAnnaCli extends GeneratorCli {
+public class MontiAnnaCli extends EMADLGeneratorCli {
 
     public static void main(String[] args) {
         Options options = getOptions();

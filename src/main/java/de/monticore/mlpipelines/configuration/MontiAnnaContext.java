@@ -1,6 +1,6 @@
 package de.monticore.mlpipelines.configuration;
 
-import de.monticore.lang.monticar.emadl.generator.backend.Backend;
+import de.monticore.lang.monticar.emadl.generator.Backend;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

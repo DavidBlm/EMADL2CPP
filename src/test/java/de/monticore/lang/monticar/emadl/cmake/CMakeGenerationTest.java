@@ -2,13 +2,12 @@
 package de.monticore.lang.monticar.emadl.cmake;
 
 import de.monticore.lang.monticar.emadl.AbstractSymtabTest;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.GeneratorCli;
+import de.monticore.lang.monticar.emadl.generator.EMADLGeneratorCli;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static junit.framework.TestCase.assertTrue;
@@ -26,7 +25,7 @@ public class CMakeGenerationTest extends AbstractSymtabTest {
 
 
         String[] args = {"-m", "src/test/resources/models", "-r", "ipopt.QuadraticOpt", "-b", "NONE", "-c", "n"};
-        GeneratorCli.main(args);
+        EMADLGeneratorCli.main(args);
 
         checkFilesAreEqual(
                 Paths.get("./target/generated-sources-emadl"),

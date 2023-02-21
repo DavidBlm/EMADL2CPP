@@ -4,7 +4,7 @@ package de.monticore.lang.monticar.emadl;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.emadl._parser.EMADLParser;
-import de.monticore.lang.monticar.emadl.generator.backend.Backend;
+import de.monticore.lang.monticar.emadl.generator.Backend;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;

@@ -1,8 +1,8 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl;
 
-import de.monticore.lang.monticar.emadl.generator.backend.Backend;
-import de.monticore.lang.monticar.emadl.generator.emadlgen.AbstractSymtab;
+import de.monticore.lang.monticar.emadl.generator.Backend;
+import de.monticore.lang.monticar.emadl.generator.AbstractSymtab;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
