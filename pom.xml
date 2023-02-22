@@ -9,7 +9,7 @@
 
     <groupId>de.monticore.lang.monticar</groupId>
     <artifactId>embedded-montiarc-emadl-generator</artifactId>
-    <version>0.5.11-SNAPSHOT</version>
+    <version>0.5.12-SNAPSHOT</version>
 
     <!-- == PROJECT DEPENDENCIES ============================================= -->
     <properties>
@@ -21,10 +21,10 @@
         <cnnarch-caffe2-generator.version>0.4.9-SNAPSHOT</cnnarch-caffe2-generator.version>
         <cnnarch-tensorflow-generator.version>0.4.9-SNAPSHOT</cnnarch-tensorflow-generator.version>
         <cnnarch-pytorch-generator.version>0.0.1-SNAPSHOT</cnnarch-pytorch-generator.version>
-        <cnnarch-gluon-generator.version>0.5.6-SNAPSHOT</cnnarch-gluon-generator.version>
+        <cnnarch-gluon-generator.version>0.5.7-SNAPSHOT</cnnarch-gluon-generator.version>
         <monticore-runtime.version>5.0.1</monticore-runtime.version>
         <schemalang.version>1.0.1-SNAPSHOT</schemalang.version>
-        <montipipes.version>0.0.1-SNAPSHOT</montipipes.version>
+        <montipipes.version>0.0.2-SNAPSHOT</montipipes.version>
 
         <!-- .. Libraries .................................................. -->
         <guava.version>25.1-jre</guava.version>
