@@ -41,8 +41,7 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
             pipeline.setConfigurationModel(trainingConfiguration);
             pipeline.execute();
 
-            // TODO: Extract eval value from json file
-            double evalValue = Math.random();
+            double evalValue = Double.valueOf(((Float) (pipeline.getTrainedAccuracy() / 100)).toString());
             // TODO: Find correct way to log current iteration and its metric result
             System.out.println("Current Iteration: " + this.getCurrentIteration() + "; Eval Value: " + evalValue);
             //TODO: Pretty print trainingConfiguration correctly into conf files
