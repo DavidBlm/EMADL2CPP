@@ -10,6 +10,7 @@ import de.monticore.montipipes.generators.PipelineGenerator;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -73,7 +74,12 @@ public class PythonPipeline extends Pipeline {
                 .getPathToExecutionScript();
         String pathToOutputFile = generatedModelPath + modelOutputDirectory;
         String fileName = "results.json";
-        String pathToFile = System.getProperty("user.dir") + "\\" + pathToOutputFile + fileName;
+        String pathToFile;
+        if (SystemUtils.IS_OS_WINDOWS) {
+            pathToFile = System.getProperty("user.dir") + "\\" + pathToOutputFile + fileName;
+        } else {
+            pathToFile = System.getProperty("user.dir") + "/" + pathToOutputFile + fileName;
+        }
 
         JSONObject json = null;
         try {
