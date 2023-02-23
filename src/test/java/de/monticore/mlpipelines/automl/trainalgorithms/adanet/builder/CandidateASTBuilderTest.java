@@ -105,7 +105,7 @@ public class CandidateASTBuilderTest extends TestCase {
         assertEquals("FullyConnected", layer.getName());
         assertEquals(1, layer.getArgumentsList().size());
         assertEquals("units", argument.getName());
-        assertEquals(10, number);
+        assertEquals(20, number);
     }
 
     private static double getValueOfArgument(ASTArchParameterArgument argument) {

@@ -14,6 +14,10 @@ public class CandidateBuilder {
     ParallelCompositeElementSymbol adaNetSymbol;
     ASTArchitectureElement adaNetAST;
 
+    ASTArchitectureElement adanetPlaceholderAST;
+    ArchitectureElementSymbol adaNetPlaceholderSymbol;
+    int adaNetElementIndex;
+
     public CandidateBuilder() {
     }
 
@@ -26,6 +30,21 @@ public class CandidateBuilder {
         buildAST();
         setCandidateInArchitecture();
 
+        return architecture;
+    }
+
+    public ArchitectureSymbol removeCandidateFromArchitecture(ArchitectureSymbol architecture) {
+        SerialCompositeElementSymbol body = getNetworkInstructionBody();
+        List<ArchitectureElementSymbol> symbolElements = body.getElements();
+        ASTStream astNode = (ASTStream) body.getAstNode().get();
+        List<ASTArchitectureElement> astElements = astNode.getElementsList();
+
+        try {
+            symbolElements.set(adaNetElementIndex, adaNetPlaceholderSymbol);
+            astElements.set(adaNetElementIndex, adanetPlaceholderAST);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
         return architecture;
     }
 
@@ -46,9 +65,11 @@ public class CandidateBuilder {
         List<ASTArchitectureElement> astElements = astNode.getElementsList();
 
         try {
-            int adanetElementIndex = getAdaNetElementIndex(symbolElements);
-            symbolElements.set(adanetElementIndex, adaNetSymbol);
-            astElements.set(adanetElementIndex, adaNetAST);
+            adaNetElementIndex = getAdaNetElementIndex(symbolElements);
+            adaNetPlaceholderSymbol = symbolElements.get(adaNetElementIndex);
+            adanetPlaceholderAST = astElements.get(adaNetElementIndex);
+            symbolElements.set(adaNetElementIndex, adaNetSymbol);
+            astElements.set(adaNetElementIndex, adaNetAST);
         } catch (RuntimeException e) {
             e.printStackTrace();
         }

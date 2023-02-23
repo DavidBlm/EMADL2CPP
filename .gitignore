@@ -44,3 +44,4 @@ model
 /src/test/resources/experiment/pytorch/execute_LeNet
 /src/test/resources/experiment/pytorch/CNNCreator_LeNet.py
 __pycache__/
+/src/test/resources/models/efficientnet/EfficientNetB4.emadl

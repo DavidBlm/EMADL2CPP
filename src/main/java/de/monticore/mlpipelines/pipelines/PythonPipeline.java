@@ -67,7 +67,7 @@ public class PythonPipeline extends Pipeline {
                 .getExperimentConfiguration()
                 .getPathToExecutionScript();
         String pathToOutputFile = generatedModelPath + modelOutputDirectory;
-        String fileName = getTrainingOutputFileName(pathToOutputFile);
+        String fileName = "results.json";
         String pathToFile = System.getProperty("user.dir") + "\\" + pathToOutputFile + fileName;
 
         JSONObject json = null;
