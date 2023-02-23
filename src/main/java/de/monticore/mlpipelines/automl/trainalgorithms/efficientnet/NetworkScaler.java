@@ -93,7 +93,7 @@ public class NetworkScaler {
         ASTNumberExpression matrixDim2 = (ASTNumberExpression) dimensions.getMatrixDim(2);
 
         setImageDimensionSymbolValue(matrixDim1, matrixDim2);
-        setImageDimensionAstValue(dimensions, matrixDim1, matrixDim2);
+        ArchitectureHelper.setImageASTMatrixDimensions(dimensions, matrixDim1, matrixDim2);
     }
 
     private void scaleArchitectureElementWidth(ArchitectureElementSymbol architectureElement) {
@@ -114,21 +114,6 @@ public class NetworkScaler {
         int newDimension = roundMathNumberExpressionToInt(imageHeight);
         imageHeight.setValue(newDimension);
         imageWidth.setValue(newDimension);
-    }
-
-    private static void setImageDimensionAstValue(
-            ASTDimension dimensions,
-            ASTNumberExpression matrixDim1,
-            ASTNumberExpression matrixDim2) {
-        ASTNumberExpression numberExpression1 = ASTGenerator.createNumberExpression(
-                (MathNumberExpressionSymbol) matrixDim1.getSymbol());
-        ASTNumberExpression numberExpression2 = ASTGenerator.createNumberExpression(
-                (MathNumberExpressionSymbol) matrixDim2.getSymbol());
-
-        dimensions.setMatrixDim(1, numberExpression1);
-        dimensions.setMatrixDim(1, numberExpression2);
-        dimensions.setMatrixDim(2, numberExpression1);
-        dimensions.setMatrixDim(2, numberExpression2);
     }
 
     private List<ArchitectureElementSymbol> findArchitectureElements() {

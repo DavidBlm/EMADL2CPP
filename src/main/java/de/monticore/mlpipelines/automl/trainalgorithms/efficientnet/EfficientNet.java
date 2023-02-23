@@ -9,6 +9,7 @@ import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.automl.helper.ArchitectureHelper;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
 import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
+import de.monticore.mlpipelines.automl.helper.OriginalLayerParams;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 
 import java.util.ArrayList;
@@ -79,25 +80,19 @@ public class EfficientNet extends NeuralArchitectureSearch {
             int layerWidth = -1;
             int channelsIndex=1;
             if (allowedLayers.contains(architectureElement.getName())){
-                ArrayList symbolExpressions = ArchitectureHelper.getExpressions(architectureElement);
 
                 if (architectureElement.getName().equals("residualBlock")){
                     channelsIndex = 5;
                     int depthIndex = 3;
-                    MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(
-                            depthIndex);
-                    MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
-                    layerRepetition = expression.getIntValue();
+                    layerRepetition = ArchitectureHelper.getMathExpressionValueAt(architectureElement, depthIndex);
                 }
-
-                MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(channelsIndex);
-                MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
-                layerWidth = expression.getIntValue();
+                layerWidth = ArchitectureHelper.getMathExpressionValueAt(architectureElement, channelsIndex);
 
             }
-            parametersReference.add(new OriginalLayerParams(i, layerRepetition, layerWidth));
+            parametersReference.add(new OriginalLayerParams(layerRepetition, layerWidth));
             i += 1;
         }
+        OriginalLayerParams.changeImageDimensionValue(ArchitectureHelper.getOriginalImageDimension(startNetwork));
         this.gridSearch.parametersReference = parametersReference;
     }
 

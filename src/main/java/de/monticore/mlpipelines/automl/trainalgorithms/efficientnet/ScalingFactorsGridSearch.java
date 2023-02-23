@@ -1,13 +1,16 @@
 package de.monticore.mlpipelines.automl.trainalgorithms.efficientnet;
 
+import de.monticore.lang.math._ast.ASTNumberExpression;
 import de.monticore.lang.math._symboltable.expression.MathNumberExpressionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureElementSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.NetworkInstructionSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSymbol;
+import de.monticore.lang.monticar.types2._ast.ASTDimension;
 import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.automl.helper.ArchitectureHelper;
 import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
+import de.monticore.mlpipelines.automl.helper.OriginalLayerParams;
 import de.monticore.mlpipelines.pipelines.Pipeline;
 
 import java.util.ArrayList;
@@ -82,14 +85,13 @@ public class ScalingFactorsGridSearch {
             return;
         }
 
-        //this.networkScaler.parametersReference = parametersReference;
         this.networkScaler.scale(this.architecture, scalingFactors, this.standardPhi);
         trainPipeline.execute();
         rollbackScaledNetwork();
         checkIfScalingFactorsAreBetterThanBest(scalingFactors);
     }
 
-    private void rollbackScaledNetwork(){
+    private void rollbackElementLevelChanges(){
         NetworkInstructionSymbol networkInstruction = this.architecture.getNetworkInstructions().get(0);
         SerialCompositeElementSymbol networkInstructionBody = networkInstruction.getBody();
         List<ArchitectureElementSymbol> architectureElements = networkInstructionBody.getElements();
@@ -98,24 +100,45 @@ public class ScalingFactorsGridSearch {
         for (ArchitectureElementSymbol architectureElement : architectureElements) {
             int channelsIndex=1;
             if (allowedLayers.contains(architectureElement.getName())){
-                ArrayList symbolExpressions = ArchitectureHelper.getExpressions(architectureElement);
 
                 if (architectureElement.getName().equals("residualBlock")){
                     channelsIndex = 5;
                     int depthIndex = 3;
-                    MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(
-                            depthIndex);
-                    MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
-                    expression.setValue(parametersReference.get(i).getOriginalDepthValue());
+                    rollbackScaling(architectureElement, depthIndex, parametersReference.get(i).getOriginalDepthValue());
                 }
-
-                MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(channelsIndex);
-                MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
-                expression.setValue(parametersReference.get(i).getOriginalChannelValue());
+                rollbackScaling(architectureElement, channelsIndex, parametersReference.get(i).getOriginalChannelValue());
 
             }
             i += 1;
         }
+    }
+
+    private void rollbackScaling(ArchitectureElementSymbol architectureElement, int depthIndex, int parametersReference) {
+        ArrayList symbolExpressions = ArchitectureHelper.getExpressions(architectureElement);
+
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(
+                depthIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
+        expression.setValue(parametersReference);
+    }
+
+    private void rollbackImageScaling(){
+        ASTDimension dimensions = ArchitectureHelper.getImageDimension(architecture);
+        ASTNumberExpression matrixDim1 = (ASTNumberExpression) dimensions.getMatrixDim(1);
+        ASTNumberExpression matrixDim2 = (ASTNumberExpression) dimensions.getMatrixDim(2);
+        MathNumberExpressionSymbol heightDim = (MathNumberExpressionSymbol) matrixDim1.getSymbol();
+        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol) matrixDim2.getSymbol();
+        MathNumberExpressionWrapper imageHeight = new MathNumberExpressionWrapper(heightDim);
+        MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
+
+        imageHeight.setValue(OriginalLayerParams.getImageDimensionValue());
+        imageWidth.setValue(OriginalLayerParams.getImageDimensionValue());
+        ArchitectureHelper.setImageASTMatrixDimensions(dimensions, matrixDim1, matrixDim2);
+    }
+
+    private void rollbackScaledNetwork(){
+        rollbackElementLevelChanges(); //depth and channels
+        rollbackImageScaling(); //image dimensions
     }
 
     private void checkIfScalingFactorsAreBetterThanBest(ScalingFactors scalingFactors) {
