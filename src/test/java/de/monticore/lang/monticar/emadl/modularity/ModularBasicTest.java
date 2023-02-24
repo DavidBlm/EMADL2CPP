@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 public class ModularBasicTest extends ModularTestSetup {
     String[] hashPaths = {"target/hashes"};
 
+
     @Test
     public void testEmtpyNetwork() throws IOException {
         Log.getFindings().clear();
