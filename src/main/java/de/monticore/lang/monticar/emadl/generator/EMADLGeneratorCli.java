@@ -2,10 +2,8 @@
 package de.monticore.lang.monticar.emadl.generator;
 
 import de.monticore.lang.monticar.cnnarch.generator.GenerationAbortedException;
+import de.monticore.lang.monticar.emadl.modularcnn.tools.Randomizer;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
-import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
-import de.monticore.mlpipelines.configuration.MontiAnnaContext;
-import de.monticore.mlpipelines.workflow.AutonomousPipelineOrchestration;
 import de.se_rwth.commons.logging.Log;
 import freemarker.template.TemplateException;
 import org.apache.commons.cli.*;
@@ -77,9 +75,34 @@ public class EMADLGeneratorCli {
             .required(false)
             .build();
 
+    public static final Option OPTION_COMPOSED_NETWORK_FILE = Option.builder("cnf")
+            .longOpt("composed-network-file")
+            .desc("Specify composed network file name")
+            .hasArg(true)
+            .required(false).build();
 
-    protected EMADLGeneratorCli() {
-    }
+
+    public static final Option OPTION_ALLOW_DECOMPOSITION = Option.builder("ad")
+            .longOpt("allow-decomposition")
+            .desc("Allow decomposition of subnetworks after training")
+            .hasArg(false)
+            .required(false).build();
+
+    public static final Option OPTION_DECOMPOSABLE_NETWORKS = Option.builder("dn")
+            .longOpt("decomposable-networks")
+            .desc("Networks that can be decomposed")
+            .hasArg(true)
+            .required(false).build();
+
+    public static final Option OPTION_NO_DEBUG_LOG = Option.builder("ndl")
+            .longOpt("no-debug-log")
+            .desc("Debug Logging is disabled")
+            .hasArg(false)
+            .required(false).build();
+
+
+    protected EMADLGeneratorCli() {}
+
 
     public static void main(String[] args) {
         Options options = getOptions();
@@ -107,6 +130,10 @@ public class EMADLGeneratorCli {
         options.addOption(OPTION_CUSTOM_FILES_PATH);
         options.addOption(OPTION_USE_DGL);
         options.addOption(OPTION_HELP);
+        options.addOption(OPTION_COMPOSED_NETWORK_FILE);
+        options.addOption(OPTION_ALLOW_DECOMPOSITION);
+        options.addOption(OPTION_DECOMPOSABLE_NETWORKS);
+        options.addOption(OPTION_NO_DEBUG_LOG);
     }
 
     protected static void printHelp(){
@@ -120,6 +147,11 @@ public class EMADLGeneratorCli {
         System.err.println("\t [-c <compile>] e.g. \"y\"/\"n\"");
         System.err.println("\t [-cfp <custom file path>]");
         System.err.println("\t [-dgl <use dgl>] e.g. \"y\"/\"n\"");
+        System.err.println("\t [-cnf <composed network file path>] e.g. \"./CompFile\"");
+        System.err.println("\t [-ad]");
+        System.err.println("\t [-dn <list of network that can be decomposed] e.g. Network,Net1,Net2");
+        System.err.println("\t [-ndl disable debug log");
+
     }
 
     static CommandLine parseArgs(Options options, CommandLineParser parser, String[] args) {
@@ -143,10 +175,42 @@ public class EMADLGeneratorCli {
         String pythonPath = cliArgs.getOptionValue(OPTION_TRAINING_PYTHON_PATH.getOpt());
         String compile = cliArgs.getOptionValue(OPTION_COMPILE.getOpt());
         String useDgl = cliArgs.getOptionValue(OPTION_USE_DGL.getOpt());
+        String composedNetworksFileName = cliArgs.getOptionValue(OPTION_COMPOSED_NETWORK_FILE.getOpt());
+        boolean allowDecompositionPresent = cliArgs.hasOption(OPTION_ALLOW_DECOMPOSITION.getOpt());
+        boolean noDebugLog = cliArgs.hasOption(OPTION_NO_DEBUG_LOG.getOpt());
+
+        if (noDebugLog) {
+            Log.initWARN();
+        }
+
+        String commaDecompNetworkList = null;
+        String[] decompNetworkList = null;
+        if (cliArgs.hasOption(OPTION_DECOMPOSABLE_NETWORKS.getOpt())){
+            commaDecompNetworkList = cliArgs.getOptionValue(OPTION_DECOMPOSABLE_NETWORKS.getOpt());
+            decompNetworkList = commaDecompNetworkList.replaceAll(" ","").split(",");
+        }
+
+
         final String DEFAULT_BACKEND = "MXNET";
         final String DEFAULT_FORCED = "UNSET";
         final String DEFAULT_COMPILE = "y";
         final String DEFAULT_USE_DGL = "n";
+        final String DEFAULT_COMPOSED_NETWORKS_FILE = "ComposedNetworks";
+        boolean allowDecomposition = false;
+
+        if (allowDecompositionPresent){
+            allowDecomposition = true;
+        }
+
+        if (composedNetworksFileName == null){
+            composedNetworksFileName =  DEFAULT_COMPOSED_NETWORKS_FILE + "_" + rootModelName + Randomizer.timeStamp();
+        } else {
+            composedNetworksFileName = composedNetworksFileName + "_" + rootModelName + Randomizer.timeStamp();
+        }
+
+        if (outputPath != null && outputPath != ""){
+            composedNetworksFileName = outputPath + "/" + composedNetworksFileName;
+        }
 
         if (backendString == null) {
             Log.warn("Backend not specified. Backend set to default value " + DEFAULT_BACKEND);
@@ -171,7 +235,7 @@ public class EMADLGeneratorCli {
             forced = DEFAULT_FORCED;
         }
 
-        EMADLGenerator generator = new EMADLGenerator(backend.get());
+        EMADLGenerator generator = new EMADLGenerator(backend.get(), composedNetworksFileName);
 
         if (compile == null) {
             compile = DEFAULT_COMPILE;
@@ -200,7 +264,7 @@ public class EMADLGeneratorCli {
         GeneratorCPP emamGen = generator.getEmamGen();
         Path modelsDirPath = Paths.get(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()));
         if (cliArgs.hasOption(OPTION_CUSTOM_FILES_PATH.getOpt())) {
-            generator.setCustomFilesPath(cliArgs.getOptionValue(OPTION_CUSTOM_FILES_PATH.getOpt()));
+            generator.getEmadlFileHandler().setCustomFilesPath(cliArgs.getOptionValue(OPTION_CUSTOM_FILES_PATH.getOpt()));
         }
         if (cliArgs.hasOption(OPTION_USE_DGL.getOpt())) {
             generator.setUseDgl(cliArgs.getOptionValue(OPTION_USE_DGL.getOpt()).equals("y"));
@@ -227,8 +291,12 @@ public class EMADLGeneratorCli {
         emamGen.setGenerateCMake(cliArgs.hasOption(OPTION_FLAG_CMAKE.getLongOpt()));
         // end EMAM2CPP options
 
+        String fullModelPath = cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()) + rootModelName;
+
         try {
-            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl);
+            //Log.warn("Running generator for model: " + fullModelPath);
+            generator.generate(cliArgs.getOptionValue(OPTION_MODELS_PATH.getOpt()), rootModelName, pythonPath, forced, compile.equals("y"), useDgl, allowDecomposition, decompNetworkList);
+            //Log.warn("Generator run finished for model: " + fullModelPath);
         } catch (IOException e){
             String errMsg ="io error during generation"+ e;
             Log.error(errMsg);

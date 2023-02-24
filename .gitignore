@@ -9,6 +9,8 @@ nppBackup
 *.iml
 train.log
 model
+src/test/resources/custom_files/python/gluon/custom_layers/__pycache__/
+venv
 /src/test/resources/models/adanet/AdaNetBaseGenerated.emadl
 /src/test/resources/models/efficientnet/EfficientNetB1.emadl
 /src/main/java/de/monticore/lang/monticar/emadl/generator/utils/ChecksumGenerator.java

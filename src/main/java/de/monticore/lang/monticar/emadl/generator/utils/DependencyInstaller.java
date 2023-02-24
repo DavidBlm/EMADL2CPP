@@ -1,12 +1,10 @@
 package de.monticore.lang.monticar.emadl.generator.utils;
 
-import de.monticore.lang.monticar.emadl.generator.EMADLGenerator;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
 import org.apache.maven.shared.invoker.*;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
@@ -20,6 +18,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.junit.Assert.assertFalse;
+
 public class DependencyInstaller {
 
 
@@ -27,7 +27,8 @@ public class DependencyInstaller {
     public static void installDependency(String groupId, String artifactId, String version) {
         try {
             InvocationRequest request = new DefaultInvocationRequest();
-            request.setGoals(Collections.singletonList("dependency:get"));
+            request.setGoals(Arrays.asList("dependency:get"));
+            request.setUserSettingsFile(new File("settings.xml"));
 
             Properties properties = new Properties();
             properties.setProperty("groupId", groupId);
@@ -40,7 +41,8 @@ public class DependencyInstaller {
             Invoker invoker = new DefaultInvoker();
             invoker.execute(request);
         } catch (MavenInvocationException e){
-            throw new RuntimeException("Error resolving the maven dataset artifact " + groupId + ":" + artifactId + ":" + version);
+            Log.info("Dependency Installation Error Stacktrace: " + e.getMessage() ,"DEPENDENCY_INSTALLATION");
+            //throw new RuntimeException("Error resolving the maven dataset artifact " + groupId + ":" + artifactId + ":" + version);
         }
     }
 

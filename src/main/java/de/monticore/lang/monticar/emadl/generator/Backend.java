@@ -77,6 +77,7 @@ public enum Backend {
             return new CNNTrain2NoBackend();
         }
     };
+
     public abstract CNNArchGenerator getCNNArchGenerator();
     public abstract CNNTrainGenerator getCNNTrainGenerator();
 
