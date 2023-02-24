@@ -131,13 +131,6 @@
         </dependency>
 
         <dependency>
-            <groupId>de.monticore.lang.monticar.pretrained</groupId>
-            <artifactId>simple-pretrained</artifactId>
-            <version>1</version>
-            <classifier>pretrained</classifier>
-        </dependency>
-
-        <dependency>
             <groupId>de.monticore.lang.monticar.datasets</groupId>
             <artifactId>mnist</artifactId>
             <version>1</version>
