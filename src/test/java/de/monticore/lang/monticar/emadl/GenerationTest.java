@@ -245,10 +245,10 @@ public class GenerationTest extends AbstractSymtabTest {
 
     @Test
     public void testHashFunction() {
-        EMADLGenerator tester = new EMADLGenerator(Backend.MXNET);
+        EMADLGenerator tester = new EMADLGenerator(Backend.MXNET,"./target");
 
         try {
-            tester.getChecksumForFile("invalid Path!");
+            tester.getEmadlFileHandler().getChecksumForFile("invalid Path!");
             fail("Hash method should throw IOException on invalid path");
         } catch (IOException e) {
         }

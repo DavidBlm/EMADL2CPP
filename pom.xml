@@ -9,22 +9,22 @@
 
     <groupId>de.monticore.lang.monticar</groupId>
     <artifactId>embedded-montiarc-emadl-generator</artifactId>
-    <version>0.5.11-SNAPSHOT</version>
+    <version>0.5.13-SNAPSHOT</version>
 
     <!-- == PROJECT DEPENDENCIES ============================================= -->
     <properties>
         <!-- .. SE-Libraries .................................................. -->
         <emadl.version>0.4.9-SNAPSHOT</emadl.version>
         <CNNArch.version>0.4.12-SNAPSHOT</CNNArch.version>
-        <cnnarch-generator.version>0.4.17-SNAPSHOT</cnnarch-generator.version>
+        <cnnarch-generator.version>0.4.18-SNAPSHOT</cnnarch-generator.version>
         <cnnarch-mxnet-generator.version>0.4.9-SNAPSHOT</cnnarch-mxnet-generator.version>
         <cnnarch-caffe2-generator.version>0.4.9-SNAPSHOT</cnnarch-caffe2-generator.version>
         <cnnarch-tensorflow-generator.version>0.4.9-SNAPSHOT</cnnarch-tensorflow-generator.version>
         <cnnarch-pytorch-generator.version>0.0.1-SNAPSHOT</cnnarch-pytorch-generator.version>
-        <cnnarch-gluon-generator.version>0.5.6-SNAPSHOT</cnnarch-gluon-generator.version>
+        <cnnarch-gluon-generator.version>0.5.8-SNAPSHOT</cnnarch-gluon-generator.version>
         <monticore-runtime.version>5.0.1</monticore-runtime.version>
         <schemalang.version>1.0.1-SNAPSHOT</schemalang.version>
-        <montipipes.version>0.0.1-SNAPSHOT</montipipes.version>
+        <montipipes.version>0.0.2-SNAPSHOT</montipipes.version>
 
         <!-- .. Libraries .................................................. -->
         <guava.version>25.1-jre</guava.version>
@@ -52,10 +52,17 @@
 
     <dependencies>
 
+
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
             <version>4.7.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.14.1</version>
         </dependency>
 
         <dependency>
@@ -123,75 +130,17 @@
             <version>${emadl.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.json/json -->
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20220320</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.11.0</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.15</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-settings -->
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-settings</artifactId>
-            <version>3.8.5</version>
+            <groupId>de.monticore.lang.monticar.datasets</groupId>
+            <artifactId>mnist</artifactId>
+            <version>1</version>
+            <classifier>dataset</classifier>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.maven.plugin-tools</groupId>
-            <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.6.4</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-plugin-api -->
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
-            <version>3.8.5</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-utils -->
-        <!-- Needed to parse maven settings.xml file -->
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>3.4.2</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.maven.shared/maven-invoker -->
-        <dependency>
-            <groupId>org.apache.maven.shared</groupId>
-            <artifactId>maven-invoker</artifactId>
-            <version>3.2.0</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-model -->
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
-            <version>3.8.6</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.30</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.json/json -->
@@ -222,26 +171,13 @@
             <version>3.8.5</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.maven.plugin-tools</groupId>
-            <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.6.4</version>
-            <scope>provided</scope>
-        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-plugin-api -->
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
             <version>3.8.5</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-utils -->
-        <!-- Needed to parse maven settings.xml file -->
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>3.4.2</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven.shared/maven-invoker -->
@@ -251,28 +187,6 @@
             <version>3.2.0</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-model -->
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
-            <version>3.8.6</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
-        </dependency>
-
-
-        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-settings -->
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-settings</artifactId>
-            <version>3.8.5</version>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.maven.plugin-tools</groupId>
             <artifactId>maven-plugin-annotations</artifactId>
@@ -280,12 +194,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-plugin-api -->
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
-            <version>3.8.5</version>
-        </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.codehaus.plexus/plexus-utils -->
         <!-- Needed to parse maven settings.xml file -->
@@ -295,12 +203,7 @@
             <version>3.4.2</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.maven.shared/maven-invoker -->
-        <dependency>
-            <groupId>org.apache.maven.shared</groupId>
-            <artifactId>maven-invoker</artifactId>
-            <version>3.2.0</version>
-        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.apache.maven/maven-model -->
         <dependency>
