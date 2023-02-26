@@ -29,6 +29,7 @@ public class AutoMLPipeline extends Pipeline {
     @Override
     public void execute() {
         this.trainPipeline.setNeuralNetwork(neuralNetwork);
+        this.trainPipeline.setNetworkName(getNetworkName());
         this.trainPipeline.setTrainingConfiguration(trainingConfiguration);
         this.trainPipeline.setPipelineConfiguration(pipelineConfiguration);
         this.trainPipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);

@@ -14,6 +14,8 @@ public abstract class Pipeline {
 
     protected EMAComponentInstanceSymbol neuralNetwork;
 
+    private String networkName;
+
     protected ASTConfLangCompilationUnit searchSpace;
 
     protected ASTConfLangCompilationUnit hyperparamsOptConf;
@@ -44,6 +46,14 @@ public abstract class Pipeline {
 
     public void setEvaluationCriteria(ASTConfLangCompilationUnit evaluationCriteria) {
         this.evaluationCriteria = evaluationCriteria;
+    }
+
+    public String getNetworkName() {
+        return networkName;
+    }
+
+    public void setNetworkName(String networkName) {
+        this.networkName = networkName;
     }
 
     public void setPipelineModelWithExecutionSemantics(final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics) {

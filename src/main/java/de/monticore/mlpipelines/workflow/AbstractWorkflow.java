@@ -67,17 +67,20 @@ public abstract class AbstractWorkflow {
         final Scope emadlSymbolTable = SymbolTableCreator.createEMADLSymbolTable(rootEMADLComponent,
                 new GlobalScope(modelPath, new EMADLLanguage()));
         final EMAComponentInstanceSymbol network = getNetworkTobeTrained(rootEMADLComponent, emadlSymbolTable);
-        final String fullNetworkNameReplacedWithUnderscores = network.getFullName().replace(".", "_");
-        final String pathToTrainingConfiguration = Paths.get(pathToModelsDirectory,
-                fullNetworkNameReplacedWithUnderscores + ".conf").toString();
+
+        final String modelConfDir = Paths.get(pathToModelsDirectory, rootModelName).toString();
+        final String networkName = this.getNetworkName(network);
+
+        final String pathToTrainingConfiguration = Paths.get(modelConfDir,
+                networkName + ".conf").toString();
         final ASTConfLangCompilationUnit trainingConfiguration = parseTrainingConfiguration(
                 pathToTrainingConfiguration);
         final Scope trainingConfigurationSymbolTable = SymbolTableCreator.createConfLangSymbolTable(
                 trainingConfiguration, new GlobalScope(modelPath, new ConfLangLanguage()));
         final ConfigurationSymbol trainingConfigurationSymbol = trainingConfiguration.getConfiguration()
                 .getConfigurationSymbol();
-        final String pathToPipelineConfiguration = Paths.get(pathToModelsDirectory,
-                fullNetworkNameReplacedWithUnderscores + "_pipeline.conf").toString();
+        final String pathToPipelineConfiguration = Paths.get(modelConfDir,
+                networkName + "_pipeline.conf").toString();
         final ASTConfLangCompilationUnit pipelineConfiguration = parsePipelineConfiguration(
                 pathToPipelineConfiguration);
         final Scope pipelineConfigurationSymbolTable = SymbolTableCreator.createConfLangSymbolTable(
@@ -91,12 +94,12 @@ public abstract class AbstractWorkflow {
         final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = calculateExecutionSemantics();
 
         // Load AutoML pipeline configurations
-        ASTConfLangCompilationUnit nasConf = this.getNASConfiguration(pathToModelsDirectory);
-        ASTConfLangCompilationUnit searchSpace = this.getAutoMLConfiguration(pathToModelsDirectory,
+        ASTConfLangCompilationUnit nasConf = this.getNASConfiguration(modelConfDir);
+        ASTConfLangCompilationUnit searchSpace = this.getAutoMLConfiguration(modelConfDir,
                 "SearchSpace.conf");
-        ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(pathToModelsDirectory,
+        ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(modelConfDir,
                 "HyperparameterOpt.conf");
-        ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(pathToModelsDirectory,
+        ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(modelConfDir,
                 "EvaluationCriteria.conf");
 
         trainingConfiguration.getConfiguration().addSuperConfiguration(nasConf.getConfiguration());
@@ -109,6 +112,7 @@ public abstract class AbstractWorkflow {
         pipeline.setPipelineConfiguration(pipelineConfiguration);
         pipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
         pipeline.setNeuralNetwork(network);
+        pipeline.setNetworkName(networkName);
         pipeline.setHyperparamsOptConf(hyperparamsOptConf);
         pipeline.setEvaluationCriteria(evaluationCriteria);
 
@@ -204,6 +208,13 @@ public abstract class AbstractWorkflow {
                 Constants.SYNTHESIZED_COMPONENTS_ROOT);
         new ExecutionSemantics(symTab, pipelineReferenceModel).addExecutionSemantics();
         return pipelineReferenceModel;
+    }
+
+    private String getNetworkName(EMAComponentInstanceSymbol network) {
+        String fullName = network.getFullName();
+        int packageIndex = fullName.indexOf('.');
+        String networkName = fullName.substring(packageIndex + 1).replace(".", "_");
+        return networkName;
     }
 
     protected ASTConfLangCompilationUnit getAutoMLConfiguration(String modelDirPath, String configurationName) throws IOException {

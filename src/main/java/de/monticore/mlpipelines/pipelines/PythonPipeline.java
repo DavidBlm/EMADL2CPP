@@ -106,7 +106,7 @@ public class PythonPipeline extends Pipeline {
     }
 
     public void generateTrainingConfiguration() {
-        final String configName = "Training_Configuration_" + neuralNetwork.getFullName().replace(".", "_");
+        final String configName = "Training_Configuration_" + this.getNetworkName();
         montiAnnaGenerator.generateTrainingConfiguration(this.trainingConfiguration, configName);
     }
 
@@ -145,9 +145,8 @@ public class PythonPipeline extends Pipeline {
     }
 
     private Path calculatePathToGeneratedTrainingConfiguration() {
-        final String NetworkName = this.neuralNetwork.getFullName().replace(".", "_");
         return Paths.get(MontiAnnaContext.getInstance().getExperimentConfiguration().getPathToTrainingConfiguration(),
-                "Training_Configuration_" + NetworkName);
+                "Training_Configuration_" + this.getNetworkName());
     }
 
     private Path calculatePathToGeneratedNetwork() {
