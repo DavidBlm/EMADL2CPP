@@ -15,10 +15,6 @@ import java.util.stream.Collectors;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
-import org.apache.commons.io.FileUtils;
-import java.io.File;
-import java.io.IOException;
-
 public class IntegrationPythonWrapperTest extends AbstractSymtabTest {
 
     @Before
