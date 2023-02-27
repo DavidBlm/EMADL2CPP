@@ -124,7 +124,9 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-
+    public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws TemplateException, IOException {
+        this.generate(modelPath,qualifiedName,pythonPath,forced,doCompile,useDgl,false,null);
+    }
 
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl, boolean allowDecomposition, String[] decompositionNetworkList) throws IOException, TemplateException {
         Log.info("Generator start", "GENERATION");
