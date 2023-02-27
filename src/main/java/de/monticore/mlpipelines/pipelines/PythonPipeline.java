@@ -134,7 +134,7 @@ public class PythonPipeline extends Pipeline {
                 .getExperimentConfiguration()
                 .getPathToExecutionScript();
         final String pathToExecutionScript = Paths.get("Pipeline_Executor.py").toString();
-        ProcessBuilder processBuilder = new ProcessBuilder("python3", pathToExecutionScript);
+        ProcessBuilder processBuilder = new ProcessBuilder("/home/akash/anaconda3/envs/trainingPipeline/bin/python3", pathToExecutionScript);
         processBuilder.redirectErrorStream(true);
         processBuilder.directory(new File(pathToExecutionScriptDirectory));
         try {

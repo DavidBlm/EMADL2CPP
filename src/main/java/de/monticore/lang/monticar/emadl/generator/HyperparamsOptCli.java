@@ -73,5 +73,6 @@ public class HyperparamsOptCli extends EMADLGeneratorCli {
         montiAnnaContext.initContext(modelsDirPath, rootModelName, experimentConfiguration);
         montiAnnaContext.setPipelineReferenceModelsPath(Paths.get("src/main/resources/pipelines"));
         new HyperparameterOptimizationWorkflow(montiAnnaContext).execute();
+        //new HyperparameterOptimizationWorkflowHyperband(montiAnnaContext).execute();
     }
 }
