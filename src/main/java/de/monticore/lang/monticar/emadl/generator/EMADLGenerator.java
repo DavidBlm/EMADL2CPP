@@ -67,6 +67,10 @@ public class EMADLGenerator implements EMAMGenerator {
         emadlCNNHandler = new CNNHandler(this, processedArchitecture, pythonWrapper, this.composedNetworkFilePath);
     }
 
+    public EMADLGenerator(Backend backend){
+        this(backend,"./target/composedNetworks");
+    }
+
     protected Map<String, ArchitectureSymbol> getProcessedArchitecture() {
         return this.processedArchitecture;
     }
@@ -95,12 +99,20 @@ public class EMADLGenerator implements EMAMGenerator {
         return this.composedNetworkFilePath;
     }
 
-    protected GeneratorCPP getEmamGen() {
+    public GeneratorCPP getEmamGen() {
         return emamGen;
+    }
+
+    public List<File> generateCMakeFiles(EMAComponentInstanceSymbol instanceSymbol){
+        return fileHandler.generateCMakeFiles(instanceSymbol);
     }
 
     public String getGenerationTargetPath() {
         return getEmamGen().getGenerationTargetPath();
+    }
+
+    public void setModelsPath(String path){
+        fileHandler.setModelsPath(path);
     }
 
     public void setGenerationTargetPath(String generationTargetPath){
@@ -236,7 +248,7 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-    protected List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Set<EMAComponentInstanceSymbol> allInstances, String forced) {
+    public List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Set<EMAComponentInstanceSymbol> allInstances, String forced) {
         if (componentInstanceSymbol != null) {
             getCmakeConfig().getCMakeListsViewModel().setCompName(componentInstanceSymbol.getFullName().replace('.', '_').replace('[', '_').replace(']', '_'));
         }

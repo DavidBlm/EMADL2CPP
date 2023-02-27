@@ -4,7 +4,7 @@ import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instance
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.symboltable.Scope;
 
-import static de.monticore.lang.monticar.emadl.generator.AbstractSymtab.createSymTab;
+import static de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab.createSymTab;
 
 public class ModelLoader {
     public static ArchitectureSymbol load(String modelFolderPath, String modelName){
