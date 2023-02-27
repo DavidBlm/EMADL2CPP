@@ -26,8 +26,8 @@
       <configuration>
         <httpHeaders>
           <property>
-            <name>Job-Token</name>
-            <value>${env.CI_JOB_TOKEN}</value>
+              <name>Deploy-Token</name>
+              <value>KJkmCZosey-A8XBES2Fy</value>
           </property>
         </httpHeaders>
       </configuration>
@@ -37,10 +37,10 @@
       <id>gitlab-maven-mnist</id>
       <configuration>
         <httpHeaders>
-          <property>
-            <name>Job-Token</name>
-            <value>${env.CI_JOB_TOKEN}</value>
-          </property>
+            <property>
+                <name>Deploy-Token</name>
+                <value>KJkmCZosey-A8XBES2Fy</value>
+            </property>
         </httpHeaders>
       </configuration>
     </server>
