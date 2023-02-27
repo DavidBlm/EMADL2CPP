@@ -87,10 +87,26 @@ public class EMADLGenerator implements EMAMGenerator {
         return this.emadlCNNHandler;
     }
 
-    protected boolean getUseDgl() { return useDgl; }
+    public boolean getUseDgl() { return useDgl; }
 
-    protected void setUseDgl(boolean useDgl){
+    public void setUseDgl(boolean useDgl){
         this.useDgl = useDgl;
+    }
+
+    public void setPythonPath(String path){
+        fileHandler.setPythonPath(path);
+    }
+
+    public String getPythonPath(){
+       return fileHandler.getPythonPath();
+    }
+
+    public void setCustomFilesPath(String path){
+        fileHandler.setCustomFilesPath(path);
+    }
+
+    public String getCustomFilesPath(){
+        return fileHandler.getCustomFilesPath();
     }
 
     protected Backend getBackend() {return this.backend;}
@@ -113,6 +129,10 @@ public class EMADLGenerator implements EMAMGenerator {
 
     public void setModelsPath(String path){
         fileHandler.setModelsPath(path);
+    }
+
+    public String getModelsPath(){
+        return fileHandler.getModelsPath();
     }
 
     public void setGenerationTargetPath(String generationTargetPath){
