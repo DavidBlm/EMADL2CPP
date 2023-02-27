@@ -1,8 +1,10 @@
 package de.monticore.mlpipelines.automl;
 
+import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
+import de.monticore.mlpipelines.automl.hyperparameters.HyperparamsOptAlgGenerator;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearchBuilder;
 import de.monticore.mlpipelines.pipelines.Pipeline;
@@ -27,15 +29,16 @@ public class AutoMLPipeline extends Pipeline {
     @Override
     public void execute() {
         this.trainPipeline.setNeuralNetwork(neuralNetwork);
+        this.trainPipeline.setNetworkName(getNetworkName());
         this.trainPipeline.setTrainingConfiguration(trainingConfiguration);
         this.trainPipeline.setPipelineConfiguration(pipelineConfiguration);
         this.trainPipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
 
         ArchitectureSymbol originalArchitecture = getArchitectureSymbol();
-        executeNeuralArchitectureSearch(originalArchitecture);
-//        executeHyperparameterOptimization(configuration);
-        trainPipeline.setNeuralNetwork(neuralNetwork);
-        trainPipeline.execute();
+        // executeNeuralArchitectureSearch(originalArchitecture);
+        executeHyperparameterOptimization(hyperparamsOptConf);
+        // trainPipeline.setNeuralNetwork(neuralNetwork);
+        // trainPipeline.execute();
     }
 
     private ArchitectureSymbol getArchitectureSymbol() {
@@ -55,23 +58,16 @@ public class AutoMLPipeline extends Pipeline {
         architecture = neuralArchitectureSearch.execute(originalArchitecture);
     }
 
-//    private void executeHyperparameterOptimization(Configuration configuration) {
-//        loadHyperparameterAlgorithm();
-//        this.configuration = configuration;
-//        hyperparameterAlgorithm.executeIteration();
-//    }
+    private void executeHyperparameterOptimization(ASTConfLangCompilationUnit hyperparamsOptConf) {
+        hyperparameterAlgorithm = HyperparamsOptAlgGenerator.generateAlgorithm(hyperparamsOptConf);
+        hyperparameterAlgorithm.executeOptimization(this.trainPipeline, this.searchSpace, this.evaluationCriteria);
+    }
 
     public void loadTrainAlgorithm() {
         neuralArchitectureSearchBuilder.setConfig(trainingConfiguration);
         neuralArchitectureSearchBuilder.setTrainingPipeline(trainPipeline);
         this.neuralArchitectureSearch = neuralArchitectureSearchBuilder.build();
     }
-
-//    private void loadHyperparameterAlgorithm() {
-//        HyperparameterOptConfig hyperparameterOptConfig = configuration.getHyperparameterOptConfig();
-//        //TODO: Use HyperparameterAlgorithmBuilder to load the correct algorithm
-//    }
-
 
     public Pipeline getTrainPipeline() {
         return trainPipeline;

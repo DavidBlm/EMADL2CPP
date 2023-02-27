@@ -7,6 +7,7 @@ import de.monticore.mlpipelines.automl.hyperparameters.parallel.ParticleSwarmOpt
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.BayesianOptimization;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.SimulatedAnnealing;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.WeightedRS;
+import de.se_rwth.commons.logging.Log;
 
 import java.util.Map;
 
@@ -16,6 +17,8 @@ public class HyperparamsOptAlgGenerator {
         Map<String, Object> optimizerMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(hyperparamsOptConf, "optimizer");
         String optimizerName = (String) optimizerMap.get("optimizer");
         Map<String, Object> nestedMap = (Map<String, Object>) optimizerMap.get("nestedMap");
+        Log.info(String.format("Use %s for hyperparameter optimization", optimizerName),
+                HyperparamsOptAlgGenerator.class.getName());
         switch (optimizerName) {
             case "SA":
                 return getSimulatedAnnealing(nestedMap);

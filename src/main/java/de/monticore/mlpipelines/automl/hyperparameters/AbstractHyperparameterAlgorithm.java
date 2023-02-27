@@ -1,9 +1,14 @@
 package de.monticore.mlpipelines.automl.hyperparameters;
 
 import conflang._ast.ASTConfLangCompilationUnit;
+import de.monticore.mlpipelines.automl.emadlprinter.ASTConfLangCompilationUnitPrinter;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.pipelines.Pipeline;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -245,6 +250,21 @@ public abstract class AbstractHyperparameterAlgorithm {
             doubleArr[i] = doubleList.get(i);
         }
         return doubleArr;
+    }
+
+    protected void saveConfFile(ASTConfLangCompilationUnit hyperparams, ASTConfLangCompilationUnitPrinter printer) {
+        String targetDir = "target/generated-sources/conf/";
+        String confFileName = "bestConfiguration.conf";
+        String path = targetDir + confFileName;
+        Path targetPath = Paths.get(targetDir);
+        try {
+            if (!Files.exists(targetPath)) {
+                Files.createDirectories(targetPath);
+            }
+            Files.write(Paths.get(path), printer.prettyPrint(hyperparams).getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public abstract void executeOptimization(Pipeline pipeline, ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit evaluationCriteria);

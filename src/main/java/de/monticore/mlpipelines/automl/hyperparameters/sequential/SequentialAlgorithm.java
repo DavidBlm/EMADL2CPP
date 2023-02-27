@@ -5,6 +5,7 @@ import de.monticore.mlpipelines.automl.emadlprinter.ASTConfLangCompilationUnitPr
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
 import de.monticore.mlpipelines.pipelines.Pipeline;
+import de.se_rwth.commons.logging.Log;
 
 public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorithm {
 
@@ -33,6 +34,7 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
         double criteria = (double) ASTConfLangCompilationUnitHandler.getValueByKey(evaluationCriteria, "acceptance_rate");
         int maxIterNum = (int) ASTConfLangCompilationUnitHandler.getValueByKey(evaluationCriteria, "max_iteration_number");
 
+        Log.info("Start with a random initial hyperparameter", SequentialAlgorithm.class.getName());
         ASTConfLangCompilationUnit trainingConfiguration = this.getInitialHyperparams(searchSpace);
 
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
@@ -41,12 +43,15 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
             pipeline.setConfigurationModel(trainingConfiguration);
             pipeline.execute();
 
-            // TODO: Extract eval value from json file
-            double evalValue = Math.random();
-            // TODO: Find correct way to log current iteration and its metric result
-            System.out.println("Current Iteration: " + this.getCurrentIteration() + "; Eval Value: " + evalValue);
-            //TODO: Pretty print trainingConfiguration correctly into conf files
-            System.out.println(printer.prettyPrint(trainingConfiguration));
+            double evalValue = Double.valueOf(((Float) (pipeline.getTrainedAccuracy() / 100)).toString());
+
+            Log.info(String.format("Current iteration: %s; Eval Value: %s", this.getCurrentIteration(), evalValue),
+                    SequentialAlgorithm.class.getName());
+            Log.info(String.format("Used hyperparameter configuration:\n%s", printer.prettyPrint(trainingConfiguration)),
+                    SequentialAlgorithm.class.getName());
+
+            Log.info("Execute optimization step and get new hyperparameter configuration",
+                    SequentialAlgorithm.class.getName());
             this.executeOptimizationStep(trainingConfiguration, searchSpace, evalValue, metricType);
             trainingConfiguration = this.getNewHyperparamsCandidate(searchSpace);
             if (evalValue >= criteria) {
@@ -58,7 +63,11 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
         double bestEvalValue = this.getCurrBestEvalMetric();
 
         // TODO: Pretty print optimal trainingConfiguration correctly into conf file and print best eval value
-        System.out.println("Best Eval Value: " + bestEvalValue);
-        System.out.println(printer.prettyPrint(bestTrainingConfig));
+        Log.info(String.format("Best Eval Value: %s", bestEvalValue), SequentialAlgorithm.class.getName());
+        Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(bestTrainingConfig)),
+                SequentialAlgorithm.class.getName());
+
+        Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
+        this.saveConfFile(bestTrainingConfig, printer);
     }
 }
