@@ -35,8 +35,8 @@ public class AutoMLPipeline extends Pipeline {
         this.trainPipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
 
         ArchitectureSymbol originalArchitecture = getArchitectureSymbol();
-        // executeNeuralArchitectureSearch(originalArchitecture);
-        executeHyperparameterOptimization(hyperparamsOptConf);
+        executeNeuralArchitectureSearch(originalArchitecture);
+//        executeHyperparameterOptimization(hyperparamsOptConf);
         // trainPipeline.setNeuralNetwork(neuralNetwork);
         // trainPipeline.execute();
     }
