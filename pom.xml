@@ -130,12 +130,6 @@
             <version>${emadl.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>de.monticore.lang.monticar.datasets</groupId>
-            <artifactId>mnist</artifactId>
-            <version>1</version>
-            <classifier>dataset</classifier>
-        </dependency>
 
         <dependency>
             <groupId>org.freemarker</groupId>
