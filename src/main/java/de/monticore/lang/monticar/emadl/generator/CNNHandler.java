@@ -21,6 +21,7 @@ import de.monticore.lang.monticar.emadl._cocos.EMADLCocos;
 import de.monticore.lang.monticar.emadl.generator.modularcnn.NetworkCompositionHandler;
 
 import de.monticore.lang.monticar.generator.FileContent;
+import de.monticore.lang.monticar.generator.cmake.CMakeFindModule;
 import de.monticore.lang.monticar.generator.pythonwrapper.GeneratorPythonWrapperStandaloneApi;
 import de.monticore.lang.monticar.generator.pythonwrapper.symbolservices.data.ComponentPortInformation;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
@@ -110,6 +111,8 @@ public class CNNHandler {
         fileContents.addAll(contents);
         fileContents.add(componentFileContent);
         fileContents.add(new FileContent(fileHandler.readResource("CNNTranslator.h", Charsets.UTF_8), "CNNTranslator.h"));
+        // CNNTranslator.h includes opencv, so add it as dependency
+        getCnnArchGenerator().getCmakeConfig().addModuleDependency(new CMakeFindModule("OpenCV", true).asFindAsPackage());
     }
 
     protected List<FileContent> generateCNNTrainer(Set<EMAComponentInstanceSymbol> allInstances, String mainComponentName) {
