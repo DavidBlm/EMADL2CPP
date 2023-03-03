@@ -33,9 +33,6 @@ public class RandomSearchAlgorithmTest extends TestCase {
 
 
     }
-    @Test
-    public void testExecuteOptimization() {
-    }
 
     @Test
     public void testGetNewHyperparamsCandidate() {
