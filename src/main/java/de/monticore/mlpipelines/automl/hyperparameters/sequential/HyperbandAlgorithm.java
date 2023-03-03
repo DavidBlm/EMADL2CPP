@@ -4,12 +4,12 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.emadlprinter.ASTConfLangCompilationUnitPrinter;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.pipelines.Pipeline;
+import de.se_rwth.commons.logging.Log;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.log;
-
 
 public class HyperbandAlgorithm extends SequentialAlgorithm {
     private int max_iter ;
@@ -57,14 +57,14 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
                         long endTime = System.currentTimeMillis();
                         totalTime = endTime - startTime;
                     }
-                    valLoss = validation_loss();
+                    valLoss  = 1-(Double.valueOf(((Float) (pipeline.getTrainedAccuracy() / 100)).toString()));
                     /*if (valLoss < this.best_loss){
                         this.best_loss = valLoss;
                         this.best_counter = counter;
                     }*/
                     result.put("counter",counter);
                     result.put("params",element);
-                    result.put("interations/epoch",n_iterations);
+                    result.put("iterations/epoch",n_iterations);
                     result.put("loss",valLoss);
                     result.put("time",totalTime);
                     map.put(element,valLoss);
@@ -75,12 +75,17 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
                 }
                 nConfigurations = top_configurations(map,n_configs,eta);
             }
+
         }
 
         this.currBestHyperparams = bestPerformingConfiguration(results);
-        System.out.println(this.results);
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
-        System.out.println(printer.prettyPrint(currBestHyperparams));
+        Log.info(String.format("List of  hyperparameter configuration:\n%s", results),
+                HyperbandAlgorithm.class.getName());
+        Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(currBestHyperparams)),
+                HyperbandAlgorithm.class.getName());
+        Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
+        this.saveConfFile(currBestHyperparams, printer);
     }
 
     @Override

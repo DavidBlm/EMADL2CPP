@@ -4,10 +4,7 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.GeneticAlgorithm;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.ParticleSwarmOptimization;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.BayesianOptimization;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.HyperbandAlgorithm;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.SimulatedAnnealing;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.WeightedRS;
+import de.monticore.mlpipelines.automl.hyperparameters.sequential.*;
 import de.se_rwth.commons.logging.Log;
 
 import java.util.Map;
@@ -33,6 +30,8 @@ public class HyperparamsOptAlgGenerator {
                 return getParticleSwarmOptimization(nestedMap);
             case "Hyperband":
                 return getHyperbandAlgorithm(nestedMap);
+            case "RS":
+                return getRandomSearchAlgorithm(nestedMap);
             //TODO: Add cases for other optimization algorithms
             default:
                 throw new IllegalArgumentException("Optimizer name in HyperparameterOpt.conf not valid.");
@@ -80,5 +79,11 @@ public class HyperparamsOptAlgGenerator {
         hyperband.setEta((int) nestedMap.get("eta"));
         hyperband.setSkipLast((int) nestedMap.get("skip_last"));
         return hyperband;
+    }
+
+    private static RandomSearchAlgorithm getRandomSearchAlgorithm(Map<String, Object> nestedMap) {
+        RandomSearchAlgorithm rs = new RandomSearchAlgorithm();
+        rs.setMaxIter((int) nestedMap.get("max_iter"));
+        return rs;
     }
 }
