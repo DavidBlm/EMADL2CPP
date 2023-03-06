@@ -27,9 +27,8 @@ public class HyperbandAlgorithmTest extends TestCase {
 
     private ASTConfLangCompilationUnit searchSpace;
 
-    private HyperbandAlgorithm hyperbandAlgorithm1;
+    private HyperbandAlgorithm hyperbandAlgorithm;
 
-    private HyperbandAlgorithm hyperbandAlgorithm2;
 
     private double evalValue = 0.8;
 
@@ -58,16 +57,16 @@ public class HyperbandAlgorithmTest extends TestCase {
         
         searchSpace = parser.parse(searchSpacePath.toString()).get();
 
-        this.hyperbandAlgorithm1 = new HyperbandAlgorithm();
-        newHyperparamcandidate = hyperbandAlgorithm1.getNewHyperparamsCandidate(searchSpace);
-        hyperbandAlgorithm1.setMaxIter(81);
-        hyperbandAlgorithm1.setEta(3);
-        hyperbandAlgorithm1.setSkipLast(0);
+        this.hyperbandAlgorithm = new HyperbandAlgorithm();
+        newHyperparamcandidate = hyperbandAlgorithm.getNewHyperparamsCandidate(searchSpace);
+        hyperbandAlgorithm.setMaxIter(81);
+        hyperbandAlgorithm.setEta(3);
+        hyperbandAlgorithm.setSkipLast(0);
 
     }
     @Test
     public void testFullSetOfRandomHyperparamsCandidate() {
-        nConfigurations= hyperbandAlgorithm1.getFullSetOfNewHyperparamsCandidate(searchSpace, 5);
+        nConfigurations= hyperbandAlgorithm.getFullSetOfNewHyperparamsCandidate(searchSpace, 5);
         assertEquals(5,nConfigurations.stream().count());
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
         Iterator<ASTConfLangCompilationUnit> iterator = nConfigurations.iterator();
@@ -80,7 +79,7 @@ public class HyperbandAlgorithmTest extends TestCase {
 
     @Test
     public void testSingleHyperparameterCandidate() {
-        ASTConfLangCompilationUnit configuration = hyperbandAlgorithm1.getNewHyperparamsCandidate(searchSpace);
+        ASTConfLangCompilationUnit configuration = hyperbandAlgorithm.getNewHyperparamsCandidate(searchSpace);
         assertNotNull(configuration);
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
         System.out.println(printer.prettyPrint(configuration));
@@ -88,7 +87,7 @@ public class HyperbandAlgorithmTest extends TestCase {
 
     @Test
     public void testOverrideNumEpoch() {
-        ASTConfLangCompilationUnit configuration = hyperbandAlgorithm1.getNewHyperparamsCandidate(searchSpace);
+        ASTConfLangCompilationUnit configuration = hyperbandAlgorithm.getNewHyperparamsCandidate(searchSpace);
         assertNotNull(configuration);
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
         System.out.println("Before --"+printer.prettyPrint(configuration));
@@ -173,23 +172,21 @@ public class HyperbandAlgorithmTest extends TestCase {
 
     @Test
     public void testLogEta() {
-        assertEquals(4,(int)hyperbandAlgorithm1.logeta(max_iter,eta));
-        //System.out.println((int)hyperbandAlgorithm1.logeta(max_iter,eta));
+        assertEquals(4,(int)hyperbandAlgorithm.logeta(max_iter,eta));
+        //System.out.println((int)hyperbandAlgorithm.logeta(max_iter,eta));
     }
 
     @Test
     public void testGetConfigurationCount() {
         this.max_iter=81;
         this.eta =3;
-        this.s_max = (int) hyperbandAlgorithm1.logeta( this.max_iter,eta );
+        this.s_max = (int) hyperbandAlgorithm.logeta( this.max_iter,eta );
         this.B = ( this.s_max + 1 ) * this.max_iter ;
         int s = 4;
         int i =0;
         int n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
-        //System.out.println(n);
         int n_configs = (int) (n * Math.pow(this.eta, ( -i )));
         assertEquals(81,n_configs);
-        //System.out.println(n_configs);
     }
 
     @Test
@@ -199,18 +196,5 @@ public class HyperbandAlgorithmTest extends TestCase {
         double r = this.max_iter * Math.pow(this.eta,( -s ));
         int n_iterations = (int) (r * Math.pow(this.eta, i));
         assertEquals(1,n_iterations);
-        //System.out.println(n_iterations);
-    }
-
-    @Test
-    public void testValidationLoss() {
-        double loss = hyperbandAlgorithm1.validation_loss();
-        assertNotNull(loss);
-        //System.out.println(loss);
-    }
-
-    @Test
-    public void testExecuteOptimization() {
-        hyperbandAlgorithm1.executeOptimization(null,searchSpace,null);
     }
 }

@@ -104,13 +104,6 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
     }
 
 
-    public double validation_loss() {
-        Random rd = new Random();
-        double loss = rd.nextDouble();
-        //TODO read the loss from json
-        return loss;
-    }
-
     public Set<ASTConfLangCompilationUnit> top_configurations(Map<ASTConfLangCompilationUnit, Double> map, int n_configs, double eta) {
         Map<ASTConfLangCompilationUnit, Double> sortedMap = map.entrySet()
                 .stream()

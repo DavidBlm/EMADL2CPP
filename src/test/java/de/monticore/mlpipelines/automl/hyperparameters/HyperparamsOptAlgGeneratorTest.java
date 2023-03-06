@@ -7,6 +7,7 @@ import de.monticore.mlpipelines.automl.hyperparameters.parallel.ParticleSwarmOpt
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.BayesianOptimization;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.HyperbandAlgorithm;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.SimulatedAnnealing;
+import de.monticore.mlpipelines.automl.hyperparameters.sequential.RandomSearchAlgorithm;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -50,13 +51,12 @@ public class HyperparamsOptAlgGeneratorTest extends TestCase {
     }
 
     @Test
-    public void testGenerateBOHB() throws IOException {
-        // TODO: Add test for BOHB
-    }
+    public void testGenerateRS() throws IOException {
+        AbstractHyperparameterAlgorithm hyperparameterAlgorithm = this.getAlgObjByName("RS");
+        assertTrue(hyperparameterAlgorithm instanceof RandomSearchAlgorithm);
 
-    @Test
-    public void testGenerateDEHB() throws IOException {
-        // TODO: Add test for DEHB
+        RandomSearchAlgorithm rs = (RandomSearchAlgorithm) hyperparameterAlgorithm;
+        assertEquals(rs.getMaxIter(), 10);
     }
 
     @Test

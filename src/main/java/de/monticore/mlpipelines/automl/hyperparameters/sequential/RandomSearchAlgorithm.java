@@ -177,5 +177,6 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
         return currBestHyperparams;
     }
     public void setMaxIter(int maxIter) { this.max_iter = maxIter;  }
+    public int getMaxIter() { return max_iter;  }
 
 }
