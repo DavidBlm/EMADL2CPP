@@ -67,6 +67,10 @@ public class EMADLGenerator implements EMAMGenerator {
         emadlCNNHandler = new CNNHandler(this, processedArchitecture, pythonWrapper, this.composedNetworkFilePath);
     }
 
+    public EMADLGenerator(Backend backend){
+        this(backend,"./target/composedNetworks");
+    }
+
     protected Map<String, ArchitectureSymbol> getProcessedArchitecture() {
         return this.processedArchitecture;
     }
@@ -83,10 +87,26 @@ public class EMADLGenerator implements EMAMGenerator {
         return this.emadlCNNHandler;
     }
 
-    protected boolean getUseDgl() { return useDgl; }
+    public boolean getUseDgl() { return useDgl; }
 
-    protected void setUseDgl(boolean useDgl){
+    public void setUseDgl(boolean useDgl){
         this.useDgl = useDgl;
+    }
+
+    public void setPythonPath(String path){
+        fileHandler.setPythonPath(path);
+    }
+
+    public String getPythonPath(){
+       return fileHandler.getPythonPath();
+    }
+
+    public void setCustomFilesPath(String path){
+        fileHandler.setCustomFilesPath(path);
+    }
+
+    public String getCustomFilesPath(){
+        return fileHandler.getCustomFilesPath();
     }
 
     protected Backend getBackend() {return this.backend;}
@@ -95,12 +115,24 @@ public class EMADLGenerator implements EMAMGenerator {
         return this.composedNetworkFilePath;
     }
 
-    protected GeneratorCPP getEmamGen() {
+    public GeneratorCPP getEmamGen() {
         return emamGen;
+    }
+
+    public List<File> generateCMakeFiles(EMAComponentInstanceSymbol instanceSymbol){
+        return fileHandler.generateCMakeFiles(instanceSymbol);
     }
 
     public String getGenerationTargetPath() {
         return getEmamGen().getGenerationTargetPath();
+    }
+
+    public void setModelsPath(String path){
+        fileHandler.setModelsPath(path);
+    }
+
+    public String getModelsPath(){
+        return fileHandler.getModelsPath();
     }
 
     public void setGenerationTargetPath(String generationTargetPath){
@@ -112,7 +144,9 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-
+    public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl) throws TemplateException, IOException {
+        this.generate(modelPath,qualifiedName,pythonPath,forced,doCompile,useDgl,false,null);
+    }
 
     public void generate(String modelPath, String qualifiedName, String pythonPath, String forced, boolean doCompile, String useDgl, boolean allowDecomposition, String[] decompositionNetworkList) throws IOException, TemplateException {
         Log.info("Generator start", "GENERATION");
@@ -236,7 +270,7 @@ public class EMADLGenerator implements EMAMGenerator {
         }
     }
 
-    protected List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Set<EMAComponentInstanceSymbol> allInstances, String forced) {
+    public List<FileContent> generateStrings(TaggingResolver taggingResolver, EMAComponentInstanceSymbol componentInstanceSymbol, Set<EMAComponentInstanceSymbol> allInstances, String forced) {
         if (componentInstanceSymbol != null) {
             getCmakeConfig().getCMakeListsViewModel().setCompName(componentInstanceSymbol.getFullName().replace('.', '_').replace('[', '_').replace(']', '_'));
         }
