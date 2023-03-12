@@ -1,8 +1,6 @@
 package de.monticore.mlpipelines.workflow;
 
 import conflang._ast.ASTConfLangCompilationUnit;
-import conflang._symboltable.ConfLangLanguage;
-import conflang._symboltable.ConfigurationSymbol;
 import de.monticore.io.paths.ModelPath;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._ast.ASTEMACompilationUnit;
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.cncModel.EMAComponentSymbol;
@@ -28,8 +26,9 @@ import de.se_rwth.commons.StringTransformations;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class AbstractWorkflow {
 
@@ -66,25 +65,6 @@ public abstract class AbstractWorkflow {
         final ModelPath modelPath = new ModelPath(Paths.get(montiAnnaContext.getParentModelPath().toString()));
         final Scope emadlSymbolTable = SymbolTableCreator.createEMADLSymbolTable(rootEMADLComponent,
                 new GlobalScope(modelPath, new EMADLLanguage()));
-        final EMAComponentInstanceSymbol network = getNetworkTobeTrained(rootEMADLComponent, emadlSymbolTable);
-
-        final String modelConfDir = Paths.get(pathToModelsDirectory, rootModelName).toString();
-        final String networkName = this.getNetworkName(network);
-
-        final String pathToTrainingConfiguration = Paths.get(modelConfDir,
-                networkName + ".conf").toString();
-        final ASTConfLangCompilationUnit trainingConfiguration = parseTrainingConfiguration(
-                pathToTrainingConfiguration);
-        final Scope trainingConfigurationSymbolTable = SymbolTableCreator.createConfLangSymbolTable(
-                trainingConfiguration, new GlobalScope(modelPath, new ConfLangLanguage()));
-        final ConfigurationSymbol trainingConfigurationSymbol = trainingConfiguration.getConfiguration()
-                .getConfigurationSymbol();
-        final String pathToPipelineConfiguration = Paths.get(modelConfDir,
-                networkName + "_pipeline.conf").toString();
-        final ASTConfLangCompilationUnit pipelineConfiguration = parsePipelineConfiguration(
-                pathToPipelineConfiguration);
-        final Scope pipelineConfigurationSymbolTable = SymbolTableCreator.createConfLangSymbolTable(
-                trainingConfiguration, new GlobalScope(modelPath, new ConfLangLanguage()));
 
 //        final ConfigurationValidator configurationValidator = new ConfigurationValidator();
 //        configurationValidator.validateTrainingConfiguration(trainingConfigurationSymbol);
@@ -93,38 +73,16 @@ public abstract class AbstractWorkflow {
         backendSpecificValidations();
         final EMAComponentInstanceSymbol pipelineModelWithExecutionSemantics = calculateExecutionSemantics();
 
-        // Load AutoML pipeline configurations
-        ASTConfLangCompilationUnit nasConf = this.getNASConfiguration(modelConfDir);
-        ASTConfLangCompilationUnit searchSpace = this.getAutoMLConfiguration(modelConfDir,
-                "SearchSpace.conf");
-        ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(modelConfDir,
-                "HyperparameterOpt.conf");
-        ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(modelConfDir,
-                "EvaluationCriteria.conf");
-
-        trainingConfiguration.getConfiguration().addSuperConfiguration(nasConf.getConfiguration());
-
         //backend
         generateBackendArtefactsIntoExperiment();
         final LearningMethod learningMethod = LearningMethod.SUPERVISED;
         createPipeline(learningMethod);
-        pipeline.setConfigurationModel(trainingConfiguration);
-        pipeline.setPipelineConfiguration(pipelineConfiguration);
+        pipeline.setNetworkInstancesConfigs(
+                this.getNetworkInstanceConfigs(pathToModelsDirectory, rootModelName, rootEMADLComponent, emadlSymbolTable)
+        );
         pipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
-        pipeline.setNeuralNetwork(network);
-        pipeline.setNetworkName(networkName);
-        pipeline.setHyperparamsOptConf(hyperparamsOptConf);
-        pipeline.setEvaluationCriteria(evaluationCriteria);
-
-        this.setPipelineSearchSpace(trainingConfiguration, searchSpace);
 
         executePipeline();
-    }
-
-    private void setPipelineSearchSpace(ASTConfLangCompilationUnit trainingConfiguration, ASTConfLangCompilationUnit searchSpace) {
-        String trainConfigName = trainingConfiguration.getConfiguration().getName();
-        searchSpace.getConfiguration().setName(trainConfigName);
-        pipeline.setSearchSpace(searchSpace);
     }
 
     protected String getDirectoryPathSupplementFromComponentName(final String rootModelName) {
@@ -149,6 +107,76 @@ public abstract class AbstractWorkflow {
                 return subcomponent;
         }
         throw new IllegalStateException();
+    }
+
+    protected List<EMAComponentInstanceSymbol> getAllNetworkInstances(
+            final ASTEMACompilationUnit rootEMADLComponent,
+            Scope emadlSymbolTable) {
+        List<EMAComponentInstanceSymbol> networkInstancesList = new ArrayList<>();
+        final String componentName = rootEMADLComponent.getComponent().getName();
+        final String instanceName = componentName.substring(0, 1).toLowerCase() + componentName.substring(1);
+        final EMAComponentInstanceSymbol componentInstance = (EMAComponentInstanceSymbol) emadlSymbolTable.resolve(
+                instanceName, EMAComponentInstanceSymbol.KIND).get();
+        for (final EMAComponentInstanceSymbol subcomponent : componentInstance.getSubComponents()) {
+            final EMAComponentSymbol referencedSymbol = subcomponent.getComponentType().getReferencedSymbol();
+            final Optional<ArchitectureSymbol> network = referencedSymbol.getSpannedScope()
+                    .resolve("", ArchitectureSymbol.KIND);
+            if (network.isPresent()) {
+                networkInstancesList.add(subcomponent);
+            }
+        }
+        return networkInstancesList;
+    }
+
+    protected List<Map<String, Object>> getNetworkInstanceConfigs(
+            String pathToModelsDirectory, String rootModelName,
+            final ASTEMACompilationUnit rootEMADLComponent,
+            Scope emadlSymbolTable) throws IOException {
+        List<Map<String, Object>> networkInstancesConfigs = new ArrayList<>();
+
+        List<EMAComponentInstanceSymbol> networkInstances = getAllNetworkInstances(rootEMADLComponent, emadlSymbolTable);
+
+        for (EMAComponentInstanceSymbol instanceSymbol : networkInstances) {
+            Map<String, Object> configMap = new HashMap<>();
+            configMap.put("network", instanceSymbol);
+            String instanceNetworkName = this.getNetworkName(instanceSymbol);
+            configMap.put("networkName", instanceNetworkName);
+            String instanceName = instanceSymbol.getName();
+            String componentTypeName = instanceSymbol.getComponentType().getName();
+            // Set configurations for NAS:
+            ASTConfLangCompilationUnit nasConf = this.getNASConfiguration(
+                    pathToModelsDirectory, rootModelName, instanceName, componentTypeName
+            );
+            ASTConfLangCompilationUnit instanceTrainingConfiguration = this.getAutoMLConfiguration(
+                    pathToModelsDirectory, rootModelName, instanceName, componentTypeName, instanceNetworkName + ".conf"
+            );
+            instanceTrainingConfiguration.getConfiguration().addSuperConfiguration(nasConf.getConfiguration());
+            configMap.put("trainingConfiguration", instanceTrainingConfiguration);
+
+            // Set configurations for Hyperparameters Optimization algorithm:
+            ASTConfLangCompilationUnit searchSpace = this.getAutoMLConfiguration(
+                    pathToModelsDirectory, rootModelName, instanceName, componentTypeName, "SearchSpace.conf"
+            );
+            configMap.put("SearchSpace", searchSpace);
+            ASTConfLangCompilationUnit hyperparamsOptConf = this.getAutoMLConfiguration(
+                    pathToModelsDirectory, rootModelName, instanceName, componentTypeName, "HyperparameterOpt.conf"
+            );
+            configMap.put("HyperparameterOpt", hyperparamsOptConf);
+            ASTConfLangCompilationUnit evaluationCriteria = this.getAutoMLConfiguration(
+                    pathToModelsDirectory, rootModelName, instanceName, componentTypeName, "EvaluationCriteria.conf"
+            );
+            configMap.put("EvaluationCriteria", evaluationCriteria);
+
+            // Set pipeline configuration
+            String pipelineConfigName = instanceNetworkName + "_pipeline.conf";
+            ASTConfLangCompilationUnit pipelineConfiguration = this.getAutoMLConfiguration(
+                    pathToModelsDirectory, rootModelName, instanceName, componentTypeName, pipelineConfigName
+            );
+            configMap.put("pipelineConfiguration", pipelineConfiguration);
+
+            networkInstancesConfigs.add(configMap);
+        }
+        return networkInstancesConfigs;
     }
 
     public ASTConfLangCompilationUnit parseTrainingConfiguration(final String pathToTrainingConfiguration)
@@ -222,6 +250,31 @@ public abstract class AbstractWorkflow {
         return this.parseTrainingConfiguration(pathToConfiguration);
     }
 
+    protected ASTConfLangCompilationUnit getAutoMLConfiguration(
+            String pathToModelsDirectory, String rootModelName,
+            String instanceName, String componentTypeName, String configurationName) throws IOException {
+        String pathToConfiguration;
+        String modelDirPath = Paths.get(pathToModelsDirectory, rootModelName).toString();
+        Path instanceSpecificPath = Paths.get(modelDirPath + "_" + instanceName, configurationName);
+        Path componentTypeSpecificPath = Paths.get(pathToModelsDirectory, componentTypeName, configurationName);
+        Path parentPath = Paths.get(modelDirPath, configurationName);
+
+        if (Files.exists(instanceSpecificPath)) {
+            // Priority 1: instance specific configuration
+            pathToConfiguration = instanceSpecificPath.toString();
+        } else if (Files.exists(componentTypeSpecificPath)) {
+            // Priority 2: component type specific configuration
+            pathToConfiguration = componentTypeSpecificPath.toString();
+        } else if (Files.exists(parentPath)) {
+            // Priority 3: parent/global configuration
+            pathToConfiguration = parentPath.toString();
+        } else {
+            throw new FileNotFoundException(String.format("No conf file %s found.", configurationName));
+        }
+
+        return this.parseTrainingConfiguration(pathToConfiguration);
+    }
+
     protected ASTConfLangCompilationUnit getNASConfiguration(String modelDirPath) throws IOException {
         if (Files.exists(Paths.get(modelDirPath, "AdaNet.conf"))) {
             return this.getAutoMLConfiguration(modelDirPath, "AdaNet.conf");
@@ -229,6 +282,20 @@ public abstract class AbstractWorkflow {
             return this.getAutoMLConfiguration(modelDirPath, "EfficientNet.conf");
         } else {
             throw new FileNotFoundException("No conf file for Neural Architecture Search found.");
+        }
+    }
+
+    protected ASTConfLangCompilationUnit getNASConfiguration(
+            String pathToModelsDirectory, String rootModelName,
+            String instanceName, String componentTypeName) throws IOException {
+        try {
+            return this.getAutoMLConfiguration(
+                    pathToModelsDirectory, rootModelName, instanceName, componentTypeName, "AdaNet.conf"
+            );
+        } catch (FileNotFoundException fileNotFoundException) {
+            return this.getAutoMLConfiguration(
+                    pathToModelsDirectory, rootModelName, instanceName, componentTypeName, "EfficientNet.conf"
+            );
         }
     }
 }

@@ -1,6 +1,7 @@
 package de.monticore.mlpipelines.automl;
 
 import conflang._ast.ASTConfLangCompilationUnit;
+import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.training.LearningMethod;
 import de.monticore.mlpipelines.automl.hyperparameters.AbstractHyperparameterAlgorithm;
@@ -9,6 +10,10 @@ import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearchBuilder;
 import de.monticore.mlpipelines.pipelines.Pipeline;
 import de.monticore.symboltable.CommonScope;
+import de.se_rwth.commons.logging.Log;
+
+import java.util.List;
+import java.util.Map;
 
 public class AutoMLPipeline extends Pipeline {
     private Pipeline trainPipeline;
@@ -28,12 +33,44 @@ public class AutoMLPipeline extends Pipeline {
 
     @Override
     public void execute() {
+        List<Map<String, Object>> instanceConfigs = this.getNetworkInstancesConfigs();
+
+        for (Map<String, Object> configMap : instanceConfigs) {
+            EMAComponentInstanceSymbol neuralNetwork = (EMAComponentInstanceSymbol) configMap.get("network");
+            String networkName = (String) configMap.get("networkName");
+            ASTConfLangCompilationUnit trainingConfiguration = (ASTConfLangCompilationUnit) configMap.get("trainingConfiguration");
+            ASTConfLangCompilationUnit pipelineConfiguration = (ASTConfLangCompilationUnit) configMap.get("pipelineConfiguration");
+            ASTConfLangCompilationUnit searchSpace = (ASTConfLangCompilationUnit) configMap.get("SearchSpace");
+            ASTConfLangCompilationUnit hyperparamsOptConf = (ASTConfLangCompilationUnit) configMap.get("HyperparameterOpt");
+            ASTConfLangCompilationUnit evaluationCriteria = (ASTConfLangCompilationUnit) configMap.get("EvaluationCriteria");
+
+            executeInstance(
+                neuralNetwork, networkName, trainingConfiguration, pipelineConfiguration,
+                searchSpace, hyperparamsOptConf, evaluationCriteria
+            );
+        }
+    }
+
+    private void executeInstance(
+            EMAComponentInstanceSymbol neuralNetwork,
+            String networkName,
+            ASTConfLangCompilationUnit trainingConfiguration,
+            ASTConfLangCompilationUnit pipelineConfiguration,
+            ASTConfLangCompilationUnit searchSpace,
+            ASTConfLangCompilationUnit hyperparamsOptConf,
+            ASTConfLangCompilationUnit evaluationCriteria) {
         this.trainPipeline.setNeuralNetwork(neuralNetwork);
-        this.trainPipeline.setNetworkName(getNetworkName());
+        this.trainPipeline.setNetworkName(networkName);
         this.trainPipeline.setTrainingConfiguration(trainingConfiguration);
         this.trainPipeline.setPipelineConfiguration(pipelineConfiguration);
         this.trainPipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
+        this.setSearchSpace(trainingConfiguration, searchSpace);
+        this.setHyperparamsOptConf(hyperparamsOptConf);
+        this.setEvaluationCriteria(evaluationCriteria);
 
+        this.trainPipeline.setModelOutputDirectory(String.format("/model/%s/", networkName));
+
+        Log.info(String.format("Executing optimization for instance: %s", networkName), AutoMLPipeline.class.getName());
         ArchitectureSymbol originalArchitecture = getArchitectureSymbol();
         // executeNeuralArchitectureSearch(originalArchitecture);
         executeHyperparameterOptimization(hyperparamsOptConf);
@@ -42,7 +79,7 @@ public class AutoMLPipeline extends Pipeline {
     }
 
     private ArchitectureSymbol getArchitectureSymbol() {
-        CommonScope spannedScope = (CommonScope) neuralNetwork.getSpannedScope();
+        CommonScope spannedScope = (CommonScope) this.trainPipeline.getNeuralNetwork().getSpannedScope();
         CommonScope subScope = (CommonScope) spannedScope.getSubScopes().get(0);
         ArchitectureSymbol originalArchitecture = (ArchitectureSymbol) subScope.getSpanningSymbol().get();
         return originalArchitecture;
