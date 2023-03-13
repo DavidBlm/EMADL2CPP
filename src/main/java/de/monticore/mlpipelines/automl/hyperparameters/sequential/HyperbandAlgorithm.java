@@ -85,7 +85,7 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
         Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(currBestHyperparams)),
                 HyperbandAlgorithm.class.getName());
         Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
-        this.saveConfFile(currBestHyperparams, printer);
+        this.saveConfFile(currBestHyperparams, printer, pipeline.getNetworkName());
     }
 
     @Override

@@ -252,8 +252,8 @@ public abstract class AbstractHyperparameterAlgorithm {
         return doubleArr;
     }
 
-    protected void saveConfFile(ASTConfLangCompilationUnit hyperparams, ASTConfLangCompilationUnitPrinter printer) {
-        String targetDir = "target/generated-sources/conf/";
+    protected void saveConfFile(ASTConfLangCompilationUnit hyperparams, ASTConfLangCompilationUnitPrinter printer, String instanceName) {
+        String targetDir = String.format("target/generated-sources/conf/%s/", instanceName);
         String confFileName = "bestConfiguration.conf";
         String path = targetDir + confFileName;
         Path targetPath = Paths.get(targetDir);

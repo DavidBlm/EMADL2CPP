@@ -68,6 +68,6 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
                 SequentialAlgorithm.class.getName());
 
         Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
-        this.saveConfFile(bestTrainingConfig, printer);
+        this.saveConfFile(bestTrainingConfig, printer, pipeline.getNetworkName());
     }
 }

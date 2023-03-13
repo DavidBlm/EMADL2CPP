@@ -46,7 +46,7 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
         Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(bestTrainingConfig)),
                 RandomSearchAlgorithm.class.getName());
         Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
-        this.saveConfFile(bestTrainingConfig, printer);
+        this.saveConfFile(bestTrainingConfig, printer, pipeline.getNetworkName());
     }
 
     @Override
