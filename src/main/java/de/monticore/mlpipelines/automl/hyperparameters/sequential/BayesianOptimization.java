@@ -45,7 +45,10 @@ public class BayesianOptimization extends SequentialAlgorithm {
         } else {
             NormalDistribution norm = new NormalDistribution();
             double imp = mean - this.currBestEvalMetric - this.tradeOff;
-            double z = imp / std;
+            double z = 0;
+            if (std > 0) {
+                z = imp / std;
+            }
             double ei = imp * norm.cumulativeProbability(z) + std * norm.density(z);
             if (metricType.equals("accuracy")) {
                 return ei;
