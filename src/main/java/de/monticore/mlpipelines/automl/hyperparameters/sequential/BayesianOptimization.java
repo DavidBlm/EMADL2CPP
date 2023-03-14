@@ -288,11 +288,30 @@ public class BayesianOptimization extends SequentialAlgorithm {
 
     @Override
     public ASTConfLangCompilationUnit getInitialHyperparams(ASTConfLangCompilationUnit searchSpace) {
-        this.evaluatedConfigs = this.buildCandidates(searchSpace, new ArrayList<>());
-        this.evaluatedConfigs = this.evaluatedConfigs.subList(0, this.numRandomIter);
+        this.createInitialRandCandidates(searchSpace);
+
         List<Double> initConfigList = evaluatedConfigs.get(0);
         ASTConfLangCompilationUnit initialConfig = this.listToConfig(initConfigList, searchSpace);
         return initialConfig;
+    }
+
+    private void createInitialRandCandidates(ASTConfLangCompilationUnit searchSpace) {
+        List<List<Double>> candidateList = this.buildCandidates(searchSpace, new ArrayList<>());
+        List<Integer> randomPositions = new ArrayList<>();
+        this.evaluatedConfigs = new ArrayList<>();
+
+        // Select random positions for selecting from candidates
+        while (randomPositions.size() < this.numRandomIter) {
+            int randIndex = this.createRandInt(0, candidateList.size() - 1);
+            while (randomPositions.contains(randIndex)) {
+                randIndex = this.createRandInt(0, candidateList.size() - 1);
+            }
+            randomPositions.add(randIndex);
+        }
+
+        for (int index : randomPositions) {
+            this.evaluatedConfigs.add(candidateList.get(index));
+        }
     }
 
     @Override
