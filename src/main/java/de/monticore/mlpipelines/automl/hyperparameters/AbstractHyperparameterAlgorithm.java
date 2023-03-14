@@ -4,6 +4,7 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.emadlprinter.ASTConfLangCompilationUnitPrinter;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.pipelines.Pipeline;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -262,6 +263,22 @@ public abstract class AbstractHyperparameterAlgorithm {
                 Files.createDirectories(targetPath);
             }
             Files.write(Paths.get(path), printer.prettyPrint(hyperparams).getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void saveEvalValListAsFile(List<Double> iterEvalValueList, String instanceName) {
+        String targetDir = String.format("target/generated-sources/conf/%s/evalValues/", instanceName);
+        String fileName = "evalValues.txt";
+        String path = targetDir + fileName;
+        Path targetPath = Paths.get(targetDir);
+        String evalValStr = StringUtils.join(iterEvalValueList, "\n");
+        try {
+            if (!Files.exists(targetPath)) {
+                Files.createDirectories(targetPath);
+            }
+            Files.write(Paths.get(path), evalValStr.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
