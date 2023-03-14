@@ -80,16 +80,26 @@ public class BayesianOptimization extends SequentialAlgorithm {
                 Map<String, Object> nestedMap = (Map<String, Object>) configMap.get("nestedMap");
                 SortedSet<String> sortedNestedParams = new TreeSet<>(nestedMap.keySet());
                 for (String nestedKey : sortedNestedParams) {
-                    double val = Double.parseDouble(nestedMap.get(nestedKey).toString());
+                    double val = this.getDoubleVal(nestedMap.get(nestedKey));
                     configList.add(val);
                 }
             } else {
                 Object valObj = ASTConfLangCompilationUnitHandler.getValueByKey(config, key);
-                double val = Double.parseDouble(valObj.toString());
+                double val = this.getDoubleVal(valObj);
                 configList.add(val);
             }
         }
         return configList;
+    }
+
+    public double getDoubleVal(Object valObj) {
+        double val;
+        if (valObj instanceof String) {
+            val = -1.0;
+        } else {
+            val = Double.parseDouble(valObj.toString());
+        }
+        return val;
     }
 
     private ASTConfLangCompilationUnit listToConfig(List<Double> configList, ASTConfLangCompilationUnit searchSpace) {
@@ -129,7 +139,9 @@ public class BayesianOptimization extends SequentialAlgorithm {
         int nPossibleConfigs = this.calcNumPossibilities(possibleValList);
         if (nPossibleConfigs <= this.maxCandNumber) {
             candidatesList = Lists.cartesianProduct(possibleValList);
-            candidatesList.removeAll(sampledList);
+            // candidateList to ArrayList
+            candidatesList = deepCopyList(candidatesList);
+            candidatesList = this.excludeSampledCandidates(candidatesList, sampledList);
         } else {
             candidatesList = new ArrayList<>();
             for (int i=0; i < this.maxCandNumber; i++) {
@@ -140,6 +152,26 @@ public class BayesianOptimization extends SequentialAlgorithm {
             }
         }
         return candidatesList;
+    }
+
+    private List<List<Double>> excludeSampledCandidates(List<List<Double>> candidatesList, List<List<Double>> sampledList) {
+        List<List<Double>> candidateListCopy = this.deepCopyList(candidatesList);
+        for (List<Double> candidate : candidateListCopy) {
+            for (List<Double> sampled : sampledList) {
+                if (sampled.equals(candidate)) {
+                    candidatesList.remove(candidate);
+                }
+            }
+        }
+        return candidatesList;
+    }
+
+    private List<List<Double>> deepCopyList(List<List<Double>> list) {
+        List<List<Double>> listCopy = new ArrayList<>();
+        for (List<Double> listElem : list) {
+            listCopy.add(listElem);
+        }
+        return listCopy;
     }
 
     private List<Double> createRandomCandidate(List<List<Double>> possibleValList) {
@@ -213,7 +245,11 @@ public class BayesianOptimization extends SequentialAlgorithm {
             }
             return this.createValsFromRange(lower, upper, stepSize);
         } else {
-            return Arrays.asList((double) valObj);
+            if (valObj instanceof String) {
+                return Arrays.asList(-1.0);
+            } else {
+                return Arrays.asList(Double.parseDouble(valObj.toString()));
+            }
         }
     }
 
