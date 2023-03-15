@@ -17,7 +17,7 @@ public class BayesianOptimization extends SequentialAlgorithm {
     private List<List<Double>> evaluatedConfigs;
 
     private List<Double> metricValues = new ArrayList<>();
-    private int maxCandNumber = 1000;
+    private int maxCandNumber = 50000;
 
     private int numRandomIter = 10;
 
