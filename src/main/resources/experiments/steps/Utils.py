@@ -23,10 +23,12 @@ def translate_loss_name(loss):
     return fixed_loss
 
 
-def translate_optim_name(model_param, optim_name, optim_learning_rate):
+def translate_optim_name(model_param, optim_name, optim_learning_rate, optim_weight_decay,
+                         sgd_momentum, adam_betas, adam_epsilon):
     mapping = {
-        "sgd": torch.optim.SGD(model_param, lr=optim_learning_rate),
-        "adam": torch.optim.Adam(model_param, lr=optim_learning_rate)
+        "sgd": torch.optim.SGD(model_param, lr=optim_learning_rate, momentum=sgd_momentum, weight_decay=optim_weight_decay),
+        "adam": torch.optim.Adam(model_param, lr=optim_learning_rate, betas=adam_betas, eps=adam_epsilon,
+                                 weight_decay=optim_weight_decay)
 
     }
 
