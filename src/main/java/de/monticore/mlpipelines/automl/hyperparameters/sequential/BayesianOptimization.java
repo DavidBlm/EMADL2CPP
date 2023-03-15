@@ -3,11 +3,14 @@ package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 import com.google.common.collect.Lists;
 import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
+import de.monticore.mlpipelines.automl.helper.MinMaxScaler;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.regression.GaussianProcessRegression;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BayesianOptimization extends SequentialAlgorithm {
 
@@ -24,17 +27,18 @@ public class BayesianOptimization extends SequentialAlgorithm {
 
     private GaussianProcessRegression gpr = new GaussianProcessRegression();
 
-    private List<Double> acquisition(List<List<Double>> samples) {
+    private List<Double> acquisition(double[][] samples) {
         List<Double> eiList = new ArrayList<>();
 
-        for (List<Double> sampleList : samples) {
-            double[][] xSample = new double[1][sampleList.size()];
-            xSample[0] = this.listToArr(sampleList);
+        for (int i=0; i < samples.length; i++) {
+            double[][] xSample = new double[1][samples[0].length];
+            xSample[0] = samples[i];
             Map<String, Object> predMap = gpr.predict(xSample);
             double mean = ((double[]) predMap.get("mean"))[0];
             double cov = ((double[][]) predMap.get("cov"))[0][0];
             eiList.add(this.calcExpectedImprovement(mean, cov, this.metricType));
         }
+
         return eiList;
     }
 
@@ -341,14 +345,24 @@ public class BayesianOptimization extends SequentialAlgorithm {
             List<Double> configList = this.evaluatedConfigs.get(this.currentIteration);
             return this.listToConfig(configList, searchSpace);
         } else {
-            gpr.fit(this.getConfigsArr(), this.getMetricValsArr());
-
+            // Consider both observed and possible candidates for normalization
             List<List<Double>> samples = this.buildCandidates(searchSpace, this.evaluatedConfigs);
-            List<Double> eiList = this.acquisition(samples);
+            List<List<Double>> consideredList = Stream.concat(this.evaluatedConfigs.stream(), samples.stream())
+                    .collect(Collectors.toList());
+            double[][] consideredArr = this.listTo2dArr(consideredList);
+            double[][] normalizedArr = MinMaxScaler.normalizeArr(consideredArr, -1.0, 1.0);
 
+            // Fit GPR on normalized observed data
+            double[][] normalizedEvaluatedConfigArr = this.getSubArr(normalizedArr, 0, this.evaluatedConfigs.size());
+            gpr.fit(normalizedEvaluatedConfigArr, this.getMetricValsArr());
+
+            // Apply acquisition on normalized samples
+            double[][] normalizedSamples = this.getSubArr(normalizedArr, this.evaluatedConfigs.size(), normalizedArr.length);
+            List<Double> eiList = this.acquisition(normalizedSamples);
+
+            // Return configuration with max EI
             Double maxEi = Collections.max(eiList);
             int maxId = eiList.indexOf(maxEi);
-
             List<Double> maxEiConfig = samples.get(maxId);
             return this.listToConfig(maxEiConfig, searchSpace);
         }

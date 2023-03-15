@@ -245,12 +245,29 @@ public abstract class AbstractHyperparameterAlgorithm {
         return valInRange;
     }
 
+    protected double[][] getSubArr(double[][] arr, int beginIndex, int endIndex) {
+        int n = endIndex - beginIndex;
+        double[][] subArr = new double[n][arr[0].length];
+        for (int i=0; i < n; i++) {
+            subArr[i] = arr[i + beginIndex];
+        }
+        return subArr;
+    }
+
     protected double[] listToArr(List<Double> doubleList) {
         double[] doubleArr = new double[doubleList.size()];
         for (int i=0; i < doubleArr.length; i++) {
             doubleArr[i] = doubleList.get(i);
         }
         return doubleArr;
+    }
+
+    protected double[][] listTo2dArr(List<List<Double>> listOfDoubleList) {
+        double[][] double2dArr = new double[listOfDoubleList.size()][listOfDoubleList.get(0).size()];
+        for (int i=0; i < double2dArr.length; i++) {
+            double2dArr[i] = this.listToArr(listOfDoubleList.get(i));
+        }
+        return double2dArr;
     }
 
     protected void saveConfFile(ASTConfLangCompilationUnit hyperparams, ASTConfLangCompilationUnitPrinter printer, String instanceName) {
