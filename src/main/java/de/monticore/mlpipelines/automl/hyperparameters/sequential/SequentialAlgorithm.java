@@ -76,6 +76,6 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
         this.saveConfFile(bestTrainingConfig, printer, pipeline.getNetworkName());
 
         Log.info("Saving eval value for each iteration into a txt file", SequentialAlgorithm.class.getName());
-        this.saveEvalValListAsFile(iterEvalValueList, pipeline.getNetworkName());
+        this.saveEvalValListAsFile(iterEvalValueList, pipeline.getNetworkName(), "evalValues.txt");
     }
 }

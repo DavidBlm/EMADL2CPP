@@ -285,9 +285,8 @@ public abstract class AbstractHyperparameterAlgorithm {
         }
     }
 
-    protected void saveEvalValListAsFile(List<Double> iterEvalValueList, String instanceName) {
+    protected void saveEvalValListAsFile(List<Double> iterEvalValueList, String instanceName, String fileName) {
         String targetDir = String.format("target/generated-sources/conf/%s/evalValues/", instanceName);
-        String fileName = "evalValues.txt";
         String path = targetDir + fileName;
         Path targetPath = Paths.get(targetDir);
         String evalValStr = StringUtils.join(iterEvalValueList, "\n");
