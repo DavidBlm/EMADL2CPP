@@ -234,8 +234,8 @@ public class GeneticAlgorithm extends ParallelAlgorithm {
     @Override
     public List<ASTConfLangCompilationUnit> getNewPopulation(ASTConfLangCompilationUnit searchSpace, String metricType) {
         List<ASTConfLangCompilationUnit> newPopulation = this.executeSelection(this.getCurrentPopulation(), this.getEvalValues(), metricType);
-        newPopulation = this.executeMutation(newPopulation, searchSpace);
         newPopulation = this.executeCrossover(newPopulation);
+        newPopulation = this.executeMutation(newPopulation, searchSpace);
         return newPopulation;
     }
 }
