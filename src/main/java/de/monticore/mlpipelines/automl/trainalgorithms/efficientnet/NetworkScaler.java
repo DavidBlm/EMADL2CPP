@@ -10,6 +10,7 @@ import de.monticore.lang.monticar.cnnarch._symboltable.SerialCompositeElementSym
 import de.monticore.lang.monticar.types2._ast.ASTDimension;
 import de.monticore.mlpipelines.automl.helper.ArchitectureHelper;
 import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
+import de.monticore.mlpipelines.automl.helper.OriginalLayerParams;
 import de.monticore.mlpipelines.automl.trainalgorithms.ASTGenerator;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class NetworkScaler {
+    List<OriginalLayerParams> parametersReference;
 
     private float depthFactor = 0;
     private float widthFactor = 0;
@@ -137,6 +139,56 @@ public class NetworkScaler {
         float oldDimension = imageDim.getFloatValue();
         int newDimension = Math.round(this.resolutionFactor * oldDimension);
         return newDimension;
+    }
+
+    private void rollbackElementLevelChanges(){
+        NetworkInstructionSymbol networkInstruction = this.architecture.getNetworkInstructions().get(0);
+        SerialCompositeElementSymbol networkInstructionBody = networkInstruction.getBody();
+        List<ArchitectureElementSymbol> architectureElements = networkInstructionBody.getElements();
+        int i=0;
+        List<String> allowedLayers = Arrays.asList("residualBlock", "reductionBlock", "stem");
+        for (ArchitectureElementSymbol architectureElement : architectureElements) {
+            int channelsIndex=1;
+            if (allowedLayers.contains(architectureElement.getName())){
+
+                if (architectureElement.getName().equals("residualBlock")){
+                    channelsIndex = 5;
+                    int depthIndex = 3;
+                    rollbackScaling(architectureElement, depthIndex, parametersReference.get(i).getOriginalDepthValue());
+                }
+                rollbackScaling(architectureElement, channelsIndex, parametersReference.get(i).getOriginalChannelValue());
+
+            }
+            i += 1;
+        }
+    }
+
+    private void rollbackScaling(ArchitectureElementSymbol architectureElement, int depthIndex, int parametersReference) {
+        ArrayList symbolExpressions = ArchitectureHelper.getExpressions(architectureElement);
+
+        MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(
+                depthIndex);
+        MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
+        expression.setValue(parametersReference);
+    }
+
+    private void rollbackImageScaling(){
+        ASTDimension dimensions = ArchitectureHelper.getImageDimension(architecture);
+        ASTNumberExpression matrixDim1 = (ASTNumberExpression) dimensions.getMatrixDim(1);
+        ASTNumberExpression matrixDim2 = (ASTNumberExpression) dimensions.getMatrixDim(2);
+        MathNumberExpressionSymbol heightDim = (MathNumberExpressionSymbol) matrixDim1.getSymbol();
+        MathNumberExpressionSymbol widthDim = (MathNumberExpressionSymbol) matrixDim2.getSymbol();
+        MathNumberExpressionWrapper imageHeight = new MathNumberExpressionWrapper(heightDim);
+        MathNumberExpressionWrapper imageWidth = new MathNumberExpressionWrapper(widthDim);
+
+        imageHeight.setValue(OriginalLayerParams.getImageDimensionValue());
+        imageWidth.setValue(OriginalLayerParams.getImageDimensionValue());
+        ArchitectureHelper.setImageASTMatrixDimensions(dimensions, matrixDim1, matrixDim2);
+    }
+
+    protected void rollbackScaledNetwork(){
+        rollbackElementLevelChanges(); //depth and channels
+        rollbackImageScaling(); //image dimensions
     }
 
     public float getDepthFactor() {
