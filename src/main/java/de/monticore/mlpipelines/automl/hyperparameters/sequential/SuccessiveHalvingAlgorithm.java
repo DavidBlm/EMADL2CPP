@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Math.log;
 
-public class HyperbandAlgorithm extends SequentialAlgorithm {
+public class SuccessiveHalvingAlgorithm extends SequentialAlgorithm {
     private int max_iter ;
     private int eta;
     private int s_max;
@@ -24,76 +24,74 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
     @Override
     public void executeOptimization( Pipeline pipeline, ASTConfLangCompilationUnit searchSpace,ASTConfLangCompilationUnit evaluationCriteria) {
         double criteria = (double) ASTConfLangCompilationUnitHandler.getValueByKey(evaluationCriteria, "acceptance_rate");
-        this.s_max = (int) logeta( this.max_iter,eta );
+        this.s_max  = (int) logeta( this.max_iter,eta );
         this.B = ( this.s_max + 1 ) * this.max_iter ;
+        int s = this.s_max;
         this.best_counter = -1;
         int counter =0;
+        // initial number of configurations
+        int n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
+        //initial number of iterations per config
+        int r = (int) (this.max_iter * Math.pow(this.eta,( -s )));
+        Set<ASTConfLangCompilationUnit> nConfigurations = getFullSetOfNewHyperparamsCandidate(searchSpace, n);
+        Double valLoss;
+        Double evalValue;
+        Float accuracy;
+        String totalTime="";
+        Map<ASTConfLangCompilationUnit, Double> map = new HashMap<>();
         outerloop:
-        for (int s = this.s_max; s >=0; s--) {
-            // initial number of configurations
-            int n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
-            //initial number of iterations per config
-            int r = (int) (this.max_iter * Math.pow(this.eta,( -s )));
-            Set<ASTConfLangCompilationUnit> nConfigurations = getFullSetOfNewHyperparamsCandidate(searchSpace, n);
-            Double valLoss;
-            Float accuracy;
-            Double evalValue;
-            String totalTime="";
-            Map<ASTConfLangCompilationUnit, Double> map = new HashMap<>();
+        for (int i = 0; i<=s-(skipLast); i++) {
+            int n_configs = (int) (n * Math.pow(this.eta, ( -i )));
+            int n_iterations = (int) (r * Math.pow(this.eta, i));
+            Iterator<ASTConfLangCompilationUnit> iterator = nConfigurations.iterator();
+            while (iterator.hasNext()) {
+                //long totalTime=0;
+                Map<String,Object> result = new HashMap<>();
+                counter++;
+                ASTConfLangCompilationUnit element = iterator.next();
+                //Override num_epoch with n_iterations as num_epoch is used as a budget for the training which means the number of iterations
 
-            for (int i = 0; i<=s-(skipLast); i++) {
-                int n_configs = (int) (n * Math.pow(this.eta, ( -i )));
-                int n_iterations = (int) (r * Math.pow(this.eta, i));
-                Iterator<ASTConfLangCompilationUnit> iterator = nConfigurations.iterator();
-                while (iterator.hasNext()) {
-                    Map<String,Object> result = new HashMap<>();
-                    counter++;
-                    ASTConfLangCompilationUnit element = iterator.next();
-                    //Override num_epoch with n_iterations as num_epoch is used as a budget for the training which means the number of iterations
-
-                    ASTConfLangCompilationUnitHandler.setValueForKey(element, "num_epoch", n_iterations);
-                    if(pipeline != null) {
-                        long startTime = System.currentTimeMillis();
-                        pipeline.setTrainingConfiguration(element);
-                        pipeline.execute();
-                        long endTime = System.currentTimeMillis();
-                        totalTime = (endTime - startTime)/1000 + "s";
-                    }
-                    accuracy = pipeline.getTrainedAccuracy();
-                    evalValue = Double.valueOf(((Float) (pipeline.getTrainedAccuracy() / 100)).toString());
-                    valLoss  = 1-evalValue;
-
-                    result.put("counter",counter);
-                    result.put("params",element);
-                    result.put("iterations/epoch",n_iterations);
-                    result.put("accuracy",accuracy);
-                    result.put("loss",valLoss);
-                    result.put("time",totalTime);
-                    map.put(element,valLoss);
-                    //System.out.println(counter);
-                    Log.info("Iteration", String.valueOf(counter));
-                    if(!result.isEmpty()) {
-                        this.results.add(result);
-                    }
-                    if (evalValue >= criteria) {
-                        break outerloop;
-                    }
+                ASTConfLangCompilationUnitHandler.setValueForKey(element, "num_epoch", n_iterations);
+                if(pipeline != null) {
+                    long startTime = System.currentTimeMillis();
+                    pipeline.setTrainingConfiguration(element);
+                    pipeline.execute();
+                    long endTime = System.currentTimeMillis();
+                    totalTime = (endTime - startTime)/1000 + "s";
                 }
-                nConfigurations = top_configurations(map,n_configs,eta);
-            }
+                accuracy = pipeline.getTrainedAccuracy();
+                evalValue = Double.valueOf(((Float) (pipeline.getTrainedAccuracy() / 100)).toString());
+                valLoss  = 1-evalValue;
 
+                result.put("counter",counter);
+                result.put("params",element);
+                result.put("iterations/epoch",n_iterations);
+                result.put("accuracy",accuracy);
+                result.put("loss",valLoss);
+                result.put("time",totalTime);
+                map.put(element,valLoss);
+                //System.out.println(counter);
+                Log.info("Iteration", String.valueOf(counter));
+                if(!result.isEmpty()) {
+                    this.results.add(result);
+                }
+                if (evalValue >= criteria) {
+                    break outerloop;
+                }
+            }
+            nConfigurations = top_configurations(map,n_configs,eta);
         }
 
         this.currBestHyperparams = bestPerformingConfiguration(results);
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
         Log.info(String.format("List of  hyperparameter configuration:\n%s", results),
-                HyperbandAlgorithm.class.getName());
+                SuccessiveHalvingAlgorithm.class.getName());
         Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(currBestHyperparams)),
-                HyperbandAlgorithm.class.getName());
+                SuccessiveHalvingAlgorithm.class.getName());
         Log.info(String.format("Best Accuracy :%s", this.best_accuracy),
-                HyperbandAlgorithm.class.getName());
+                SuccessiveHalvingAlgorithm.class.getName());
         Log.info(String.format("Best Loss :%s", this.best_loss),
-                HyperbandAlgorithm.class.getName());
+                SuccessiveHalvingAlgorithm.class.getName());
         Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
         this.saveConfFile(currBestHyperparams, printer, pipeline.getNetworkName());
     }
@@ -116,8 +114,6 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
 
 
     }
-
-
     public Set<ASTConfLangCompilationUnit> top_configurations(Map<ASTConfLangCompilationUnit, Double> map, int n_configs, double eta) {
         Map<ASTConfLangCompilationUnit, Double> sortedMap = map.entrySet()
                 .stream()
@@ -136,7 +132,6 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
 
         return nConfigurations ;
     }
-
 
     public Set<ASTConfLangCompilationUnit> getFullSetOfNewHyperparamsCandidate(ASTConfLangCompilationUnit searchSpace, int n) {
         Set<ASTConfLangCompilationUnit> nConfigurations = new HashSet<>();
