@@ -44,6 +44,13 @@ public class AdaNetCandidate {
         return layers;
     }
 
+    public List<AdaNetComponent> getAllComponents() {
+        List<AdaNetComponent> allComponents = new ArrayList<>();
+        allComponents.addAll(this.previousComponents);
+        allComponents.add(this.component);
+        return allComponents;
+    }
+
     private ParallelCandidateLayer createParallelCandidateLayer(int layerIndex) {
         ParallelCandidateLayer layer = new ParallelCandidateLayer();
         for (AdaNetComponent component : this.getAllComponents()) {
@@ -54,13 +61,6 @@ public class AdaNetCandidate {
             }
         }
         return layer;
-    }
-
-    public List<AdaNetComponent> getAllComponents() {
-        List<AdaNetComponent> allComponents = new ArrayList<>();
-        allComponents.addAll(this.previousComponents);
-        allComponents.add(this.component);
-        return allComponents;
     }
 
     private int getMaxDepth() {
