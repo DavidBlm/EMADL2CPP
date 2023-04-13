@@ -18,9 +18,14 @@ import java.util.List;
 
 public class EfficientNet extends NeuralArchitectureSearch {
     private ScalingFactorsGridSearch gridSearch;
+
+    private CompoundScalingFactorSearch phiSearch;
+
     private NetworkScaler networkScaler;
 
     private ScalingFactors scalingFactors;
+
+    private int optimalPhi = 1;
     private ArchitectureSymbol scaledArchitecture;
     private EfficientNetConfig config;
 
@@ -64,9 +69,14 @@ public class EfficientNet extends NeuralArchitectureSearch {
         printNetwork();
         createOriginalParameterReference(startNetwork);
         findBestScalingFactors();
+        findBestCompoundCoefficient();
         scaleNetwork();
         saveNetwork();
         return scaledArchitecture;
+    }
+
+    private void findBestCompoundCoefficient() {
+        this.optimalPhi = this.phiSearch.findBestCompoundFactor(this.scalingFactors);
     }
 
     public void createOriginalParameterReference(ArchitectureSymbol startNetwork){
@@ -93,7 +103,7 @@ public class EfficientNet extends NeuralArchitectureSearch {
             i += 1;
         }
         OriginalLayerParams.changeImageDimensionValue(ArchitectureHelper.getOriginalImageDimension(startNetwork));
-        this.gridSearch.parametersReference = parametersReference;
+        this.networkScaler.parametersReference = parametersReference;
     }
 
     private void printNetwork() {
@@ -109,6 +119,12 @@ public class EfficientNet extends NeuralArchitectureSearch {
                         ? new ScalingFactorsGridSearch(getStartNetwork(), config, getTrainPipeline(),
                         this.networkScaler)
                         : this.gridSearch;
+
+        if (this.phiSearch == null) {
+            this.phiSearch = new CompoundScalingFactorSearch(getStartNetwork(), config, getTrainPipeline(),
+                    this.networkScaler);
+
+        }
     }
 
     private void findBestScalingFactors() {
@@ -116,14 +132,14 @@ public class EfficientNet extends NeuralArchitectureSearch {
     }
 
     private void scaleNetwork() {
-        this.scaledArchitecture = this.networkScaler.scale(getStartNetwork(), this.scalingFactors, config.getPhi());
+        this.scaledArchitecture = this.networkScaler.scale(getStartNetwork(), this.scalingFactors, this.optimalPhi);
     }
 
     private void saveNetwork() {
         EfficientNetEmadlBuilder builder = new EfficientNetEmadlBuilder(this.scaledArchitecture, config);
         List<String> emadl = builder.getEmadl();
         String modelDirPath = "src/test/resources/models/efficientnet/";
-        String modelName = "EfficientNetB" + config.getPhi();
+        String modelName = "EfficientNetB" + this.optimalPhi;
         String modelFileEnding = ".emadl";
         String pathString = modelDirPath + modelName + modelFileEnding;
         new FileLoader().writeToFile(emadl, pathString);
