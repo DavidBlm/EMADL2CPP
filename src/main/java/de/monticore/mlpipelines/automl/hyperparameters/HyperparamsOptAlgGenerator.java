@@ -91,9 +91,9 @@ public class HyperparamsOptAlgGenerator {
 
     private static SuccessiveHalvingAlgorithm getSuccessiveHalvingAlgorithm(Map<String, Object> nestedMap) {
         SuccessiveHalvingAlgorithm sh = new SuccessiveHalvingAlgorithm();
+        sh.setMaxConfig((int) nestedMap.get("max_config"));
         sh.setMaxIter((int) nestedMap.get("max_iter"));
         sh.setEta((int) nestedMap.get("eta"));
-        sh.setSkipLast((int) nestedMap.get("skip_last"));
         return sh;
     }
 }

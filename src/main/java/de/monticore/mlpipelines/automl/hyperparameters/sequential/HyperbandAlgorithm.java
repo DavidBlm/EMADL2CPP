@@ -17,6 +17,7 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
     private int s_max;
     private double B ;
     ArrayList<Map<String, Object>> results = new ArrayList<>();
+    ArrayList<Map<String, Object>> bestConfigInBracket = new ArrayList<>();
     private double best_loss;
     private float best_accuracy;
     private double best_counter ;
@@ -40,7 +41,7 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
             Double evalValue;
             String totalTime="";
             Map<ASTConfLangCompilationUnit, Double> map = new HashMap<>();
-
+            Map<String,Object> bestResult = new HashMap<>();
             for (int i = 0; i<=s-(skipLast); i++) {
                 int n_configs = (int) (n * Math.pow(this.eta, ( -i )));
                 int n_iterations = (int) (r * Math.pow(this.eta, i));
@@ -48,13 +49,13 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
                 while (iterator.hasNext()) {
                     Map<String,Object> result = new HashMap<>();
                     counter++;
-                    ASTConfLangCompilationUnit element = iterator.next();
+                    ASTConfLangCompilationUnit currentHyperparams = iterator.next();
                     //Override num_epoch with n_iterations as num_epoch is used as a budget for the training which means the number of iterations
 
-                    ASTConfLangCompilationUnitHandler.setValueForKey(element, "num_epoch", n_iterations);
+                    ASTConfLangCompilationUnitHandler.setValueForKey(currentHyperparams, "num_epoch", n_iterations);
                     if(pipeline != null) {
                         long startTime = System.currentTimeMillis();
-                        pipeline.setTrainingConfiguration(element);
+                        pipeline.setTrainingConfiguration(currentHyperparams);
                         pipeline.execute();
                         long endTime = System.currentTimeMillis();
                         totalTime = (endTime - startTime)/1000 + "s";
@@ -64,35 +65,35 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
                     valLoss  = 1-evalValue;
 
                     result.put("counter",counter);
-                    result.put("params",element);
+                    result.put("params",currentHyperparams);
                     result.put("iterations/epoch",n_iterations);
                     result.put("accuracy",accuracy);
                     result.put("loss",valLoss);
                     result.put("time",totalTime);
-                    map.put(element,valLoss);
-                    //System.out.println(counter);
+                    map.put(currentHyperparams,valLoss);
                     Log.info("Iteration", String.valueOf(counter));
-                    if(!result.isEmpty()) {
-                        this.results.add(result);
-                    }
+                    this.results.add(result);
+                    bestResult = result;
                     if (evalValue >= criteria) {
                         break outerloop;
                     }
                 }
-                nConfigurations = top_configurations(map,n_configs,eta);
+                nConfigurations = topKconfigurations(map,n_configs,eta);
             }
-
+            this.bestConfigInBracket.add(bestResult);
         }
 
-        this.currBestHyperparams = bestPerformingConfiguration(results);
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
-        Log.info(String.format("List of  hyperparameter configuration:\n%s", results),
+        Log.info(String.format("List of all hyperparameter configuration with matrices ... :\n%s", results),
                 HyperbandAlgorithm.class.getName());
+        Log.info(String.format("List of top hyperparameter configuration with matrices in each bracket... :\n%s", bestConfigInBracket),
+                HyperbandAlgorithm.class.getName());
+        this.currBestHyperparams = bestPerformingConfiguration(bestConfigInBracket);
         Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(currBestHyperparams)),
                 HyperbandAlgorithm.class.getName());
-        Log.info(String.format("Best Accuracy :%s", this.best_accuracy),
+        Log.info(String.format("Best Accuracy:%s", this.best_accuracy),
                 HyperbandAlgorithm.class.getName());
-        Log.info(String.format("Best Loss :%s", this.best_loss),
+        Log.info(String.format("Best Loss:%s", this.best_loss),
                 HyperbandAlgorithm.class.getName());
         Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
         this.saveConfFile(currBestHyperparams, printer, pipeline.getNetworkName());
@@ -118,7 +119,7 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
     }
 
 
-    public Set<ASTConfLangCompilationUnit> top_configurations(Map<ASTConfLangCompilationUnit, Double> map, int n_configs, double eta) {
+    public Set<ASTConfLangCompilationUnit> topKconfigurations(Map<ASTConfLangCompilationUnit, Double> map, int n_configs, double eta) {
         Map<ASTConfLangCompilationUnit, Double> sortedMap = map.entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue())

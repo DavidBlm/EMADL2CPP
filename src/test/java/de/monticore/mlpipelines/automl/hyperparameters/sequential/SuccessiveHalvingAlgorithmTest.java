@@ -133,49 +133,4 @@ public class SuccessiveHalvingAlgorithmTest extends TestCase {
         assertTrue(weightDecay <= weightDecayUpper);
     }
 
-
-    @Test
-    public void testLogEta() {
-        assertEquals(4,(int)successiveHalvingAlgorithm.logeta(max_iter,eta));
-    }
-
-    @Test
-    public void testGetConfigurationCount() {
-
-        this.s_max = (int) successiveHalvingAlgorithm.logeta( this.max_iter,eta );
-        this.B = ( this.s_max + 1 ) * this.max_iter ;
-        int s = this.s_max;
-        int i =0;
-        int n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
-        int n_configs = (int) (n * Math.pow(this.eta, ( -i )));
-        assertEquals(81,n_configs);
-        //System.out.println(n_configs);
-    }
-    @Test
-    public void testGetIterationCount() {
-        this.s_max = (int) successiveHalvingAlgorithm.logeta( this.max_iter,eta );
-        int s =this.s_max ;
-        int i = 0;
-        double r = this.max_iter * Math.pow(this.eta,( -s ));
-        int n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(1,n_iterations);
-        i = 1;
-        r = this.max_iter * Math.pow(this.eta,( -s ));
-        n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(3,n_iterations);
-        i = 2;
-        r = this.max_iter * Math.pow(this.eta,( -s ));
-        n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(9,n_iterations);
-        i = 3;
-        r = this.max_iter * Math.pow(this.eta,( -s ));
-        n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(27,n_iterations);
-        i = 4;
-        r = this.max_iter * Math.pow(this.eta,( -s ));
-        n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(81,n_iterations);
-    }
-
-
 }

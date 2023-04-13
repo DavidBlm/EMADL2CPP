@@ -13,7 +13,7 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
     private int max_iter ;
     private double valLoss;
     private float accuracy;
-    private double best_loss;
+    private double best_loss=Double.POSITIVE_INFINITY;
     private float best_accuracy;
     ArrayList<Map<String, Object>> results = new ArrayList<>();
     protected ASTConfLangCompilationUnit bestTrainingConfig;
@@ -42,19 +42,25 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
             result.put("accuracy",accuracy);
             result.put("time",totalTime);
             this.results.add(result);
+            if (valLoss < this.best_loss){
+                this.best_loss = valLoss;
+                this.best_accuracy= accuracy;
+                this.currBestHyperparams= currentHyperparams;
+            }
+
         }
-        this.bestTrainingConfig=bestPerformingConfiguration(results);
+        //this.bestTrainingConfig=bestPerformingConfiguration(results);
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
-        Log.info(String.format("List of  hyperparameter configuration:\n%s", results),
+        Log.info(String.format("List of  hyperparameter configuration with matrices ... :\n%s", results),
                 RandomSearchAlgorithm.class.getName());
-        Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(bestTrainingConfig)),
+        Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(currBestHyperparams)),
                 RandomSearchAlgorithm.class.getName());
         Log.info(String.format("Best Accuracy :%s", this.best_accuracy),
                 HyperbandAlgorithm.class.getName());
         Log.info(String.format("Best Loss :%s", this.best_loss),
                 HyperbandAlgorithm.class.getName());
         Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
-        this.saveConfFile(bestTrainingConfig, printer, pipeline.getNetworkName());
+        this.saveConfFile(currBestHyperparams, printer, pipeline.getNetworkName());
     }
 
     @Override
@@ -176,17 +182,6 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
         return valInRange;
     }
 
-    private ASTConfLangCompilationUnit bestPerformingConfiguration(ArrayList<Map<String, Object>> results) {
-
-        Collections.sort(results, Comparator.comparing(map -> (Comparable) map.get("loss")));
-        Map<String, Object> firstMap = results.get(0);
-
-        // Get the value for the specific key in the first HashMap
-        currBestHyperparams = (ASTConfLangCompilationUnit) firstMap.get("params");
-        this.best_loss = (double) firstMap.get("loss");
-        this.best_accuracy = (float) firstMap.get("accuracy");
-        return currBestHyperparams;
-    }
     public void setMaxIter(int maxIter) { this.max_iter = maxIter;  }
     public int getMaxIter() { return max_iter;  }
 
