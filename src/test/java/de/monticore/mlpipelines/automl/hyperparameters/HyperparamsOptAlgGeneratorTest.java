@@ -4,10 +4,7 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import conflang._parser.ConfLangParser;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.GeneticAlgorithm;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.ParticleSwarmOptimization;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.BayesianOptimization;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.HyperbandAlgorithm;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.SimulatedAnnealing;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.RandomSearchAlgorithm;
+import de.monticore.mlpipelines.automl.hyperparameters.sequential.*;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -57,6 +54,16 @@ public class HyperparamsOptAlgGeneratorTest extends TestCase {
 
         RandomSearchAlgorithm rs = (RandomSearchAlgorithm) hyperparameterAlgorithm;
         assertEquals(rs.getMaxIter(), 10);
+    }
+    @Test
+    public void testGenerateSH() throws IOException {
+        AbstractHyperparameterAlgorithm hyperparameterAlgorithm = this.getAlgObjByName("SH");
+        assertTrue(hyperparameterAlgorithm instanceof SuccessiveHalvingAlgorithm);
+
+        SuccessiveHalvingAlgorithm sh = (SuccessiveHalvingAlgorithm) hyperparameterAlgorithm;
+        assertEquals(sh.getMaxConfig(), 81);
+        assertEquals(sh.getMaxIter(), 9);
+        assertEquals(sh.getEta(), 3);
     }
 
     @Test

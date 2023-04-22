@@ -15,37 +15,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
+
 @RunWith(MockitoJUnitRunner.class)
-public class HyperbandAlgorithmTest extends TestCase {
-    private Optional<ASTConfLangCompilationUnit> initialHyperparams;
-
-    private ASTConfLangCompilationUnit currBestHyperParams;
-
-    private ASTConfLangCompilationUnit newCandidate;
-
+public class SuccessiveHalvingAlgorithmTest extends TestCase {
+    private SuccessiveHalvingAlgorithm successiveHalvingAlgorithm;
+    private ASTConfLangCompilationUnit newHyperparamcandidate;
     private ASTConfLangCompilationUnit searchSpace;
-
-    private HyperbandAlgorithm hyperbandAlgorithm;
-
-
-    private double evalValue = 0.8;
-
-    private double currEvalValue = 0.7;
-
-    private String metricType = "Accuracy";
-    private Set<ASTConfLangCompilationUnit> nConfigurations;
-
     private int max_iter=81;
     private int eta=3;
-    private ASTConfLangCompilationUnit newHyperparamcandidate;
+    private int s_max;
     private int B ;
-    private int s_max=4;
-
-
+    private Set<ASTConfLangCompilationUnit> nConfigurations;
     @Before
-   public void setup() throws IOException {
+    public void setup() throws IOException {
 
         Path modelPath = Paths.get("src/test/resources/models/automl/optimization_test");
         Path searchSpaceModelPath = Paths.get("src/test/resources/models/automl/searchspaces");
@@ -54,40 +37,33 @@ public class HyperbandAlgorithmTest extends TestCase {
         ConfLangParser parser = new ConfLangParser();
         Path path = Paths.get(modelPath.toString(), model);
         Path searchSpacePath = Paths.get(searchSpaceModelPath.toString(), model);
-        
+
         searchSpace = parser.parse(searchSpacePath.toString()).get();
 
-        this.hyperbandAlgorithm = new HyperbandAlgorithm();
-        newHyperparamcandidate = hyperbandAlgorithm.getNewHyperparamsCandidate(searchSpace);
-        hyperbandAlgorithm.setMaxIter(81);
-        hyperbandAlgorithm.setEta(3);
-        hyperbandAlgorithm.setSkipLast(0);
+        this.successiveHalvingAlgorithm = new SuccessiveHalvingAlgorithm();
+        newHyperparamcandidate = successiveHalvingAlgorithm.getNewHyperparamsCandidate(searchSpace);
 
     }
     @Test
     public void testFullSetOfRandomHyperparamsCandidate() {
-        nConfigurations= hyperbandAlgorithm.getFullSetOfNewHyperparamsCandidate(searchSpace, 5);
+        nConfigurations= successiveHalvingAlgorithm.getFullSetOfNewHyperparamsCandidate(searchSpace, 5);
         assertEquals(5,nConfigurations.stream().count());
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
         Iterator<ASTConfLangCompilationUnit> iterator = nConfigurations.iterator();
         while (iterator.hasNext()) {
             System.out.println(printer.prettyPrint(iterator.next()));
         }
-
-
     }
-
     @Test
     public void testSingleHyperparameterCandidate() {
-        ASTConfLangCompilationUnit configuration = hyperbandAlgorithm.getNewHyperparamsCandidate(searchSpace);
+        ASTConfLangCompilationUnit configuration = successiveHalvingAlgorithm.getNewHyperparamsCandidate(searchSpace);
         assertNotNull(configuration);
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
         System.out.println(printer.prettyPrint(configuration));
     }
-
     @Test
     public void testOverrideNumEpoch() {
-        ASTConfLangCompilationUnit configuration = hyperbandAlgorithm.getNewHyperparamsCandidate(searchSpace);
+        ASTConfLangCompilationUnit configuration = successiveHalvingAlgorithm.getNewHyperparamsCandidate(searchSpace);
         assertNotNull(configuration);
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
         System.out.println("Before --"+printer.prettyPrint(configuration));
@@ -155,50 +131,6 @@ public class HyperbandAlgorithmTest extends TestCase {
 
         assertTrue(weightDecayLower <= weightDecay);
         assertTrue(weightDecay <= weightDecayUpper);
-    }
-
-
-    @Test
-    public void testLogEta() {
-        assertEquals(4,(int)hyperbandAlgorithm.logeta(max_iter,eta));
-        System.out.println((int)hyperbandAlgorithm.logeta(max_iter,eta));
-    }
-
-    @Test
-    public void testGetConfigurationCount() {
-
-        this.s_max = (int) hyperbandAlgorithm.logeta( this.max_iter,eta );
-        this.B = ( this.s_max + 1 ) * this.max_iter ;
-        int s = 4;
-        int i =0;
-        int n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
-        int n_configs = (int) (n * Math.pow(this.eta, ( -i )));
-        assertEquals(81,n_configs);
-    }
-
-    @Test
-    public void testGetIterationCount() {
-        int s =4 ;
-        int i = 0;
-        double r = this.max_iter * Math.pow(this.eta,( -s ));
-        int n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(1,n_iterations);
-        i = 1;
-        r = this.max_iter * Math.pow(this.eta,( -s ));
-        n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(3,n_iterations);
-        i = 2;
-        r = this.max_iter * Math.pow(this.eta,( -s ));
-        n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(9,n_iterations);
-        i = 3;
-        r = this.max_iter * Math.pow(this.eta,( -s ));
-        n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(27,n_iterations);
-        i = 4;
-        r = this.max_iter * Math.pow(this.eta,( -s ));
-        n_iterations = (int) (r * Math.pow(this.eta, i));
-        assertEquals(81,n_iterations);
     }
 
 }

@@ -32,6 +32,8 @@ public class HyperparamsOptAlgGenerator {
                 return getHyperbandAlgorithm(nestedMap);
             case "RS":
                 return getRandomSearchAlgorithm(nestedMap);
+            case "SH":
+                return getSuccessiveHalvingAlgorithm(nestedMap);
             //TODO: Add cases for other optimization algorithms
             default:
                 throw new IllegalArgumentException("Optimizer name in HyperparameterOpt.conf not valid.");
@@ -85,5 +87,13 @@ public class HyperparamsOptAlgGenerator {
         RandomSearchAlgorithm rs = new RandomSearchAlgorithm();
         rs.setMaxIter((int) nestedMap.get("max_iter"));
         return rs;
+    }
+
+    private static SuccessiveHalvingAlgorithm getSuccessiveHalvingAlgorithm(Map<String, Object> nestedMap) {
+        SuccessiveHalvingAlgorithm sh = new SuccessiveHalvingAlgorithm();
+        sh.setMaxConfig((int) nestedMap.get("max_config"));
+        sh.setMaxIter((int) nestedMap.get("max_iter"));
+        sh.setEta((int) nestedMap.get("eta"));
+        return sh;
     }
 }

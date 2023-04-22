@@ -9,92 +9,80 @@ import de.se_rwth.commons.logging.Log;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.Math.log;
-
-public class HyperbandAlgorithm extends SequentialAlgorithm {
+public class SuccessiveHalvingAlgorithm extends SequentialAlgorithm {
     private int max_iter ;
+    private int max_config ;
     private int eta;
     private int s_max;
     private double B ;
     ArrayList<Map<String, Object>> results = new ArrayList<>();
-    ArrayList<Map<String, Object>> bestConfigInBracket = new ArrayList<>();
-    private double best_loss;
+    private double best_loss=Double.POSITIVE_INFINITY;
     private float best_accuracy;
     private double best_counter ;
-    private int skipLast;
+
     @Override
     public void executeOptimization( Pipeline pipeline, ASTConfLangCompilationUnit searchSpace,ASTConfLangCompilationUnit evaluationCriteria) {
         double criteria = (double) ASTConfLangCompilationUnitHandler.getValueByKey(evaluationCriteria, "acceptance_rate");
-        this.s_max = (int) logeta( this.max_iter,eta );
-        this.B = ( this.s_max + 1 ) * this.max_iter ;
-        this.best_counter = -1;
         int counter =0;
+        Set<ASTConfLangCompilationUnit> nConfigurations = getFullSetOfNewHyperparamsCandidate(searchSpace, max_config);
+        Double valLoss;
+        Double evalValue;
+        Float accuracy;
+        String totalTime="";
+        Map<ASTConfLangCompilationUnit, Double> map = new HashMap<>();
         outerloop:
-        for (int s = this.s_max; s >=0; s--) {
-            // initial number of configurations
-            int n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
-            //initial number of iterations per config
-            int r = (int) (this.max_iter * Math.pow(this.eta,( -s )));
-            Set<ASTConfLangCompilationUnit> nConfigurations = getFullSetOfNewHyperparamsCandidate(searchSpace, n);
-            Double valLoss;
-            Float accuracy;
-            Double evalValue;
-            String totalTime="";
-            Map<ASTConfLangCompilationUnit, Double> map = new HashMap<>();
-            Map<String,Object> bestResult = new HashMap<>();
-            for (int i = 0; i<=s-(skipLast); i++) {
-                int n_configs = (int) (n * Math.pow(this.eta, ( -i )));
-                int n_iterations = (int) (r * Math.pow(this.eta, i));
-                Iterator<ASTConfLangCompilationUnit> iterator = nConfigurations.iterator();
-                while (iterator.hasNext()) {
-                    Map<String,Object> result = new HashMap<>();
-                    counter++;
-                    ASTConfLangCompilationUnit currentHyperparams = iterator.next();
-                    //Override num_epoch with n_iterations as num_epoch is used as a budget for the training which means the number of iterations
-
-                    ASTConfLangCompilationUnitHandler.setValueForKey(currentHyperparams, "num_epoch", n_iterations);
-                    if(pipeline != null) {
-                        long startTime = System.currentTimeMillis();
-                        pipeline.setTrainingConfiguration(currentHyperparams);
-                        pipeline.execute();
-                        long endTime = System.currentTimeMillis();
-                        totalTime = (endTime - startTime)/1000 + "s";
-                    }
-                    accuracy = pipeline.getTrainedAccuracy();
-                    evalValue = Double.valueOf(((Float) (pipeline.getTrainedAccuracy() / 100)).toString());
-                    valLoss  = 1-evalValue;
-
-                    result.put("counter",counter);
-                    result.put("params",currentHyperparams);
-                    result.put("iterations/epoch",n_iterations);
-                    result.put("accuracy",accuracy);
-                    result.put("loss",valLoss);
-                    result.put("time",totalTime);
-                    map.put(currentHyperparams,valLoss);
-                    Log.info("Iteration", String.valueOf(counter));
-                    this.results.add(result);
-                    bestResult = result;
-                    if (evalValue >= criteria) {
-                        break outerloop;
-                    }
+        while(nConfigurations.size()>0){
+            int n_configs = nConfigurations.size();
+            System.out.println("Akash----------------"+nConfigurations.size());
+            Iterator<ASTConfLangCompilationUnit> iterator = nConfigurations.iterator();
+            while (iterator.hasNext()) {
+                Map<String,Object> result = new HashMap<>();
+                counter++;
+                ASTConfLangCompilationUnit currentHyperparams = iterator.next();
+                //Override num_epoch with n_iterations as num_epoch is used as a budget for the training which means the number of iterations
+                ASTConfLangCompilationUnitHandler.setValueForKey(currentHyperparams, "num_epoch", 1);
+                if(pipeline != null) {
+                    long startTime = System.currentTimeMillis();
+                    pipeline.setTrainingConfiguration(currentHyperparams);
+                    pipeline.execute();
+                    long endTime = System.currentTimeMillis();
+                    totalTime = (endTime - startTime)/1000 + "s";
                 }
-                nConfigurations = topKconfigurations(map,n_configs,eta);
+                accuracy = pipeline.getTrainedAccuracy();
+                evalValue = Double.valueOf(((Float) (pipeline.getTrainedAccuracy() / 100)).toString());
+                valLoss  = 1-evalValue;
+
+                result.put("counter",counter);
+                result.put("params",currentHyperparams);
+                //result.put("iterations/epoch",n_iterations);
+                result.put("accuracy",accuracy);
+                result.put("loss",valLoss);
+                result.put("time",totalTime);
+                map.put(currentHyperparams,valLoss);
+                //System.out.println(counter);
+                Log.info("Iteration", String.valueOf(counter));
+                this.results.add(result);
+                if (valLoss < this.best_loss){
+                    this.best_loss = valLoss;
+                    this.best_accuracy= accuracy;
+                    this.currBestHyperparams= currentHyperparams;
+                }
+                if (evalValue >= criteria) {
+                    break outerloop;
+                }
             }
-            this.bestConfigInBracket.add(bestResult);
+            nConfigurations = topKconfigurations(map,n_configs,eta);
         }
 
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
-        Log.info(String.format("List of all hyperparameter configuration with matrices ... :\n%s", results),
-                HyperbandAlgorithm.class.getName());
-        Log.info(String.format("List of top hyperparameter configuration with matrices in each bracket... :\n%s", bestConfigInBracket),
-                HyperbandAlgorithm.class.getName());
-        this.currBestHyperparams = bestPerformingConfiguration(bestConfigInBracket);
+        Log.info(String.format("List of  hyperparameter configuration with matrices ... :\n%s", results),
+                SuccessiveHalvingAlgorithm.class.getName());
         Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(currBestHyperparams)),
-                HyperbandAlgorithm.class.getName());
-        Log.info(String.format("Best Accuracy:%s", this.best_accuracy),
-                HyperbandAlgorithm.class.getName());
-        Log.info(String.format("Best Loss:%s", this.best_loss),
-                HyperbandAlgorithm.class.getName());
+                SuccessiveHalvingAlgorithm.class.getName());
+        Log.info(String.format("Best Accuracy :%s", this.best_accuracy),
+                SuccessiveHalvingAlgorithm.class.getName());
+        Log.info(String.format("Best Loss :%s", this.best_loss),
+                SuccessiveHalvingAlgorithm.class.getName());
         Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
         this.saveConfFile(currBestHyperparams, printer, pipeline.getNetworkName());
     }
@@ -117,8 +105,6 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
 
 
     }
-
-
     public Set<ASTConfLangCompilationUnit> topKconfigurations(Map<ASTConfLangCompilationUnit, Double> map, int n_configs, double eta) {
         Map<ASTConfLangCompilationUnit, Double> sortedMap = map.entrySet()
                 .stream()
@@ -137,7 +123,6 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
 
         return nConfigurations ;
     }
-
 
     public Set<ASTConfLangCompilationUnit> getFullSetOfNewHyperparamsCandidate(ASTConfLangCompilationUnit searchSpace, int n) {
         Set<ASTConfLangCompilationUnit> nConfigurations = new HashSet<>();
@@ -202,23 +187,11 @@ public class HyperbandAlgorithm extends SequentialAlgorithm {
         return currentHyperparams;
     }
 
-    public double logeta(double x, double y) {
-        return log(x) / log(y);
-    }
-    public int getConfigurationCount(int s) {
-        int n = (int) Math.ceil( this.B / this.max_iter / ( s + 1 ) * Math.pow(this.eta,s ));
-        return n;
-    }
-    public double getIterationCount(int s) {
-        double r = this.max_iter * Math.pow(this.eta, -(s) );
-        return r;
-    }
     public void setMaxIter(int maxIter) { this.max_iter = maxIter;  }
     public void setEta(int eta) { this.eta = eta;   }
-    public void setSkipLast(int skipLast){ this.skipLast = skipLast;}
-
     public int getMaxIter() { return max_iter;  }
     public int getEta() {  return eta;   }
-    public int getSkipLast(){return skipLast ;}
+    public void setMaxConfig(int maxConfig) { this.max_config = maxConfig;  }
+    public int getMaxConfig() { return max_config; }
 
 }
