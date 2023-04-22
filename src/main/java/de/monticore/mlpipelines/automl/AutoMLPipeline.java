@@ -64,6 +64,7 @@ public class AutoMLPipeline extends Pipeline {
         this.trainPipeline.setTrainingConfiguration(trainingConfiguration);
         this.trainPipeline.setPipelineConfiguration(pipelineConfiguration);
         this.trainPipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
+        this.setConfigurationModel(trainingConfiguration);
         this.setSearchSpace(trainingConfiguration, searchSpace);
         this.setHyperparamsOptConf(hyperparamsOptConf);
         this.setEvaluationCriteria(evaluationCriteria);
@@ -72,10 +73,10 @@ public class AutoMLPipeline extends Pipeline {
 
         Log.info(String.format("Executing optimization for instance: %s", networkName), AutoMLPipeline.class.getName());
         ArchitectureSymbol originalArchitecture = getArchitectureSymbol();
-        // executeNeuralArchitectureSearch(originalArchitecture);
+        executeNeuralArchitectureSearch(originalArchitecture);
         executeHyperparameterOptimization(hyperparamsOptConf);
-        // trainPipeline.setNeuralNetwork(neuralNetwork);
-        // trainPipeline.execute();
+        trainPipeline.setNeuralNetwork(neuralNetwork);
+        trainPipeline.execute();
     }
 
     private ArchitectureSymbol getArchitectureSymbol() {
