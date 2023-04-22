@@ -281,7 +281,7 @@ public abstract class AbstractWorkflow {
         } else if (Files.exists(Paths.get(modelDirPath, "EfficientNet.conf"))) {
             return this.getAutoMLConfiguration(modelDirPath, "EfficientNet.conf");
         } else {
-            throw new FileNotFoundException("No conf file for Neural Architecture Search found.");
+            return null;
         }
     }
 

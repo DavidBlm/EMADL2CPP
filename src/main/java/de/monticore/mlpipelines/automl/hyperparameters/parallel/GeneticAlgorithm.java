@@ -123,7 +123,7 @@ public class GeneticAlgorithm extends ParallelAlgorithm {
 
         while (hyperParamsCopy.size() < this.getPopulationSize()) {
             ASTConfLangCompilationUnit newConfig = crossoverConfigs(coCandidate1, coCandidate2);
-            if (!this.checkHyperparamsInPopulation(newConfig, hyperParamsCopy)) {
+            if ((!this.checkHyperparamsInPopulation(newConfig, hyperParamsCopy)) || (this.getPopulationSize() < 20)) {
                 hyperParamsCopy.add(newConfig);
             }
         }
