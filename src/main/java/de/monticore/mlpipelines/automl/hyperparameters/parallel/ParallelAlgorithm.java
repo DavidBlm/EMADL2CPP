@@ -126,6 +126,7 @@ public abstract class ParallelAlgorithm extends AbstractHyperparameterAlgorithm 
         }
 
         ASTConfLangCompilationUnit bestTrainingConfig = this.getCurrBestHyperparams();
+        pipeline.setConfigurationModel(bestTrainingConfig);
         double bestEvalValue = this.getCurrBestEvalMetric();
 
         Log.info(String.format("Best Eval Value: %s", bestEvalValue), ParallelAlgorithm.class.getName());

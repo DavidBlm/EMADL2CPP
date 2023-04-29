@@ -66,6 +66,7 @@ public abstract class SequentialAlgorithm extends AbstractHyperparameterAlgorith
         }
 
         ASTConfLangCompilationUnit bestTrainingConfig = this.getCurrBestHyperparams();
+        pipeline.setConfigurationModel(bestTrainingConfig);
         double bestEvalValue = this.getCurrBestEvalMetric();
 
         Log.info(String.format("Best Eval Value: %s", bestEvalValue), SequentialAlgorithm.class.getName());

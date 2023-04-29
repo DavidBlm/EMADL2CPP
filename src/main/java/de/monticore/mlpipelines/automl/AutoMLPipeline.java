@@ -74,8 +74,8 @@ public class AutoMLPipeline extends Pipeline {
         Log.info(String.format("Executing optimization for instance: %s", networkName), AutoMLPipeline.class.getName());
         ArchitectureSymbol originalArchitecture = getArchitectureSymbol();
         executeNeuralArchitectureSearch(originalArchitecture);
-        executeHyperparameterOptimization(hyperparamsOptConf);
         trainPipeline.setNeuralNetwork(neuralNetwork);
+        executeHyperparameterOptimization(hyperparamsOptConf);
         trainPipeline.execute();
     }
 
