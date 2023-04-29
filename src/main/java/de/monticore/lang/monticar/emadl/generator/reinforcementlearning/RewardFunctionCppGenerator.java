@@ -3,7 +3,7 @@ package de.monticore.lang.monticar.emadl.generator.reinforcementlearning;
 
 import de.monticore.lang.embeddedmontiarc.embeddedmontiarc._symboltable.instanceStructure.EMAComponentInstanceSymbol;
 import de.monticore.lang.monticar.cnnarch.generator.reinforcement.RewardFunctionSourceGenerator;
-import de.monticore.lang.monticar.emadl.generator.AbstractSymtab;
+import de.monticore.lang.monticar.emadl.generator.EMADLAbstractSymtab;
 import de.monticore.lang.monticar.generator.cpp.GeneratorCPP;
 import de.monticore.lang.tagging._symboltable.TaggingResolver;
 import de.se_rwth.commons.logging.Log;
@@ -54,6 +54,6 @@ public class RewardFunctionCppGenerator implements RewardFunctionSourceGenerator
 
     @Override
     public TaggingResolver createTaggingResolver(final String modelPath) {
-        return AbstractSymtab.createSymTabAndTaggingResolver(modelPath);
+        return EMADLAbstractSymtab.createSymTabAndTaggingResolver(modelPath);
     }
 }
