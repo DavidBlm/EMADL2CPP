@@ -12,7 +12,9 @@ public class ResourcesUtil {
     /***
      * copied from EMADLGenerator
      */
-    public static boolean copySchemaFilesFromResource(final String rootSchemaModelPath, final String generationTargetPath) {
+    public static boolean copySchemaFilesFromResource(
+            final String rootSchemaModelPath,
+            final String generationTargetPath) {
         try {
             String jarPath = ResourcesUtil.class.getProtectionDomain()
                     .getCodeSource()
@@ -33,7 +35,7 @@ public class ResourcesUtil {
                         Files.copy(path, destination, StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
-            } catch (UnsupportedOperationException e){
+            } catch (UnsupportedOperationException e) {
                 System.out.println("this should only be printed if the generator is run unpacked");
                 return false;
             }

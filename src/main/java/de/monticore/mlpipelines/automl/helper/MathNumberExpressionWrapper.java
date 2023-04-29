@@ -10,18 +10,18 @@ public class MathNumberExpressionWrapper {
         this.number = numberSymbol;
     }
 
-    public void setValue(int value){
+    public void setValue(int value) {
         Rational newValue = RationalMath.of(value);
         number.getValue().setRealNumber(newValue);
     }
 
-    public void setValue(float value){
+    public void setValue(float value) {
         int precision = 10000;
         setValue(value, precision);
     }
 
-    public void setValue(float value, int precision){
-        Rational newValue = RationalMath.of(value, precision);
+    public void setValue(float value, int divisor) {
+        Rational newValue = RationalMath.of(value, divisor);
         number.getValue().setRealNumber(newValue);
     }
 

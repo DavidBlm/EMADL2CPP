@@ -3,7 +3,7 @@ package de.monticore.mlpipelines.workflow;
 import de.monticore.mlpipelines.backend.generation.MontiAnnaGenerator;
 import de.monticore.mlpipelines.configuration.ExperimentConfiguration;
 import de.monticore.mlpipelines.configuration.MontiAnnaContext;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -14,7 +14,8 @@ class AbstractWorkflowTest {
 
     @Test
     void generateBackendArtefactsIntoExperiment() {
-        final MontiAnnaContext montiAnnaContext = initialiseContext(Paths.get("src/test/resources/models/"), "mnist.mnistClassifier", new ExperimentConfiguration("./target/generated-sources-emadl"));
+        final MontiAnnaContext montiAnnaContext = initialiseContext(Paths.get("src/test/resources/models/"),
+                "mnist.mnistClassifier", new ExperimentConfiguration("./target/generated-sources-emadl"));
         final DummyWorkflow dummyWorkflow = new DummyWorkflow();
         dummyWorkflow.setMontiAnnaGenerator(new MontiAnnaGenerator(montiAnnaContext));
         dummyWorkflow.generateBackendArtefactsIntoExperiment();

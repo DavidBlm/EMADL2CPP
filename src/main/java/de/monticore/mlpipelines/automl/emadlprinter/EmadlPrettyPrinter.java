@@ -40,6 +40,7 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     }
 
     private void printArchParams(ArchitectureSymbol arch) {
+        this.printer.print("<Z(2:oo) classes = 10, Z(1:oo) layerWidth = 10>");
     }
 
 
@@ -144,8 +145,6 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
             printASTArchParameterArgument((ASTArchParameterArgument) argument);
         else if(argument instanceof ASTArchSpecialArgument)
             printASTArchSpecialArgument((ASTArchSpecialArgument) argument);
-        //else if(argument instanceof ASTArchValueArgument)
-        //    printASTArchValueArgument((ASTArchValueArgument) argument);
         else {
             printer.print(argument.getName());
         }
@@ -158,7 +157,7 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
         numberPrinter.printASTArchExpression(argument.getRhs());
     }
 
-    public void printASTArchParameterArgument(ASTArchParameterArgument node) {
+    private void printASTArchParameterArgument(ASTArchParameterArgument node) {
         String argumentName = node.getName();
         this.printer.print(argumentName + " = ");
         NumberPrinter numberPrinter = new NumberPrinter(printer);
@@ -169,44 +168,4 @@ public class EmadlPrettyPrinter implements AstPrettyPrinter<ASTArchitecture>, CN
     public void visit(ASTStreamInstruction node) {
         printASTStream(node.getBody());
     }
-
-//    @Override
-//    public void visit(ASTArchExpression node) {
-//        node.getExpression().accept(getRealThis());
-//    }
-//
-//    @Override
-//    public void visit(ASTArchSimpleExpression node) {
-//        node.getTupleExpression().accept(getRealThis());
-//    }
-//
-//    @Override
-//    public void visit(ASTTupleExpression node) {
-//        for (int i = 0; i < node.getExpressionsList().size(); i++) {
-//            node.getExpressionsList().get(i).accept(getRealThis());
-//            if(i < node.getExpressionsList().size() - 1) {
-//                this.printer.print(", ");
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void visit(ASTArchSimpleArithmeticExpression node) {
-//        node.getNumberExpression().accept(getRealThis());
-//    }
-//
-//    @Override
-//    public void visit(ASTNumberExpression node) {
-//        node.getNumberWithUnit().accept(getRealThis());
-//    }
-//
-//    @Override
-//    public void visit(ASTNumberWithUnit node) {
-//        node.getNum().accept(getRealThis());
-//    }
-
-//    @Override
-//    public void visit(ASTIntLiteral node) {
-//        this.printer.print(node.getValue());
-//    }
 }

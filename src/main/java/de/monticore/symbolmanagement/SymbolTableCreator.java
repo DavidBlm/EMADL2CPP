@@ -9,11 +9,20 @@ import de.monticore.symboltable.ResolvingConfiguration;
 import de.monticore.symboltable.Scope;
 
 public class SymbolTableCreator {
-    public static Scope createEMADLSymbolTable(ASTEMACompilationUnit astemaCompilationUnit, MutableScope enclosingScope) {
-       return new EMADLLanguage().getSymbolTableCreator(new ResolvingConfiguration(), enclosingScope).orElseThrow(IllegalStateException::new).createFromAST(astemaCompilationUnit);
+
+    public static Scope createEMADLSymbolTable(
+            ASTEMACompilationUnit astemaCompilationUnit,
+            MutableScope enclosingScope) {
+        return new EMADLLanguage().getSymbolTableCreator(new ResolvingConfiguration(), enclosingScope)
+                .orElseThrow(IllegalStateException::new)
+                .createFromAST(astemaCompilationUnit);
     }
 
-    public static Scope createConfLangSymbolTable(final ASTConfLangCompilationUnit confLangCompilationUnit, final MutableScope enclosingScope){
-        return  new ConfLangLanguage().getSymbolTableCreator(new ResolvingConfiguration(), enclosingScope).orElseThrow(IllegalStateException::new).createFromAST(confLangCompilationUnit);
+    public static Scope createConfLangSymbolTable(
+            final ASTConfLangCompilationUnit confLangCompilationUnit,
+            final MutableScope enclosingScope) {
+        return new ConfLangLanguage().getSymbolTableCreator(new ResolvingConfiguration(), enclosingScope)
+                .orElseThrow(IllegalStateException::new)
+                .createFromAST(confLangCompilationUnit);
     }
 }

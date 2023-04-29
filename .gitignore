@@ -40,3 +40,10 @@ venv
 /src/test/resources/target_code/gluon/vaes/vqvae/CNNDatasets_vqvae_connector_decoder.py
 /src/test/resources/target_code/gluon/vaes/vqvae/CNNDatasets_vqvae_encoder.py
 /src/test/resources/target_code/gluon/CNNDatasets_mnist_mnistClassifier_net.py
+/src/test/resources/experiment/pytorch/CNNPredictor_LeNet.h
+/src/test/resources/models/CustomNetworkMnist.emadl
+/src/test/resources/models/adanet/AdaNet.emadl
+/src/test/resources/experiment/pytorch/execute_LeNet
+/src/test/resources/experiment/pytorch/CNNCreator_LeNet.py
+__pycache__/
+/src/test/resources/models/efficientnet/EfficientNetB4.emadl

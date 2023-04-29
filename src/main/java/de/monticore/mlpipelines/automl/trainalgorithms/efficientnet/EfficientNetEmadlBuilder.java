@@ -168,6 +168,10 @@ public class EfficientNetEmadlBuilder {
                 return "reductionBlock(channels=" + channels + ") ->";
             case "FullyConnected":
                 return "FullyConnected(units=" + classesVariableName + ") ->";
+            case "Softmax":
+                return "Softmax() ->";
+            case "Concatenate":
+                return "Concatenate() ->";
             default:
                 return "";
         }

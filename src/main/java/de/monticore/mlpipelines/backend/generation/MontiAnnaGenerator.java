@@ -11,7 +11,8 @@ import de.monticore.mlpipelines.configuration.MontiAnnaContext;
  *
  */
 public class MontiAnnaGenerator {
-    private final MontiAnnaContext montiAnnaContext ;
+
+    private final MontiAnnaContext montiAnnaContext;
 
     private final ConfLangGenerator configurationGenerator;
 
@@ -28,7 +29,9 @@ public class MontiAnnaGenerator {
         EMADLGeneratorCli.main(args);
     }
 
-    public void generateTrainingConfiguration(final ASTConfLangCompilationUnit configurationModel, final String generatedConfigurationName){
+    public void generateTrainingConfiguration(
+            final ASTConfLangCompilationUnit configurationModel,
+            final String generatedConfigurationName) {
         new TemplateLinker().linkToTrainingConfigurationTemplates(configurationModel);
         configurationGenerator.generatePythonTrainingConfiguration(configurationModel, generatedConfigurationName);
     }

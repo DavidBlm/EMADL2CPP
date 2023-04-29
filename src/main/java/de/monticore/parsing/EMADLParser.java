@@ -12,5 +12,4 @@ public class EMADLParser extends AbstractParser<ASTEMACompilationUnit>{
         final de.monticore.lang.monticar.emadl._parser.EMADLParser embeddedMontiArcParser = new de.monticore.lang.monticar.emadl._parser.EMADLParser();
         return embeddedMontiArcParser.parse(pathToModel);
     }
-
 }
