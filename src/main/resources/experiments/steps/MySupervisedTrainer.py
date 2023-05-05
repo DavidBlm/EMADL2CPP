@@ -1,4 +1,3 @@
-import json
 import os
 import shutil
 
@@ -29,6 +28,8 @@ class MySupervisedTrainer():
             if not os.path.isdir(self._model_dir_):
                 raise
 
+        self.evaluate_start_network(optimizer)
+
         epoch_loss = 0
         epoch_accuracy = 0
 
@@ -36,11 +37,8 @@ class MySupervisedTrainer():
             train_losses = []
             train_accuracy = []
             for i, data in enumerate(self._train_loader_, 0):
-                # get the inputs; data is a list of [inputs, labels]
                 inputs, labels = data
-                # zero the parameter gradients
                 optimizer.zero_grad()
-                # forward + backward + optimize
                 outputs = self._network_(inputs)
 
                 loss = criterion(outputs, labels)
@@ -57,9 +55,20 @@ class MySupervisedTrainer():
         print(
             f'Training Loss and accuracy after  {num_epoch} epochs,  Loss:{epoch_loss:.4f} , Accuracy:{100 * epoch_accuracy:.2f}%')
 
-
         # Saving model in .pt format for prediction in c++
         model_scripted = torch.jit.script(self._network_)  # Export to TorchScript
         network_path = self._model_dir_ + 'model_cpp.pt'
         model_scripted.save(self._model_dir_ + 'model_cpp.pt')
         return network_path, epoch_accuracy, epoch_loss
+
+    def evaluate_start_network(self, optimizer):
+        train_accuracy = []
+        for i, data in enumerate(self._train_loader_, 0):
+            inputs, labels = data
+            optimizer.zero_grad()
+            outputs = self._network_(inputs)
+
+            _, predicted = torch.max(outputs.data, 1)
+            train_accuracy.append(torch.tensor((torch.sum(predicted == labels).item() / len(predicted))))
+        epoch_accuracy = torch.stack(train_accuracy).mean().item()
+        print(f'Epoch:0 Train Accuracy:{100 * epoch_accuracy:.2f}%')

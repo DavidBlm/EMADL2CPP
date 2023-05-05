@@ -34,11 +34,20 @@ public class AutoMLPipeline extends Pipeline {
         this.trainPipeline.setPipelineConfiguration(pipelineConfiguration);
         this.trainPipeline.setPipelineModelWithExecutionSemantics(pipelineModelWithExecutionSemantics);
 
+        //Measure the time for hyperparameter optimization
+        long startTime = System.currentTimeMillis();
         ArchitectureSymbol originalArchitecture = getArchitectureSymbol();
         executeNeuralArchitectureSearch(originalArchitecture);
-//        executeHyperparameterOptimization(hyperparamsOptConf);
-        // trainPipeline.setNeuralNetwork(neuralNetwork);
-        // trainPipeline.execute();
+        executeHyperparameterOptimization(hyperparamsOptConf);
+        long endTime = System.currentTimeMillis();
+        long duration = (endTime - startTime);
+        System.out.println("Hyperparameter optimization took " + duration + " milliseconds");
+
+        System.out.println();
+        System.out.println();
+        System.out.println("Final Training");
+        trainPipeline.setNeuralNetwork(neuralNetwork);
+        trainPipeline.execute();
     }
 
     private ArchitectureSymbol getArchitectureSymbol() {
