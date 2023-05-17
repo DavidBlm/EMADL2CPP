@@ -3,18 +3,21 @@ package de.monticore.mlpipelines.automl.hyperparameters.sequential;
 import com.google.common.collect.Lists;
 import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
+import de.monticore.mlpipelines.automl.helper.MinMaxScaler;
 import de.monticore.mlpipelines.automl.hyperparameters.sequential.regression.GaussianProcessRegression;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BayesianOptimization extends SequentialAlgorithm {
 
     private List<List<Double>> evaluatedConfigs;
 
     private List<Double> metricValues = new ArrayList<>();
-    private int maxCandNumber = 1000;
+    private int maxCandNumber = 50000;
 
     private int numRandomIter = 10;
 
@@ -24,17 +27,18 @@ public class BayesianOptimization extends SequentialAlgorithm {
 
     private GaussianProcessRegression gpr = new GaussianProcessRegression();
 
-    private List<Double> acquisition(List<List<Double>> samples) {
+    private List<Double> acquisition(double[][] samples) {
         List<Double> eiList = new ArrayList<>();
 
-        for (List<Double> sampleList : samples) {
-            double[][] xSample = new double[1][sampleList.size()];
-            xSample[0] = this.listToArr(sampleList);
+        for (int i=0; i < samples.length; i++) {
+            double[][] xSample = new double[1][samples[0].length];
+            xSample[0] = samples[i];
             Map<String, Object> predMap = gpr.predict(xSample);
             double mean = ((double[]) predMap.get("mean"))[0];
             double cov = ((double[][]) predMap.get("cov"))[0][0];
             eiList.add(this.calcExpectedImprovement(mean, cov, this.metricType));
         }
+
         return eiList;
     }
 
@@ -45,7 +49,10 @@ public class BayesianOptimization extends SequentialAlgorithm {
         } else {
             NormalDistribution norm = new NormalDistribution();
             double imp = mean - this.currBestEvalMetric - this.tradeOff;
-            double z = imp / std;
+            double z = 0;
+            if (std > 0) {
+                z = imp / std;
+            }
             double ei = imp * norm.cumulativeProbability(z) + std * norm.density(z);
             if (metricType.equals("accuracy")) {
                 return ei;
@@ -80,16 +87,26 @@ public class BayesianOptimization extends SequentialAlgorithm {
                 Map<String, Object> nestedMap = (Map<String, Object>) configMap.get("nestedMap");
                 SortedSet<String> sortedNestedParams = new TreeSet<>(nestedMap.keySet());
                 for (String nestedKey : sortedNestedParams) {
-                    double val = Double.parseDouble(nestedMap.get(nestedKey).toString());
+                    double val = this.getDoubleVal(nestedMap.get(nestedKey));
                     configList.add(val);
                 }
             } else {
                 Object valObj = ASTConfLangCompilationUnitHandler.getValueByKey(config, key);
-                double val = Double.parseDouble(valObj.toString());
+                double val = this.getDoubleVal(valObj);
                 configList.add(val);
             }
         }
         return configList;
+    }
+
+    public double getDoubleVal(Object valObj) {
+        double val;
+        if (valObj instanceof String) {
+            val = -1.0;
+        } else {
+            val = Double.parseDouble(valObj.toString());
+        }
+        return val;
     }
 
     private ASTConfLangCompilationUnit listToConfig(List<Double> configList, ASTConfLangCompilationUnit searchSpace) {
@@ -129,7 +146,9 @@ public class BayesianOptimization extends SequentialAlgorithm {
         int nPossibleConfigs = this.calcNumPossibilities(possibleValList);
         if (nPossibleConfigs <= this.maxCandNumber) {
             candidatesList = Lists.cartesianProduct(possibleValList);
-            candidatesList.removeAll(sampledList);
+            // candidateList to ArrayList
+            candidatesList = deepCopyList(candidatesList);
+            candidatesList = this.excludeSampledCandidates(candidatesList, sampledList);
         } else {
             candidatesList = new ArrayList<>();
             for (int i=0; i < this.maxCandNumber; i++) {
@@ -140,6 +159,26 @@ public class BayesianOptimization extends SequentialAlgorithm {
             }
         }
         return candidatesList;
+    }
+
+    private List<List<Double>> excludeSampledCandidates(List<List<Double>> candidatesList, List<List<Double>> sampledList) {
+        List<List<Double>> candidateListCopy = this.deepCopyList(candidatesList);
+        for (List<Double> candidate : candidateListCopy) {
+            for (List<Double> sampled : sampledList) {
+                if (sampled.equals(candidate)) {
+                    candidatesList.remove(candidate);
+                }
+            }
+        }
+        return candidatesList;
+    }
+
+    private List<List<Double>> deepCopyList(List<List<Double>> list) {
+        List<List<Double>> listCopy = new ArrayList<>();
+        for (List<Double> listElem : list) {
+            listCopy.add(listElem);
+        }
+        return listCopy;
     }
 
     private List<Double> createRandomCandidate(List<List<Double>> possibleValList) {
@@ -213,7 +252,11 @@ public class BayesianOptimization extends SequentialAlgorithm {
             }
             return this.createValsFromRange(lower, upper, stepSize);
         } else {
-            return Arrays.asList((double) valObj);
+            if (valObj instanceof String) {
+                return Arrays.asList(-1.0);
+            } else {
+                return Arrays.asList(Double.parseDouble(valObj.toString()));
+            }
         }
     }
 
@@ -249,11 +292,30 @@ public class BayesianOptimization extends SequentialAlgorithm {
 
     @Override
     public ASTConfLangCompilationUnit getInitialHyperparams(ASTConfLangCompilationUnit searchSpace) {
-        this.evaluatedConfigs = this.buildCandidates(searchSpace, new ArrayList<>());
-        this.evaluatedConfigs = this.evaluatedConfigs.subList(0, this.numRandomIter);
+        this.createInitialRandCandidates(searchSpace);
+
         List<Double> initConfigList = evaluatedConfigs.get(0);
         ASTConfLangCompilationUnit initialConfig = this.listToConfig(initConfigList, searchSpace);
         return initialConfig;
+    }
+
+    private void createInitialRandCandidates(ASTConfLangCompilationUnit searchSpace) {
+        List<List<Double>> candidateList = this.buildCandidates(searchSpace, new ArrayList<>());
+        List<Integer> randomPositions = new ArrayList<>();
+        this.evaluatedConfigs = new ArrayList<>();
+
+        // Select random positions for selecting from candidates
+        while (randomPositions.size() < this.numRandomIter) {
+            int randIndex = this.createRandInt(0, candidateList.size() - 1);
+            while (randomPositions.contains(randIndex)) {
+                randIndex = this.createRandInt(0, candidateList.size() - 1);
+            }
+            randomPositions.add(randIndex);
+        }
+
+        for (int index : randomPositions) {
+            this.evaluatedConfigs.add(candidateList.get(index));
+        }
     }
 
     @Override
@@ -283,14 +345,24 @@ public class BayesianOptimization extends SequentialAlgorithm {
             List<Double> configList = this.evaluatedConfigs.get(this.currentIteration);
             return this.listToConfig(configList, searchSpace);
         } else {
-            gpr.fit(this.getConfigsArr(), this.getMetricValsArr());
-
+            // Consider both observed and possible candidates for normalization
             List<List<Double>> samples = this.buildCandidates(searchSpace, this.evaluatedConfigs);
-            List<Double> eiList = this.acquisition(samples);
+            List<List<Double>> consideredList = Stream.concat(this.evaluatedConfigs.stream(), samples.stream())
+                    .collect(Collectors.toList());
+            double[][] consideredArr = this.listTo2dArr(consideredList);
+            double[][] normalizedArr = MinMaxScaler.normalizeArr(consideredArr, -1.0, 1.0);
 
+            // Fit GPR on normalized observed data
+            double[][] normalizedEvaluatedConfigArr = this.getSubArr(normalizedArr, 0, this.evaluatedConfigs.size());
+            gpr.fit(normalizedEvaluatedConfigArr, this.getMetricValsArr());
+
+            // Apply acquisition on normalized samples
+            double[][] normalizedSamples = this.getSubArr(normalizedArr, this.evaluatedConfigs.size(), normalizedArr.length);
+            List<Double> eiList = this.acquisition(normalizedSamples);
+
+            // Return configuration with max EI
             Double maxEi = Collections.max(eiList);
             int maxId = eiList.indexOf(maxEi);
-
             List<Double> maxEiConfig = samples.get(maxId);
             return this.listToConfig(maxEiConfig, searchSpace);
         }

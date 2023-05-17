@@ -25,9 +25,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PythonPipeline extends Pipeline {
-
-    private String modelOutputDirectory = "/model/mnist.LeNetNetwork/";
-    private final String modelOutputDirectoryWithDot = "." + modelOutputDirectory;
     private MontiAnnaGenerator montiAnnaGenerator;
 
     public PythonPipeline(final LearningMethod learningMethod) {
@@ -40,6 +37,7 @@ public class PythonPipeline extends Pipeline {
 
     public void setModelOutputDirectory(final String modelOutputDirectory) {
         this.modelOutputDirectory = modelOutputDirectory;
+        this.modelOutputDirectoryWithDot = "." + modelOutputDirectory;
     }
 
     @Override

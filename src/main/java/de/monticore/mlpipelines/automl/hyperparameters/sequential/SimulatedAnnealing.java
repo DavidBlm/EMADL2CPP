@@ -28,7 +28,7 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
                 this.currBestHyperparams = hyperParams;
             }
 
-            if (this.decideAcceptance(evalValue)) {
+            if (this.decideAcceptance(evalValue, metricType)) {
                 this.setCurrentHyperparameters(hyperParams);
                 this.currEvalMetric = evalValue;
             }
@@ -98,11 +98,16 @@ public class SimulatedAnnealing extends SequentialAlgorithm {
         return currentHyperparams;
     }
 
-    private boolean decideAcceptance(double evaluationMetric) {
+    private boolean decideAcceptance(double evaluationMetric, String metricType) {
         double diff = evaluationMetric - this.currEvalMetric;
-        double criterion = Math.exp((-diff) / this.currentTemperature);
-
-        return (diff > 0) && Math.random() < criterion;
+        double criterion;
+        if (metricType.equals("accuracy")) {
+            criterion = Math.exp((diff) / this.currentTemperature);
+            return (diff > 0) || (Math.random() < criterion);
+        } else {
+            criterion = Math.exp((-diff) / this.currentTemperature);
+            return (diff < 0) || (Math.random() < criterion);
+        }
     }
 
     private void decreaseTemperature() {

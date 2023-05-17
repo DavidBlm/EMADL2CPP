@@ -44,12 +44,10 @@ public class RandomSearchAlgorithmTest extends TestCase {
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
         System.out.println(printer.prettyPrint(configuration));
     }
-
     @Test
     public void testGetRandomNumEpoch() {
         int numEpoch = (int) ASTConfLangCompilationUnitHandler.getValueByKey(newHyperparamcandidate, "num_epoch");
-        Map<String, Object> numEpochRange = (Map<String, Object>) ASTConfLangCompilationUnitHandler.getValueByKey(
-                searchSpace, "num_epoch");
+        Map<String, Object> numEpochRange = (Map<String, Object>) ASTConfLangCompilationUnitHandler.getValueByKey(searchSpace, "num_epoch");
 
         int lower = (int) numEpochRange.get("lower");
         int upper = (int) numEpochRange.get("upper");
@@ -61,8 +59,7 @@ public class RandomSearchAlgorithmTest extends TestCase {
     @Test
     public void testGetRandomBatchSize() {
         int batchSize = (int) ASTConfLangCompilationUnitHandler.getValueByKey(newHyperparamcandidate, "batch_size");
-        Map<String, Object> batchSizeRange = (Map<String, Object>) ASTConfLangCompilationUnitHandler.getValueByKey(
-                searchSpace, "batch_size");
+        Map<String, Object> batchSizeRange = (Map<String, Object>) ASTConfLangCompilationUnitHandler.getValueByKey(searchSpace, "batch_size");
 
         int lower = (int) batchSizeRange.get("lower");
         int upper = (int) batchSizeRange.get("upper");
@@ -73,8 +70,7 @@ public class RandomSearchAlgorithmTest extends TestCase {
 
     @Test
     public void testGetRandomOptimizer() {
-        Map<String, Object> optimizerMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(
-                newHyperparamcandidate, "optimizer");
+        Map<String, Object> optimizerMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(newHyperparamcandidate, "optimizer");
 
         String optimizer = (String) optimizerMap.get("optimizer");
         Map<String, Object> nestedMap = (Map<String, Object>) optimizerMap.get("nestedMap");
@@ -83,8 +79,7 @@ public class RandomSearchAlgorithmTest extends TestCase {
         int stepSize = (int) nestedMap.get("step_size");
         double weightDecay = (double) nestedMap.get("weight_decay");
 
-        Map<String, Object> optimizerRangeMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(
-                searchSpace, "optimizer");
+        Map<String, Object> optimizerRangeMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(searchSpace, "optimizer");
         Map<String, Object> nestedRangeMap = (Map<String, Object>) optimizerRangeMap.get("nestedMap");
 
         Map<String, Object> learningRateRangeMap = (Map<String, Object>) nestedRangeMap.get("learning_rate");

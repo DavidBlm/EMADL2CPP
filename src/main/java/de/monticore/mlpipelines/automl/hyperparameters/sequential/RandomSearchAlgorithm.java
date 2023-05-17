@@ -10,53 +10,44 @@ import java.util.*;
 
 
 public class RandomSearchAlgorithm extends SequentialAlgorithm {
-    protected ASTConfLangCompilationUnit bestTrainingConfig;
-    ArrayList<Map<String, Object>> results = new ArrayList<>();
-    List<Double> iterEvalValueList = new ArrayList<>();
-    private int max_iter;
-    private float valLoss;
+    private int max_iter ;
+    private double valLoss;
     private float accuracy;
-    private float best_loss = Float.POSITIVE_INFINITY;
+    private double best_loss=Double.POSITIVE_INFINITY;
     private float best_accuracy;
+    ArrayList<Map<String, Object>> results = new ArrayList<>();
+    protected ASTConfLangCompilationUnit bestTrainingConfig;
+
 
     @Override
-    public void executeOptimization(
-            Pipeline pipeline,
-            ASTConfLangCompilationUnit searchSpace,
-            ASTConfLangCompilationUnit evaluationCriteria) {
-        int counter = 0;
-
+    public void executeOptimization( Pipeline pipeline, ASTConfLangCompilationUnit searchSpace,ASTConfLangCompilationUnit evaluationCriteria) {
+        int counter =0;
         for (int i = 0; i < max_iter; i++) {
-            Log.info(String.format("Iteration: %s", i), RandomSearchAlgorithm.class.getName());
             ASTConfLangCompilationUnit currentHyperparams = getNewHyperparamsCandidate(searchSpace);
-            Map<String, Object> result = new HashMap<>();
-            long totalTime = 0;
+            Map<String,Object> result = new HashMap<>();
+            long totalTime=0;
             counter++;
-            if (pipeline != null) {
+            if(pipeline != null) {
                 long startTime = System.currentTimeMillis();
                 pipeline.setTrainingConfiguration(currentHyperparams);
                 pipeline.execute();
                 long endTime = System.currentTimeMillis();
                 totalTime = endTime - startTime;
                 accuracy = pipeline.getTrainedAccuracy();
-                valLoss = 1 - (Float.valueOf(((Float) (pipeline.getTrainedAccuracy() / 100)).toString()));
+                valLoss = 1-(Double.valueOf(((Float) (pipeline.getTrainedAccuracy() / 100)).toString()));
             }
-            result.put("iteration", counter);
-            result.put("params", currentHyperparams);
-            result.put("loss", valLoss);
-            result.put("accuracy", accuracy);
-            result.put("time", totalTime);
+            result.put("counter",counter);
+            result.put("params",currentHyperparams);
+            result.put("loss",valLoss);
+            result.put("accuracy",accuracy);
+            result.put("time",totalTime);
             this.results.add(result);
-            iterEvalValueList.add((double) accuracy);
-            if (valLoss < this.best_loss) {
+            if (valLoss < this.best_loss){
                 this.best_loss = valLoss;
-                this.best_accuracy = accuracy;
-                this.currBestHyperparams = currentHyperparams;
+                this.best_accuracy= accuracy;
+                this.currBestHyperparams= currentHyperparams;
             }
 
-            //train model with the best hyperparameter configuration found
-            pipeline.setTrainingConfiguration(currBestHyperparams);
-            pipeline.execute();
         }
         //this.bestTrainingConfig=bestPerformingConfiguration(results);
         ASTConfLangCompilationUnitPrinter printer = new ASTConfLangCompilationUnitPrinter();
@@ -65,26 +56,17 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
         Log.info(String.format("Best hyperparameter configuration:\n%s", printer.prettyPrint(currBestHyperparams)),
                 RandomSearchAlgorithm.class.getName());
         Log.info(String.format("Best Accuracy :%s", this.best_accuracy),
-                RandomSearchAlgorithm.class.getName());
+                HyperbandAlgorithm.class.getName());
         Log.info(String.format("Best Loss :%s", this.best_loss),
-                RandomSearchAlgorithm.class.getName());
-        Log.info("Saving best hyperparameter configuration into a bestConfiguration.conf file",
-                RandomSearchAlgorithm.class.getName());
+                HyperbandAlgorithm.class.getName());
+        Log.info("Saving best hyperparameter configuration into a conf file", SequentialAlgorithm.class.getName());
         this.saveConfFile(currBestHyperparams, printer, pipeline.getNetworkName());
-        Log.info("Saving eval value for each iteration into a evalValues.txt file",
-                RandomSearchAlgorithm.class.getName());
-        this.saveEvalValListAsFile(iterEvalValueList, pipeline.getNetworkName(), "evalValues.txt");
     }
 
     @Override
-    public void executeOptimizationStep(
-            ASTConfLangCompilationUnit hyperParams,
-            ASTConfLangCompilationUnit searchSpace,
-            Double evalValue,
-            String metricType) {
+    public void executeOptimizationStep(ASTConfLangCompilationUnit hyperParams, ASTConfLangCompilationUnit searchSpace, Double evalValue, String metricType) {
 
     }
-
     @Override
     public ASTConfLangCompilationUnit getNewHyperparamsCandidate(ASTConfLangCompilationUnit searchSpace) {
         ASTConfLangCompilationUnit currentHyperparams = searchSpace.deepClone();
@@ -104,10 +86,7 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
         return currentHyperparams;
     }
 
-    private ASTConfLangCompilationUnit updateHyperparamsValue(
-            ASTConfLangCompilationUnit searchSpace,
-            ASTConfLangCompilationUnit currentHyperparams,
-            String key) {
+    private ASTConfLangCompilationUnit updateHyperparamsValue(ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit currentHyperparams, String key) {
         Object searchSpaceValue = ASTConfLangCompilationUnitHandler.getValueByKey(searchSpace, key);
         if (searchSpaceValue instanceof Map) {
             Map<String, Object> valueMap = (Map<String, Object>) searchSpaceValue;
@@ -123,19 +102,14 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
         return currentHyperparams;
     }
 
-    private ASTConfLangCompilationUnit updateNestedHyperparamsValue(
-            ASTConfLangCompilationUnit searchSpace,
-            ASTConfLangCompilationUnit currentHyperparams,
-            String key) {
-        Map<String, Object> configMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(searchSpace,
-                key);
+    private ASTConfLangCompilationUnit updateNestedHyperparamsValue(ASTConfLangCompilationUnit searchSpace, ASTConfLangCompilationUnit currentHyperparams, String key) {
+        Map<String, Object> configMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(searchSpace, key);
         Map<String, Object> nestedMap = (Map<String, Object>) configMap.get("nestedMap");
         for (Map.Entry<String, Object> nestedEntry : nestedMap.entrySet()) {
             String nestedKey = nestedEntry.getKey();
             Object nestedValue = nestedEntry.getValue();
             if (nestedValue instanceof Map) {
-                Map<String, Object> currentValueMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(
-                        currentHyperparams, key);
+                Map<String, Object> currentValueMap = ASTConfLangCompilationUnitHandler.getValuesFromNestedConfiguration(currentHyperparams, key);
                 Map<String, Object> currentNestedMap = (Map<String, Object>) currentValueMap.get("nestedMap");
                 Object newValue;
                 Map<String, Object> nestedValueMap = (Map<String, Object>) nestedValue;
@@ -144,8 +118,7 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
                 } else {
                     newValue = this.createValueFromRange(nestedValueMap);
                 }
-                currentHyperparams = ASTConfLangCompilationUnitHandler.setNestedValueForKeys(currentHyperparams, key,
-                        nestedKey, newValue);
+                currentHyperparams = ASTConfLangCompilationUnitHandler.setNestedValueForKeys(currentHyperparams, key, nestedKey, newValue);
             }
         }
 
@@ -184,14 +157,13 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
 
     private double createDoubleFromStep(double lower, double upper, double stepSize) {
         Random r = new Random();
-        int numDecimalPlaces = Math.max(0, (int) Math.ceil(-Math.log10(stepSize))); // number of decimal places
+        int numDecimalPlaces = Math.max(0, (int)Math.ceil(-Math.log10(stepSize))); // number of decimal places
         String formatString = "%." + numDecimalPlaces + "f";
         double newValue = r.nextDouble() * (upper - lower) + lower;
         newValue = Math.round(newValue / stepSize) * stepSize;
         newValue = Double.parseDouble(String.format(formatString, newValue));
-        return newValue;
+        return newValue ;
     }
-
     private Object keepValInRange(Object val, Object lower, Object upper) {
         Object valInRange;
         if (this.isInteger(val) && this.isInteger(lower) && this.isInteger(upper)) {
@@ -210,12 +182,7 @@ public class RandomSearchAlgorithm extends SequentialAlgorithm {
         return valInRange;
     }
 
-    public int getMaxIter() {
-        return max_iter;
-    }
-
-    public void setMaxIter(int maxIter) {
-        this.max_iter = maxIter;
-    }
+    public void setMaxIter(int maxIter) { this.max_iter = maxIter;  }
+    public int getMaxIter() { return max_iter;  }
 
 }

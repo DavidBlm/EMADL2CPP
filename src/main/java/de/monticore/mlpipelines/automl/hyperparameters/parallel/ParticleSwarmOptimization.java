@@ -106,8 +106,10 @@ public class ParticleSwarmOptimization extends ParallelAlgorithm {
             Object lower = this.getRangePropForNested(searchSpace, rootKey, nestedKey, "lower");
             Object upper = this.getRangePropForNested(searchSpace, rootKey, nestedKey, "upper");
 
-            Object newVelocityVal = this.calcNewVelocityVal(nestedVelocityVal, nestedPosVal, nestedPbestVal, nestedGbestVal, lower, upper);
-            newNestedVelocityMap.put(nestedKey, newVelocityVal);
+            if (nestedVelocityVal != null) {
+                Object newVelocityVal = this.calcNewVelocityVal(nestedVelocityVal, nestedPosVal, nestedPbestVal, nestedGbestVal, lower, upper);
+                newNestedVelocityMap.put(nestedKey, newVelocityVal);
+            }
         }
 
         return newNestedVelocityMap;
@@ -201,7 +203,9 @@ public class ParticleSwarmOptimization extends ParallelAlgorithm {
                 velocityMap.put(key, nestedVelocityMap);
             } else {
                 Object velocityVal = this.getInitVelocityForKey(searchSpace, key);
-                velocityMap.put(key, velocityVal);
+                if (! velocityVal.equals(Integer.MIN_VALUE)) {
+                    velocityMap.put(key, velocityVal);
+                }
             }
         }
 
@@ -215,7 +219,7 @@ public class ParticleSwarmOptimization extends ParallelAlgorithm {
             return this.getVelocityFromMap(valMap);
         }
 
-        return 0;
+        return Integer.MIN_VALUE;
     }
     private Map<String, Object> getInitVelocitiesForNestedKey(ASTConfLangCompilationUnit searchSpace, String rootKey) {
         Map<String, Object> nestedVelocitiesMap = new HashMap<>();
@@ -230,8 +234,6 @@ public class ParticleSwarmOptimization extends ParallelAlgorithm {
                 Map<String, Object> valMap = (Map<String, Object>) valObj;
                 Object velocityVal = this.getVelocityFromMap(valMap);
                 nestedVelocitiesMap.put(nestedKey, velocityVal);
-            } else {
-                nestedVelocitiesMap.put(nestedKey, 0);
             }
         }
 

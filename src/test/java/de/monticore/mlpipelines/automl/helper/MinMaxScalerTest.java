@@ -26,8 +26,8 @@ public class MinMaxScalerTest extends TestCase {
 
     private boolean allValsBetween(double[][] arr, double min, double max) {
         boolean valsBetween = true;
-        for (int i = 0; i < arr.length; i++) {
-            for (int j = 0; j < arr[0].length; j++) {
+        for (int i=0; i < arr.length; i++) {
+            for (int j=0; j < arr[0].length; j++) {
                 valsBetween &= (arr[i][j] >= min) && (arr[i][j] <= max);
             }
         }

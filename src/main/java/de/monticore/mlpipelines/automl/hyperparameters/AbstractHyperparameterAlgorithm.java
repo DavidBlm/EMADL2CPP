@@ -4,6 +4,7 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.emadlprinter.ASTConfLangCompilationUnitPrinter;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.pipelines.Pipeline;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -244,6 +245,15 @@ public abstract class AbstractHyperparameterAlgorithm {
         return valInRange;
     }
 
+    protected double[][] getSubArr(double[][] arr, int beginIndex, int endIndex) {
+        int n = endIndex - beginIndex;
+        double[][] subArr = new double[n][arr[0].length];
+        for (int i=0; i < n; i++) {
+            subArr[i] = arr[i + beginIndex];
+        }
+        return subArr;
+    }
+
     protected double[] listToArr(List<Double> doubleList) {
         double[] doubleArr = new double[doubleList.size()];
         for (int i=0; i < doubleArr.length; i++) {
@@ -252,8 +262,16 @@ public abstract class AbstractHyperparameterAlgorithm {
         return doubleArr;
     }
 
-    protected void saveConfFile(ASTConfLangCompilationUnit hyperparams, ASTConfLangCompilationUnitPrinter printer) {
-        String targetDir = "target/generated-sources/conf/";
+    protected double[][] listTo2dArr(List<List<Double>> listOfDoubleList) {
+        double[][] double2dArr = new double[listOfDoubleList.size()][listOfDoubleList.get(0).size()];
+        for (int i=0; i < double2dArr.length; i++) {
+            double2dArr[i] = this.listToArr(listOfDoubleList.get(i));
+        }
+        return double2dArr;
+    }
+
+    protected void saveConfFile(ASTConfLangCompilationUnit hyperparams, ASTConfLangCompilationUnitPrinter printer, String instanceName) {
+        String targetDir = String.format("target/generated-sources/conf/%s/", instanceName);
         String confFileName = "bestConfiguration.conf";
         String path = targetDir + confFileName;
         Path targetPath = Paths.get(targetDir);
@@ -262,6 +280,21 @@ public abstract class AbstractHyperparameterAlgorithm {
                 Files.createDirectories(targetPath);
             }
             Files.write(Paths.get(path), printer.prettyPrint(hyperparams).getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void saveEvalValListAsFile(List<Double> iterEvalValueList, String instanceName, String fileName) {
+        String targetDir = String.format("target/generated-sources/conf/%s/evalValues/", instanceName);
+        String path = targetDir + fileName;
+        Path targetPath = Paths.get(targetDir);
+        String evalValStr = StringUtils.join(iterEvalValueList, "\n");
+        try {
+            if (!Files.exists(targetPath)) {
+                Files.createDirectories(targetPath);
+            }
+            Files.write(Paths.get(path), evalValStr.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
