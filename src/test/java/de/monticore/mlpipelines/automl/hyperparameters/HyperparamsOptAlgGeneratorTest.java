@@ -4,8 +4,7 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import conflang._parser.ConfLangParser;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.GeneticAlgorithm;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.ParticleSwarmOptimization;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.BayesianOptimization;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.SimulatedAnnealing;
+import de.monticore.mlpipelines.automl.hyperparameters.sequential.*;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -39,17 +38,32 @@ public class HyperparamsOptAlgGeneratorTest extends TestCase {
 
     @Test
     public void testGenerateHyperband() throws IOException {
-        // TODO: Add test for Hyperband
+        AbstractHyperparameterAlgorithm hyperparameterAlgorithm = this.getAlgObjByName("Hyperband");
+        assertTrue(hyperparameterAlgorithm instanceof HyperbandAlgorithm);
+
+        HyperbandAlgorithm ha = (HyperbandAlgorithm) hyperparameterAlgorithm;
+        assertEquals(ha.getMaxIter(), 81);
+        assertEquals(ha.getEta(), 3);
+        assertEquals(ha.getSkipLast(),1);
     }
 
     @Test
-    public void testGenerateBOHB() throws IOException {
-        // TODO: Add test for BOHB
-    }
+    public void testGenerateRS() throws IOException {
+        AbstractHyperparameterAlgorithm hyperparameterAlgorithm = this.getAlgObjByName("RS");
+        assertTrue(hyperparameterAlgorithm instanceof RandomSearchAlgorithm);
 
+        RandomSearchAlgorithm rs = (RandomSearchAlgorithm) hyperparameterAlgorithm;
+        assertEquals(rs.getMaxIter(), 10);
+    }
     @Test
-    public void testGenerateDEHB() throws IOException {
-        // TODO: Add test for DEHB
+    public void testGenerateSH() throws IOException {
+        AbstractHyperparameterAlgorithm hyperparameterAlgorithm = this.getAlgObjByName("SH");
+        assertTrue(hyperparameterAlgorithm instanceof SuccessiveHalvingAlgorithm);
+
+        SuccessiveHalvingAlgorithm sh = (SuccessiveHalvingAlgorithm) hyperparameterAlgorithm;
+        assertEquals(sh.getMaxConfig(), 81);
+        assertEquals(sh.getMaxIter(), 9);
+        assertEquals(sh.getEta(), 3);
     }
 
     @Test

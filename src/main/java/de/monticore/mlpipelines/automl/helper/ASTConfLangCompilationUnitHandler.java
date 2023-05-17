@@ -112,9 +112,16 @@ public class ASTConfLangCompilationUnitHandler {
 
     private static void setConfigurationEntryValue(ASTConfigurationEntry configurationEntry, Object newVal) {
         if (configurationEntry.getValue() instanceof ASTTypelessLiteral) {
-            ((ASTTypelessLiteral) configurationEntry.getValue()).setValue(newVal.toString());
+            if (!(newVal instanceof Double) && !(newVal instanceof Integer)) {
+                ((ASTTypelessLiteral) configurationEntry.getValue()).setValue(newVal.toString());
+            }
         } else if (configurationEntry.getValue() instanceof ASTSignedIntLiteral) {
-            ((ASTSignedIntLiteral) configurationEntry.getValue()).setSource(newVal.toString());
+            String newValStr = newVal.toString();
+            int dotIndex = newValStr.indexOf('.');
+            if (dotIndex != -1) {
+                newValStr = newValStr.substring(0, dotIndex);
+            }
+            ((ASTSignedIntLiteral) configurationEntry.getValue()).setSource(newValStr);
         } else if (configurationEntry.getValue() instanceof ASTSignedDoubleLiteral) {
             ((ASTSignedDoubleLiteral) configurationEntry.getValue()).setSource(newVal.toString());
         } else if (configurationEntry.getValue() instanceof ASTBooleanLiteral) {

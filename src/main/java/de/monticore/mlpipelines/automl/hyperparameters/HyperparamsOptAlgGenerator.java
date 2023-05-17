@@ -4,9 +4,7 @@ import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.mlpipelines.automl.helper.ASTConfLangCompilationUnitHandler;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.GeneticAlgorithm;
 import de.monticore.mlpipelines.automl.hyperparameters.parallel.ParticleSwarmOptimization;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.BayesianOptimization;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.SimulatedAnnealing;
-import de.monticore.mlpipelines.automl.hyperparameters.sequential.WeightedRS;
+import de.monticore.mlpipelines.automl.hyperparameters.sequential.*;
 import de.se_rwth.commons.logging.Log;
 
 import java.util.Map;
@@ -30,6 +28,12 @@ public class HyperparamsOptAlgGenerator {
                 return getGeneticAlgorithm(nestedMap);
             case "PSO":
                 return getParticleSwarmOptimization(nestedMap);
+            case "Hyperband":
+                return getHyperbandAlgorithm(nestedMap);
+            case "RS":
+                return getRandomSearchAlgorithm(nestedMap);
+            case "SH":
+                return getSuccessiveHalvingAlgorithm(nestedMap);
             //TODO: Add cases for other optimization algorithms
             default:
                 throw new IllegalArgumentException("Optimizer name in HyperparameterOpt.conf not valid.");
@@ -70,5 +74,26 @@ public class HyperparamsOptAlgGenerator {
         pso.setC2((Double) nestedMap.get("c2"));
         pso.setPopulationSize((Integer) nestedMap.get("population_size"));
         return pso;
+    }
+    private static HyperbandAlgorithm getHyperbandAlgorithm(Map<String, Object> nestedMap) {
+        HyperbandAlgorithm hyperband = new HyperbandAlgorithm();
+        hyperband.setMaxIter((int) nestedMap.get("max_iter"));
+        hyperband.setEta((int) nestedMap.get("eta"));
+        hyperband.setSkipLast((int) nestedMap.get("skip_last"));
+        return hyperband;
+    }
+
+    private static RandomSearchAlgorithm getRandomSearchAlgorithm(Map<String, Object> nestedMap) {
+        RandomSearchAlgorithm rs = new RandomSearchAlgorithm();
+        rs.setMaxIter((int) nestedMap.get("max_iter"));
+        return rs;
+    }
+
+    private static SuccessiveHalvingAlgorithm getSuccessiveHalvingAlgorithm(Map<String, Object> nestedMap) {
+        SuccessiveHalvingAlgorithm sh = new SuccessiveHalvingAlgorithm();
+        sh.setMaxConfig((int) nestedMap.get("max_config"));
+        sh.setMaxIter((int) nestedMap.get("max_iter"));
+        sh.setEta((int) nestedMap.get("eta"));
+        return sh;
     }
 }
