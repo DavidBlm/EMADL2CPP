@@ -14,7 +14,7 @@ from reinforcement_learning.replay_memory import ReplayMemoryBuilder
 from reinforcement_learning.strategy import StrategyBuilder
 from reinforcement_learning.util import copy_net, get_loss_function,\
     copy_net_with_two_inputs, DdpgTrainingStats, DqnTrainingStats,\
-    make_directory_if_not_exist
+    SACTrainingStats, make_directory_if_not_exist
 from mxnet import nd, gluon, autograd
 
 
@@ -378,10 +378,6 @@ class DdpgAgent(Agent):
 
         self._soft_target_update_rate = soft_target_update_rate
 
-        self._logger.info(
-            'Agent created with following parameters: {}'.format(
-                self._make_config_dict()))
-
         self._best_net = self._copy_actor()
 
         self._training_stats = DdpgTrainingStats(self._training_episodes)
@@ -470,6 +466,9 @@ class DdpgAgent(Agent):
             self._actor, self._agent_name + '_actor', episode=episode)
 
     def train(self, episodes=None):
+        self._logger.info(
+                'Agent parameters: {}'.format(
+                    self._make_config_dict()))
         self.save_config_file()
         self._logger.info("--- Start DDPG training ---")
         episodes = \
@@ -1012,6 +1011,400 @@ class TwinDelayedDdpgAgent(DdpgAgent):
             config['noise_clip'] = self._noise_clip
             config['policy_delay'] = self._policy_delay
             return config
+
+class SACAgent(DdpgAgent):
+    def __init__(
+        self,
+        actor,
+        critic,
+        environment,
+        replay_memory_params,
+        strategy_params,
+        state_dim,
+        action_dim,
+        soft_target_update_rate=.001,
+        actor_optimizer='adam',
+        actor_optimizer_params={'learning_rate': 0.0001},
+        critic_optimizer='adam',
+        critic_optimizer_params={'learning_rate': 0.001},
+        ctx=None,
+        discount_factor=.9,
+        training_episodes=50,
+        start_training=20,
+        train_interval=1,
+        snapshot_interval=200,
+        agent_name='SACAgent',
+        max_episode_step=9999,
+        evaluation_samples=100,
+        self_play='no',
+        output_directory='model_parameters',
+        verbose=True,
+        target_score=None,
+        temperature=1.0,
+        temperature_optimizer=None,
+        temperature_optimizer_params={'learning_rate': 0.001},
+    ):
+        super(SACAgent, self).__init__(
+            environment=environment, replay_memory_params=replay_memory_params,
+            strategy_params=strategy_params, state_dim=state_dim,
+            action_dim=action_dim, ctx=ctx, discount_factor=discount_factor,
+            training_episodes=training_episodes, start_training=start_training,
+            train_interval=train_interval,
+            snapshot_interval=snapshot_interval, agent_name=agent_name,
+            max_episode_step=max_episode_step,
+            output_directory=output_directory, verbose=verbose,
+            target_score=target_score, evaluation_samples=evaluation_samples,
+            self_play=self_play,
+            critic=critic, soft_target_update_rate=soft_target_update_rate,
+            actor=actor, actor_optimizer=actor_optimizer,
+            actor_optimizer_params=actor_optimizer_params,
+            critic_optimizer=critic_optimizer,
+            critic_optimizer_params=critic_optimizer_params)
+
+        self._temperature_param = temperature
+        self._temperature = nd.array([temperature], dtype=np.float32, ctx=self._ctx)
+        self._temperature_optimizer = temperature_optimizer
+        self._temperature_optimizer_params = temperature_optimizer_params
+        self._log_temperature = gluon.Parameter('log_temperature',shape=(1), init=mx.initializer.Constant(nd.log(self._temperature)))
+        self._log_temperature.initialize(ctx=self._ctx)
+        self._target_entropy = -nd.prod(nd.array(action_dim, dtype=np.float32, ctx=self._ctx))
+
+        self._critic2 = self._critic.__class__()
+        self._critic2.collect_params().initialize(
+            mx.init.Normal(), ctx=self._ctx)
+        self._critic2.hybridize()
+        self._critic2(nd.ones((1,) + state_dim, ctx=self._ctx),
+                      nd.ones((1,) + action_dim, ctx=self._ctx))
+
+        self._critic2_target = self._copy_critic2()
+
+        self._critic2_optimizer = critic_optimizer
+        self._critic2_optimizer_params = self._adjust_optimizer_params(
+            critic_optimizer_params)
+
+    def _make_pickle_ready(self, session_dir):
+        super(SACAgent, self)._make_pickle_ready(session_dir)
+        self._export_net(self._critic2, 'critic2', filedir=session_dir)
+        self._critic2 = None
+        self._export_net(
+            self._critic2_target, 'critic2_target', filedir=session_dir)
+        self._critic2_target = None
+
+    @classmethod
+    def resume_from_session(cls, session_dir, actor, critic, environment):
+        import pickle
+        if not os.path.exists(session_dir):
+            raise ValueError('Session directory does not exist')
+
+        files = dict()
+        files['agent'] = os.path.join(session_dir, 'agent.p')
+        files['best_net_params'] = os.path.join(session_dir, 'best_net.params')
+        files['actor_net_params'] = os.path.join(session_dir, 'actor.params')
+        files['actor_target_net_params'] = os.path.join(
+            session_dir, 'actor_target.params')
+        files['critic_net_params'] = os.path.join(session_dir, 'critic.params')
+        files['critic_target_net_params'] = os.path.join(
+            session_dir, 'critic_target.params')
+        files['critic2_net_params'] = os.path.join(
+            session_dir, 'critic2.params')
+        files['critic2_target_net_params'] = os.path.join(
+            session_dir, 'critic2_target.params')
+
+        for file in files.values():
+            if not os.path.exists(file):
+                raise ValueError(
+                    'Session directory is not complete: {} is missing'
+                    .format(file))
+
+        with open(files['agent'], 'rb') as f:
+            agent = pickle.load(f)
+
+        agent._environment = environment
+
+        agent._actor = actor
+        agent._actor.load_parameters(files['actor_net_params'], agent._ctx)
+        agent._actor.hybridize()
+        agent._actor(nd.random_normal(
+            shape=((1,) + agent._state_dim), ctx=agent._ctx))
+
+        agent._best_net = copy_net(agent._actor, agent._state_dim, agent._ctx)
+        agent._best_net.load_parameters(files['best_net_params'], agent._ctx)
+
+        agent._actor_target = copy_net(
+            agent._actor, agent._state_dim, agent._ctx)
+        agent._actor_target.load_parameters(files['actor_target_net_params'])
+
+        agent._critic = critic
+        agent._critic.load_parameters(files['critic_net_params'], agent._ctx)
+        agent._critic.hybridize()
+        agent._critic(
+            nd.random_normal(shape=((1,) + agent._state_dim), ctx=agent._ctx),
+            nd.random_normal(shape=((1,) + agent._action_dim), ctx=agent._ctx))
+
+        agent._critic_target = copy_net_with_two_inputs(
+            agent._critic, agent._state_dim, agent._action_dim, agent._ctx)
+        agent._critic_target.load_parameters(files['critic_target_net_params'])
+
+        agent._critic2 = copy_net_with_two_inputs(
+            agent._critic, agent._state_dim, agent._action_dim, agent._ctx)
+        agent._critic2.load_parameters(files['critic2_net_params'], agent._ctx)
+        agent._critic2.hybridize()
+        agent._critic2(
+            nd.random_normal(shape=((1,) + agent._state_dim), ctx=agent._ctx),
+            nd.random_normal(shape=((1,) + agent._action_dim), ctx=agent._ctx))
+
+        agent._critic2_target = copy_net_with_two_inputs(
+            agent._critic2, agent._state_dim, agent._action_dim, agent._ctx)
+        agent._critic2_target.load_parameters(
+            files['critic2_target_net_params'])
+
+        agent._log_temperature = gluon.Parameter('log_temperature',shape=(1), init=mx.initializer.Constant(agent._log_temperature.data(ctx=agent._ctx)))
+        agent._log_temperature.initialize(ctx=agent._ctx)
+
+        agent._logger = ArchLogger.get_logger()
+        agent._training_stats.logger = ArchLogger.get_logger()
+        agent._logger.info('Agent was retrieved; Training can be continued')
+
+        return agent
+
+    def _copy_critic2(self):
+        assert self._critic2 is not None
+        assert self._ctx is not None
+        assert type(self._state_dim) is tuple
+        assert type(self._action_dim) is tuple
+        return copy_net_with_two_inputs(
+            self._critic2, self._state_dim, self._action_dim, ctx=self._ctx)
+
+    def get_next_action(self, state, deterministic=True):
+        [[mean_action, random_action, _]] = self._actor(nd.array([state], ctx=self._ctx))
+        if deterministic:
+            return mean_action[0].asnumpy()
+        else:
+            return random_action[0].asnumpy()
+
+    def _optimize_critic(self, states=None, actions=None, next_states=None, rewards=None,
+            terminals=None, trainer_critic=None, trainer_critic2=None, temperature=None):
+        l2_loss = gluon.loss.L2Loss()
+        with autograd.record():
+            [[ qvalues1 ]] = self._critic(states, actions)
+            [[ qvalues2 ]] = self._critic2(states, actions)
+
+            with autograd.pause():
+                [[_, target_actions, target_action_logprobs]] = self._actor(next_states)
+                rewards = rewards.reshape(self._minibatch_size, 1)
+                terminals = terminals.reshape(self._minibatch_size, 1)
+
+                [[ target_qvalues1 ]] = self._critic_target(next_states,
+                                                        target_actions)
+                [[ target_qvalues2 ]] = self._critic2_target(next_states,
+                                                        target_actions)
+                target_qvalues = nd.minimum(target_qvalues1,
+                                            target_qvalues2)
+                y = rewards + (1 - terminals) * self._discount_factor\
+                    * ( target_qvalues - temperature * target_action_logprobs)
+            
+            critic1_loss = l2_loss(qvalues1, y)
+            critic2_loss = l2_loss(qvalues2, y)
+            critic_loss = (critic1_loss + critic2_loss)
+            
+        critic_loss.backward()
+        trainer_critic.step(self._minibatch_size)
+        trainer_critic2.step(self._minibatch_size)
+
+        return critic_loss, target_qvalues
+
+    def _optimize_actor(self, states=None, trainer_actor=None, temperature=None):
+        # freeze critics to save computation time
+        for param1, param2 in zip(self._critic.collect_params().values(),self._critic2.collect_params().values()):
+            param1.grad_req = 'null'
+            param2.grad_req = 'null'
+
+        with autograd.record():
+            [[_,random_actions, random_action_logprobs]] = self._actor(states)
+            [[ qvalues1 ]] = self._critic(states,random_actions)
+            [[ qvalues2 ]] = self._critic2(states,random_actions)
+            qvalues = nd.minimum(qvalues1, qvalues2)
+            actor_loss = (temperature * random_action_logprobs - qvalues)
+        actor_loss.backward()
+        trainer_actor.step(self._minibatch_size)
+
+        # unfreeze critics
+        for param1, param2 in zip(self._critic.collect_params().values(),self._critic2.collect_params().values()):
+            param1.grad_req = 'write'
+            param2.grad_req = 'write'
+        return actor_loss, random_action_logprobs
+
+    def _optimize_temperature(self, states, trainer_temperature):
+        [[_, _, actions_logprob]] = self._actor(states)
+        if trainer_temperature is not None:
+            temperature = nd.exp(self._log_temperature.data(ctx=self._ctx))
+            with autograd.record():
+                log_temperature_loss = -(self._log_temperature.data(ctx=self._ctx) * (actions_logprob + self._target_entropy).detach()).mean()
+            log_temperature_loss.backward()
+            trainer_temperature.step(1)
+        else:
+            temperature = self._temperature
+            log_temperature_loss = None
+
+        return temperature, log_temperature_loss
+
+    def train(self, episodes=None):
+        self._logger.info(
+            'Agent parameters: {}'.format(
+                self._make_config_dict()))
+        self.save_config_file()
+        self._logger.info("--- Start SAC training ---")
+        episodes = \
+            episodes if episodes is not None else self._training_episodes
+
+        resume = (self._current_episode > 0)
+        if resume:
+            self._logger.info("Training session resumed")
+            self._logger.info(
+                "Starting from episode {}".format(self._current_episode))
+        else:
+            self._training_stats = SACTrainingStats(episodes)
+
+            # Initialize target Q1' and Q2'
+            self._critic_target = self._copy_critic()
+            self._critic2_target = self._copy_critic2()
+
+        # Initialize critic and actor trainer
+        trainer_actor = gluon.Trainer(
+            self._actor.collect_params(), self._actor_optimizer,
+            self._actor_optimizer_params)
+        trainer_critic = gluon.Trainer(
+            self._critic.collect_params(), self._critic_optimizer,
+            self._critic_optimizer_params)
+        trainer_critic2 = gluon.Trainer(
+            self._critic2.collect_params(), self._critic2_optimizer,
+            self._critic2_optimizer_params)
+        trainer_temperature = None
+        if (self._temperature_optimizer is not None):
+            trainer_temperature = gluon.Trainer(
+                [self._log_temperature], self._temperature_optimizer,
+                self._temperature_optimizer_params)     
+
+        # For episode=1..n
+        while self._current_episode < episodes:
+            # Check interrupt flag
+            if self._check_interrupt_routine():
+                return False
+
+            # Initialize new episode
+            step = 0
+            episode_reward = 0
+            start = time.time()
+            episode_critic_loss = 0
+            episode_actor_loss = 0
+            episode_avg_q_value = 0
+            episode_avg_logprob = 0
+            episode_avg_temperature = 0
+            episode_log_temperature_loss = 0
+            training_steps = 0
+
+            state = self._environment.reset()
+
+            # For step=1..T
+            while step < self._max_episode_step:
+                if self._current_episode < self._start_training:
+                    action = np.random.uniform(-1, 1, self._action_dim)
+                else:
+                    action = self.get_next_action(state, deterministic=False)
+
+                # Execute action a and observe reward r and next state ns
+                next_state, reward, terminal, _ = \
+                    self._environment.step(action)
+
+                self._logger.debug(
+                    'Applied action {} with reward {}'.format(action, reward))
+
+                # Store transition (s,a,r,ns) in replay buffer
+                self._memory.append(
+                    state, action, reward, next_state, terminal)
+
+                if self._do_training():
+                    # Sample random minibatch of b transitions
+                    # (s_i, a_i, r_i, s_(i+1)) from replay buffer
+                    states, actions, rewards, next_states, terminals =\
+                         self._sample_from_memory()
+
+                    temperature, log_temperature_loss = self._optimize_temperature(
+                        states=states, trainer_temperature=trainer_temperature)
+
+                    critic_loss, qvalues = self._optimize_critic(
+                        actions=actions, states=states, 
+                        next_states=next_states, rewards=rewards,
+                        terminals=terminals, trainer_critic=trainer_critic,
+                        trainer_critic2=trainer_critic2, temperature=temperature)
+
+                    actor_loss, logprobs = self._optimize_actor(
+                        states=states, trainer_actor=trainer_actor,
+                        temperature=temperature)                    
+
+                    self._critic_target = self._soft_update(
+                        self._critic, self._critic_target,
+                        self._soft_target_update_rate)
+                    self._critic2_target = self._soft_update(
+                        self._critic2, self._critic2_target,
+                        self._soft_target_update_rate)
+
+                    # Update statistics
+                    episode_avg_temperature += temperature.asscalar()
+                    episode_log_temperature_loss += log_temperature_loss.detach().asscalar() \
+                        if log_temperature_loss is not None else 0
+                    episode_avg_logprob += logprobs.detach().mean().asscalar()
+                    episode_critic_loss += critic_loss.detach().mean().asscalar()
+                    episode_actor_loss += actor_loss.detach().mean().asscalar()
+                    episode_avg_q_value += qvalues.detach().mean().asscalar()
+
+                    training_steps += 1
+
+                episode_reward += reward
+                step += 1
+                self._total_steps += 1
+                if terminal:
+                    break
+                else:
+                    state = next_state
+
+            # Log the episode results
+            if training_steps != 0:
+                episode_avg_temperature = episode_avg_temperature / training_steps
+                episode_log_temperature_loss = episode_log_temperature_loss / training_steps
+                episode_avg_logprob = episode_avg_logprob / training_steps
+                episode_critic_loss = episode_critic_loss / training_steps
+                episode_actor_loss = episode_actor_loss / training_steps
+                episode_avg_q_value = episode_avg_q_value / training_steps
+            
+            avg_reward = self._training_stats.log_episode(
+                self._current_episode, start, training_steps,
+                episode_actor_loss, episode_critic_loss, episode_avg_q_value,
+                episode_avg_logprob, episode_avg_temperature, episode_log_temperature_loss,
+                episode_reward)
+
+            self._do_snapshot_if_in_interval(self._current_episode)
+
+            if self._is_target_reached(avg_reward):
+                self._logger.info(
+                    'Target score is reached in average; Training is stopped')
+                break
+
+            self._current_episode += 1
+
+        self._evaluate()
+        self.save_parameters(episode=self._current_episode)
+        self.export_best_network()
+        self._training_stats.save_stats(self._output_directory)
+        self._logger.info('--------- Training finished ---------')
+        return True
+
+    def _make_config_dict(self):
+        config = super(SACAgent, self)._make_config_dict()
+        config['temperature'] = self._temperature_param
+        config['temperature_optimizer'] = self._temperature_optimizer
+        config['temperature_optimizer_params'] = self._temperature_optimizer_params
+        return config
 
 
 class DqnAgent(Agent):

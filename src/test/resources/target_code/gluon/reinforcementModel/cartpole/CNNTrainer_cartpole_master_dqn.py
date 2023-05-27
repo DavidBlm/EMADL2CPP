@@ -115,4 +115,4 @@ if __name__ == "__main__":
     train_successful = agent.train()
 
     if train_successful:
-        agent.export_best_network(path=str(qnet_creator.get_model_dir(epoch=0) / 'model_0_newest'), epoch=0)
+        agent.export_best_network(path=str(qnet_creator.get_model_dir(epoch=0) / 'newest'), epoch=0)

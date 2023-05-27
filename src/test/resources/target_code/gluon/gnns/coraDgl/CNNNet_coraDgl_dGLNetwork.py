@@ -577,6 +577,54 @@ class VectorQuantize(gluon.HybridBlock):
 
         return [quantized, commit_l, codebook_l]
 
+class SACSquashedGaussian(gluon.HybridBlock):
+    def __init__(self, dims, std_log_min=-20, std_log_max=2, epsilon=1e-6, **kwargs):
+        super(SACSquashedGaussian, self).__init__(**kwargs)
+        self._dims = dims
+        self._std_log_min = std_log_min
+        self._std_log_max = std_log_max
+        self._epsilon = epsilon
+
+        self._mu_layer = gluon.nn.Dense(units=dims, use_bias=True, flatten=True)
+        self._stdlog_layer = gluon.nn.Dense(units=dims, use_bias=True, flatten=True)
+
+    def _sample(self, F, mu, std):
+        zeros = F.zeros_like(mu)
+        ones = F.ones_like(std)
+        # reparameterization trick
+        return F.broadcast_add(mu, F.broadcast_mul(F.sample_normal(mu=zeros, sigma=ones), std))
+
+    def _logprob(self, F, mean, std, value):
+        variance = F.power(std,2)
+        log_std = F.log(std)
+        res = -F.power(F.broadcast_sub(value, mean),2)
+        res = F.broadcast_div(res, variance * 2)
+        res = F.broadcast_sub(res, log_std)
+        res = res - math.log(math.sqrt(2 * math.pi))
+        return F.sum(res, axis=-1, keepdims=True)
+
+    def _squashed_logprob(self, F, logprob, value):
+        return F.broadcast_sub(logprob, F.sum((F.log(1 - F.power(value, 2) + self._epsilon) ), axis=-1, keepdims=True))
+
+    def hybrid_forward(self, F, x):
+
+        mean = self._mu_layer(x)
+        stdlog = self._stdlog_layer(x)
+
+        stdlog_clipped = F.clip(stdlog, self._std_log_min, self._std_log_max)
+        std = F.exp(stdlog_clipped)
+
+        mean_action = F.tanh(mean)
+        sample = self._sample(F, mean, std)
+        random_action = F.tanh(sample)
+
+        
+        sample_logprob = self._logprob(F, mean, std, sample)
+        # apply tanh squashing, see appendix C in (arXiv 1801.01290)
+        random_action_logprob = self._squashed_logprob(F, sample_logprob, random_action)
+        
+        return [ mean_action, random_action, random_action_logprob ]
+
 #Stream 0
 class Net_0(gluon.Block):
     def __init__(self, data_mean=None, data_std=None, mx_context=None, batch_size=None, **kwargs):
