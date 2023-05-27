@@ -1,22 +1,22 @@
 package de.monticore.mlpipelines.automl.trainalgorithms;
 
+import conflang._ast.ASTConfLangCompilationUnit;
 import de.monticore.lang.monticar.cnnarch._symboltable.ArchitectureSymbol;
-import de.monticore.mlpipelines.Pipeline;
-import de.monticore.mlpipelines.automl.configuration.TrainAlgorithmConfig;
+import de.monticore.mlpipelines.pipelines.Pipeline;
 
 public abstract class NeuralArchitectureSearch {
     public double trainedAccuracy;
-    private TrainAlgorithmConfig trainConfiguration;
+    private ASTConfLangCompilationUnit trainConfiguration;
     private Pipeline trainPipeline;
     private ArchitectureSymbol startNetwork;
 
     public abstract ArchitectureSymbol execute(ArchitectureSymbol startNetwork);
 
-    public <T extends TrainAlgorithmConfig> T getTrainConfiguration() {
+    public <T extends ASTConfLangCompilationUnit> T getTrainConfiguration() {
         return (T) trainConfiguration;
     }
 
-    public void setTrainConfiguration(TrainAlgorithmConfig trainConfiguration) {
+    public void setTrainConfiguration(ASTConfLangCompilationUnit trainConfiguration) {
         this.trainConfiguration = trainConfiguration;
     }
 

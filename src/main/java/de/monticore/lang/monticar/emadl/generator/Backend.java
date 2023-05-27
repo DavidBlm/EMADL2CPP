@@ -1,77 +1,83 @@
 /* (c) https://github.com/MontiCore/monticore */
 package de.monticore.lang.monticar.emadl.generator;
 
+import de.monticore.lang.monticar.cnnarch.caffe2generator.CNNArch2Caffe2;
+import de.monticore.lang.monticar.cnnarch.caffe2generator.CNNTrain2Caffe2;
 import de.monticore.lang.monticar.cnnarch.generator.CNNArchGenerator;
 import de.monticore.lang.monticar.cnnarch.generator.CNNTrainGenerator;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNArch2Gluon;
 import de.monticore.lang.monticar.cnnarch.gluongenerator.CNNTrain2Gluon;
 import de.monticore.lang.monticar.cnnarch.mxnetgenerator.CNNArch2MxNet;
 import de.monticore.lang.monticar.cnnarch.mxnetgenerator.CNNTrain2MxNet;
-import de.monticore.lang.monticar.cnnarch.caffe2generator.CNNArch2Caffe2;
-import de.monticore.lang.monticar.cnnarch.caffe2generator.CNNTrain2Caffe2;
 import de.monticore.lang.monticar.cnnarch.pytorchgenerator.CNNArch2PyTorch;
-import de.monticore.lang.monticar.emadl.generator.reinforcementlearning.RewardFunctionCppGenerator;
 import de.monticore.lang.monticar.cnnarch.tensorflowgenerator.CNNArch2Tensorflow;
 import de.monticore.lang.monticar.cnnarch.tensorflowgenerator.CNNTrain2Tensorflow;
+import de.monticore.lang.monticar.emadl.generator.reinforcementlearning.RewardFunctionCppGenerator;
 
 import java.util.Optional;
 
 public enum Backend {
-    NONE{
+    NONE {
         @Override
         public CNNArchGenerator getCNNArchGenerator() {
             return new CNNArch2NoBackend();
         }
+
         @Override
         public CNNTrainGenerator getCNNTrainGenerator() {
             return new CNNTrain2NoBackend();
         }
     },
-    MXNET{
+    MXNET {
         @Override
         public CNNArchGenerator getCNNArchGenerator() {
             return new CNNArch2MxNet();
         }
+
         @Override
         public CNNTrainGenerator getCNNTrainGenerator() {
             return new CNNTrain2MxNet();
         }
     },
-    CAFFE2{
+    CAFFE2 {
         @Override
         public CNNArchGenerator getCNNArchGenerator() {
             return new CNNArch2Caffe2();
         }
+
         @Override
         public CNNTrainGenerator getCNNTrainGenerator() {
             return new CNNTrain2Caffe2();
         }
     },
-    GLUON{
+    GLUON {
         @Override
         public CNNArchGenerator getCNNArchGenerator() {
             return new CNNArch2Gluon();
         }
+
         @Override
         public CNNTrainGenerator getCNNTrainGenerator() {
             return new CNNTrain2Gluon(new RewardFunctionCppGenerator());
         }
     },
-    TENSORFLOW{
+    TENSORFLOW {
         @Override
         public CNNArchGenerator getCNNArchGenerator() {
             return new CNNArch2Tensorflow();
         }
+
         @Override
         public CNNTrainGenerator getCNNTrainGenerator() {
             return new CNNTrain2Tensorflow();
         }
     },
-    PYTORCH{
+    PYTORCH {
         @Override
         public CNNArchGenerator getCNNArchGenerator() {
             return new CNNArch2PyTorch();
         }
+
         @Override
         public CNNTrainGenerator getCNNTrainGenerator() {
             return new CNNTrain2NoBackend();
@@ -79,10 +85,11 @@ public enum Backend {
     };
 
     public abstract CNNArchGenerator getCNNArchGenerator();
+
     public abstract CNNTrainGenerator getCNNTrainGenerator();
 
-    public static Optional<Backend> getBackendFromString(String backend){
-        switch (backend){
+    public static Optional<Backend> getBackendFromString(String backend) {
+        switch (backend) {
             case "NONE":
                 return Optional.of(NONE);
 
@@ -106,8 +113,8 @@ public enum Backend {
         }
     }
 
-    public static String getBackendString(Backend backend){
-        switch (backend){
+    public static String getBackendString(Backend backend) {
+        switch (backend) {
             case NONE:
                 return "NONE";
 

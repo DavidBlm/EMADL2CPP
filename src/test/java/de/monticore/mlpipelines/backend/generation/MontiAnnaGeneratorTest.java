@@ -32,5 +32,4 @@ public class MontiAnnaGeneratorTest extends BackendTest {
                         "execute_mnist_mnistClassifier_net",
                         "CNNPredictor_mnist_mnistClassifier_net.h"));
     }
-
 }

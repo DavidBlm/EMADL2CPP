@@ -36,6 +36,8 @@ public class PortPrinter {
             String portName = (String) portNames.toArray()[i];
             if (portName.equals(""))
                 continue;
+            if (!portName.equals("image") && !portName.equals("predictions"))
+                continue;
             printPort(enclosedSymbols, portName);
             if (i < portNames.size() - 2)
                 printer.print(", ");

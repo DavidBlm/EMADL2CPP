@@ -12,7 +12,7 @@ import h5py
 import numpy as np
 import mxnet as mx
 from mxnet import gluon, nd
-    from dgl.data.utils import load_graphs
+from dgl.data.utils import load_graphs
 
 from CNNDatasets_coraDgl_dGLNetwork import Dataset, TrainingDataset, RetrainingConf
 
@@ -26,25 +26,25 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
         self._data_cleaner = data_cleaner
 
     def load_data(
-        self, batch_size, cleaning, cleaning_param, data_imbalance, data_imbalance_param, data_splitting, data_splitting_param , optimizer, 
-        shuffle=False, multi_graph=False, dataset: TrainingDataset=None, test_dataset: Dataset=None, val_dataset: Dataset=None
+            self, batch_size, cleaning, cleaning_param, data_imbalance, data_imbalance_param, data_splitting, data_splitting_param , optimizer,
+            shuffle=False, multi_graph=False, dataset: TrainingDataset=None, test_dataset: Dataset=None, val_dataset: Dataset=None
     ):
-        if not dataset: 
+        if not dataset:
             raise KeyError("No dataset specified.")
 
         train_h5, val_h5, test_h5 = self.load_h5_files(
-            "", 
-            pathlib.Path(dataset.path), 
+            "",
+            pathlib.Path(dataset.path),
             pathlib.Path(val_dataset.path) if val_dataset else None,
             pathlib.Path(test_dataset.path) if test_dataset else None
         )
 
         if cleaning is not None:
             train_h5, val_h5, test_h5 = self._data_cleaner.get_cleaned_data(
-                train_h5, val_h5, test_h5, 
+                train_h5, val_h5, test_h5,
                 optimizer,
-                cleaning, cleaning_param, 
-                data_imbalance, data_imbalance_param, 
+                cleaning, cleaning_param,
+                data_imbalance, data_imbalance_param,
                 data_splitting, data_splitting_param
             )
 
@@ -63,7 +63,7 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
                 train_dataset_shape = train_data["input"+str(self._input_names_.index(input_name))].shape
                 # slice_size limits the memory consumption, by only loading slices of size <500MB into memory
                 slice_size = min(max(train_dataset_shape[0] - 1, 1), int(500e6 / (train_h5[input_name][0].size * \
-                    train_h5[input_name][0].itemsize)))
+                                                                                  train_h5[input_name][0].itemsize)))
                 num_slices = max(1, int(train_h5[input_name].shape[0] / slice_size))
                 mean = np.zeros(train_dataset_shape[1: ])
                 std = np.zeros(train_dataset_shape[1: ])
@@ -83,7 +83,11 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
                     train_images = train_h5['images']
             else:
                 if input_name == 'graph':
-                    train_graph, _ = load_graphs(dataset.graphFile)
+                    if multi_graph:
+                        # switch to load_graphs(test_dataset.graphFile)
+                        train_graph, _ = load_graphs(os.path.join(self._data_dir, "train_graph"))
+                    else:
+                        train_graph, _ = load_graphs(os.path.join(self._data_dir, "graph"))
 
         train_label = {}
         index = 0
@@ -115,7 +119,7 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
                 else:
                     if input_name == 'graph':
                         if multi_graph:
-                            test_graph, _ = load_graphs(test_dataset.graphFile)
+                            test_graph, _ = load_graphs(os.path.join(self._data_dir, "test_graph"))
 
             test_label = {}
             index = 0
@@ -153,16 +157,16 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
             if len(val_data) == 0:
                 val_data = val_label
             val_iter = mx.io.NDArrayIter(data=val_data,
-                                        label=val_label,
-                                        batch_size=batch_size,
-                                        last_batch_handle=batch_handle)
+                                         label=val_label,
+                                         batch_size=batch_size,
+                                         last_batch_handle=batch_handle)
 
         return train_iter, test_iter, val_iter, data_mean, data_std, train_images, test_images, train_graph, test_graph
 
-    
+
     def load_preprocessed_data(self, batch_size, preproc_lib, shuffle=False):
         train_h5, val_h5, test_h5 = self.load_h5_files()
-        
+
         wrapper = importlib.import_module(preproc_lib)
         instance = getattr(wrapper, preproc_lib)()
         instance.init()
@@ -241,8 +245,8 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
             test_images = test_h5['images']
 
         test_iter = mx.io.NDArrayIter(data=test_data,
-                                       label=test_label,
-                                       batch_size=batch_size)
+                                      label=test_label,
+                                      batch_size=batch_size)
 
         return train_iter, test_iter, data_mean, data_std, train_images, test_images
 
@@ -271,20 +275,20 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
         train_h5 = self.load_dataset(dataset, learning_method)
         test_h5 = None
         val_h5 = None
-        
+
         if test_dataset:
-            try: 
+            try:
                 test_h5 = self.load_dataset(test_dataset, learning_method)
-            except FileNotFoundError: 
+            except FileNotFoundError:
                 logging.error("Couldn't load test set. File '%s' does not exist.", test_dataset)
 
         if val_dataset:
-            try: 
+            try:
                 val_h5 = self.load_dataset(val_dataset, learning_method)
-            except FileNotFoundError: 
+            except FileNotFoundError:
                 logging.error("Couldn't load validation set. File '%s' does not exist.", val_dataset)
-            
-        return train_h5, val_h5, test_h5 
+
+        return train_h5, val_h5, test_h5
 
     def load_dataset(self, h5_path: pathlib.Path, learning_method: str) -> h5py.File:
         if h5_path.exists():
@@ -321,7 +325,7 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
                 train_dataset_shape = train_data[input_name].shape
                 # slice_size limits the memory consumption, by only loading slices of size <500MB into memory
                 slice_size = min(train_dataset_shape[0] - 1, int(500e6 / (train_h5[input_name][0].size * \
-                train_h5[input_name][0].itemsize)))
+                                                                          train_h5[input_name][0].itemsize)))
                 num_slices = max(1, int(train_h5[input_name].shape[0] / slice_size))
                 mean = np.zeros(train_dataset_shape[1:])
                 std = np.zeros(train_dataset_shape[1:])
@@ -331,7 +335,7 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
                     std += train_dataset[i * slice_size: (i + 1) * slice_size].std(axis=0) / num_slices
                 if slice_size > train_dataset_shape[0] - 1:
                     mean += train_dataset[num_slices * slice_size:].mean(axis=0) / (
-                    slice_size - num_slices % slice_size)
+                            slice_size - num_slices % slice_size)
                     std += train_dataset[num_slices * slice_size:].std(axis=0) / (slice_size - num_slices % slice_size)
                 std += 1e-5
 
@@ -370,8 +374,8 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
 
     def check_bias(self, dataset: TrainingDataset=None, test_dataset: Dataset=None, val_dataset: Dataset=None):
         _, _, test = self.load_h5_files(
-            "", 
-            pathlib.Path(dataset.path), 
+            "",
+            pathlib.Path(dataset.path),
             pathlib.Path(val_dataset.path) if val_dataset else None,
             pathlib.Path(test_dataset.path) if test_dataset else None
         )
@@ -379,7 +383,7 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
         if test is not None:
             data, label = np.array(test["data"]), np.array(test["softmax_label"]).astype(int)
 
-            # load model 
+            # load model
             ctx = mx.gpu() if mx.context.num_gpus() else mx.cpu()
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
@@ -406,7 +410,7 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
 
             # start Bias Checking
             TP = CM.diagonal()
-            
+
             TPR = np.zeros((10), dtype=float)
             for c in range(10):
                 TPR[c] = np.round(CM[c][c] / (CM[c][c] + sum([CM[c][i] for i in range(0,10) if i != c])),4)
@@ -418,7 +422,7 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
 
             # show results
             logging.info('\n--------- Check Model Bias: --------------------------------------------------\n')
-            
+
             logging.info('TP:' + np.array2string(TP))
             logging.info('TPR:' + np.array2string(TPR))
             logging.info('FPR:' + np.array2string(FPR))
@@ -444,7 +448,7 @@ class CNNDataLoader_coraDgl_dGLNetwork: # pylint: disable=invalid-name
         except FileNotFoundError:
             logging.warning("Retraining configuration not found. Fallback to 'train.h5' for training, 'test.h5' for testing and 'validation.h5' for validating.")
             path = "src/test/resources/training_data/GNN/CoraDgl/"
-            
+
             if os.path.exists(path + "validation.h5"):
                 return RetrainingConf(
                     testing=Dataset(id="test", path=path + "test.h5"),

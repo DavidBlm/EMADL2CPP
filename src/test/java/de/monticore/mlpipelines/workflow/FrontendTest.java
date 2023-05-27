@@ -1,6 +1,6 @@
 package de.monticore.mlpipelines.workflow;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 class FrontendTest {
 
