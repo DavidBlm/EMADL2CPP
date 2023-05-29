@@ -9,6 +9,7 @@ import de.monticore.mlpipelines.automl.configuration.EfficientNetConfig;
 import de.monticore.mlpipelines.automl.helper.ArchitectureHelper;
 import de.monticore.mlpipelines.automl.helper.FileLoader;
 import de.monticore.mlpipelines.automl.helper.MathNumberExpressionWrapper;
+import de.monticore.mlpipelines.automl.helper.OriginalLayerParams;
 import de.monticore.mlpipelines.automl.trainalgorithms.NeuralArchitectureSearch;
 
 import java.util.ArrayList;
@@ -17,9 +18,14 @@ import java.util.List;
 
 public class EfficientNet extends NeuralArchitectureSearch {
     private ScalingFactorsGridSearch gridSearch;
+
+    private CompoundScalingFactorSearch phiSearch;
+
     private NetworkScaler networkScaler;
 
     private ScalingFactors scalingFactors;
+
+    private int optimalPhi = 1;
     private ArchitectureSymbol scaledArchitecture;
     private EfficientNetConfig config;
 
@@ -63,9 +69,14 @@ public class EfficientNet extends NeuralArchitectureSearch {
         printNetwork();
         createOriginalParameterReference(startNetwork);
         findBestScalingFactors();
+        findBestCompoundCoefficient();
         scaleNetwork();
         saveNetwork();
         return scaledArchitecture;
+    }
+
+    private void findBestCompoundCoefficient() {
+        this.optimalPhi = this.phiSearch.findBestCompoundFactor(this.scalingFactors);
     }
 
     public void createOriginalParameterReference(ArchitectureSymbol startNetwork){
@@ -79,26 +90,20 @@ public class EfficientNet extends NeuralArchitectureSearch {
             int layerWidth = -1;
             int channelsIndex=1;
             if (allowedLayers.contains(architectureElement.getName())){
-                ArrayList symbolExpressions = ArchitectureHelper.getExpressions(architectureElement);
 
                 if (architectureElement.getName().equals("residualBlock")){
                     channelsIndex = 5;
                     int depthIndex = 3;
-                    MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(
-                            depthIndex);
-                    MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
-                    layerRepetition = expression.getIntValue();
+                    layerRepetition = ArchitectureHelper.getMathExpressionValueAt(architectureElement, depthIndex);
                 }
-
-                MathNumberExpressionSymbol mathNumberExpression = (MathNumberExpressionSymbol) symbolExpressions.get(channelsIndex);
-                MathNumberExpressionWrapper expression = new MathNumberExpressionWrapper(mathNumberExpression);
-                layerWidth = expression.getIntValue();
+                layerWidth = ArchitectureHelper.getMathExpressionValueAt(architectureElement, channelsIndex);
 
             }
-            parametersReference.add(new OriginalLayerParams(i, layerRepetition, layerWidth));
+            parametersReference.add(new OriginalLayerParams(layerRepetition, layerWidth));
             i += 1;
         }
-        this.gridSearch.parametersReference = parametersReference;
+        OriginalLayerParams.changeImageDimensionValue(ArchitectureHelper.getOriginalImageDimension(startNetwork));
+        this.networkScaler.parametersReference = parametersReference;
     }
 
     private void printNetwork() {
@@ -114,6 +119,12 @@ public class EfficientNet extends NeuralArchitectureSearch {
                         ? new ScalingFactorsGridSearch(getStartNetwork(), config, getTrainPipeline(),
                         this.networkScaler)
                         : this.gridSearch;
+
+        if (this.phiSearch == null) {
+            this.phiSearch = new CompoundScalingFactorSearch(getStartNetwork(), config, getTrainPipeline(),
+                    this.networkScaler);
+
+        }
     }
 
     private void findBestScalingFactors() {
@@ -121,14 +132,14 @@ public class EfficientNet extends NeuralArchitectureSearch {
     }
 
     private void scaleNetwork() {
-        this.scaledArchitecture = this.networkScaler.scale(getStartNetwork(), this.scalingFactors, config.getPhi());
+        this.scaledArchitecture = this.networkScaler.scale(getStartNetwork(), this.scalingFactors, this.optimalPhi);
     }
 
     private void saveNetwork() {
         EfficientNetEmadlBuilder builder = new EfficientNetEmadlBuilder(this.scaledArchitecture, config);
         List<String> emadl = builder.getEmadl();
         String modelDirPath = "src/test/resources/models/efficientnet/";
-        String modelName = "EfficientNetB" + config.getPhi();
+        String modelName = "EfficientNetB" + this.optimalPhi;
         String modelFileEnding = ".emadl";
         String pathString = modelDirPath + modelName + modelFileEnding;
         new FileLoader().writeToFile(emadl, pathString);

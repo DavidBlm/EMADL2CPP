@@ -49,6 +49,7 @@ public class CandidateSymbolBuilder {
             ParallelCompositeElementSymbol parallelLayer = getParallelLayer(layer);
             serialElements.add(parallelLayer);
             serialElements.add(getConcatenateLayer());
+            serialElements.add(getReluLayer());
         }
         return serialElements;
     }
@@ -66,6 +67,11 @@ public class CandidateSymbolBuilder {
 
     private LayerSymbol getConcatenateLayer() {
         LayerSymbolCustom layer = new LayerSymbolCustom("Concatenate");
+        return layer;
+    }
+
+    private LayerSymbol getReluLayer() {
+        LayerSymbolCustom layer = new LayerSymbolCustom("Relu");
         return layer;
     }
 

@@ -68,7 +68,7 @@ public class AutoMLCli extends EMADLGeneratorCli {
         Log.warn("Redirecting for PyTorch");
         final ExperimentConfiguration experimentConfiguration = new ExperimentConfiguration(
                 "src/main/resources/adanet_experiment/resources/schema_apis",
-                "src/main/resources/adanet_experiment/resources/steps"
+                "src/main/resources/experiments/steps"
                 , "target/generated-sources", "target/generated-sources/backend");
         final MontiAnnaContext montiAnnaContext = MontiAnnaContext.getInstance();
         montiAnnaContext.initContext(modelsDirPath, rootModelName, experimentConfiguration);

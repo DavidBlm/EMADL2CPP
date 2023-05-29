@@ -26,9 +26,21 @@
       <configuration>
         <httpHeaders>
           <property>
-            <name>Job-Token</name>
-            <value>${env.CI_JOB_TOKEN}</value>
+              <name>Deploy-Token</name>
+              <value>KJkmCZosey-A8XBES2Fy</value>
           </property>
+        </httpHeaders>
+      </configuration>
+    </server>
+
+    <server>
+      <id>gitlab-maven-mnist</id>
+      <configuration>
+        <httpHeaders>
+            <property>
+                <name>Deploy-Token</name>
+                <value>KJkmCZosey-A8XBES2Fy</value>
+            </property>
         </httpHeaders>
       </configuration>
     </server>
@@ -43,6 +55,12 @@
   </servers>
 
   <mirrors>
+      <mirror>
+          <id>gitlab-maven-mnist</id>
+          <mirrorOf>gitlab-maven-mnist</mirrorOf>
+          <url>https://git.rwth-aachen.de/api/v4/projects/57999/packages/maven</url>
+      </mirror>
+
 
       <mirror>
       <id>gitlab-maven</id>
@@ -82,6 +100,12 @@
          <profile>
       <id>se-nexus</id>
       <repositories>
+        <repository>
+          <id>gitlab-maven-mnist</id>
+          <url>https://git.rwth-aachen.de/api/v4/projects/57999/packages/maven</url>
+          <releases><enabled /></releases>
+          <snapshots><enabled /></snapshots>
+        </repository>
         <repository>
           <id>gitlab-maven</id>
           <url>https://git.rwth-aachen.de/api/v4/projects/55417/packages/maven</url>
