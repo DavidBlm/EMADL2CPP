@@ -11,7 +11,7 @@ env:
   CI_PROJECT_ID : ${{ secrets.CI_PROJECT_ID }}
 jobs:
   githubjob:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch, integrationMXNetJobLinux, modularityTest, integrationTensorflowJobLinux, integrationGluonJobLinux, integrationPyTorchJobLinux, integrationPythonWrapperTest, artifact-extraction, UnitTestJobLinux, integrationCaffe2JobLinux]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx, integrationPyTorchJobLinux, integrationMXNetJobLinux, integrationGluonJobLinux, UnitTestJobLinux, artifact-extraction, integrationTensorflowJobLinux, integrationCaffe2JobLinux, integrationPythonWrapperTest, modularityTest]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -43,7 +43,7 @@ jobs:
         run: docker exec build-container bash -c "$SCRIPT"
 
   git_masterJobLinux:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch, integrationMXNetJobLinux, modularityTest, integrationTensorflowJobLinux, integrationGluonJobLinux, integrationPyTorchJobLinux, integrationPythonWrapperTest, artifact-extraction, UnitTestJobLinux, integrationCaffe2JobLinux]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx, integrationPyTorchJobLinux, integrationMXNetJobLinux, integrationGluonJobLinux, UnitTestJobLinux, artifact-extraction, integrationTensorflowJobLinux, integrationCaffe2JobLinux, integrationPythonWrapperTest, modularityTest]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -72,7 +72,7 @@ jobs:
         run: docker exec build-container bash -c "$SCRIPT"
 
   integrationMXNetJobLinux:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -101,7 +101,7 @@ jobs:
         run: docker exec build-container bash -c "$SCRIPT"
 
   integrationCaffe2JobLinux:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -130,7 +130,7 @@ jobs:
         run: docker exec build-container bash -c "$SCRIPT"
 
   integrationGluonJobLinux:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -171,7 +171,7 @@ jobs:
             target
 
   integrationTensorflowJobLinux:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -200,7 +200,7 @@ jobs:
         run: docker exec build-container bash -c "$SCRIPT"
 
   integrationPyTorchJobLinux:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -229,7 +229,7 @@ jobs:
         run: docker exec build-container bash -c "$SCRIPT"
 
   integrationPythonWrapperTest:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -266,7 +266,7 @@ jobs:
             target
 
   modularityTest:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx]
     runs-on: ubuntu-latest
     if: github.ref != 'refs/heads/changes'
     timeout-minutes: 60
@@ -303,7 +303,7 @@ jobs:
         run: docker exec build-container bash -c "$SCRIPT"
 
   UnitTestJobLinux:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -422,9 +422,8 @@ jobs:
       - name: Script
         run: |
           cd src/test/resources/docker/tensorflow
-          docker login registry.git.rwth-aachen.de -u someUserName -p glpat--9siQV_pCkA2wFRqeDhf
+          docker login registry.git.rwth-aachen.de -u David.Blum -p ${{ secrets.GITLABTOKEN }}
           docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/tensorflow-onnx -f Dockerfile-onnx .
-          docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/tensorflow-onnx
 
   buildDockerMXNet170DGL:
     runs-on: ubuntu-latest
@@ -446,9 +445,8 @@ jobs:
       - name: Script
         run: |
           cd src/test/resources/docker/mxnet170
-          docker login registry.git.rwth-aachen.de -u someUserName -p glpat--9siQV_pCkA2wFRqeDhf
+          docker login registry.git.rwth-aachen.de -u David.Blum -p ${{ secrets.GITLABTOKEN }}
           docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-dgl:v0.0.1 -f Dockerfile-dgl .
-          docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet170-dgl:v0.0.1
 
   buildDockerDGLQD:
     runs-on: ubuntu-latest
@@ -470,9 +468,8 @@ jobs:
       - name: Script
         run: |
           cd src/test/resources/docker/dglqd
-          docker login registry.git.rwth-aachen.de -u someUserName -p $DOCKER_TOKEN
+          docker login registry.git.rwth-aachen.de -u David.Blum -p ${{ secrets.GITLABTOKEN }}
           docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/dgl-qd -f Dockerfile .
-          docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/dgl-qd
 
   buildDockerPyTorch:
     runs-on: ubuntu-latest
@@ -482,6 +479,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          lfs: true
       - name: Restore large files
         run: |
           ls
@@ -494,12 +492,13 @@ jobs:
       - name: Script
         run: |
           cd src/test/resources/docker/pytorch
-          docker login registry.git.rwth-aachen.de -u someUserName -p $DOCKER_TOKEN
+          ls
+          unzip -t libtorch.zip
+          docker login registry.git.rwth-aachen.de -u David.Blum -p ${{ secrets.GITLABTOKEN }}
           docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/pytorch -f Dockerfile .
-          docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/pytorch
 
   artifact-extraction:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -525,8 +524,8 @@ jobs:
           SCRIPT: |
             cd /workspace
             cd extractor
-            pip3 install -r requirements.txt
-            python3 extract.py ${CI_JOB_TOKEN}
+            pip install -r requirements.txt
+            python extract.py secrets.GITLABTOKEN
         run: docker exec build-container bash -c "$SCRIPT"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -538,7 +537,7 @@ jobs:
             extractor/output
 
   pages:
-    needs: [ buildDockerMXNet170onnx , buildDockerMXNet170DGL, buildDockerMXNet150, buildDockerTensorflowONNX, buildDockerMXNet170, buildDockerDGLQD, buildDockerPyTorch, integrationMXNetJobLinux, modularityTest, integrationTensorflowJobLinux, integrationGluonJobLinux, integrationPyTorchJobLinux, integrationPythonWrapperTest, artifact-extraction, UnitTestJobLinux, integrationCaffe2JobLinux, githubjob, git_masterJobLinux]
+    needs: [ buildDockerDGLQD , buildDockerMXNet150, buildDockerPyTorch, buildDockerMXNet170, buildDockerTensorflowONNX, buildDockerMXNet170DGL, buildDockerMXNet170onnx, integrationPyTorchJobLinux, integrationMXNetJobLinux, integrationGluonJobLinux, UnitTestJobLinux, artifact-extraction, integrationTensorflowJobLinux, integrationCaffe2JobLinux, integrationPythonWrapperTest, modularityTest, githubjob, git_masterJobLinux]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
