@@ -1,0 +1,36 @@
+name: Migrate Docker Images
+on:
+  workflow_dispatch:
+jobs:
+  docker-migration:
+    runs-on: ubuntu-latest
+    env:
+      GITLAB_USERNAME: "David.Blum"
+      GITLABTOKEN: ${{ secrets.GITLABTOKEN }}
+      GITLAB_REPO: "monticore/embeddedmontiarc/generators//emadl2cpp"
+      IMAGES_LIST: "integrationtests/mxnet:v0.0.3,integrationtests/mxnet:v0.0.4,integrationtests/mxnet:v0.0.5,integrationtests/caffe2:v0.0.5,integrationtests/tensorflow:latest,dockerimages/mxnet170:v0.0.1,dockerimages/mxnet150:v0.0.5,:ema-lab,dockerimages/mxnet170-onnx:v0.0.1,dockerimages/mxnet170-dgl:v0.0.1,dockerimages/tensorflow-onnx:latest,mxnet:latest,mxnet:new,dockerimages/dgl-qd:latest,dockerimages/numcites:latest,mxnet/190:latest,mxnet/190:v0.0.2,dockerimages/pytorch:latest,mxnet170:v0.0.2"
+      GHCR_PAT: ${{ secrets.GHCR_PAT }}
+      GHCR_REPO_OWNER: "davidblm"
+    steps:
+      - name: Log in to GitLab
+        run: |
+          docker login https://git.rwth-aachen.de/ -u "$GITLAB_USERNAME" -p "$GITLABTOKEN"
+      - name: Log in to GitHub
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Migrate Docker images
+        run: |
+          IFS="," read -ra IMAGES <<< "$IMAGES_LIST"
+          for IMAGE in "${IMAGES[@]}"; do
+            GITLAB_IMAGE="registry.git.rwth-aachen.de/$GITLAB_REPO/$IMAGE"
+            LOWERCASE_IMAGE=$(echo "$IMAGE" | tr "[:upper:]" "[:lower:]")
+            GHCR_IMAGE="ghcr.io/$GHCR_REPO_OWNER/$LOWERCASE_IMAGE"
+            echo "Pulling image from GitLab: $GITLAB_IMAGE"
+            docker pull "$GITLAB_IMAGE"
+            echo "Tagging image for GHCR: $GHCR_IMAGE"
+            docker tag "$GITLAB_IMAGE" "$GHCR_IMAGE"
+            echo "Pushing image to GHCR: $GHCR_IMAGE"
+            docker push "$GHCR_IMAGE"
+            echo "Removing local image: $GHCR_IMAGE"
+            docker rmi -f $(docker images -q) || true
+          done
