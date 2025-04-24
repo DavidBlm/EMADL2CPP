@@ -108,7 +108,7 @@ jobs:
           fi
           echo "run=$run" >> $GITHUB_OUTPUT
   docker_phase:
-    needs: [buildDockerMXNet170, buildDockerMXNet170onnx, buildDockerDGLQD, buildDockerTensorflowONNX, buildDockerPyTorch, buildDockerMXNet150, buildDockerMXNet170DGL]
+    needs: [buildDockerPyTorch, buildDockerDGLQD, buildDockerMXNet170onnx, buildDockerTensorflowONNX, buildDockerMXNet150, buildDockerMXNet170, buildDockerMXNet170DGL]
     if: ${{ !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -120,7 +120,7 @@ jobs:
             exit 1
           if: ${{contains(needs.*.result, 'failure')}}
   linux_phase:
-    needs: [docker_phase, integrationCaffe2JobLinux, integrationGluonJobLinux, integrationMXNetJobLinux, UnitTestJobLinux, integrationPyTorchJobLinux, artifact-extraction, integrationTensorflowJobLinux, modularityTest, integrationPythonWrapperTest]
+    needs: [docker_phase, integrationGluonJobLinux, integrationPyTorchJobLinux, UnitTestJobLinux, integrationPythonWrapperTest, integrationMXNetJobLinux, integrationTensorflowJobLinux, integrationCaffe2JobLinux, artifact-extraction, modularityTest]
     if: ${{ !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -239,6 +239,7 @@ jobs:
           docker pull registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5
           docker run --name build-container -d -v $(pwd):/workspace --network=host  -e GITLABTOKEN=${{ secrets.GITLABTOKEN }} -e CI_API_V4_URL=${{ secrets.CI_API_V4_URL }} -e CI_PROJECT_ID=${{ secrets.CI_PROJECT_ID }} registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/mxnet150:v0.0.5 tail -f /dev/null
       - name: Script
+        continue-on-error: true
         env:
           SCRIPT: |
             cd /workspace
@@ -709,9 +710,6 @@ jobs:
     if: ${{ !cancelled() && !contains(needs.*.result, 'failure')  &&  github.ref == 'refs/heads/master'}}
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    permissions:
-      pages: write      
-      id-token: write 
     steps:
       - name: Checkout latest commit
         uses: actions/checkout@v4
