@@ -8,7 +8,7 @@ jobs:
       GITLAB_USERNAME: "David.Blum"
       GITLABTOKEN: ${{ secrets.GITLABTOKEN }}
       GITLAB_REPO: "monticore/embeddedmontiarc/generators/emadl2cpp"
-      IMAGES_LIST: "integrationtests/mxnet:v0.0.3,integrationtests/mxnet:v0.0.4,integrationtests/mxnet:v0.0.5,integrationtests/caffe2:v0.0.5,integrationtests/tensorflow:latest,dockerimages/mxnet170:v0.0.1,dockerimages/mxnet150:v0.0.5,:ema-lab,dockerimages/mxnet170-onnx:v0.0.1,dockerimages/mxnet170-dgl:v0.0.1,dockerimages/tensorflow-onnx:latest,mxnet:latest,mxnet:new,dockerimages/dgl-qd:latest,dockerimages/numcites:latest,mxnet/190:latest,mxnet/190:v0.0.2,dockerimages/pytorch:latest,mxnet170:v0.0.2"
+      IMAGES_LIST: "integrationtests/mxnet:v0.0.3,integrationtests/mxnet:v0.0.4,integrationtests/mxnet:v0.0.5,integrationtests/caffe2:v0.0.5,integrationtests/tensorflow:latest,dockerimages/mxnet170:v0.0.1,dockerimages/mxnet150:v0.0.5,dockerimages/mxnet170-onnx:v0.0.1,dockerimages/mxnet170-dgl:v0.0.1,dockerimages/tensorflow-onnx:latest,mxnet:latest,mxnet:new,dockerimages/dgl-qd:latest,dockerimages/numcites:latest,mxnet/190:latest,mxnet/190:v0.0.2,dockerimages/pytorch:latest,mxnet170:v0.0.2"
       GHCR_PAT: ${{ secrets.GHCR_PAT }}
       GHCR_REPO_OWNER: "davidblm"
     steps:
