@@ -20,6 +20,7 @@ RUN pip3 install dgl==0.6.1
 
 RUN pip3 install --user --upgrade "cmake>=3.13.2"
 
-ENV DGLBACKEND=pytorch
-ADD libtorch.zip /usr/lib/libtorch.zip
-RUN unzip /usr/lib/libtorch.zip -d /usr/lib
+RUN pip3 install torch==1.12.1+cpu torchvision==0.13.1+cpu torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cpu
+#ENV DGLBACKEND=pytorch
+#ADD libtorch.zip /usr/lib/libtorch.zip
+#RUN unzip /usr/lib/libtorch.zip -d /usr/lib
