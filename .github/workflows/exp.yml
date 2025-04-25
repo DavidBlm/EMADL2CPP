@@ -660,9 +660,9 @@ jobs:
       - name: Script
         run: |
           cd src/test/resources/docker/pytorch
-          docker login registry.git.rwth-aachen.de -u someUserName -p $DOCKER_TOKEN
+          docker login registry.git.rwth-aachen.de -u David.Blum-p ${{ secrets.GITLABTOKEN }}
           docker build -t registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/pytorch -f Dockerfile .
-          docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/pytorch
+          #docker push registry.git.rwth-aachen.de/monticore/embeddedmontiarc/generators/emadl2cpp/dockerimages/pytorch
 
   artifact-extraction:
     needs: docker_phase
