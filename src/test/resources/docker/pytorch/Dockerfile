@@ -24,4 +24,3 @@ RUN pip3 install torch==1.12.1+cpu torchvision==0.13.1+cpu torchaudio==0.12.1 --
 #ENV DGLBACKEND=pytorch
 #ADD libtorch.zip /usr/lib/libtorch.zip
 #RUN unzip /usr/lib/libtorch.zip -d /usr/lib
-#
